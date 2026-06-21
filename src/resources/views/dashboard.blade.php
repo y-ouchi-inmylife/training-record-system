@@ -76,7 +76,7 @@
                 <div class="card h-100 shadow-sm dashboard-link-card">
                     <div class="card-body">
                         <h5 class="card-title">録音</h5>
-                        <p class="card-text text-muted mb-0">相談の録音</p>
+                        <p class="card-text text-muted mb-0">トレーニングの録音</p>
                     </div>
                 </div>
             </a>
@@ -121,7 +121,7 @@
                         <th>内部ID</th>
                         <th>名前</th>
                         <th>支援状態</th>
-                        <th>最終相談日</th>
+                        <th>最終トレーニング日</th>
                         <th>参加状況</th>
                         <th>参加形態</th>
                         <th>担当1</th>
@@ -153,7 +153,7 @@
                                         {{ \Carbon\Carbon::parse($client->last_consultation_date)->format('Y年m月d日') }}
                                     </a>
                                 @else
-                                    <span class="text-muted">相談記録なし</span>
+                                    <span class="text-muted">トレーニング記録なし</span>
                                 @endif
                             </td>
                             <td>
