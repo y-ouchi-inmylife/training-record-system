@@ -6,7 +6,7 @@ use App\Models\ConsultationType;
 use Illuminate\Http\Request;
 
 /**
- * 相談内容マスタ管理コントローラー
+ * トレーニング内容マスタ管理コントローラー
  */
 class ConsultationTypeController extends Controller
 {
@@ -28,9 +28,9 @@ class ConsultationTypeController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:50|unique:consultation_types,name',
         ], [
-            'name.required' => '相談内容名は必須です。',
-            'name.max' => '相談内容名は50文字以内で入力してください。',
-            'name.unique' => 'この相談内容名は既に登録されています。',
+            'name.required' => 'トレーニング内容名は必須です。',
+            'name.max' => 'トレーニング内容名は50文字以内で入力してください。',
+            'name.unique' => 'このトレーニング内容名は既に登録されています。',
         ]);
 
         // 並び順は末尾に追加
@@ -40,7 +40,7 @@ class ConsultationTypeController extends Controller
         ConsultationType::create($validated);
 
         return redirect()->route('master.consultation-types.index')
-            ->with('success', '相談内容を追加しました。');
+            ->with('success', 'トレーニング内容を追加しました。');
     }
 
     /**
@@ -51,15 +51,15 @@ class ConsultationTypeController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:50|unique:consultation_types,name,' . $consultationType->id,
         ], [
-            'name.required' => '相談内容名は必須です。',
-            'name.max' => '相談内容名は50文字以内で入力してください。',
-            'name.unique' => 'この相談内容名は既に登録されています。',
+            'name.required' => 'トレーニング内容名は必須です。',
+            'name.max' => 'トレーニング内容名は50文字以内で入力してください。',
+            'name.unique' => 'このトレーニング内容名は既に登録されています。',
         ]);
 
         $consultationType->update($validated);
 
         return redirect()->route('master.consultation-types.index')
-            ->with('success', '相談内容を更新しました。');
+            ->with('success', 'トレーニング内容を更新しました。');
     }
 
     /**
@@ -67,16 +67,16 @@ class ConsultationTypeController extends Controller
      */
     public function destroy(ConsultationType $consultationType)
     {
-        // 使用中の相談内容は削除不可
+        // 使用中のトレーニング内容は削除不可
         if ($consultationType->counselingRecords()->exists()) {
             return redirect()->route('master.consultation-types.index')
-                ->with('error', 'この相談内容は相談記録で使用されているため削除できません。');
+                ->with('error', 'このトレーニング内容はトレーニング記録で使用されているため削除できません。');
         }
 
         $consultationType->delete();
 
         return redirect()->route('master.consultation-types.index')
-            ->with('success', '相談内容を削除しました。');
+            ->with('success', 'トレーニング内容を削除しました。');
     }
 
     /**

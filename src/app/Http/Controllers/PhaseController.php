@@ -70,7 +70,7 @@ class PhaseController extends Controller
         // 使用中のフェーズは削除不可
         if ($phase->counselingRecords()->exists()) {
             return redirect()->route('master.phases.index')
-                ->with('error', 'このフェーズは相談記録で使用されているため削除できません。');
+                ->with('error', 'このフェーズはトレーニング記録で使用されているため削除できません。');
         }
 
         $phase->delete();

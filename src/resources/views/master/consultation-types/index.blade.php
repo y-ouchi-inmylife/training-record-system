@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', '相談内容マスタ')
+@section('title', 'トレーニング内容マスタ')
 
 @section('content')
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <h2 class="mb-4">相談内容マスタ</h2>
+            <h2 class="mb-4">トレーニング内容マスタ</h2>
 
             {{-- 新規追加フォーム --}}
             <div class="mb-5">
@@ -17,7 +17,7 @@
                         <input type="text" name="name" id="name"
                                class="form-control @error('name') is-invalid @enderror"
                                inputmode="text"
-                               placeholder="相談内容名を入力"
+                               placeholder="トレーニング内容名を入力"
                                value="{{ old('name') }}" maxlength="50" required>
                         @error('name')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -29,13 +29,13 @@
 
             {{-- 登録済み一覧 --}}
             @if($types->isEmpty())
-                <p class="text-muted mb-0">登録された相談内容がありません。</p>
+                <p class="text-muted mb-0">登録されたトレーニング内容がありません。</p>
             @else
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
                             <th class="text-center" style="width: 120px;">表示順</th>
-                            <th>相談内容名</th>
+                            <th>トレーニング内容名</th>
                             <th class="text-end">操作</th>
                         </tr>
                     </thead>
@@ -86,7 +86,7 @@
                                         {{-- 削除 --}}
                                         <form method="POST" action="{{ route('master.consultation-types.destroy', $type) }}"
                                               class="d-inline"
-                                              onsubmit="@if($type->counseling_records_count > 0) alert('この相談内容は相談記録で使用されているため削除できません。'); return false; @else return confirm('「{{ $type->name }}」を削除しますか？'); @endif">
+                                              onsubmit="@if($type->counseling_records_count > 0) alert('このトレーニング内容はトレーニング記録で使用されているため削除できません。'); return false; @else return confirm('「{{ $type->name }}」を削除しますか？'); @endif">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-outline-danger btn-sm">削除</button>

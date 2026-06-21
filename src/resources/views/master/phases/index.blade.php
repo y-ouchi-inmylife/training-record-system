@@ -86,7 +86,7 @@
                                         {{-- 削除 --}}
                                         <form method="POST" action="{{ route('master.phases.destroy', $phase) }}"
                                               class="d-inline"
-                                              onsubmit="@if($phase->counseling_records_count > 0) alert('このフェーズは相談記録で使用されているため削除できません。'); return false; @else return confirm('「{{ $phase->name }}」を削除しますか？'); @endif">
+                                              onsubmit="@if($phase->counseling_records_count > 0) alert('このフェーズはトレーニング記録で使用されているため削除できません。'); return false; @else return confirm('「{{ $phase->name }}」を削除しますか？'); @endif">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-outline-danger btn-sm">削除</button>
