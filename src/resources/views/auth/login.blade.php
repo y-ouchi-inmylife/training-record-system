@@ -8,7 +8,7 @@
         <div class="col-md-5 col-lg-4">
             <div class="card shadow">
                 <div class="card-body p-4">
-                    <h4 class="card-title text-center mb-4">カウンセリング記録管理システム</h4>
+                    <h4 class="card-title text-center mb-4">トレーニング記録管理システム</h4>
 
                     @if ($errors->any())
                     <div class="alert alert-danger">
@@ -52,7 +52,7 @@
                 </div>
             </div>
             <p class="text-center text-muted mt-3 small">
-                &copy; {{ date('Y') }} カウンセリング記録管理システム
+                &copy; {{ date('Y') }} トレーニング記録管理システム
             </p>
         </div>
     </div>

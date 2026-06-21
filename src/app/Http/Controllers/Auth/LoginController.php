@@ -39,7 +39,7 @@ class LoginController extends Controller
         $password = $request->input('password');
         $ipAddress = $request->ip();
 
-        // カウンセラーを検索
+        // トレーナーを検索
         $counselor = Counselor::where('login_id', $userId)->first();
 
         // アカウント無効化チェック
@@ -68,7 +68,7 @@ class LoginController extends Controller
             // 最終ログイン日時を記録
             $counselor->update(['last_login_at' => now()]);
 
-            // カウンセラー操作履歴に記録
+            // トレーナー操作履歴に記録
             AccessLog::create([
                 'counselor_id' => $counselor->id,
                 'action' => 'login',
