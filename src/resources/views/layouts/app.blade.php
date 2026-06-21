@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'カウンセリング記録管理システム')</title>
+    <title>@yield('title', 'トレーニング記録管理システム')</title>
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     @stack('styles')
     <style>
@@ -36,14 +36,14 @@
     @auth
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url('/dashboard') }}">カウンセリング記録管理システム</a>
+            <a class="navbar-brand" href="{{ url('/dashboard') }}">トレーニング記録管理システム</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     @if(!Auth::user()->isSystemAdmin())
-                        {{-- 通常のカウンセラー（system_admin以外） --}}
+                        {{-- 通常のトレーナー（system_admin以外） --}}
                         <li class="nav-item">
                             <a class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">ダッシュボード</a>
                         </li>
@@ -60,7 +60,7 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ request()->is('counseling-records*') ? 'active' : '' }}" href="{{ route('counseling-records.index') }}">
-                                相談記録
+                                トレーニング記録
                             </a>
                         </li>
                         <li class="nav-item dropdown">
@@ -84,7 +84,7 @@
                                 レポート
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{{ route('statistics.clients') }}">相談記録数推移</a></li>
+                                <li><a class="dropdown-item" href="{{ route('statistics.clients') }}">トレーニング記録数推移</a></li>
                             </ul>
                         </li>
                     @endif
@@ -95,14 +95,14 @@
                                 【管理者】
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{{ route('counselors.index') }}">カウンセラー管理</a></li>
-                                <li><a class="dropdown-item" href="{{ route('access-logs.index') }}">カウンセラー操作履歴</a></li>
+                                <li><a class="dropdown-item" href="{{ route('counselors.index') }}">トレーナー管理</a></li>
+                                <li><a class="dropdown-item" href="{{ route('access-logs.index') }}">トレーナー操作履歴</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{{ route('settings.summary-prompts.edit') }}">要約プロンプト</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><h6 class="dropdown-header">マスタ管理</h6></li>
                                 <li><a class="dropdown-item" href="{{ route('master.support-statuses.index') }}">支援状態</a></li>
-                                <li><a class="dropdown-item" href="{{ route('master.consultation-types.index') }}">相談内容</a></li>
+                                <li><a class="dropdown-item" href="{{ route('master.consultation-types.index') }}">トレーニング内容</a></li>
                                 <li><a class="dropdown-item" href="{{ route('master.phases.index') }}">フェーズ</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{{ route('settings.auto-logout.edit') }}">自動ログアウト</a></li>
