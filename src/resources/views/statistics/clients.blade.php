@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', '相談記録数推移')
+@section('title', 'トレーニング記録数推移')
 
 @push('styles')
 <style>
@@ -39,7 +39,7 @@
 
 @section('content')
 <div class="container">
-    <h2 class="mb-4">相談記録数推移</h2>
+    <h2 class="mb-4">トレーニング記録数推移</h2>
 
     {{-- フィルター・表示切替エリア --}}
     <div class="card mb-4">
@@ -47,7 +47,7 @@
             <form method="GET" action="{{ route('statistics.clients') }}" class="row g-3 align-items-end">
                 @if(auth()->user()->isAdmin())
                 <div class="col-auto">
-                    <label for="counselor_id" class="form-label">カウンセラー</label>
+                    <label for="counselor_id" class="form-label">トレーナー</label>
                     <select class="form-select" id="counselor_id" name="counselor_id" onchange="this.form.submit()">
                         <option value="all" {{ $counselorId === 'all' ? 'selected' : '' }}>すべて</option>
                         @foreach($counselors as $counselor)
@@ -81,7 +81,7 @@
         </div>
     </div>
 
-    <p class="mb-2 text-end">※年齢・性別は初回相談時点の情報で集計しています。</p>
+    <p class="mb-2 text-end">※年齢・性別は初回トレーニング時点の情報で集計しています。</p>
 
     {{-- 年度別推移 / 年別推移 --}}
     <h5 class="mb-3">{{ $viewType === 'fiscal_year' ? '年度別' : '年別' }}推移</h5>
@@ -89,7 +89,7 @@
         <table class="table table-striped table-sm table-bordered mb-0 statistics-table">
             <colgroup>
                 <col style="width: 100px;">{{-- 年度/年/月 --}}
-                <col style="width: 70px;">{{-- のべ相談記録数 --}}
+                <col style="width: 70px;">{{-- のべトレーニング記録数 --}}
                 <col style="width: 70px;">{{-- クライアント実人数 --}}
                 <col style="width: 55px;">{{-- 男 --}}
                 <col style="width: 55px;">{{-- 女 --}}
@@ -107,7 +107,7 @@
             <thead>
                 <tr>
                     <th rowspan="2" class="text-nowrap align-middle">{{ $viewType === 'fiscal_year' ? '年度' : '年' }}</th>
-                    <th rowspan="2" class="text-end align-middle">のべ<br>相談記録数</th>
+                    <th rowspan="2" class="text-end align-middle">のべ<br>トレーニング記録数</th>
                     <th rowspan="2" class="text-end align-middle border-group-end">クライアント<br>実人数</th>
                     <th colspan="4" class="text-center border-group-end">性別</th>
                     <th colspan="8" class="text-center">年齢</th>
@@ -181,7 +181,7 @@
         <table class="table table-striped table-sm table-bordered mb-0 statistics-table">
             <colgroup>
                 <col style="width: 100px;">{{-- 年度/年/月 --}}
-                <col style="width: 70px;">{{-- のべ相談記録数 --}}
+                <col style="width: 70px;">{{-- のべトレーニング記録数 --}}
                 <col style="width: 70px;">{{-- クライアント実人数 --}}
                 <col style="width: 55px;">{{-- 男 --}}
                 <col style="width: 55px;">{{-- 女 --}}
@@ -199,7 +199,7 @@
             <thead>
                 <tr>
                     <th rowspan="2" class="text-nowrap align-middle">月</th>
-                    <th rowspan="2" class="text-end align-middle">のべ<br>相談記録数</th>
+                    <th rowspan="2" class="text-end align-middle">のべ<br>トレーニング記録数</th>
                     <th rowspan="2" class="text-end align-middle border-group-end">クライアント<br>実人数</th>
                     <th colspan="4" class="text-center border-group-end">性別</th>
                     <th colspan="8" class="text-center">年齢</th>

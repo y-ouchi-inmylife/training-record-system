@@ -11,12 +11,12 @@ use Illuminate\Support\Facades\DB;
 /**
  * 統計・集計コントローラー
  *
- * 相談記録数推移画面（S-020）の表示を担当する。
+ * トレーニング記録数推移画面（S-020）の表示を担当する。
  */
 class StatisticsController extends Controller
 {
     /**
-     * 相談記録数推移画面を表示
+     * トレーニング記録数推移画面を表示
      */
     public function clients(Request $request)
     {
@@ -42,7 +42,7 @@ class StatisticsController extends Controller
         }
         session(['statistics_view_type' => $viewType]);
 
-        // カウンセラー一覧取得（表示順）
+        // トレーナー一覧取得（表示順）
         $counselors = Counselor::practitioners()->orderBy('display_order')->orderBy('name')->get();
 
         // 年度別/年別推移データ（降順）
@@ -191,7 +191,7 @@ class StatisticsController extends Controller
     }
 
     /**
-     * カウンセラーフィルタを適用
+     * トレーナーフィルタを適用
      */
     private function applyCounselorFilter($query, string $counselorId): void
     {
@@ -259,7 +259,7 @@ class StatisticsController extends Controller
                 default => $breakdown['gender_unknown']++,
             };
 
-            // 年齢集計（初回相談時点）
+            // 年齢集計（初回トレーニング時点）
             $age = $this->getAgeAtFirstConsultation($client);
 
             if ($age !== null) {
@@ -281,19 +281,19 @@ class StatisticsController extends Controller
     }
 
     /**
-     * 初回相談時点の年齢を取得
+     * 初回トレーニング時点の年齢を取得
      *
-     * 初回相談日: clients.initial_consultation_date（NULLの場合はMIN(counseling_records.consultation_date)）
+     * 初回日: clients.initial_consultation_date（NULLの場合はMIN(counseling_records.consultation_date)）
      * 年齢: 生年月日がある場合は計算、なければinitial_ageフィールドを使用
      * どちらもない場合はnull（年代別集計に含めない）
      */
     private function getAgeAtFirstConsultation(Client $client): ?int
     {
-        // 初回相談日を取得
+        // 初回日を取得
         $firstConsultationDate = $client->initial_consultation_date;
 
         if (!$firstConsultationDate) {
-            // フォールバック: 最初の相談記録の日付
+            // フォールバック: 最初のトレーニング記録の日付
             $firstRecord = CounselingRecord::where('client_id', $client->id)
                 ->orderBy('consultation_date')
                 ->first();
