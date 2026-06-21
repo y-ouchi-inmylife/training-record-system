@@ -1,4 +1,4 @@
-{{-- 相談記録登録・編集共通フォーム（クライアントは常に固定モード） --}}
+{{-- トレーニング記録登録・編集共通フォーム（クライアントは常に固定モード） --}}
 <form method="POST" action="{{ $action }}" id="counselingRecordForm" novalidate>
     @csrf
     @if($method === 'PUT')
@@ -23,9 +23,9 @@
                     <input type="hidden" name="client_id" value="{{ $fixedClient->id }}">
                 </div>
 
-                {{-- 相談日 --}}
+                {{-- トレーニング日 --}}
                 <div class="col-md-3">
-                    <label for="consultation_date" class="form-label">相談日 <span class="text-danger">*</span></label>
+                    <label for="consultation_date" class="form-label">トレーニング日 <span class="text-danger">*</span></label>
                     <input type="text" name="consultation_date" id="consultation_date"
                         class="form-control datepicker @error('consultation_date') is-invalid @enderror"
                         value="{{ old('consultation_date', $record?->consultation_date?->format('Y-m-d') ?? date('Y-m-d')) }}"
@@ -35,9 +35,9 @@
                     @enderror
                 </div>
 
-                {{-- 相談時間 --}}
+                {{-- トレーニング時刻 --}}
                 <div class="col-md-3">
-                    <label for="consultation_time" class="form-label">相談時刻</label>
+                    <label for="consultation_time" class="form-label">トレーニング時刻</label>
                     <input type="time" name="consultation_time" id="consultation_time"
                         class="form-control @error('consultation_time') is-invalid @enderror"
                         value="{{ old('consultation_time', $record?->consultation_time ? substr($record->consultation_time, 0, 5) : '') }}">
@@ -196,10 +196,10 @@
         </div>
     </div>
 
-    {{-- 相談内容 --}}
+    {{-- トレーニング内容 --}}
     <div class="card mb-3">
         <div class="card-header">
-            <h6 class="mb-0">相談内容</h6>
+            <h6 class="mb-0">トレーニング内容</h6>
         </div>
         <div class="card-body">
             <div class="row g-3">
@@ -219,9 +219,9 @@
                     </div>
                 </div>
 
-                {{-- 相談内容 --}}
+                {{-- トレーニング内容 --}}
                 <div class="col-md-4">
-                    <label for="consultation_type_id" class="form-label">相談内容</label>
+                    <label for="consultation_type_id" class="form-label">トレーニング内容</label>
                     <select name="consultation_type_id" id="consultation_type_id" class="form-select @error('consultation_type_id') is-invalid @enderror">
                         <option value="">選択してください</option>
                         @foreach($consultationTypes as $type)
@@ -236,9 +236,9 @@
                     @enderror
                 </div>
 
-                {{-- 相談詳細 --}}
+                {{-- トレーニング内容（詳細） --}}
                 <div class="col-md-8">
-                    <label for="consultation_detail" class="form-label">相談内容（詳細）</label>
+                    <label for="consultation_detail" class="form-label">トレーニング内容（詳細）</label>
                     <input type="text" name="consultation_detail" id="consultation_detail"
                         class="form-control @error('consultation_detail') is-invalid @enderror"
                         inputmode="text" value="{{ old('consultation_detail', $record?->consultation_detail) }}"
@@ -268,10 +268,10 @@
         </div>
     </div>
 
-    {{-- 相談記録 --}}
+    {{-- トレーニング記録 --}}
     <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h6 class="mb-0">相談記録 <span class="text-muted">（事実を客観的に記録）</span></h6>
+            <h6 class="mb-0">トレーニング記録 <span class="text-muted">（事実を客観的に記録）</span></h6>
             <button type="button" class="btn btn-sm btn-outline-primary" id="insertSummaryBtn">
                 音声記録の要約から入力
             </button>
@@ -289,7 +289,7 @@
     {{-- 所感 --}}
     <div class="card mb-3">
         <div class="card-header">
-            <h6 class="mb-0">所感 <span class="text-muted">（カウンセラー間共有・クライアント非開示）</span></h6>
+            <h6 class="mb-0">所感 <span class="text-muted">（トレーナー間共有・クライアント非開示）</span></h6>
         </div>
         <div class="card-body">
             <textarea name="impression" id="impression" rows="4"
@@ -389,8 +389,8 @@ document.addEventListener('DOMContentLoaded', function() {
             errors.push('クライアントを選択してください。');
         }
 
-        // 2. 相談日
-        checkRequired('consultation_date', '相談日を入力してください。');
+        // 2. トレーニング日
+        checkRequired('consultation_date', 'トレーニング日を入力してください。');
 
         // 3. 参加者（最低1人は区分を選択していること）
         var participantSelects = container.querySelectorAll('.participant-row select');
@@ -626,7 +626,7 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
     var params = new URLSearchParams(window.location.search);
 
-    // audio_record_id がある場合、要約を取得して相談記録欄に挿入
+    // audio_record_id がある場合、要約を取得してトレーニング記録欄に挿入
     var audioRecordId = params.get('audio_record_id');
     if (audioRecordId) {
         fetch('/api/audio-records/' + audioRecordId + '/summary', {
@@ -644,7 +644,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(function() { /* 要約取得失敗は無視 */ });
     }
 
-    // consultation_date がある場合、相談日を設定
+    // consultation_date がある場合、トレーニング日を設定
     var consultationDate = params.get('consultation_date');
     if (consultationDate) {
         var dateInput = document.getElementById('consultation_date');

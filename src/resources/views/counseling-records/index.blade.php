@@ -1,10 +1,10 @@
 @extends('layouts.app')
 
-@section('title', '相談記録一覧')
+@section('title', 'トレーニング記録一覧')
 
 @section('content')
 <div class="container">
-    <h2 class="mb-4">相談記録一覧</h2>
+    <h2 class="mb-4">トレーニング記録一覧</h2>
 
     {{-- 検索フォーム --}}
     <div class="card mb-4">
@@ -28,7 +28,7 @@
                                placeholder="姓名・かなで検索（部分一致）">
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">相談日(開始)</label>
+                        <label class="form-label">トレーニング日（開始）</label>
                         <input type="text" name="date_from" class="form-control datepicker"
                                value="{{ old('date_from', request('date_from')) }}"
                                placeholder="例: 2026-04-01"
@@ -36,7 +36,7 @@
                                maxlength="10">
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">相談日(終了)</label>
+                        <label class="form-label">トレーニング日（終了）</label>
                         <input type="text" name="date_to" class="form-control datepicker"
                                value="{{ old('date_to', request('date_to')) }}"
                                placeholder="例: 2026-04-01"
@@ -77,7 +77,7 @@
                         </select>
                     </div>
                     <div class="col-md">
-                        <label class="form-label">キーワード（相談記録・所感を検索）</label>
+                        <label class="form-label">キーワード（トレーニング記録・所感を検索）</label>
                         <input type="text" name="keyword" class="form-control" inputmode="text" value="{{ request('keyword') }}" maxlength="100" placeholder="キーワードを入力">
                     </div>
                 </div>
@@ -93,7 +93,7 @@
 
     {{-- 検索結果 --}}
     <div class="mb-3">
-        <p class="text-muted mb-0">{{ $records->total() }}件の相談記録</p>
+        <p class="text-muted mb-0">{{ $records->total() }}件のトレーニング記録</p>
     </div>
 
     <div class="table-responsive">
@@ -118,7 +118,7 @@
                     </th>
                     <th>
                         <a href="{{ route('counseling-records.index', array_merge(request()->query(), ['sort' => 'consultation_date', 'direction' => request('sort') === 'consultation_date' && request('direction', 'desc') === 'desc' ? 'asc' : 'desc'])) }}" class="text-decoration-none text-dark">
-                            相談日
+                            トレーニング日
                             @if(request('sort', 'consultation_date') === 'consultation_date')
                                 {{ request('direction', 'desc') === 'desc' ? '▼' : '▲' }}
                             @endif
@@ -130,7 +130,7 @@
                     <th>参加状況</th>
                     <th>参加形態</th>
                     <th>初回</th>
-                    <th>相談内容</th>
+                    <th>トレーニング内容</th>
                     <th>フェーズ</th>
                 </tr>
             </thead>
@@ -151,7 +151,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="11" class="text-center text-muted py-4">該当する相談記録がありません。</td>
+                        <td colspan="11" class="text-center text-muted py-4">該当するトレーニング記録がありません。</td>
                     </tr>
                 @endforelse
             </tbody>

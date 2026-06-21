@@ -17,7 +17,7 @@ use Illuminate\View\View;
 class CounselingRecordController extends Controller
 {
     /**
-     * 相談記録検索・一覧画面（S-007）
+     * トレーニング記録検索・一覧画面（S-007）
      */
     public function index(Request $request): View
     {
@@ -59,7 +59,7 @@ class CounselingRecordController extends Controller
             });
         }
 
-        // 相談日（期間指定）
+        // トレーニング日（期間指定）
         if ($request->filled('date_from')) {
             $query->where('consultation_date', '>=', $request->input('date_from'));
         }
@@ -86,7 +86,7 @@ class CounselingRecordController extends Controller
             $query->where('consultation_format', $request->input('consultation_format'));
         }
 
-        // キーワード検索（相談記録・所感の全文検索）
+        // キーワード検索（トレーニング記録・所感の全文検索）
         if ($request->filled('keyword')) {
             $keyword = $request->input('keyword');
             $query->where(function ($q) use ($keyword) {
@@ -126,7 +126,7 @@ class CounselingRecordController extends Controller
             $query->orderBy($sortBy, $sortDir);
         }
 
-        // 2次ソート: 相談日が同じレコードは相談時間で並び替える（NULLはMySQLのDESCで最後、ASCで最初）
+        // 2次ソート: トレーニング日が同じレコードはトレーニング時刻で並び替える（NULLはMySQLのDESCで最後、ASCで最初）
         if ($sortBy !== 'consultation_date') {
             $query->orderBy('consultation_date', 'desc');
         }
@@ -140,9 +140,9 @@ class CounselingRecordController extends Controller
     }
 
     /**
-     * 相談記録新規登録画面（S-006 登録モード）
+     * トレーニング記録新規登録画面（S-006 登録モード）
      *
-     * 業務方針: 相談記録は必ずクライアント詳細から登録する設計（自由選択モード廃止）。
+     * 業務方針: トレーニング記録は必ずクライアント詳細から登録する設計（自由選択モード廃止）。
      * ?client_id= 未指定・不存在クライアントの場合はクライアント一覧へリダイレクト。
      */
     public function create(Request $request): View|RedirectResponse
@@ -152,7 +152,7 @@ class CounselingRecordController extends Controller
 
         if (!$selectedClientId) {
             return redirect()->route('clients.index')
-                ->with('error', '相談記録を登録するクライアントを選択してください');
+                ->with('error', 'トレーニング記録を登録するクライアントを選択してください');
         }
 
         $selectedClient = Client::find($selectedClientId);
@@ -173,7 +173,7 @@ class CounselingRecordController extends Controller
     }
 
     /**
-     * 相談記録登録処理
+     * トレーニング記録登録処理
      */
     public function store(Request $request): RedirectResponse
     {
@@ -189,23 +189,23 @@ class CounselingRecordController extends Controller
                 $this->syncParticipants($record, $request->input('participants', []));
             });
         } catch (\Exception $e) {
-            \Log::error('相談記録登録エラー', [
+            \Log::error('トレーニング記録登録エラー', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
             ]);
             return back()
                 ->withInput()
-                ->with('error', '相談記録の登録に失敗しました。');
+                ->with('error', 'トレーニング記録の登録に失敗しました。');
         }
 
         return redirect()
             ->route('clients.show', $validated['client_id'])
-            ->with('success', '相談記録を登録しました。');
+            ->with('success', 'トレーニング記録を登録しました。');
     }
 
     /**
-     * 相談記録詳細画面
+     * トレーニング記録詳細画面
      */
     public function show(CounselingRecord $counselingRecord): View
     {
@@ -218,7 +218,7 @@ class CounselingRecordController extends Controller
     }
 
     /**
-     * 相談記録編集画面（S-006 編集モード）
+     * トレーニング記録編集画面（S-006 編集モード）
      */
     public function edit(CounselingRecord $counselingRecord): View
     {
@@ -234,7 +234,7 @@ class CounselingRecordController extends Controller
     }
 
     /**
-     * 相談記録更新処理
+     * トレーニング記録更新処理
      */
     public function update(Request $request, CounselingRecord $counselingRecord): RedirectResponse
     {
@@ -250,30 +250,30 @@ class CounselingRecordController extends Controller
                 $counselingRecord->participants()->delete();
                 $this->syncParticipants($counselingRecord, $request->input('participants', []));
 
-                // 参加者の変更も相談記録の更新として扱う
+                // 参加者の変更もトレーニング記録の更新として扱う
                 // 本体カラムが dirty でなくても、参加者だけ変更されたケースで
                 // updated_at/updated_by を確実に更新する（bugs.md No.191 対応）
                 $counselingRecord->updated_by = auth()->id();
                 $counselingRecord->touch();
             });
         } catch (\Exception $e) {
-            \Log::error('相談記録更新エラー', [
+            \Log::error('トレーニング記録更新エラー', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
             ]);
             return back()
                 ->withInput()
-                ->with('error', '相談記録の更新に失敗しました。');
+                ->with('error', 'トレーニング記録の更新に失敗しました。');
         }
 
         return redirect()
             ->route('clients.show', $counselingRecord->client_id)
-            ->with('success', '相談記録を更新しました。');
+            ->with('success', 'トレーニング記録を更新しました。');
     }
 
     /**
-     * 相談記録削除処理（管理カウンセラーのみ）
+     * トレーニング記録削除処理（管理トレーナーのみ）
      */
     public function destroy(CounselingRecord $counselingRecord): RedirectResponse
     {
@@ -286,11 +286,11 @@ class CounselingRecordController extends Controller
 
         return redirect()
             ->route('clients.show', $clientId)
-            ->with('success', '相談記録を削除しました。');
+            ->with('success', 'トレーニング記録を削除しました。');
     }
 
     /**
-     * 録音画面から相談記録を自動登録（API）
+     * 録音画面からトレーニング記録を自動登録（API）
      */
     public function autoCreate(Request $request): JsonResponse
     {
@@ -335,7 +335,7 @@ class CounselingRecordController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => '相談記録の作成に失敗しました: ' . $e->getMessage(),
+                'message' => 'トレーニング記録の作成に失敗しました: ' . $e->getMessage(),
             ], 500);
         }
     }

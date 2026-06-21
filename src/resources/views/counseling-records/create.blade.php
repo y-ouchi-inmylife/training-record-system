@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
-@section('title', '相談記録登録')
+@section('title', 'トレーニング記録登録')
 
 @section('content')
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">相談記録登録</h2>
+        <h2 class="mb-0">トレーニング記録登録</h2>
         <div class="d-flex gap-2">
             <a href="{{ $selectedClientId ? route('clients.show', $selectedClientId) : route('counseling-records.index') }}" class="btn btn-secondary js-leave-link">キャンセル</a>
             <button type="submit" form="counselingRecordForm" class="btn btn-success">登録</button>
