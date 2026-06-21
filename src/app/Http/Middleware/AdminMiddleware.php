@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * 管理カウンセラーのみアクセスを許可するミドルウェア
+ * 管理トレーナーのみアクセスを許可するミドルウェア
  */
 class AdminMiddleware
 {
