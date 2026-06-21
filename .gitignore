@@ -1,0 +1,26 @@
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Log
+*.log
+
+
+# レポート等の作業用資料
+references/
+
+# 個別契約書（機密情報を含むため）
+docs/contracts/contract-*.md
+
+# 録音した音声ファイル
+src/storage/app/private/audio/
+
+# Database backups (contains personal information)
+src/storage/app/backups/

@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>録音実行</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        /* 基本スタイル */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        /* 録音中画面 */
+        #recording-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            z-index: 10000;
+            padding: 20px;
+        }
+
+        .recording-title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .recording-title.waiting-warning {
+            color: #ff8c00;
+        }
+
+        .recording-title.paused-title {
+            color: #ff8c00;
+        }
+
+        .timer {
+            font-size: 48px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            color: #dc3545;
+        }
+
+        .timer.paused {
+            color: #ffc107;
+            animation: blink 1s step-end infinite;
+        }
+
+        .recording-indicator {
+            color: #dc3545;
+            font-size: 36px;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0.3; }
+        }
+
+        /* 音声レベルメーター */
+        .level-meter-container {
+            margin: 10px 0;
+            padding: 6px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            width: auto;
+            max-width: 100%;
+            display: inline-block;
+        }
+
+        #level-meter {
+            display: block;
+            width: 330px;
+            max-width: 80vw;
+            height: 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background: #ffffff;
+        }
+
+        /* ボタン */
+        .button-container {
+            margin: 15px 0;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .btn-control {
+            font-size: 18px;
+            padding: 12px 40px;
+            min-width: 140px;
+        }
+
+        /* 注意書き */
+        .notice {
+            margin-top: 20px;
+            color: #666;
+            font-size: 16px;
+        }
+
+        .notice-small {
+            margin-top: 10px;
+            color: #999;
+            font-size: 14px;
+        }
+
+        /* 録音開始前の状態 */
+        .recording-indicator.waiting {
+            color: #6c757d;
+            animation: none;
+        }
+
+        .timer.waiting {
+            color: #6c757d;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- 録音画面（最初から表示） -->
+    <div id="recording-container">
+        <h2 class="recording-title waiting-warning" id="recording-title">録音は開始されていません</h2>
+
+        <!-- タイマー -->
+        <div class="timer waiting" id="timer-display">
+            <span class="recording-indicator waiting" id="recording-indicator-dot">●</span>
+            <span id="recording-timer">00:00:00</span>
+        </div>
+
+        <!-- 音声レベルメーター -->
+        <div class="level-meter-container">
+            <canvas id="level-meter" height="15"></canvas>
+        </div>
+
+        <!-- ボタン -->
+        <div class="button-container">
+            <button id="btn-pause-recording" class="btn btn-warning btn-control d-none" disabled>
+                一時停止
+            </button>
+            <button id="btn-start-recording" class="btn btn-danger btn-control">
+                開始
+            </button>
+        </div>
+
+        <p class="text-center mt-3" style="font-size: 1.5em;">
+            <span class="text-warning">⚠</span>
+            <strong>カウンセラー以外は操作しないでください</strong>
+        </p>
+    </div>
+
+    {{-- モーダル1: 録音完了 --}}
+    <div class="modal fade" id="modal-recording-complete" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">録音完了</h5>
+                </div>
+                <div class="modal-body">
+                    <p>録音が完了しました。</p>
+                    <p class="text-muted mb-0">音声記録一覧で確認できます。</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="btn-confirm-complete">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- モーダル2: 相談記録作成確認 --}}
+    <div class="modal fade" id="modal-confirm-create-record" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">相談記録の作成</h5>
+                </div>
+                <div class="modal-body">
+                    <p>このまま相談記録を作成しますか？</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btn-no-create-record">いいえ</button>
+                    <button type="button" class="btn btn-primary" id="btn-yes-create-record">はい、作成する</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- モーダル3: 相談記録登録フォーム --}}
+    <div class="modal fade" id="modal-create-record" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">相談記録の作成</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">クライアント</label>
+                        <input type="text" class="form-control bg-light" id="record-client-name" readonly>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label class="form-label">相談日</label>
+                            <input type="text" class="form-control bg-light" value="{{ date('Y年m月d日') }}（今日）" readonly>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">相談時刻</label>
+                            <input type="text" class="form-control bg-light" id="record-consultation-time" readonly>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <label class="form-label mb-0">参加者 <span class="text-danger">*</span></label>
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="btn-add-participant">追加</button>
+                        </div>
+                        <div id="participants_container"></div>
+                        <div class="form-text">
+                            例: 区分「支援者」詳細「〇〇病院 ケースワーカー佐藤さん」、区分「母」詳細「山田花子」
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="counselor1_select" class="form-label">担当1 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="counselor1_select" required>
+                                <option value="">選択してください</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="counselor2_select" class="form-label">担当2</label>
+                            <select class="form-select" id="counselor2_select">
+                                <option value="">なし</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="consultation_format_select" class="form-label">参加形態 <span class="text-danger">*</span></label>
+                        <select class="form-select" id="consultation_format_select" required>
+                            <option value="">選択してください</option>
+                            <option value="対面">対面</option>
+                            <option value="ビデオ通話">ビデオ通話</option>
+                            <option value="電話">電話</option>
+                            <option value="メール">メール</option>
+                            <option value="同行">同行</option>
+                            <option value="訪問">訪問</option>
+                            <option value="その他">その他</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-create-record">キャンセル</button>
+                    <button type="button" class="btn btn-primary" id="btn-submit-create-record">作成する</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- モーダル4: 処理中 --}}
+    <div class="modal fade" id="modal-processing" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">相談記録を準備中</h5>
+                </div>
+                <div class="modal-body">
+                    <div id="progress_status">
+                        <p>&#x2705; 入力完了</p>
+                        <p id="transcription_status">&#x23F3; 文字起こし中...</p>
+                        <p id="summary_status">&#x2B1C; 要約処理待ち</p>
+                    </div>
+                    <p class="text-muted mt-3">処理に数十秒かかる場合があります。このまましばらくお待ちください...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- モーダル5: 相談記録登録完了 --}}
+    <div class="modal fade" id="modal-record-created" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">相談記録登録</h5>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0">相談記録の登録が完了しました。</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="btn-confirm-record-created">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- モーダル6: ログアウト --}}
+    <div class="modal fade" id="modal-logout" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center py-5">
+                    <h4 class="mb-3">自動ログアウトします</h4>
+                    <div class="spinner-border text-primary mt-3" role="status">
+                        <span class="visually-hidden">読み込み中...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ログアウト用フォーム（POST送信） -->
+    <form id="logout-form" method="POST" action="{{ route('logout') }}" style="display: none;">
+        @csrf
+    </form>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // ブラウザの戻るボタンを無効化
+        history.pushState(null, null, location.href);
+        window.addEventListener('popstate', function() {
+            history.pushState(null, null, location.href);
+            alert('録音セッション中は他の画面に移動できません。');
+        });
+
+        // ページ離脱の警告（録音中のみ）
+        let allowLeave = false;
+        let isRecording = false;
+
+        window.addEventListener('beforeunload', function(e) {
+            if (isRecording && !allowLeave) {
+                e.preventDefault();
+                e.returnValue = '録音中です。本当にページを離れますか？';
+            }
+        });
+
+        // グローバル変数
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let timerInterval = null;
+        let seconds = 0;
+        let stream = null;
+        let audioContext = null;
+        let analyser = null;
+        let dataArray = null;
+        let animationId = null;
+        let uploadedAudioRecordId = null;
+        let recordingStartTime = null; // 録音開始時刻（相談記録の consultation_time 用）
+
+        // Dateオブジェクトを「HH:MM」形式の文字列に変換（nullの場合は空文字）
+        function formatTimeHHMM(date) {
+            if (!(date instanceof Date)) return '';
+            return String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0');
+        }
+
+        // クライアント情報（必須）
+        // 業務方針: 音声記録は必ずクライアントに紐付ける（飛び込みケース未想定）
+        const clientId = {{ $client->id }};
+        const clientName = @json($client->internal_id . ' ' . $client->display_name);
+
+        // 認証情報
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const currentUserId = {{ Auth::id() }};
+        const currentDate = '{{ date("Y-m-d") }}';
+
+        // ========================================
+        // タイマー
+        // ========================================
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                seconds++;
+                const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+                const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+                const s = (seconds % 60).toString().padStart(2, '0');
+                document.getElementById('recording-timer').textContent = `${h}:${m}:${s}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        // ========================================
+        // 音声レベルメーター
+        // ========================================
+
+        function drawLevelMeter() {
+            const canvas = document.getElementById('level-meter');
+            const canvasContext = canvas.getContext('2d');
+
+            // canvasの描画解像度を表示サイズに合わせる
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            const width = canvas.width;
+            const height = canvas.height;
+
+            function draw() {
+                animationId = requestAnimationFrame(draw);
+
+                analyser.getByteFrequencyData(dataArray);
+
+                // 平均音量を計算
+                let sum = 0;
+                for (let i = 0; i < dataArray.length; i++) {
+                    sum += dataArray[i];
+                }
+                const average = sum / dataArray.length;
+
+                // キャンバスをクリア
+                canvasContext.fillStyle = '#f0f0f0';
+                canvasContext.fillRect(0, 0, width, height);
+
+                // バーの長さを計算（感度を上げて0-100%にマッピング）
+                const level = Math.min(100, (average / 80) * 100);
+                const barLength = (level / 100) * width;
+
+                // グラデーションをバーの長さに合わせて作成
+                if (barLength > 0) {
+                    const gradient = canvasContext.createLinearGradient(0, 0, barLength, 0);
+                    gradient.addColorStop(0, '#4ecdc4');
+                    if (level > 30) gradient.addColorStop(Math.min(0.4, 30 / level), '#6bcf7f');
+                    if (level > 60) gradient.addColorStop(Math.min(0.7, 60 / level), '#ffd93d');
+                    if (level > 80) gradient.addColorStop(1, '#ff6b6b');
+                    else gradient.addColorStop(1, level > 60 ? '#ffd93d' : '#6bcf7f');
+
+                    canvasContext.fillStyle = gradient;
+                    canvasContext.fillRect(0, 0, barLength, height);
+                }
+
+                // 枠線を描画
+                canvasContext.strokeStyle = '#dee2e6';
+                canvasContext.lineWidth = 2;
+                canvasContext.strokeRect(0, 0, width, height);
+            }
+
+            draw();
+        }
+
+        function stopLevelMeter() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+        }
+
+        // ========================================
+        // マイク初期化（レベルメーター用）
+        // ========================================
+
+        async function initMicrophone() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+                // 音声レベルメーター用の AudioContext
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                const source = audioContext.createMediaStreamSource(stream);
+                source.connect(analyser);
+
+                analyser.fftSize = 256;
+                const bufferLength = analyser.frequencyBinCount;
+                dataArray = new Uint8Array(bufferLength);
+
+                drawLevelMeter();
+            } catch (error) {
+                console.error('マイク初期化エラー:', error);
+                alert('マイクへのアクセスが拒否されました。ブラウザの設定を確認してください。');
+            }
+        }
+
+        // ========================================
+        // 録音
+        // ========================================
+
+        async function startRecording() {
+            try {
+                // マイクが未初期化の場合は初期化
+                if (!stream) {
+                    await initMicrophone();
+                }
+
+                // iOS/iPadデバイスの判定
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+                // mimeTypeの選択
+                let mimeType;
+                if (isIOS) {
+                    if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                        mimeType = 'audio/mp4';
+                    } else if (MediaRecorder.isTypeSupported('audio/mpeg')) {
+                        mimeType = 'audio/mpeg';
+                    } else {
+                        mimeType = 'audio/webm';
+                    }
+                } else {
+                    if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+                        mimeType = 'audio/webm;codecs=opus';
+                    } else {
+                        mimeType = 'audio/webm';
+                    }
+                }
+
+                console.log('選択されたmimeType:', mimeType);
+
+                mediaRecorder = new MediaRecorder(stream, { mimeType: mimeType });
+
+                mediaRecorder.ondataavailable = function(e) {
+                    if (e.data.size > 0) {
+                        audioChunks.push(e.data);
+                    }
+                };
+
+                mediaRecorder.onstop = async function() {
+                    stopTimer();
+                    stopLevelMeter();
+                    isRecording = false;
+
+                    stream.getTracks().forEach(track => track.stop());
+
+                    if (audioContext) {
+                        audioContext.close();
+                        audioContext = null;
+                    }
+
+                    // ページ離脱警告を無効化
+                    allowLeave = true;
+
+                    await uploadRecording();
+                };
+
+                mediaRecorder.start(1000);
+                startTimer();
+                isRecording = true;
+
+            } catch (error) {
+                console.error('録音開始エラー:', error);
+                alert('マイクへのアクセスが拒否されました。ブラウザの設定を確認してください。');
+            }
+        }
+
+        // 一時停止ボタン
+        document.getElementById('btn-pause-recording').addEventListener('click', function() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.pause();
+                this.textContent = '再開';
+                this.classList.remove('btn-warning');
+                this.classList.add('btn-danger');
+                stopTimer();
+                document.getElementById('timer-display').classList.add('paused');
+                // タイトルを「一時停止中」に変更
+                var pauseTitleEl = document.getElementById('recording-title');
+                pauseTitleEl.textContent = '一時停止中';
+                pauseTitleEl.classList.add('paused-title');
+            } else if (mediaRecorder && mediaRecorder.state === 'paused') {
+                mediaRecorder.resume();
+                this.textContent = '一時停止';
+                this.classList.remove('btn-danger');
+                this.classList.add('btn-warning');
+                startTimer();
+                document.getElementById('timer-display').classList.remove('paused');
+                // タイトルを「録音中」に戻す
+                var resumeTitleEl = document.getElementById('recording-title');
+                resumeTitleEl.textContent = '録音中';
+                resumeTitleEl.classList.remove('paused-title');
+            }
+        });
+
+        // 注: 停止機能は「開始/停止」ボタン（btn-start-recording）に統合
+
+        // ========================================
+        // アップロード
+        // ========================================
+
+        async function uploadRecording() {
+            try {
+                const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
+
+                let extension = 'webm';
+                if (mediaRecorder.mimeType.includes('mp4')) {
+                    extension = 'm4a';
+                } else if (mediaRecorder.mimeType.includes('mpeg')) {
+                    extension = 'mp3';
+                }
+
+                const now = new Date();
+                const fileName = now.getFullYear().toString() +
+                    String(now.getMonth() + 1).padStart(2, '0') +
+                    String(now.getDate()).padStart(2, '0') + '_' +
+                    String(now.getHours()).padStart(2, '0') +
+                    String(now.getMinutes()).padStart(2, '0') +
+                    String(now.getSeconds()).padStart(2, '0') + '.' + extension;
+
+                const formData = new FormData();
+                formData.append('file', blob, fileName);
+                formData.append('client_id', clientId);
+
+                // 録音画面を非表示
+                document.getElementById('recording-container').style.display = 'none';
+
+                const response = await fetch('{{ route("audio-records.recording.store") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                    },
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    uploadedAudioRecordId = data.data.id;
+
+                    showRecordingCompleteModal();
+                } else {
+                    const errorData = await response.json();
+                    console.error('アップロードエラー:', errorData);
+                    alert('音声ファイルのアップロードに失敗しました。');
+                }
+
+            } catch (error) {
+                console.error('アップロードエラー:', error);
+                alert('音声ファイルのアップロードに失敗しました。');
+            }
+        }
+
+        // ========================================
+        // モーダル1: 録音完了
+        // ========================================
+
+        function showRecordingCompleteModal() {
+            const modal = new bootstrap.Modal(document.getElementById('modal-recording-complete'));
+            modal.show();
+
+            document.getElementById('btn-confirm-complete').addEventListener('click', function() {
+                modal.hide();
+                showConfirmCreateRecordModal();
+            }, { once: true });
+        }
+
+        // ========================================
+        // モーダル2: 相談記録作成確認
+        // ========================================
+
+        function showConfirmCreateRecordModal() {
+            const modal = new bootstrap.Modal(document.getElementById('modal-confirm-create-record'));
+            modal.show();
+
+            // 「いいえ」→ ログアウト
+            document.getElementById('btn-no-create-record').addEventListener('click', function() {
+                modal.hide();
+                showLogoutModal();
+            }, { once: true });
+
+            // 「はい、作成する」→ 相談記録登録フォーム
+            document.getElementById('btn-yes-create-record').addEventListener('click', async function() {
+                modal.hide();
+                await showCreateRecordModal();
+            }, { once: true });
+        }
+
+        // ========================================
+        // モーダル3: 相談記録登録フォーム
+        // ========================================
+
+        // 参加者の区分一覧
+        var participantTypes = ['本人', '支援者', '母', '父', '配偶者', 'きょうだい', '子', '祖父母', 'その他'];
+
+        function addParticipantRow() {
+            var container = document.getElementById('participants_container');
+            var optionsHtml = '<option value="">区分を選択</option>' +
+                participantTypes.map(function(t) { return '<option value="' + t + '">' + t + '</option>'; }).join('');
+
+            var row = document.createElement('div');
+            row.className = 'row g-3 mb-2 modal-participant-row';
+            row.innerHTML =
+                '<div class="col-4"><select class="form-select participant-type">' + optionsHtml + '</select></div>' +
+                '<div class="col-6"><input type="text" class="form-control participant-detail" maxlength="255" placeholder="詳細（関係性、所属、名前など）"></div>' +
+                '<div class="col-2"><button type="button" class="btn btn-outline-danger w-100 btn-remove-participant">削除</button></div>';
+            container.appendChild(row);
+        }
+
+        // 参加者行の削除（イベント委任）
+        document.getElementById('participants_container').addEventListener('click', function(e) {
+            if (e.target.classList.contains('btn-remove-participant')) {
+                var row = e.target.closest('.modal-participant-row');
+                var container = document.getElementById('participants_container');
+                if (container.children.length > 1) {
+                    row.remove();
+                } else {
+                    row.querySelector('.participant-type').value = '';
+                    row.querySelector('.participant-detail').value = '';
+                }
+            }
+        });
+
+        document.getElementById('btn-add-participant').addEventListener('click', addParticipantRow);
+
+        function getParticipantsData() {
+            var rows = document.querySelectorAll('.modal-participant-row');
+            var participants = [];
+            rows.forEach(function(row) {
+                var type = row.querySelector('.participant-type').value;
+                var detail = row.querySelector('.participant-detail').value;
+                if (type || detail) {
+                    participants.push({ participant_type: type, participant_detail: detail });
+                }
+            });
+            return participants;
+        }
+
+        // カウンセラー一覧を読み込み
+        async function loadCounselors() {
+            var response = await fetch('/api/counselors', {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            var counselors = await response.json();
+
+            // 担当1（デフォルト: ログインユーザー）
+            var counselor1Options = counselors.map(function(c) {
+                return '<option value="' + c.id + '"' + (c.id === currentUserId ? ' selected' : '') + '>' + c.name + '</option>';
+            }).join('');
+            document.getElementById('counselor1_select').innerHTML = '<option value="">選択してください</option>' + counselor1Options;
+
+            // 担当2（デフォルト: なし）
+            var counselor2Options = counselors.map(function(c) {
+                return '<option value="' + c.id + '">' + c.name + '</option>';
+            }).join('');
+            document.getElementById('counselor2_select').innerHTML = '<option value="">なし</option>' + counselor2Options;
+        }
+
+        async function showCreateRecordModal() {
+            // クライアント名を表示
+            document.getElementById('record-client-name').value = clientName;
+
+            // 録音開始時刻を表示（HH:MM形式）
+            document.getElementById('record-consultation-time').value = formatTimeHHMM(recordingStartTime);
+
+            // カウンセラー一覧を読み込み
+            await loadCounselors();
+
+            // 参加者の初期行を1つ追加
+            document.getElementById('participants_container').innerHTML = '';
+            addParticipantRow();
+
+            var modal = new bootstrap.Modal(document.getElementById('modal-create-record'));
+            modal.show();
+
+            // 「キャンセル」→ ログアウト
+            document.getElementById('btn-cancel-create-record').addEventListener('click', function() {
+                modal.hide();
+                showLogoutModal();
+            }, { once: true });
+
+            // 「作成する」→ 処理開始
+            var btnSubmit = document.getElementById('btn-submit-create-record');
+            var submitHandler = async function() {
+                var consultationFormat = document.getElementById('consultation_format_select').value;
+                if (!consultationFormat) {
+                    alert('参加形態を選択してください');
+                    return;
+                }
+
+                var counselor1Id = document.getElementById('counselor1_select').value;
+                if (!counselor1Id) {
+                    alert('担当1を選択してください');
+                    return;
+                }
+
+                var participants = getParticipantsData();
+                if (participants.length === 0) {
+                    alert('参加者を1人以上設定してください');
+                    return;
+                }
+
+                var counselor2Id = document.getElementById('counselor2_select').value;
+                // 担当1=担当2 は文字起こし（高コスト処理）の前に弾く（無駄な外部APIコストを防ぐ）
+                if (counselor2Id && counselor2Id === counselor1Id) {
+                    alert('担当者2には担当者1と異なるカウンセラーを選択してください。');
+                    return;
+                }
+
+                // バリデーション通過後、リスナーを解除してフォームを閉じる
+                btnSubmit.removeEventListener('click', submitHandler);
+                modal.hide();
+                var processingModal = new bootstrap.Modal(document.getElementById('modal-processing'));
+                processingModal.show();
+
+                try {
+                    // 文字起こし実行
+                    var transcribeResponse = await fetch('/api/audio-records/' + uploadedAudioRecordId + '/transcribe', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+
+                    if (!transcribeResponse.ok) {
+                        var transcribeError = await transcribeResponse.json();
+                        throw new Error(transcribeError?.error?.message || '文字起こしに失敗しました。');
+                    }
+
+                    document.getElementById('transcription_status').innerHTML = '&#x2705; 文字起こし完了';
+
+                    // 要約実行
+                    document.getElementById('summary_status').innerHTML = '&#x23F3; 要約中...';
+                    var summarizeResponse = await fetch('/api/audio-records/' + uploadedAudioRecordId + '/summarize', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+
+                    if (!summarizeResponse.ok) {
+                        var summarizeError = await summarizeResponse.json();
+                        throw new Error(summarizeError?.error?.message || '要約に失敗しました。');
+                    }
+
+                    document.getElementById('summary_status').innerHTML = '&#x2705; 要約完了';
+
+                    // 相談記録を自動作成
+                    document.getElementById('progress_status').innerHTML =
+                        '<p>&#x2705; 文字起こし完了</p>' +
+                        '<p>&#x2705; 要約完了</p>' +
+                        '<p>&#x23F3; 相談記録を作成中...</p>';
+
+                    var createResponse = await fetch('/api/counseling-records/auto-create', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({
+                            audio_record_id: uploadedAudioRecordId,
+                            client_id: clientId,
+                            consultation_date: currentDate,
+                            consultation_time: formatTimeHHMM(recordingStartTime) || null,
+                            consultation_format: consultationFormat,
+                            counselor1_id: counselor1Id,
+                            counselor2_id: counselor2Id || null,
+                            participants: participants
+                        })
+                    });
+
+                    var result = await createResponse.json();
+
+                    if (result.success) {
+                        processingModal.hide();
+                        showRecordCreatedModal();
+                    } else {
+                        throw new Error(result.message || '相談記録の作成に失敗しました');
+                    }
+
+                } catch (error) {
+                    processingModal.hide();
+                    alert('エラーが発生しました: ' + error.message);
+                    showLogoutModal();
+                }
+            };
+            btnSubmit.addEventListener('click', submitHandler);
+        }
+
+        // ========================================
+        // モーダル5: 相談記録登録完了
+        // ========================================
+
+        function showRecordCreatedModal() {
+            var modal = new bootstrap.Modal(document.getElementById('modal-record-created'));
+            modal.show();
+
+            document.getElementById('btn-confirm-record-created').addEventListener('click', function() {
+                modal.hide();
+                showLogoutModal();
+            }, { once: true });
+        }
+
+        // ========================================
+        // モーダル6: ログアウト
+        // ========================================
+
+        function showLogoutModal() {
+            var modal = new bootstrap.Modal(document.getElementById('modal-logout'));
+            modal.show();
+
+            // 3秒後にログアウト（POSTで送信）
+            setTimeout(function() {
+                document.getElementById('logout-form').submit();
+            }, 3000);
+        }
+
+        // ========================================
+        // 初期化
+        // ========================================
+
+        // ページ読み込み時にマイクを初期化（レベルメーター表示用）
+        initMicrophone();
+
+        // 「開始/停止」ボタンのクリックイベント
+        const btnStartStop = document.getElementById('btn-start-recording');
+        btnStartStop.addEventListener('click', function() {
+            if (!isRecording) {
+                // 録音開始時刻を記録（相談記録の consultation_time 用）
+                recordingStartTime = new Date();
+
+                // 録音開始
+                startRecording().then(() => {
+                    // UIを録音中状態に切り替え
+                    const titleEl = document.getElementById('recording-title');
+                    titleEl.textContent = '録音中';
+                    titleEl.classList.remove('waiting-warning');
+                    document.getElementById('timer-display').classList.remove('waiting');
+                    document.getElementById('recording-indicator-dot').classList.remove('waiting');
+                    document.getElementById('btn-pause-recording').classList.remove('d-none');
+                    document.getElementById('btn-pause-recording').disabled = false;
+
+                    // 「開始」→「停止」に変更
+                    btnStartStop.textContent = '停止';
+                    btnStartStop.classList.remove('btn-danger');
+                    btnStartStop.classList.add('btn-secondary');
+                });
+            } else {
+                // 録音停止
+                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                    mediaRecorder.stop();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
