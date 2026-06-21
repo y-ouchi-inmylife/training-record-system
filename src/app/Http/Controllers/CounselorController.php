@@ -13,12 +13,12 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * カウンセラーアカウント管理コントローラー
+ * トレーナーアカウント管理コントローラー
  */
 class CounselorController extends Controller
 {
     /**
-     * 有効なカウンセラー一覧を取得（API）
+     * 有効なトレーナー一覧を取得（API）
      */
     public function apiList(): JsonResponse
     {
@@ -31,7 +31,7 @@ class CounselorController extends Controller
     }
 
     /**
-     * カウンセラー一覧
+     * トレーナー一覧
      */
     public function index(): View
     {
@@ -48,7 +48,7 @@ class CounselorController extends Controller
     }
 
     /**
-     * カウンセラー新規登録画面
+     * トレーナー新規登録画面
      */
     public function create(): View
     {
@@ -56,7 +56,7 @@ class CounselorController extends Controller
     }
 
     /**
-     * カウンセラー登録処理
+     * トレーナー登録処理
      */
     public function store(Request $request): RedirectResponse
     {
@@ -83,11 +83,11 @@ class CounselorController extends Controller
         Counselor::create($validated);
 
         return redirect()->route('counselors.index')
-            ->with('success', 'カウンセラーを登録しました。初回ログイン時にパスワード変更が求められます。');
+            ->with('success', 'トレーナーを登録しました。初回ログイン時にパスワード変更が求められます。');
     }
 
     /**
-     * カウンセラー編集画面
+     * トレーナー編集画面
      */
     public function edit(Counselor $counselor)
     {
@@ -100,7 +100,7 @@ class CounselorController extends Controller
     }
 
     /**
-     * カウンセラー更新処理
+     * トレーナー更新処理
      */
     public function update(Request $request, Counselor $counselor): RedirectResponse
     {
@@ -129,11 +129,11 @@ class CounselorController extends Controller
         ]);
 
         return redirect()->route('counselors.index')
-            ->with('success', 'カウンセラー情報を更新しました。');
+            ->with('success', 'トレーナー情報を更新しました。');
     }
 
     /**
-     * カウンセラー削除
+     * トレーナー削除
      */
     public function destroy(Counselor $counselor): RedirectResponse
     {
@@ -149,7 +149,7 @@ class CounselorController extends Controller
                 ->with('error', '自分自身を削除することはできません。');
         }
 
-        // 管理カウンセラーが1名の場合は削除不可
+        // 管理トレーナーが1名の場合は削除不可
         if ($counselor->role === 'admin') {
             $adminCount = Counselor::where('role', 'admin')->count();
             if ($adminCount <= 1) {
@@ -158,20 +158,20 @@ class CounselorController extends Controller
             }
         }
 
-        // クライアントの主担当カウンセラーになっているかチェック
+        // クライアントの主担当トレーナーになっているかチェック
         $primaryClientsCount = Client::where('primary_counselor_id', $counselor->id)->count();
         if ($primaryClientsCount > 0) {
             return redirect()->route('counselors.index')
-                ->with('error', "{$counselor->name} は {$primaryClientsCount} 件のクライアントの主担当カウンセラーです。先に主担当を変更してから削除してください。");
+                ->with('error', "{$counselor->name} は {$primaryClientsCount} 件のクライアントの主担当トレーナーです。先に主担当を変更してから削除してください。");
         }
 
-        // 相談記録の担当者になっているかチェック（担当者1・担当者2）
+        // トレーニング記録の担当者になっているかチェック（担当者1・担当者2）
         $recordsCount = CounselingRecord::where('counselor1_id', $counselor->id)
             ->orWhere('counselor2_id', $counselor->id)
             ->count();
         if ($recordsCount > 0) {
             return redirect()->route('counselors.index')
-                ->with('error', "{$counselor->name} は {$recordsCount} 件の相談記録の担当者です。削除できません。");
+                ->with('error', "{$counselor->name} は {$recordsCount} 件のトレーニング記録の担当者です。削除できません。");
         }
 
         $counselor->delete();
@@ -302,13 +302,13 @@ class CounselorController extends Controller
     }
 
     /**
-     * 一覧上の隣接カウンセラーと表示順を入れ替え、display_orderを1,2,3...に振り直す
+     * 一覧上の隣接トレーナーと表示順を入れ替え、display_orderを1,2,3...に振り直す
      *
      * @param int $offset -1=上に移動、+1=下に移動
      */
     private function swapAdjacent(Counselor $counselor, int $offset): RedirectResponse
     {
-        // indexと同じソート順で全カウンセラーを取得（一覧上の位置を特定するため）
+        // indexと同じソート順で全トレーナーを取得（一覧上の位置を特定するため）
         $counselors = Counselor::where('role', '!=', 'system_admin')
             ->orderBy('display_order')
             ->orderBy('name')

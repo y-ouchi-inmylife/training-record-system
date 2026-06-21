@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'カウンセラー登録')
+@section('title', 'トレーナー登録')
 
 @section('content')
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="d-flex justify-content-between align-items-center mb-4" style="max-width: 700px;">
-                <h2 class="mb-0">カウンセラー登録</h2>
+                <h2 class="mb-0">トレーナー登録</h2>
                 <div class="d-flex gap-2">
                     <button type="submit" form="counselor-create-form" class="btn btn-success">登録</button>
                     <a href="{{ route('counselors.index') }}" class="btn btn-secondary">キャンセル</a>

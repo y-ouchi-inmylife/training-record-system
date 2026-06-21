@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'カウンセラー管理')
+@section('title', 'トレーナー管理')
 
 @section('content')
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>カウンセラー管理</h2>
+        <h2>トレーナー管理</h2>
         <a href="{{ route('counselors.create') }}" class="btn btn-primary">新規登録</a>
     </div>
 
@@ -103,7 +103,7 @@
                                         @endphp
                                         <form method="POST" action="{{ route('counselors.destroy', $counselor) }}"
                                               class="d-inline"
-                                              onsubmit="@if($isOnlyAdmin) alert('管理者は最低1名必要です。削除できません。'); return false; @elseif($hasPrimaryClients) alert('{{ $counselor->name }} は {{ $counselor->primary_clients_count }} 件のクライアントの主担当カウンセラーです。先に主担当を変更してから削除してください。'); return false; @elseif($hasRecords) alert('{{ $counselor->name }} は相談記録の担当者です。削除できません。'); return false; @else return confirm('「{{ $counselor->name }}」を削除しますか？\nこの操作は取り消せません。'); @endif">
+                                              onsubmit="@if($isOnlyAdmin) alert('管理者は最低1名必要です。削除できません。'); return false; @elseif($hasPrimaryClients) alert('{{ $counselor->name }} は {{ $counselor->primary_clients_count }} 件のクライアントの主担当トレーナーです。先に主担当を変更してから削除してください。'); return false; @elseif($hasRecords) alert('{{ $counselor->name }} はトレーニング記録の担当者です。削除できません。'); return false; @else return confirm('「{{ $counselor->name }}」を削除しますか？\nこの操作は取り消せません。'); @endif">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-outline-danger btn-sm">削除</button>

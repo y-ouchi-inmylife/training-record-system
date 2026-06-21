@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'カウンセラー編集')
+@section('title', 'トレーナー編集')
 
 @section('content')
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="d-flex justify-content-between align-items-center mb-4" style="max-width: 700px;">
-                <h2 class="mb-0">カウンセラー編集</h2>
+                <h2 class="mb-0">トレーナー編集</h2>
                 <div class="d-flex gap-2">
                     <button type="submit" form="counselor-edit-form" class="btn btn-success">更新</button>
                     <a href="{{ route('counselors.index') }}" class="btn btn-secondary">キャンセル</a>

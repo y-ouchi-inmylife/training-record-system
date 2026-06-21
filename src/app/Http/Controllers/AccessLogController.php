@@ -8,12 +8,12 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * カウンセラー操作履歴管理コントローラー
+ * トレーナー操作履歴管理コントローラー
  */
 class AccessLogController extends Controller
 {
     /**
-     * カウンセラー操作履歴一覧画面
+     * トレーナー操作履歴一覧画面
      */
     public function index(Request $request): View
     {
@@ -31,7 +31,7 @@ class AccessLogController extends Controller
         $query = AccessLog::with('counselor')
             ->orderBy('created_at', 'desc');
 
-        // カウンセラーフィルター
+        // トレーナーフィルター
         if ($request->filled('counselor_id')) {
             $query->where('counselor_id', $request->input('counselor_id'));
         }

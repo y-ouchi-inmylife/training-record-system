@@ -1,10 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'カウンセラー操作履歴')
+@section('title', 'トレーナー操作履歴')
 
 @section('content')
 <div class="container">
-    <h2 class="mb-4">カウンセラー操作履歴</h2>
+    <h2 class="mb-4">トレーナー操作履歴</h2>
 
     {{-- 検索フォーム --}}
     <div class="card mb-4">
@@ -15,7 +15,7 @@
                 @endif
                 <div class="row g-3">
                     <div class="col-md-3">
-                        <label class="form-label">カウンセラー</label>
+                        <label class="form-label">トレーナー</label>
                         <select name="counselor_id" class="form-select">
                             <option value="">すべて</option>
                             @foreach($counselors as $counselor)
@@ -60,7 +60,7 @@
                 <thead class="table-light">
                     <tr>
                         <th>日時</th>
-                        <th>カウンセラー</th>
+                        <th>トレーナー</th>
                         <th>操作</th>
                         <th>対象</th>
                         <th>IPアドレス</th>
