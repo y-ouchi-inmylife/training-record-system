@@ -1,6 +1,6 @@
 # 開発環境の起動手順および停止手順
 
-カウンセリング記録管理システムの開発環境起動手順です。
+トレーニング記録管理システムの開発環境起動手順です。
 
 ## 前提条件
 
@@ -24,25 +24,26 @@
 PowerShell を開いて以下のコマンドを実行：
 ```powershell
 # MySQLコンテナを起動
-docker start counseling-mysql
+docker start training-mysql
 
 # 起動確認
 docker ps
 ```
 
 **確認ポイント**:
-- `counseling-mysql` が `Up` 状態になっているか
-- `0.0.0.0:3306->3306/tcp` が表示されているか
+- `training-mysql` が `Up` 状態になっているか
+- `0.0.0.0:3308->3306/tcp` が表示されているか
 
 **エラーが出た場合**:
 ```powershell
 # コンテナが存在しない場合は、再作成
-docker run --name counseling-mysql `
+docker run --name training-mysql `
   -e MYSQL_ROOT_PASSWORD=root `
-  -e MYSQL_DATABASE=counseling_record `
+  -e MYSQL_DATABASE=training_record `
   -e MYSQL_USER=laravel `
   -e MYSQL_PASSWORD=laravel `
-  -p 3306:3306 `
+  -p 3308:3306 `
+  -v training-mysql-data:/var/lib/mysql `
   -d mysql:8.0 `
   --character-set-server=utf8mb4 `
   --collation-server=utf8mb4_unicode_ci
@@ -50,7 +51,7 @@ docker run --name counseling-mysql `
 
 ### 3. JavaScript・CSSのビルド（初回および resources/ 変更時のみ）
 ```powershell
-cd ~\workspace\dev\counseling-record-system\src
+cd ~\workspace\dev\training-record-system\src
 npm install
 npm run build
 ```
@@ -59,7 +60,7 @@ npm run build
 
 ### 4. 開発サーバーを起動
 ```powershell
-cd ~\workspace\dev\counseling-record-system\src
+cd ~\workspace\dev\training-record-system\src
 php -S 127.0.0.1:8080 -t public
 ```
 
@@ -107,7 +108,7 @@ http://localhost:8080
 
 ### 2. MySQLコンテナを停止（オプション）
 ```powershell
-docker stop counseling-mysql
+docker stop training-mysql
 ```
 
 **注意**: コンテナを停止しなくても問題ありませんが、PCのリソースを節約したい場合は停止してください。
@@ -124,7 +125,7 @@ docker stop counseling-mysql
 
 **解決方法**:
 1. Docker Desktop が起動しているか確認
-2. `docker start counseling-mysql` を実行
+2. `docker start training-mysql` を実行
 3. `docker ps` で起動確認
 
 ### エラー: "Address already in use"
@@ -135,7 +136,7 @@ docker stop counseling-mysql
 1. 別のポートを使用: `php -S 127.0.0.1:8081 -t public`
 2. ブラウザで `http://localhost:8081` を開く
 
-### エラー: "No such container: counseling-mysql"
+### エラー: "No such container: training-mysql"
 
 **原因**: MySQLコンテナが作成されていない
 
@@ -163,11 +164,11 @@ docker stop counseling-mysql
 
 ## 参考情報
 
-- **プロジェクトディレクトリ**: `C:\Users\y-ouchi\workspace\dev\counseling-record-system\src`
-- **データベース名**: `counseling_record`
+- **プロジェクトディレクトリ**: `C:\Users\y-ouchi\workspace\dev\training-record-system\src`
+- **データベース名**: `training_record`
 - **データベースユーザー**: `laravel`
 - **データベースパスワード**: `laravel`
-- **MySQLポート**: `3306`
+- **MySQLポート**: `3308`
 - **開発サーバーURL**: `http://localhost:8080`
 
 ---
@@ -176,7 +177,7 @@ docker stop counseling-mysql
 
 | ターミナル | コマンド | 必須 |
 |-----------|---------|------|
-| 1（Docker） | `docker start counseling-mysql` | 必須 |
+| 1（Docker） | `docker start training-mysql` | 必須 |
 | 2（開発サーバー） | `php -S 127.0.0.1:8080 -t public` | 必須 |
 
 ---
