@@ -160,7 +160,7 @@
 
         <p class="text-center mt-3" style="font-size: 1.5em;">
             <span class="text-warning">⚠</span>
-            <strong>カウンセラー以外は操作しないでください</strong>
+            <strong>トレーナー以外は操作しないでください</strong>
         </p>
     </div>
 
@@ -182,15 +182,15 @@
         </div>
     </div>
 
-    {{-- モーダル2: 相談記録作成確認 --}}
+    {{-- モーダル2: トレーニング記録作成確認 --}}
     <div class="modal fade" id="modal-confirm-create-record" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">相談記録の作成</h5>
+                    <h5 class="modal-title">トレーニング記録の作成</h5>
                 </div>
                 <div class="modal-body">
-                    <p>このまま相談記録を作成しますか？</p>
+                    <p>このままトレーニング記録を作成しますか？</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" id="btn-no-create-record">いいえ</button>
@@ -200,12 +200,12 @@
         </div>
     </div>
 
-    {{-- モーダル3: 相談記録登録フォーム --}}
+    {{-- モーダル3: トレーニング記録登録フォーム --}}
     <div class="modal fade" id="modal-create-record" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">相談記録の作成</h5>
+                    <h5 class="modal-title">トレーニング記録の作成</h5>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
@@ -215,11 +215,11 @@
 
                     <div class="row">
                         <div class="col-md-8 mb-3">
-                            <label class="form-label">相談日</label>
+                            <label class="form-label">トレーニング日</label>
                             <input type="text" class="form-control bg-light" value="{{ date('Y年m月d日') }}（今日）" readonly>
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label class="form-label">相談時刻</label>
+                            <label class="form-label">トレーニング時刻</label>
                             <input type="text" class="form-control bg-light" id="record-consultation-time" readonly>
                         </div>
                     </div>
@@ -277,7 +277,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">相談記録を準備中</h5>
+                    <h5 class="modal-title">トレーニング記録を準備中</h5>
                 </div>
                 <div class="modal-body">
                     <div id="progress_status">
@@ -291,15 +291,15 @@
         </div>
     </div>
 
-    {{-- モーダル5: 相談記録登録完了 --}}
+    {{-- モーダル5: トレーニング記録登録完了 --}}
     <div class="modal fade" id="modal-record-created" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">相談記録登録</h5>
+                    <h5 class="modal-title">トレーニング記録登録</h5>
                 </div>
                 <div class="modal-body">
-                    <p class="mb-0">相談記録の登録が完了しました。</p>
+                    <p class="mb-0">トレーニング記録の登録が完了しました。</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" id="btn-confirm-record-created">OK</button>
@@ -360,7 +360,7 @@
         let dataArray = null;
         let animationId = null;
         let uploadedAudioRecordId = null;
-        let recordingStartTime = null; // 録音開始時刻（相談記録の consultation_time 用）
+        let recordingStartTime = null; // 録音開始時刻（トレーニング記録の consultation_time 用）
 
         // Dateオブジェクトを「HH:MM」形式の文字列に変換（nullの場合は空文字）
         function formatTimeHHMM(date) {
@@ -657,7 +657,7 @@
         }
 
         // ========================================
-        // モーダル2: 相談記録作成確認
+        // モーダル2: トレーニング記録作成確認
         // ========================================
 
         function showConfirmCreateRecordModal() {
@@ -670,7 +670,7 @@
                 showLogoutModal();
             }, { once: true });
 
-            // 「はい、作成する」→ 相談記録登録フォーム
+            // 「はい、作成する」→ トレーニング記録登録フォーム
             document.getElementById('btn-yes-create-record').addEventListener('click', async function() {
                 modal.hide();
                 await showCreateRecordModal();
@@ -678,7 +678,7 @@
         }
 
         // ========================================
-        // モーダル3: 相談記録登録フォーム
+        // モーダル3: トレーニング記録登録フォーム
         // ========================================
 
         // 参加者の区分一覧
@@ -727,7 +727,7 @@
             return participants;
         }
 
-        // カウンセラー一覧を読み込み
+        // トレーナー一覧を読み込み
         async function loadCounselors() {
             var response = await fetch('/api/counselors', {
                 headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
@@ -754,7 +754,7 @@
             // 録音開始時刻を表示（HH:MM形式）
             document.getElementById('record-consultation-time').value = formatTimeHHMM(recordingStartTime);
 
-            // カウンセラー一覧を読み込み
+            // トレーナー一覧を読み込み
             await loadCounselors();
 
             // 参加者の初期行を1つ追加
@@ -794,7 +794,7 @@
                 var counselor2Id = document.getElementById('counselor2_select').value;
                 // 担当1=担当2 は文字起こし（高コスト処理）の前に弾く（無駄な外部APIコストを防ぐ）
                 if (counselor2Id && counselor2Id === counselor1Id) {
-                    alert('担当者2には担当者1と異なるカウンセラーを選択してください。');
+                    alert('担当2は担当1と異なるトレーナーを選択してください。');
                     return;
                 }
 
@@ -832,11 +832,11 @@
 
                     document.getElementById('summary_status').innerHTML = '&#x2705; 要約完了';
 
-                    // 相談記録を自動作成
+                    // トレーニング記録を自動作成
                     document.getElementById('progress_status').innerHTML =
                         '<p>&#x2705; 文字起こし完了</p>' +
                         '<p>&#x2705; 要約完了</p>' +
-                        '<p>&#x23F3; 相談記録を作成中...</p>';
+                        '<p>&#x23F3; トレーニング記録を作成中...</p>';
 
                     var createResponse = await fetch('/api/counseling-records/auto-create', {
                         method: 'POST',
@@ -864,7 +864,7 @@
                         processingModal.hide();
                         showRecordCreatedModal();
                     } else {
-                        throw new Error(result.message || '相談記録の作成に失敗しました');
+                        throw new Error(result.message || 'トレーニング記録の作成に失敗しました');
                     }
 
                 } catch (error) {
@@ -877,7 +877,7 @@
         }
 
         // ========================================
-        // モーダル5: 相談記録登録完了
+        // モーダル5: トレーニング記録登録完了
         // ========================================
 
         function showRecordCreatedModal() {
@@ -915,7 +915,7 @@
         const btnStartStop = document.getElementById('btn-start-recording');
         btnStartStop.addEventListener('click', function() {
             if (!isRecording) {
-                // 録音開始時刻を記録（相談記録の consultation_time 用）
+                // 録音開始時刻を記録（トレーニング記録の consultation_time 用）
                 recordingStartTime = new Date();
 
                 // 録音開始

@@ -24,8 +24,8 @@ class AudioRecordController extends Controller
     /**
      * 音声管理一覧画面
      *
-     * カウンセラーフィルタ（GETパラメータ counselor_id）で表示を切り替え
-     * デフォルト: ログイン中のカウンセラー自身の記録のみ表示
+     * トレーナーフィルタ（GETパラメータ counselor_id）で表示を切り替え
+     * デフォルト: ログイン中のトレーナー自身の記録のみ表示
      */
     public function index(Request $request)
     {
@@ -33,7 +33,7 @@ class AudioRecordController extends Controller
 
         $query = AudioRecord::with(['counselor', 'client'])->orderBy('created_at', 'desc');
 
-        // カウンセラーフィルタ
+        // トレーナーフィルタ
         $counselorId = $request->query('counselor_id');
         if ($counselorId === 'all') {
             // フィルタなし（全員表示）
@@ -46,7 +46,7 @@ class AudioRecordController extends Controller
 
         $audioRecords = $query->paginate(5)->appends($request->query());
 
-        // プルダウン用カウンセラー一覧（system_adminを除外）
+        // プルダウン用トレーナー一覧（system_adminを除外）
         $counselors = Counselor::practitioners()
             ->orderBy('display_order')
             ->orderBy('name')
@@ -420,7 +420,7 @@ class AudioRecordController extends Controller
     }
 
     /**
-     * 要約テキストを取得（録音→相談記録連携用API）
+     * 要約テキストを取得（録音→トレーニング記録連携用API）
      */
     public function getSummary(AudioRecord $audioRecord): JsonResponse
     {
@@ -431,7 +431,7 @@ class AudioRecordController extends Controller
     }
 
     /**
-     * 要約済みファイル一覧を取得（相談記録への取り込み用API）
+     * 要約済みファイル一覧を取得（トレーニング記録への取り込み用API）
      *
      * 業務方針: 指定クライアントに紐付く要約のみ返す（誤取り込み防止）
      */
@@ -492,7 +492,7 @@ class AudioRecordController extends Controller
     /**
      * アクセス権チェック（現在は未使用）
      *
-     * カウンセラーフィルタ機能の導入に伴い、全カウンセラーが全レコードを
+     * トレーナーフィルタ機能の導入に伴い、全トレーナーが全レコードを
      * 閲覧・操作可能になったため、各アクションからの呼び出しを削除。
      * 将来的にアクセス制御を再導入する場合に備えてメソッドは残している。
      */

@@ -52,7 +52,7 @@
                                 <td>{{ $audio->client->internal_id }} {{ $audio->client->display_name }}</td>
                                 {{-- タイトル --}}
                                 <td>{{ $audio->title ?? $audio->file_name }}</td>
-                                {{-- 担当カウンセラー --}}
+                                {{-- 担当トレーナー --}}
                                 <td>{{ $audio->counselor->name ?? '-' }}</td>
                                 {{-- 再生 --}}
                                 <td>
@@ -460,7 +460,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // カウンセラーフィルタの変更時に画面遷移
+    // トレーナーフィルタの変更時に画面遷移
     const counselorFilter = document.getElementById('counselor-filter');
     if (counselorFilter) {
         counselorFilter.addEventListener('change', function() {
