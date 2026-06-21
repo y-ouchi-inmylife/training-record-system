@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
 /**
- * 未使用（発行後一度もログインがない）カウンセラーを自動ロックするコマンド
+ * 未使用（発行後一度もログインがない）トレーナーを自動ロックするコマンド
  *
  * 使用例:
  *   php artisan counselors:lock-unused
@@ -18,7 +18,7 @@ class LockUnusedCounselors extends Command
 {
     protected $signature = 'counselors:lock-unused {--days=7 : 作成日からの経過日数のしきい値}';
 
-    protected $description = '発行後一度もログインがないカウンセラーを作成日から指定日数経過でロックします';
+    protected $description = '発行後一度もログインがないトレーナーを作成日から指定日数経過でロックします';
 
     public function handle(): int
     {
@@ -28,7 +28,7 @@ class LockUnusedCounselors extends Command
             $days = (int) $this->option('days');
             $threshold = Carbon::now()->subDays($days);
 
-            $this->info("発行後一度もログインがなく、作成から{$days}日以上経過したカウンセラーをチェックします...");
+            $this->info("発行後一度もログインがなく、作成から{$days}日以上経過したトレーナーをチェックします...");
 
             // 新規発行後に使われないままのアカウント対策のバッチ。
             // 一度もログインしていない（last_login_at が null の）アカウントのうち、作成日時が指定日数以上前のものを対象とする。
@@ -63,7 +63,7 @@ class LockUnusedCounselors extends Command
                 $this->info("  ロック: {$counselor->name}（作成日: {$createdAt}）");
             }
 
-            $message = "{$count}件のカウンセラーをロックしました。";
+            $message = "{$count}件のトレーナーをロックしました。";
             $this->info($message);
             Log::info("[LockUnusedCounselors] {$message}");
 

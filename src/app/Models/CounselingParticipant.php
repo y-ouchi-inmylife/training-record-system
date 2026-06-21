@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * 相談参加者モデル
+ * トレーニング参加者モデル
  */
 class CounselingParticipant extends Model
 {

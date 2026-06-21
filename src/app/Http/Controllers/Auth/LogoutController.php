@@ -15,7 +15,7 @@ class LogoutController extends Controller
      */
     public function logout(Request $request): RedirectResponse
     {
-        // カウンセラー操作履歴に記録
+        // トレーナー操作履歴に記録
         try {
             AccessLog::create([
                 'counselor_id' => auth()->id(),

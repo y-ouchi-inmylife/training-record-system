@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
 /**
- * 30日間ログインがないカウンセラーを自動ロックするコマンド
+ * 30日間ログインがないトレーナーを自動ロックするコマンド
  *
  * 使用例:
  *   php artisan counselors:lock-inactive
@@ -18,7 +18,7 @@ class LockInactiveCounselors extends Command
 {
     protected $signature = 'counselors:lock-inactive {--days=30 : 未ログイン日数のしきい値}';
 
-    protected $description = '指定日数ログインがないカウンセラーを自動ロックします';
+    protected $description = '指定日数ログインがないトレーナーを自動ロックします';
 
     public function handle(): int
     {
@@ -28,7 +28,7 @@ class LockInactiveCounselors extends Command
             $days = (int) $this->option('days');
             $threshold = Carbon::now()->subDays($days);
 
-            $this->info("{$days}日間ログインがないカウンセラーをチェックします...");
+            $this->info("{$days}日間ログインがないトレーナーをチェックします...");
 
             // 退職・休職者対策のバッチ。最終ログイン日時を持ち、かつ指定日数以上前のアカウントのみを対象とする。
             // 一度もログインしていない（last_login_at が null の）アカウントは作成直後でも誤ロックされるため対象外とし、
@@ -63,7 +63,7 @@ class LockInactiveCounselors extends Command
                 $this->info("  ロック: {$counselor->name}（最終ログイン: {$lastLogin}）");
             }
 
-            $message = "{$count}件のカウンセラーをロックしました。";
+            $message = "{$count}件のトレーナーをロックしました。";
             $this->info($message);
             Log::info("[LockInactiveCounselors] {$message}");
 

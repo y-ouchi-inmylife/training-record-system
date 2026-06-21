@@ -6,7 +6,7 @@ use App\Models\ConsultationType;
 use Illuminate\Database\Seeder;
 
 /**
- * 相談内容マスタの初期データ
+ * トレーニング内容マスタの初期データ
  */
 class ConsultationTypeSeeder extends Seeder
 {

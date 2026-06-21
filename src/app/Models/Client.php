@@ -134,7 +134,7 @@ class Client extends Model
     }
 
     /**
-     * 主担当カウンセラー
+     * 主担当トレーナー
      */
     public function primaryCounselor(): BelongsTo
     {
@@ -150,7 +150,7 @@ class Client extends Model
     }
 
     /**
-     * 相談記録
+     * トレーニング記録
      */
     public function counselingRecords(): HasMany
     {
@@ -158,7 +158,7 @@ class Client extends Model
     }
 
     /**
-     * 最終更新者（カウンセラー）
+     * 最終更新者（トレーナー）
      */
     public function updatedBy(): BelongsTo
     {

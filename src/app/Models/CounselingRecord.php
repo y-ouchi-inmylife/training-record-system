@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * 相談記録モデル
+ * トレーニング記録モデル
  */
 class CounselingRecord extends Model
 {
@@ -66,7 +66,7 @@ class CounselingRecord extends Model
     }
 
     /**
-     * 最終更新者（カウンセラー）
+     * 最終更新者（トレーナー）
      */
     public function updatedBy(): BelongsTo
     {

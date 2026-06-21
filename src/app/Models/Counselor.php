@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 /**
- * カウンセラーモデル（認証ユーザー）
+ * トレーナーモデル（認証ユーザー）
  */
 class Counselor extends Authenticatable
 {
@@ -59,7 +59,7 @@ class Counselor extends Authenticatable
     }
 
     /**
-     * このカウンセラーが「管理者のみ」（admin ロール）かどうか
+     * このトレーナーが「管理者のみ」（admin ロール）かどうか
      *
      * 注意：isAdmin() は admin と system_admin の両方で true を返す（広義 admin）
      * このメソッドは admin ロールのみで true を返す
@@ -70,7 +70,7 @@ class Counselor extends Authenticatable
     }
 
     /**
-     * このカウンセラーが業務担当者（admin または staff）かどうか
+     * このトレーナーが業務担当者（admin または staff）かどうか
      *
      * scopePractitioners() の単体レコード版。system_admin は false を返す。
      */
@@ -80,7 +80,7 @@ class Counselor extends Authenticatable
     }
 
     /**
-     * 実務カウンセラー（システム管理を除く）のスコープ
+     * 実務トレーナー（システム管理を除く）のスコープ
      */
     public function scopePractitioners($query)
     {
@@ -109,7 +109,7 @@ class Counselor extends Authenticatable
     }
 
     /**
-     * 担当した相談記録（担当者1）
+     * 担当したトレーニング記録（担当1）
      */
     public function counselingRecordsAsCounselor1(): HasMany
     {
@@ -117,7 +117,7 @@ class Counselor extends Authenticatable
     }
 
     /**
-     * 担当した相談記録（担当者2）
+     * 担当したトレーニング記録（担当2）
      */
     public function counselingRecordsAsCounselor2(): HasMany
     {

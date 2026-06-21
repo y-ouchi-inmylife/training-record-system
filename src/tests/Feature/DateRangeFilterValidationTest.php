@@ -8,7 +8,7 @@ use Tests\TestCase;
 /**
  * 日付フィルタ相関チェック（開始日 ≦ 終了日）の挙動確認。
  *
- * 対象3画面（S-0304 クライアント一覧 / S-0402 相談記録一覧 / S-0805 操作履歴）が
+ * 対象3画面（S-0304 クライアント一覧 / S-0402 トレーニング記録一覧 / S-0805 操作履歴）が
  * 同一の方式・文言で相関チェックするかを検証する。
  *
  * 本プロジェクトのマイグレーションはMySQL専用のCHECK制約を生SQLで追加するため、
@@ -24,7 +24,7 @@ class DateRangeFilterValidationTest extends TestCase
     /** 検証対象の3ルート */
     private const ROUTES = [
         'S-0304 クライアント一覧' => 'clients.index',
-        'S-0402 相談記録一覧'     => 'counseling-records.index',
+        'S-0402 トレーニング記録一覧' => 'counseling-records.index',
         'S-0805 操作履歴'         => 'access-logs.index',
     ];
 

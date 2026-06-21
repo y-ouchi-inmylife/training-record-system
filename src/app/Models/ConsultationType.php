@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * 相談内容マスタモデル
+ * トレーニング内容マスタモデル
  */
 class ConsultationType extends Model
 {

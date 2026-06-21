@@ -62,8 +62,8 @@ Route::middleware('auth')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | 実務カウンセラー（管理カウンセラー + 一般カウンセラー）共通ルート
-    | クライアントの個人情報・相談内容を扱うため、system_admin は 403 で弾く
+    | 実務トレーナー（管理トレーナー + 一般トレーナー）共通ルート
+    | クライアントの個人情報・トレーニング内容を扱うため、system_admin は 403 で弾く
     |--------------------------------------------------------------------------
     */
     Route::middleware('practitioners')->group(function () {
@@ -76,19 +76,19 @@ Route::middleware('auth')->group(function () {
             return redirect()->route('recording-v2.index');
         })->name('recording');
 
-        // 録音【改良版】（全カウンセラーがアクセス可能）
+        // 録音【改良版】（全トレーナーがアクセス可能）
         Route::prefix('recording-v2')->name('recording-v2.')->group(function () {
             Route::get('/', [RecordingV2Controller::class, 'index'])->name('index');
             Route::post('/start', [RecordingV2Controller::class, 'start'])->name('start');
             Route::get('/session', [RecordingV2Controller::class, 'session'])->name('session');
         });
 
-        // 事前入力URL管理（カウンセラー向け）
+        // 事前入力URL管理（トレーナー向け）
         Route::get('client-intake-tokens', [ClientIntakeTokenController::class, 'index'])->name('client-intake-tokens.index');
         Route::post('client-intake-tokens', [ClientIntakeTokenController::class, 'store'])->name('client-intake-tokens.store');
         Route::delete('client-intake-tokens/{id}', [ClientIntakeTokenController::class, 'destroy'])->name('client-intake-tokens.destroy');
 
-        // 音声管理（全カウンセラーがアクセス可能）
+        // 音声管理（全トレーナーがアクセス可能）
         Route::get('audio-records', [AudioRecordController::class, 'index'])->name('audio-records.index');
         Route::post('audio-records/upload', [AudioRecordController::class, 'uploadStore'])->name('audio-records.upload.store');
         Route::post('audio-records/recording', [AudioRecordController::class, 'recordingStore'])->name('audio-records.recording.store');
@@ -119,7 +119,7 @@ Route::middleware('auth')->group(function () {
         Route::get('settings/summary-prompts', [SummaryPromptController::class, 'edit'])->name('settings.summary-prompts.edit');
         Route::put('settings/summary-prompts', [SummaryPromptController::class, 'update'])->name('settings.summary-prompts.update');
 
-        // カウンセラーアカウント管理
+        // トレーナーアカウント管理
         Route::resource('counselors', CounselorController::class)->except(['show']);
         Route::get('counselors/{counselor}/reset-password', [CounselorController::class, 'showResetPassword'])->name('counselors.reset-password');
         Route::put('counselors/{counselor}/reset-password', [CounselorController::class, 'resetPassword'])->name('counselors.reset-password.update');
@@ -128,12 +128,12 @@ Route::middleware('auth')->group(function () {
         Route::patch('counselors/{counselor}/move-up', [CounselorController::class, 'moveUp'])->name('counselors.move-up');
         Route::patch('counselors/{counselor}/move-down', [CounselorController::class, 'moveDown'])->name('counselors.move-down');
 
-        // カウンセラー操作履歴
+        // トレーナー操作履歴
         Route::get('access-logs', [AccessLogController::class, 'index'])->name('access-logs.index');
 
         // マスタ管理
         Route::prefix('master')->name('master.')->group(function () {
-            // 相談内容マスタ
+            // トレーニング内容マスタ
             Route::get('consultation-types', [ConsultationTypeController::class, 'index'])->name('consultation-types.index');
             Route::post('consultation-types', [ConsultationTypeController::class, 'store'])->name('consultation-types.store');
             Route::put('consultation-types/{consultationType}', [ConsultationTypeController::class, 'update'])->name('consultation-types.update');

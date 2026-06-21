@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * カウンセラー操作履歴記録ミドルウェア
+ * トレーナー操作履歴記録ミドルウェア
  */
 class LogAccess
 {

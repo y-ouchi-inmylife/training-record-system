@@ -6,7 +6,7 @@ use App\Models\Counselor;
 use Illuminate\Database\Seeder;
 
 /**
- * カウンセラーアカウントの初期データ
+ * トレーナーアカウントの初期データ
  */
 class CounselorSeeder extends Seeder
 {

@@ -70,7 +70,7 @@ class AudioRecord extends Model
     // --- リレーション ---
 
     /**
-     * アップロード・録音したカウンセラー
+     * アップロード・録音したトレーナー
      */
     public function counselor(): BelongsTo
     {
@@ -265,7 +265,7 @@ class AudioRecord extends Model
     // --- スコープ ---
 
     /**
-     * 要約済みファイルのみに絞り込む（相談記録への取り込み用）
+     * 要約済みファイルのみに絞り込む（トレーニング記録への取り込み用）
      */
     public function scopeWithSummary($query)
     {
