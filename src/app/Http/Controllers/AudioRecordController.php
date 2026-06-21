@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Storage;
  * 文字起こし・要約管理コントローラー
  *
  * @see docs/api-design.md 4.10 音声管理
- * @see docs/screen-design.md 4.16 S-017
+ * @see docs/screen-design.md 4.16 S-0505
  */
 class AudioRecordController extends Controller
 {
@@ -183,7 +183,7 @@ class AudioRecordController extends Controller
     /**
      * テキストから要約作成画面を表示
      *
-     * @see docs/screen-design.md 4.23 S-024
+     * @see docs/screen-design.md 4.23 S-0503
      * @see docs/api-design.md 4.7.12
      */
     public function textPasteCreate()
@@ -196,7 +196,7 @@ class AudioRecordController extends Controller
     /**
      * テキスト貼り付けレコードを保存
      *
-     * @see docs/screen-design.md 4.23 S-024（データ保存仕様）
+     * @see docs/screen-design.md 4.23 S-0503（データ保存仕様）
      * @see docs/api-design.md 4.7.13
      */
     public function textPasteStore(Request $request): RedirectResponse

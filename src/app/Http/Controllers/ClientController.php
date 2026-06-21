@@ -17,7 +17,7 @@ use Illuminate\View\View;
 class ClientController extends Controller
 {
     /**
-     * クライアント一覧・検索画面（S-004）
+     * クライアント一覧・検索画面（S-0304）
      */
     public function index(Request $request): View
     {
@@ -141,7 +141,7 @@ class ClientController extends Controller
     }
 
     /**
-     * クライアント新規登録画面（S-003 ステップ形式ウィザード）
+     * クライアント新規登録画面（S-0301 ステップ形式ウィザード）
      */
     public function create(): View
     {
@@ -182,7 +182,7 @@ class ClientController extends Controller
     }
 
     /**
-     * クライアント詳細画面（S-005）
+     * クライアント詳細画面（S-0305）
      */
     public function show(Client $client): View
     {

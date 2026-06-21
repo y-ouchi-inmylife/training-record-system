@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * 統計・集計コントローラー
  *
- * トレーニング記録数推移画面（S-020）の表示を担当する。
+ * トレーニング記録数推移画面（S-1101）の表示を担当する。
  */
 class StatisticsController extends Controller
 {

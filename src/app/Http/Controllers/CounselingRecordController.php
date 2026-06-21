@@ -17,7 +17,7 @@ use Illuminate\View\View;
 class CounselingRecordController extends Controller
 {
     /**
-     * トレーニング記録検索・一覧画面（S-007）
+     * トレーニング記録検索・一覧画面（S-0402）
      */
     public function index(Request $request): View
     {
@@ -140,7 +140,7 @@ class CounselingRecordController extends Controller
     }
 
     /**
-     * トレーニング記録新規登録画面（S-006 登録モード）
+     * トレーニング記録新規登録画面（S-0401 登録モード）
      *
      * 業務方針: トレーニング記録は必ずクライアント詳細から登録する設計（自由選択モード廃止）。
      * ?client_id= 未指定・不存在クライアントの場合はクライアント一覧へリダイレクト。
@@ -218,7 +218,7 @@ class CounselingRecordController extends Controller
     }
 
     /**
-     * トレーニング記録編集画面（S-006 編集モード）
+     * トレーニング記録編集画面（S-0404 編集モード）
      */
     public function edit(CounselingRecord $counselingRecord): View
     {
