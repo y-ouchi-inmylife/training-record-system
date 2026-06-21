@@ -41,7 +41,7 @@
                         @error('internal_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
                     <div class="col-md-3">
-                        <label for="initial_consultation_date" class="form-label">初回相談日 <span class="text-danger">*</span></label>
+                        <label for="initial_consultation_date" class="form-label">初回日 <span class="text-danger">*</span></label>
                         <input type="text" class="form-control datepicker @error('initial_consultation_date') is-invalid @enderror"
                                id="initial_consultation_date" name="initial_consultation_date"
                                value="{{ old('initial_consultation_date', $client->initial_consultation_date?->format('Y-m-d')) }}" required

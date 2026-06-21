@@ -55,7 +55,7 @@
                 <script>
                 function confirmDelete() {
                     @if($client->counselingRecords->count() > 0)
-                        alert('このクライアントには相談記録が登録されているため削除できません。');
+                        alert('このクライアントにはトレーニング記録が登録されているため削除できません。');
                         return false;
                     @else
                         return confirm('このクライアントを削除しますか？');
@@ -95,7 +95,7 @@
                     </div>
                     <div class="col-md-6">
                         <table class="table table-borderless table-sm">
-                            <tr><th class="text-muted" style="width:40%">初回相談日</th><td>{{ $client->initial_consultation_date?->format('Y/m/d') ?: '—' }}</td></tr>
+                            <tr><th class="text-muted" style="width:40%">初回日</th><td>{{ $client->initial_consultation_date?->format('Y/m/d') ?: '—' }}</td></tr>
                             <tr><th class="text-muted">生年月日（本人）</th><td>{{ $client->birth_date?->format('Y/m/d') ?: '—' }}</td></tr>
                             <tr><th class="text-muted">初回時年齢（本人）</th><td>{{ $client->initial_age ?: '—' }}</td></tr>
                             <tr><th class="text-muted">性別（本人）</th><td>{{ $client->gender ?: '—' }}</td></tr>
@@ -106,11 +106,11 @@
         </div>
     </div>
 
-    {{-- 相談記録一覧 --}}
+    {{-- トレーニング記録一覧 --}}
     <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h6 class="mb-0">
-                相談記録（{{ $client->counselingRecords->count() }}件）
+                トレーニング記録（{{ $client->counselingRecords->count() }}件）
             </h6>
             <a href="{{ route('counseling-records.create', ['client_id' => $client->id]) }}" class="btn btn-primary">新規登録</a>
         </div>
@@ -119,14 +119,14 @@
                 <table class="table table-hover table-sm mb-0 consultation-records-table">
                     <thead class="table-light">
                         <tr>
-                            <th>相談日</th>
+                            <th>トレーニング日</th>
                             <th>参加者</th>
                             <th>担当1</th>
                             <th>担当2</th>
                             <th>参加状況</th>
                             <th>参加形態</th>
                             <th>初回</th>
-                            <th>相談内容</th>
+                            <th>トレーニング内容</th>
                             <th>フェーズ</th>
                         </tr>
                     </thead>
@@ -155,7 +155,7 @@
             </div>
         @else
             <div class="card-body">
-                <p class="text-muted mb-0">相談記録はありません</p>
+                <p class="text-muted mb-0">トレーニング記録はありません</p>
             </div>
         @endif
     </div>

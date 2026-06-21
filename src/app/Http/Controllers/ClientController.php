@@ -72,12 +72,12 @@ class ClientController extends Controller
             $query->where('support_status_id', $request->input('support_status_id'));
         }
 
-        // 主担当カウンセラーフィルター
+        // 主担当トレーナーフィルター
         if ($request->filled('primary_counselor_id')) {
             $query->where('primary_counselor_id', $request->input('primary_counselor_id'));
         }
 
-        // 最終相談日の期間指定（最新の相談記録日付で絞り込み）
+        // 最終トレーニング日の期間指定（最新のトレーニング記録日付で絞り込み）
         if ($request->filled('date_from')) {
             $query->whereRaw(
                 '(SELECT MAX(cr.consultation_date) FROM counseling_records cr WHERE cr.client_id = clients.id) >= ?',
@@ -234,20 +234,20 @@ class ClientController extends Controller
     }
 
     /**
-     * クライアント削除処理（管理カウンセラーのみ）
+     * クライアント削除処理（管理トレーナーのみ）
      */
     public function destroy(Client $client): RedirectResponse
     {
-        // 管理カウンセラーのみ削除可能
+        // 管理トレーナーのみ削除可能
         if (!auth()->user()->isAdmin()) {
             abort(403, '管理者のみ削除できます。');
         }
 
-        // 相談記録が存在する場合は削除不可
+        // トレーニング記録が存在する場合は削除不可
         if ($client->counselingRecords()->exists()) {
             return redirect()
                 ->route('clients.show', $client)
-                ->with('error', 'このクライアントには相談記録が登録されているため削除できません。');
+                ->with('error', 'このクライアントにはトレーニング記録が登録されているため削除できません。');
         }
 
         $client->delete();

@@ -30,7 +30,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="initial_consultation_date" class="form-label">初回相談日 <span class="text-danger">*</span></label>
+                    <label for="initial_consultation_date" class="form-label">初回日 <span class="text-danger">*</span></label>
                     <input type="text" class="form-control datepicker @error('initial_consultation_date') is-invalid @enderror"
                            id="initial_consultation_date" name="initial_consultation_date"
                            value="{{ old('initial_consultation_date') }}"
@@ -53,7 +53,7 @@
                     <label for="memo" class="form-label">メモ（任意）</label>
                     <input type="text" class="form-control @error('memo') is-invalid @enderror"
                            id="memo" name="memo" value="{{ old('memo') }}"
-                           placeholder="例: 山田太郎様 初回相談予定 4/10">
+                           placeholder="例: 山田太郎様 初回予定 4/10">
                     @error('memo')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -86,7 +86,7 @@
                                         <strong>有効期限:</strong> {{ $token->expires_at->format('Y/m/d H:i') }}
                                     </p>
                                     <p class="mb-1">
-                                        <strong>初回相談日:</strong> {{ $token->initial_consultation_date?->format('Y/m/d') ?: '—' }}
+                                        <strong>初回日:</strong> {{ $token->initial_consultation_date?->format('Y/m/d') ?: '—' }}
                                     </p>
                                     <p class="mb-1">
                                         <strong>メールアドレス:</strong> {{ $token->email ?: '—' }}

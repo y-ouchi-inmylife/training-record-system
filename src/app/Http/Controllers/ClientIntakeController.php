@@ -21,7 +21,7 @@ class ClientIntakeController extends Controller
         if (!$tokenRecord) {
             return view('client-intake.errors.invalid-token', [
                 'title' => 'このURLは無効です',
-                'message' => 'URLが間違っているか、既に削除されています。カウンセラーにお問い合わせください。',
+                'message' => 'URLが間違っているか、既に削除されています。トレーナーにお問い合わせください。',
             ]);
         }
 
@@ -29,7 +29,7 @@ class ClientIntakeController extends Controller
         if ($tokenRecord->isExpired()) {
             return view('client-intake.errors.invalid-token', [
                 'title' => 'このURLは期限切れです',
-                'message' => 'このURLの有効期限が切れています。カウンセラーにお問い合わせください。',
+                'message' => 'このURLの有効期限が切れています。トレーナーにお問い合わせください。',
             ]);
         }
 
@@ -59,7 +59,7 @@ class ClientIntakeController extends Controller
         if (!$tokenRecord || $tokenRecord->isExpired() || $tokenRecord->is_used) {
             return view('client-intake.errors.invalid-token', [
                 'title' => 'このURLは無効です',
-                'message' => 'このURLは無効か、既に使用されています。カウンセラーにお問い合わせください。',
+                'message' => 'このURLは無効か、既に使用されています。トレーナーにお問い合わせください。',
             ]);
         }
 

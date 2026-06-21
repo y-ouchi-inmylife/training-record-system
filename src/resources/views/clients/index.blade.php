@@ -27,7 +27,7 @@
                                value="{{ request('keyword') }}" placeholder="姓名・かなで検索（部分一致）">
                     </div>
                     <div class="col-md-2">
-                        <label for="date_from" class="form-label">最終相談日（開始）</label>
+                        <label for="date_from" class="form-label">最終トレーニング日（開始）</label>
                         <input type="text" class="form-control datepicker" id="date_from" name="date_from"
                                value="{{ old('date_from', request('date_from')) }}"
                                placeholder="例: 2026-04-01"
@@ -35,7 +35,7 @@
                                maxlength="10">
                     </div>
                     <div class="col-md-2">
-                        <label for="date_to" class="form-label">最終相談日（終了）</label>
+                        <label for="date_to" class="form-label">最終トレーニング日（終了）</label>
                         <input type="text" class="form-control datepicker" id="date_to" name="date_to"
                                value="{{ old('date_to', request('date_to')) }}"
                                placeholder="例: 2026-04-01"
@@ -114,7 +114,7 @@
                     <th>性別</th>
                     <th>主担当</th>
                     <th>支援状態</th>
-                    <th>最終相談日</th>
+                    <th>最終トレーニング日</th>
                     <th>フェーズ</th>
                 </tr>
             </thead>
