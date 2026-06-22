@@ -25,7 +25,7 @@ class CounselorSeeder extends Seeder
             ],
             [
                 'login_id' => 'admin',
-                'name' => '管理カウンセラー',
+                'name' => '管理トレーナー',
                 'role' => 'admin',
                 'password' => 'InMyLife1965!',
                 'is_locked' => false,
@@ -35,7 +35,7 @@ class CounselorSeeder extends Seeder
             ],
             [
                 'login_id' => 'staff',
-                'name' => '一般カウンセラー',
+                'name' => '一般トレーナー',
                 'role' => 'staff',
                 'password' => 'InMyLife1965!',
                 'is_locked' => false,
