@@ -109,7 +109,6 @@
                             @endif
                         </a>
                     </th>
-                    <th>本人との関係</th>
                     <th>年齢</th>
                     <th>性別</th>
                     <th>主担当</th>
@@ -124,7 +123,6 @@
                         <td><a href="{{ route('clients.show', $client) }}" class="stretched-link text-decoration-none text-reset">{{ $client->internal_id }}</a></td>
                         <td>{{ $client->display_name }}</td>
                         <td class="text-muted">{{ $client->display_name_kana }}</td>
-                        <td>{{ $client->family_relationship }}</td>
                         <td>{{ $client->estimated_age }}</td>
                         <td>{{ $client->gender }}</td>
                         <td>{{ $client->primaryCounselor?->name }}</td>
@@ -140,7 +138,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="10" class="text-center text-muted py-4">該当するクライアントがありません。</td>
+                        <td colspan="9" class="text-center text-muted py-4">該当するクライアントがありません。</td>
                     </tr>
                 @endforelse
             </tbody>

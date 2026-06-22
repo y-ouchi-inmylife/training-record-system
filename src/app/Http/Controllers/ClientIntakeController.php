@@ -66,16 +66,10 @@ class ClientIntakeController extends Controller
         // バリデーション（既存のstore()メソッドと同じルール）
         $validated = $request->validate([
             // 基本情報
-            'last_name' => 'nullable|string|max:50',
+            'last_name' => 'required|string|max:50',
             'first_name' => 'nullable|string|max:50',
             'last_name_kana' => ['nullable', 'string', 'max:50', 'regex:/^[\p{Hiragana}\s　]+$/u'],
             'first_name_kana' => ['nullable', 'string', 'max:50', 'regex:/^[\p{Hiragana}\s　]+$/u'],
-            'family_last_name' => 'nullable|string|max:50',
-            'family_first_name' => 'nullable|string|max:50',
-            'family_last_name_kana' => ['nullable', 'string', 'max:50', 'regex:/^[\p{Hiragana}\s　]+$/u'],
-            'family_first_name_kana' => ['nullable', 'string', 'max:50', 'regex:/^[\p{Hiragana}\s　]+$/u'],
-            'family_relationship' => 'required|in:本人,母,父,配偶者,きょうだい,子,祖父母,その他',
-            'family_relationship_detail' => 'nullable|string|max:100',
             'birth_date' => 'nullable|date',
             'initial_age' => 'nullable|integer|min:0|max:150',
             'gender' => 'nullable|in:男,女,その他',
@@ -125,9 +119,6 @@ class ClientIntakeController extends Controller
             'bullying' => 'nullable|in:あり,なし',
         ]);
 
-        // 本人との関係に応じた氏名の必須チェック
-        $this->validateNameByRelationship($request);
-
         // トランザクション内でクライアント登録 + トークン更新
         DB::transaction(function () use ($validated, $tokenRecord) {
             $newInternalId = (string) (new ClientInternalIdService())->generateNext();
@@ -149,23 +140,4 @@ class ClientIntakeController extends Controller
         return view('client-intake.complete-public');
     }
 
-    /**
-     * 本人との関係に応じた氏名の必須チェック
-     */
-    private function validateNameByRelationship(Request $request): void
-    {
-        if ($request->family_relationship === '本人') {
-            $request->validate([
-                'last_name' => 'required|string|max:50',
-            ], [
-                'last_name.required' => '本人との関係が「本人」の場合、姓（本人）は必須です。',
-            ]);
-        } else {
-            $request->validate([
-                'family_last_name' => 'required|string|max:50',
-            ], [
-                'family_last_name.required' => '本人との関係が「本人以外」の場合、姓（家族など）は必須です。',
-            ]);
-        }
-    }
 }

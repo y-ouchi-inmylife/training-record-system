@@ -72,50 +72,6 @@
                 </div>
 
                 <div class="col-md-3">
-                    <label for="family_last_name" class="form-label">姓（家族など）</label>
-                    <input type="text" class="form-control @error('family_last_name') is-invalid @enderror"
-                           id="family_last_name" name="family_last_name" inputmode="text" value="{{ old('family_last_name') }}">
-                    @error('family_last_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-                <div class="col-md-3">
-                    <label for="family_first_name" class="form-label">名（家族など）</label>
-                    <input type="text" class="form-control" id="family_first_name" name="family_first_name"
-                           inputmode="text" value="{{ old('family_first_name') }}">
-                </div>
-                <div class="col-md-3">
-                    <label for="family_last_name_kana" class="form-label">せい（家族など）</label>
-                    <input type="text" class="form-control @error('family_last_name_kana') is-invalid @enderror"
-                           id="family_last_name_kana" name="family_last_name_kana"
-                           inputmode="hiragana" value="{{ old('family_last_name_kana') }}" placeholder="例: さとう">
-                    @error('family_last_name_kana') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-                <div class="col-md-3">
-                    <label for="family_first_name_kana" class="form-label">めい（家族など）</label>
-                    <input type="text" class="form-control @error('family_first_name_kana') is-invalid @enderror"
-                           id="family_first_name_kana" name="family_first_name_kana"
-                           inputmode="hiragana" value="{{ old('family_first_name_kana') }}" placeholder="例: はなこ">
-                    @error('family_first_name_kana') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-                <div class="col-md-3">
-                    <label for="family_relationship" class="form-label">本人との関係 <span class="text-danger">*</span></label>
-                    <select class="form-select @error('family_relationship') is-invalid @enderror"
-                            id="family_relationship" name="family_relationship" required>
-                        <option value="">選択してください</option>
-                        @foreach(['本人', '母', '父', '配偶者', 'きょうだい', '子', '祖父母', 'その他'] as $rel)
-                            <option value="{{ $rel }}" {{ old('family_relationship') === $rel ? 'selected' : '' }}>{{ $rel }}</option>
-                        @endforeach
-                    </select>
-                    @error('family_relationship') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-                <div class="col-md-3">
-                    <label for="family_relationship_detail" class="form-label">関係の詳細</label>
-                    <input type="text" class="form-control" id="family_relationship_detail"
-                           name="family_relationship_detail" inputmode="text" value="{{ old('family_relationship_detail') }}">
-                </div>
-
-                <div class="w-100"></div>
-
-                <div class="col-md-3">
                     <label for="birth_date" class="form-label">生年月日（本人）</label>
                     <input type="text" class="form-control datepicker" id="birth_date" name="birth_date" value="{{ old('birth_date') }}"
                            placeholder="例: 2000-01-15" pattern="\d{4}-\d{2}-\d{2}" maxlength="10">
@@ -439,19 +395,11 @@
                 }
             });
 
-            // 本人との関係に応じた姓の必須チェック
-            var relationship = document.getElementById('family_relationship').value;
+            // 本人姓の必須チェック
             clearNameError();
-            if (relationship === '本人') {
-                if (!document.getElementById('last_name').value.trim()) {
-                    showNameError('last_name', '本人との関係が「本人」の場合、姓（本人）は必須です。');
-                    valid = false;
-                }
-            } else if (relationship) {
-                if (!document.getElementById('family_last_name').value.trim()) {
-                    showNameError('family_last_name', '本人との関係が「本人以外」の場合、姓（家族など）は必須です。');
-                    valid = false;
-                }
+            if (!document.getElementById('last_name').value.trim()) {
+                showNameError('last_name', '姓（本人）は必須です。');
+                valid = false;
             }
 
             // ひらがなバリデーション
@@ -459,8 +407,6 @@
             var kanaFields = [
                 { id: 'last_name_kana', label: 'せい（本人）' },
                 { id: 'first_name_kana', label: 'めい（本人）' },
-                { id: 'family_last_name_kana', label: 'せい（家族など）' },
-                { id: 'family_first_name_kana', label: 'めい（家族など）' },
             ];
             kanaFields.forEach(function(f) {
                 clearFieldError(f.id);
@@ -525,7 +471,7 @@
     }
 
     function clearNameError() {
-        ['last_name', 'family_last_name'].forEach(function(id) {
+        ['last_name'].forEach(function(id) {
             var field = document.getElementById(id);
             field.classList.remove('is-invalid');
             var err = document.getElementById(id + '_error');

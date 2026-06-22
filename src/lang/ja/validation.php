@@ -182,12 +182,6 @@ return [
         'first_name_kana' => [
             'regex' => 'めい（本人）はひらがなで入力してください。',
         ],
-        'family_last_name_kana' => [
-            'regex' => 'せい（家族など）はひらがなで入力してください。',
-        ],
-        'family_first_name_kana' => [
-            'regex' => 'めい（家族など）はひらがなで入力してください。',
-        ],
         'counselor2_id' => [
             'different' => '担当2は担当1と異なるトレーナーを選択してください。',
         ],
@@ -209,12 +203,6 @@ return [
         'first_name' => 'めい（本人）',
         'last_name_kana' => 'せい（本人）',
         'first_name_kana' => 'めい（本人）',
-        'family_last_name' => 'せい（家族など）',
-        'family_first_name' => 'めい（家族など）',
-        'family_last_name_kana' => 'せい（家族など）',
-        'family_first_name_kana' => 'めい（家族など）',
-        'family_relationship' => '本人との関係',
-        'family_relationship_detail' => '本人との関係（詳細）',
         'birth_date' => '生年月日',
         'initial_age' => '初回時年齢',
         'gender' => '性別',

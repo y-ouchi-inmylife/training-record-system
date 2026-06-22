@@ -19,12 +19,6 @@ return new class extends Migration
             $table->string('first_name', 50)->nullable()->comment('名（本人）');
             $table->string('last_name_kana', 50)->nullable()->comment('姓かな（本人）');
             $table->string('first_name_kana', 50)->nullable()->comment('名かな（本人）');
-            $table->string('family_last_name', 50)->nullable()->comment('姓（家族）');
-            $table->string('family_first_name', 50)->nullable()->comment('名（家族）');
-            $table->string('family_last_name_kana', 50)->nullable()->comment('姓かな（家族）');
-            $table->string('family_first_name_kana', 50)->nullable()->comment('名かな（家族）');
-            $table->string('family_relationship', 20);
-            $table->string('family_relationship_detail', 100)->nullable()->comment('関係の詳細');
             $table->date('birth_date')->nullable()->comment('生年月日（本人）');
             $table->integer('initial_age')->nullable()->comment('初回相談時の年齢');
             $table->string('gender', 10)->nullable()->comment('性別');
@@ -99,7 +93,6 @@ return new class extends Migration
 
         // CHECK 制約（全角文字を含む文字列値は既存マイグレーションから正確にコピー）
         DB::statement("ALTER TABLE clients ADD CONSTRAINT clients_gender_check CHECK (gender IS NULL OR gender IN ('男', '女', 'その他'))");
-        DB::statement("ALTER TABLE clients ADD CONSTRAINT clients_family_rel_check CHECK (family_relationship IN ('本人', '母', '父', '配偶者', 'きょうだい', '子', '祖父母', 'その他'))");
         DB::statement("ALTER TABLE clients ADD CONSTRAINT clients_education_level_check CHECK (education_level IS NULL OR education_level IN ('中学', '全日制高校', '定時制高校', '通信制高校', '高専', '専門学校', '大学', '短大', '大学院', 'その他'))");
         DB::statement("ALTER TABLE clients ADD CONSTRAINT clients_education_status_check CHECK (education_status IS NULL OR education_status IN ('卒業', '中退', '在学中', '休学中'))");
         DB::statement("ALTER TABLE clients ADD CONSTRAINT clients_employment_type_check CHECK (employment_type IS NULL OR employment_type IN ('正社員・正規職員', '契約社員・嘱託社員', 'パート・アルバイト', '派遣社員', 'その他・詳細不明'))");

@@ -50,11 +50,7 @@ class CounselingRecordController extends Controller
                     $sub->where('last_name', 'like', "%{$name}%")
                         ->orWhere('first_name', 'like', "%{$name}%")
                         ->orWhere('last_name_kana', 'like', "%{$name}%")
-                        ->orWhere('first_name_kana', 'like', "%{$name}%")
-                        ->orWhere('family_last_name', 'like', "%{$name}%")
-                        ->orWhere('family_first_name', 'like', "%{$name}%")
-                        ->orWhere('family_last_name_kana', 'like', "%{$name}%")
-                        ->orWhere('family_first_name_kana', 'like', "%{$name}%");
+                        ->orWhere('first_name_kana', 'like', "%{$name}%");
                 });
             });
         }
@@ -111,17 +107,10 @@ class CounselingRecordController extends Controller
                 ->select('counseling_records.*')
                 ->orderByRaw('CAST(clients.internal_id AS UNSIGNED) ' . $sortDir);
         } elseif ($sortBy === 'client_name') {
-            // クライアント一覧の氏名ソートと同じロジック（本人/家族の分岐 + 日本語照合順序）
+            // 日本語照合順序で姓順に並べる
             $query->leftJoin('clients', 'counseling_records.client_id', '=', 'clients.id')
                 ->select('counseling_records.*')
-                ->orderByRaw("
-                    CASE
-                        WHEN clients.family_relationship = '本人' OR clients.family_relationship IS NULL
-                            THEN clients.last_name
-                        WHEN clients.family_last_name IS NOT NULL AND clients.family_last_name <> ''
-                            THEN clients.family_last_name
-                        ELSE clients.last_name
-                    END COLLATE utf8mb4_ja_0900_as_cs " . $sortDir);
+                ->orderByRaw("clients.last_name COLLATE utf8mb4_ja_0900_as_cs " . $sortDir);
         } else {
             $query->orderBy($sortBy, $sortDir);
         }

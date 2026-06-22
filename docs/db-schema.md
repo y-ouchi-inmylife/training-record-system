@@ -218,12 +218,6 @@ erDiagram
 | first_name | VARCHAR(50) | YES | NULL | 名（本人） |
 | last_name_kana | VARCHAR(50) | YES | NULL | せい（本人）。ひらがなのみ |
 | first_name_kana | VARCHAR(50) | YES | NULL | めい（本人）。ひらがなのみ |
-| family_last_name | VARCHAR(50) | YES | NULL | 姓（家族など） |
-| family_first_name | VARCHAR(50) | YES | NULL | 名（家族など） |
-| family_last_name_kana | VARCHAR(50) | YES | NULL | せい（家族など）。ひらがなのみ |
-| family_first_name_kana | VARCHAR(50) | YES | NULL | めい（家族など）。ひらがなのみ |
-| family_relationship | VARCHAR(20) | NO | — | 本人との関係（5-1.参照） |
-| family_relationship_detail | VARCHAR(100) | YES | NULL | 関係の詳細（例: 義理の母、別居中） |
 | birth_date | DATE | YES | NULL | 生年月日（本人） |
 | initial_age | INTEGER | YES | NULL | 初回トレーニング時の年齢（本人）。0〜150の範囲 |
 | gender | VARCHAR(10) | YES | NULL | 性別（5-2.参照） |
@@ -283,7 +277,6 @@ erDiagram
 
 | 制約名 | 種類 | 条件 | ON DELETE | 説明 |
 |--------|------|------|-----------|------|
-| clients_family_rel_check | CHECK | family_relationship IN ('本人', '母', '父', '配偶者', 'きょうだい', '子', '祖父母', 'その他') | — | 定義済みの関係のみ許可（5-1.参照） |
 | clients_gender_check | CHECK | gender IS NULL OR gender IN ('男', '女', 'その他') | — | 定義済みの性別のみ許可（5-2.参照） |
 | clients_initial_age_check | CHECK | initial_age IS NULL OR (initial_age >= 0 AND initial_age <= 150) | — | 年齢の妥当な範囲を制限 |
 | clients_primary_counselor_id_foreign | FOREIGN KEY | primary_counselor_id → counselors(id) | SET NULL | トレーナー削除時は主担当をNULLにする |
@@ -760,19 +753,6 @@ erDiagram
 
 
 ## 5. ENUMおよび定数
-
-### 5-1. 本人との関係
-
-| 値 | 説明 |
-|----|------|
-| 本人 | トレーニング者が本人の場合 |
-| 母 | |
-| 父 | |
-| 配偶者 | |
-| きょうだい | |
-| 子 | |
-| 祖父母 | |
-| その他 | 上記に該当しない関係 |
 
 ### 5-2. 性別
 

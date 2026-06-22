@@ -20,9 +20,6 @@ class Client extends Model
         // カテゴリー1: 基本情報
         'initial_consultation_date', 'last_name', 'first_name',
         'last_name_kana', 'first_name_kana',
-        'family_last_name', 'family_first_name',
-        'family_last_name_kana', 'family_first_name_kana',
-        'family_relationship', 'family_relationship_detail',
         'birth_date', 'initial_age', 'gender',
         // カテゴリー2: 連絡先
         'phone1', 'phone2', 'phone3', 'email',
@@ -75,45 +72,19 @@ class Client extends Model
     }
 
     /**
-     * 家族氏名（フルネーム）
-     */
-    public function getFamilyFullNameAttribute(): string
-    {
-        if (!$this->family_last_name && !$this->family_first_name) {
-            return '';
-        }
-        return trim(($this->family_last_name ?? '') . ' ' . ($this->family_first_name ?? ''));
-    }
-
-    /**
-     * 家族氏名かな（フルネーム）
-     */
-    public function getFamilyFullNameKanaAttribute(): string
-    {
-        $kana = trim(($this->family_last_name_kana ?? '') . ' ' . ($this->family_first_name_kana ?? ''));
-        return $kana ?: '';
-    }
-
-    /**
-     * 一覧表示用の氏名（本人との関係に応じて本人名または家族名を返す）
+     * 一覧表示用の氏名
      */
     public function getDisplayNameAttribute(): string
     {
-        if ($this->family_relationship === '本人') {
-            return $this->full_name;
-        }
-        return $this->family_full_name ?: $this->full_name;
+        return $this->full_name;
     }
 
     /**
-     * 一覧表示用のかな（本人との関係に応じて本人かなまたは家族かなを返す）
+     * 一覧表示用のかな
      */
     public function getDisplayNameKanaAttribute(): string
     {
-        if ($this->family_relationship === '本人') {
-            return $this->full_name_kana;
-        }
-        return $this->family_full_name_kana ?: $this->full_name_kana;
+        return $this->full_name_kana;
     }
 
     /**

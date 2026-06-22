@@ -59,11 +59,7 @@ class ClientController extends Controller
                 $q->where('last_name', 'like', "%{$keyword}%")
                   ->orWhere('first_name', 'like', "%{$keyword}%")
                   ->orWhere('last_name_kana', 'like', "%{$keyword}%")
-                  ->orWhere('first_name_kana', 'like', "%{$keyword}%")
-                  ->orWhere('family_last_name', 'like', "%{$keyword}%")
-                  ->orWhere('family_first_name', 'like', "%{$keyword}%")
-                  ->orWhere('family_last_name_kana', 'like', "%{$keyword}%")
-                  ->orWhere('family_first_name_kana', 'like', "%{$keyword}%");
+                  ->orWhere('first_name_kana', 'like', "%{$keyword}%");
             });
         }
 
@@ -103,31 +99,11 @@ class ClientController extends Controller
         if ($sortBy === 'internal_id') {
             $query->orderByRaw('CAST(internal_id AS UNSIGNED) ' . $sortDir);
         } elseif ($sortBy === 'last_name') {
-            // display_name アクセサの表示ロジックに合わせて並び替える
-            // - 本人（またはfamily_relationshipがNULL）: last_name
-            // - 本人以外で家族姓あり: family_last_name
-            // - 本人以外で家族姓空: last_name にフォールバック
-            $query->orderByRaw("
-                CASE
-                    WHEN family_relationship = '本人' OR family_relationship IS NULL
-                        THEN last_name
-                    WHEN family_last_name IS NOT NULL AND family_last_name <> ''
-                        THEN family_last_name
-                    ELSE last_name
-                END COLLATE utf8mb4_ja_0900_as_cs " . $sortDir);
+            // 日本語照合順序で姓順に並べる
+            $query->orderByRaw("last_name COLLATE utf8mb4_ja_0900_as_cs " . $sortDir);
         } elseif ($sortBy === 'last_name_kana') {
-            // display_name_kana アクセサの表示ロジックに合わせて並び替える
-            // - 本人（またはfamily_relationshipがNULL）: last_name_kana
-            // - 本人以外で家族かなあり: family_last_name_kana
-            // - 本人以外で家族かな空: last_name_kana にフォールバック
-            $query->orderByRaw("
-                CASE
-                    WHEN family_relationship = '本人' OR family_relationship IS NULL
-                        THEN last_name_kana
-                    WHEN family_last_name_kana IS NOT NULL AND family_last_name_kana <> ''
-                        THEN family_last_name_kana
-                    ELSE last_name_kana
-                END COLLATE utf8mb4_ja_0900_as_cs " . $sortDir);
+            // 日本語照合順序で姓かな順に並べる
+            $query->orderByRaw("last_name_kana COLLATE utf8mb4_ja_0900_as_cs " . $sortDir);
         } else {
             $query->orderBy($sortBy, $sortDir);
         }
@@ -161,11 +137,6 @@ class ClientController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate($this->validationRules());
-
-        // 本人との関係に応じた姓の必須チェック
-        if ($error = $this->validateNameByRelationship($request)) {
-            return back()->withErrors($error)->withInput();
-        }
 
         $validated['updated_by'] = auth()->id();
 
@@ -219,11 +190,6 @@ class ClientController extends Controller
             ),
             $this->internalIdMessages()
         );
-
-        // 本人との関係に応じた姓の必須チェック
-        if ($error = $this->validateNameByRelationship($request)) {
-            return back()->withErrors($error)->withInput();
-        }
 
         $validated['updated_by'] = auth()->id();
         $client->update($validated);
@@ -283,11 +249,7 @@ class ClientController extends Controller
               ->orWhere('last_name', 'like', "%{$query}%")
               ->orWhere('first_name', 'like', "%{$query}%")
               ->orWhere('last_name_kana', 'like', "%{$query}%")
-              ->orWhere('first_name_kana', 'like', "%{$query}%")
-              ->orWhere('family_last_name', 'like', "%{$query}%")
-              ->orWhere('family_first_name', 'like', "%{$query}%")
-              ->orWhere('family_last_name_kana', 'like', "%{$query}%")
-              ->orWhere('family_first_name_kana', 'like', "%{$query}%");
+              ->orWhere('first_name_kana', 'like', "%{$query}%");
         })
         ->orderBy('internal_id')
         ->limit(20)
@@ -306,23 +268,6 @@ class ClientController extends Controller
     /**
      * 内部IDのバリデーションメッセージ
      */
-    /**
-     * 本人との関係に応じた姓の必須チェック
-     */
-    private function validateNameByRelationship(Request $request): ?array
-    {
-        if ($request->family_relationship === '本人') {
-            if (empty($request->last_name)) {
-                return ['last_name' => '本人との関係が「本人」の場合、姓（本人）は必須です。'];
-            }
-        } else {
-            if (empty($request->family_last_name)) {
-                return ['family_last_name' => '本人との関係が「本人以外」の場合、姓（家族など）は必須です。'];
-            }
-        }
-        return null;
-    }
-
     private function internalIdMessages(): array
     {
         return [
@@ -336,16 +281,10 @@ class ClientController extends Controller
     {
         return [
             // カテゴリー1: 基本情報
-            'last_name' => 'nullable|string|max:50',
+            'last_name' => 'required|string|max:50',
             'first_name' => 'nullable|string|max:50',
             'last_name_kana' => ['nullable', 'string', 'max:50', 'regex:/^[\p{Hiragana}\s　]+$/u'],
             'first_name_kana' => ['nullable', 'string', 'max:50', 'regex:/^[\p{Hiragana}\s　]+$/u'],
-            'family_last_name' => 'nullable|string|max:50',
-            'family_first_name' => 'nullable|string|max:50',
-            'family_last_name_kana' => ['nullable', 'string', 'max:50', 'regex:/^[\p{Hiragana}\s　]+$/u'],
-            'family_first_name_kana' => ['nullable', 'string', 'max:50', 'regex:/^[\p{Hiragana}\s　]+$/u'],
-            'family_relationship' => 'required|in:本人,母,父,配偶者,きょうだい,子,祖父母,その他',
-            'family_relationship_detail' => 'nullable|string|max:100',
             'birth_date' => 'nullable|date',
             'initial_age' => 'nullable|integer|min:0|max:150',
             'gender' => 'nullable|in:男,女,その他',

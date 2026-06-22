@@ -81,16 +81,6 @@
                                 <th class="text-muted">名前（本人）</th>
                                 <td>{{ $client->full_name }} <span class="text-muted">{{ $client->full_name_kana ? '（' . $client->full_name_kana . '）' : '' }}</span></td>
                             </tr>
-                            <tr>
-                                <th class="text-muted">名前（家族など）</th>
-                                <td>
-                                    {{ $client->family_full_name ?: '—' }}
-                                    @if($client->family_last_name_kana || $client->family_first_name_kana)
-                                        <span class="text-muted">（{{ trim(($client->family_last_name_kana ?? '') . ' ' . ($client->family_first_name_kana ?? '')) }}）</span>
-                                    @endif
-                                </td>
-                            </tr>
-                            <tr><th class="text-muted">本人との関係</th><td>{{ $client->family_relationship ?: '—' }} {{ $client->family_relationship_detail ? '（' . $client->family_relationship_detail . '）' : '' }}</td></tr>
                         </table>
                     </div>
                     <div class="col-md-6">
