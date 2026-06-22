@@ -11,7 +11,6 @@ use App\Models\SystemSetting;
  * Claude APIを使用して文字起こしテキストを要約する。
  * プロンプトはシステム設定（要約プロンプト設定画面）で管理される。
  *
- * @see docs/architecture.md 3.3 音声の文字起こし・要約フロー
  */
 class SummarizationService
 {

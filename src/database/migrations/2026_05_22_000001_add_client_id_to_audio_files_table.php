@@ -15,8 +15,6 @@ use Illuminate\Support\Facades\Schema;
  * NOT NULL カラムとして追加するため、既存レコードは全削除する。
  * 本番リリース前のため、データ削除は許容。
  *
- * @see docs/db-schema.md 3.13 audio_files
- * @see tests/bugs.md No.177 音声記録のクライアント連動
  */
 return new class extends Migration
 {

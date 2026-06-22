@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\Log;
  * Laravelキューで非同期実行される。
  * Whisper APIに音声ファイルを送信し、文字起こし結果をDBに保存する。
  *
- * @see docs/architecture.md 3.3 音声の文字起こし・要約フロー
  */
 class TranscribeAudioJob implements ShouldQueue
 {

@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Schema;
  * title: 表示用タイトル。一覧画面で使用
  * source: データの作成経路（recording/upload/text_paste）
  *
- * @see docs/db-schema.md 3.14 audio_files, 5.18 データソース種別
  */
 return new class extends Migration
 {

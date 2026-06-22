@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Schema;
  * 録音・アップロードされた音声ファイルの情報と、
  * 文字起こし・要約の処理結果を管理する。
  *
- * @see docs/db-schema.md 3.13 audio_files
  */
 return new class extends Migration
 {

@@ -11,7 +11,6 @@ use OpenAI\Laravel\Facades\OpenAI;
  * 将来的にサーバーローカル処理への切り替えを考慮し、
  * API呼び出しをService層で抽象化している。
  *
- * @see docs/architecture.md 4.2 連携時の注意事項
  */
 class TranscriptionService
 {

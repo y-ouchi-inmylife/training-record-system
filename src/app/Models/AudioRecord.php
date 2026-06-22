@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * 録音・アップロード・テキスト貼り付けで作成された音声記録
  * （実音声ファイル＋文字起こしテキスト＋要約テキスト＋メタデータの統合体）を管理する。
  *
- * @see docs/db-schema.md 3.13 audio_records
  */
 class AudioRecord extends Model
 {
