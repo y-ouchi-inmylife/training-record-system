@@ -74,12 +74,6 @@
                     <input type="text" class="form-control datepicker" id="birth_date" name="birth_date" value="{{ old('birth_date') }}"
                            placeholder="例: 2000-01-15" pattern="\d{4}-\d{2}-\d{2}" maxlength="10">
                 </div>
-                <div class="col-md-2">
-                    <label for="initial_age" class="form-label">初回時年齢（本人）</label>
-                    <input type="number" class="form-control @error('initial_age') is-invalid @enderror"
-                           id="initial_age" name="initial_age" value="{{ old('initial_age') }}" min="0" max="150">
-                    @error('initial_age') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
                 <div class="col-md-3">
                     <label for="gender" class="form-label">性別（本人）</label>
                     <select class="form-select" id="gender" name="gender">
@@ -156,10 +150,6 @@
                 <div class="col-md-4">
                     <label for="address4" class="form-label">建物名・部屋番号</label>
                     <input type="text" class="form-control" id="address4" name="address4" inputmode="text" value="{{ old('address4') }}">
-                </div>
-                <div class="col-md-4">
-                    <label for="nearest_station" class="form-label">最寄り駅</label>
-                    <input type="text" class="form-control" id="nearest_station" name="nearest_station" inputmode="text" value="{{ old('nearest_station') }}">
                 </div>
             </div>
         </div>

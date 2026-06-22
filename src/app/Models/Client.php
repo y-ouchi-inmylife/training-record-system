@@ -20,13 +20,12 @@ class Client extends Model
         // カテゴリー1: 基本情報
         'initial_consultation_date', 'last_name', 'first_name',
         'last_name_kana', 'first_name_kana',
-        'birth_date', 'initial_age', 'gender',
+        'birth_date', 'gender',
         // カテゴリー2: 連絡先
         'phone1', 'phone2', 'phone3', 'email',
         'postal_code', 'address1', 'address2', 'address3', 'address4',
-        'nearest_station',
         // カテゴリー7: 支援管理
-        'primary_counselor_id', 'cooperating_agencies', 'support_status_id',
+        'primary_counselor_id', 'support_status_id',
         // 最終更新者
         'updated_by',
     ];
@@ -36,7 +35,6 @@ class Client extends Model
         return [
             'initial_consultation_date' => 'date',
             'birth_date' => 'date',
-            'initial_age' => 'integer',
         ];
     }
 
@@ -74,17 +72,12 @@ class Client extends Model
     }
 
     /**
-     * 現在の年齢（生年月日から計算、なければ初回時年齢+経過年数で推定）
+     * 現在の年齢（生年月日から計算。生年月日が無ければ不明）
      */
     public function getEstimatedAgeAttribute(): ?int
     {
         if ($this->birth_date) {
             return $this->birth_date->age;
-        }
-
-        if ($this->initial_age !== null && $this->initial_consultation_date) {
-            $yearsDiff = $this->initial_consultation_date->diffInYears(now());
-            return $this->initial_age + $yearsDiff;
         }
 
         return null;

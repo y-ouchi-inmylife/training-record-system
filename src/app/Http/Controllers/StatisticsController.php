@@ -284,8 +284,7 @@ class StatisticsController extends Controller
      * 初回トレーニング時点の年齢を取得
      *
      * 初回日: clients.initial_consultation_date（NULLの場合はMIN(counseling_records.consultation_date)）
-     * 年齢: 生年月日がある場合は計算、なければinitial_ageフィールドを使用
-     * どちらもない場合はnull（年代別集計に含めない）
+     * 年齢: 生年月日がある場合は計算、なければ集計対象外（null）
      */
     private function getAgeAtFirstConsultation(Client $client): ?int
     {
@@ -306,11 +305,6 @@ class StatisticsController extends Controller
         // 生年月日から年齢を計算
         if ($client->birth_date && $firstConsultationDate) {
             return $client->birth_date->diffInYears($firstConsultationDate);
-        }
-
-        // 初回時年齢フィールドを使用
-        if ($client->initial_age !== null) {
-            return $client->initial_age;
         }
 
         return null;

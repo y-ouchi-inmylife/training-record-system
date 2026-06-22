@@ -286,7 +286,6 @@ class ClientController extends Controller
             'last_name_kana' => ['nullable', 'string', 'max:50', 'regex:/^[\p{Hiragana}\s　]+$/u'],
             'first_name_kana' => ['nullable', 'string', 'max:50', 'regex:/^[\p{Hiragana}\s　]+$/u'],
             'birth_date' => 'nullable|date',
-            'initial_age' => 'nullable|integer|min:0|max:150',
             'gender' => 'nullable|in:男,女,その他',
             'initial_consultation_date' => 'required|date',
 
@@ -300,11 +299,9 @@ class ClientController extends Controller
             'address2' => 'nullable|string|max:50',
             'address3' => 'nullable|string|max:100',
             'address4' => 'nullable|string|max:100',
-            'nearest_station' => 'nullable|string|max:50',
 
             // カテゴリー7: 支援管理
             'primary_counselor_id' => 'nullable|exists:counselors,id',
-            'cooperating_agencies' => 'nullable|string',
             'support_status_id' => 'nullable|exists:support_statuses,id',
         ];
     }

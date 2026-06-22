@@ -219,11 +219,9 @@ erDiagram
 | last_name_kana | VARCHAR(50) | YES | NULL | せい（本人）。ひらがなのみ |
 | first_name_kana | VARCHAR(50) | YES | NULL | めい（本人）。ひらがなのみ |
 | birth_date | DATE | YES | NULL | 生年月日（本人） |
-| initial_age | INTEGER | YES | NULL | 初回トレーニング時の年齢（本人）。0〜150の範囲 |
 | gender | VARCHAR(10) | YES | NULL | 性別（5-2.参照） |
 | primary_counselor_id | BIGINT UNSIGNED | YES | NULL | 主担当トレーナーのID（外部キー） |
 | support_status_id | BIGINT UNSIGNED | YES | NULL | 支援状態マスタのID（外部キー） |
-| cooperating_agencies | TEXT | YES | NULL | 連携機関（改行区切り） |
 | phone1 | VARCHAR(20) | YES | NULL | 電話番号1。ハイフンあり/なし両対応 |
 | phone2 | VARCHAR(20) | YES | NULL | 電話番号2。ハイフンあり/なし両対応 |
 | phone3 | VARCHAR(20) | YES | NULL | 電話番号3（緊急連絡先）。ハイフンあり/なし両対応 |
@@ -233,7 +231,6 @@ erDiagram
 | address2 | VARCHAR(50) | YES | NULL | 住所2（市区町村） |
 | address3 | VARCHAR(100) | YES | NULL | 住所3（町名・番地） |
 | address4 | VARCHAR(100) | YES | NULL | 住所4（建物名・部屋番号） |
-| nearest_station | VARCHAR(50) | YES | NULL | 最寄り駅 |
 | created_at | TIMESTAMP | YES | NULL | 作成日時 |
 | updated_at | TIMESTAMP | YES | NULL | 更新日時 |
 | updated_by | BIGINT UNSIGNED | YES | NULL | 最終更新者のトレーナーのID（外部キー） |
@@ -255,7 +252,6 @@ erDiagram
 | 制約名 | 種類 | 条件 | ON DELETE | 説明 |
 |--------|------|------|-----------|------|
 | clients_gender_check | CHECK | gender IS NULL OR gender IN ('男', '女', 'その他') | — | 定義済みの性別のみ許可（5-2.参照） |
-| clients_initial_age_check | CHECK | initial_age IS NULL OR (initial_age >= 0 AND initial_age <= 150) | — | 年齢の妥当な範囲を制限 |
 | clients_primary_counselor_id_foreign | FOREIGN KEY | primary_counselor_id → counselors(id) | SET NULL | トレーナー削除時は主担当をNULLにする |
 | clients_support_status_id_foreign | FOREIGN KEY | support_status_id → support_statuses(id) | SET NULL | 支援状態マスタ削除時はNULLにする |
 | clients_updated_by_foreign | FOREIGN KEY | updated_by → counselors(id) | SET NULL | トレーナー削除時は最終更新者をNULLにする |

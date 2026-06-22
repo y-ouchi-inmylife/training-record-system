@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('last_name_kana', 50)->nullable()->comment('姓かな（本人）');
             $table->string('first_name_kana', 50)->nullable()->comment('名かな（本人）');
             $table->date('birth_date')->nullable()->comment('生年月日（本人）');
-            $table->integer('initial_age')->nullable()->comment('初回相談時の年齢');
             $table->string('gender', 10)->nullable()->comment('性別');
 
             // カテゴリー2: 連絡先
@@ -33,11 +32,9 @@ return new class extends Migration
             $table->string('address2', 50)->nullable()->comment('住所2（市区町村）');
             $table->string('address3', 100)->nullable()->comment('住所3（町名・番地）');
             $table->string('address4', 100)->nullable()->comment('住所4（建物名・部屋番号）');
-            $table->string('nearest_station', 50)->nullable()->comment('最寄り駅');
 
             // カテゴリー7: 支援管理
             $table->unsignedBigInteger('primary_counselor_id')->nullable();
-            $table->text('cooperating_agencies')->nullable()->comment('連携機関');
             $table->unsignedBigInteger('support_status_id')->nullable();
 
             $table->timestamps();
@@ -62,7 +59,6 @@ return new class extends Migration
 
         // CHECK 制約（全角文字を含む文字列値は既存マイグレーションから正確にコピー）
         DB::statement("ALTER TABLE clients ADD CONSTRAINT clients_gender_check CHECK (gender IS NULL OR gender IN ('男', '女', 'その他'))");
-        DB::statement("ALTER TABLE clients ADD CONSTRAINT clients_initial_age_check CHECK (initial_age IS NULL OR (initial_age >= 0 AND initial_age <= 150))");
     }
 
     public function down(): void

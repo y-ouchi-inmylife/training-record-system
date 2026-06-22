@@ -87,7 +87,6 @@
                         <table class="table table-borderless table-sm">
                             <tr><th class="text-muted" style="width:40%">初回日</th><td>{{ $client->initial_consultation_date?->format('Y/m/d') ?: '—' }}</td></tr>
                             <tr><th class="text-muted">生年月日（本人）</th><td>{{ $client->birth_date?->format('Y/m/d') ?: '—' }}</td></tr>
-                            <tr><th class="text-muted">初回時年齢（本人）</th><td>{{ $client->initial_age ?: '—' }}</td></tr>
                             <tr><th class="text-muted">性別（本人）</th><td>{{ $client->gender ?: '—' }}</td></tr>
                         </table>
                     </div>
@@ -161,7 +160,6 @@
                     <div class="col-md-6">
                         <table class="table table-borderless table-sm">
                             <tr><th class="text-muted" style="width:40%">主担当</th><td>{{ $client->primaryCounselor?->name ?: '—' }}</td></tr>
-                            <tr><th class="text-muted">連携機関</th><td>{!! nl2br(e($client->cooperating_agencies ?: '—')) !!}</td></tr>
                         </table>
                     </div>
                     <div class="col-md-6">
@@ -216,7 +214,6 @@
                                     @endif
                                 </td>
                             </tr>
-                            <tr><th class="text-muted">最寄り駅</th><td>{{ $client->nearest_station ?: '—' }}</td></tr>
                         </table>
                     </div>
                 </div>

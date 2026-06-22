@@ -93,14 +93,6 @@
                                value="{{ old('birth_date') }}"
                                placeholder="例: 2000-01-15" pattern="\d{4}-\d{2}-\d{2}" maxlength="10">
                     </div>
-                    <div class="col-md-2">
-                        <label for="initial_age" class="form-label">初回時年齢（本人）</label>
-                        <input type="number" class="form-control @error('initial_age') is-invalid @enderror"
-                               id="initial_age" name="initial_age" value="{{ old('initial_age') }}" min="0" max="150">
-                        @error('initial_age')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
                     <div class="col-md-3">
                         <label for="gender" class="form-label">性別（本人）</label>
                         <select class="form-select" id="gender" name="gender">
@@ -145,11 +137,6 @@
                                 <option value="{{ $status->id }}" {{ old('support_status_id') == $status->id ? 'selected' : '' }}>{{ $status->name }}</option>
                             @endforeach
                         </select>
-                    </div>
-                    <div class="col-md-12">
-                        <label for="cooperating_agencies" class="form-label">連携機関</label>
-                        <textarea class="form-control" id="cooperating_agencies" name="cooperating_agencies"
-                                  inputmode="text" rows="3" placeholder="複数ある場合は改行区切り">{{ old('cooperating_agencies') }}</textarea>
                     </div>
                 </div>
             </div>
@@ -236,11 +223,6 @@
                         <label for="address4" class="form-label">建物名・部屋番号</label>
                         <input type="text" class="form-control" id="address4" name="address4"
                                inputmode="text" value="{{ old('address4') }}">
-                    </div>
-                    <div class="col-md-4">
-                        <label for="nearest_station" class="form-label">最寄り駅</label>
-                        <input type="text" class="form-control" id="nearest_station" name="nearest_station"
-                               inputmode="text" value="{{ old('nearest_station') }}">
                     </div>
                 </div>
             </div>

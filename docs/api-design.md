@@ -294,7 +294,6 @@ Laravelのセッション認証（Cookie + CSRF）で保護する。
 | *_kana | string | | nullable, string, max:50, regex:/^[\p{Hiragana}\s　]+$/u | |
 | gender | string | | nullable, in:男,女,その他 | |
 | birth_date | date | | nullable, date | |
-| initial_age | integer | | nullable, integer, min:0, max:150 | |
 | phone* | string | | nullable, string, max:20, regex:/^[0-9\-]+$/ | |
 | email | string | | nullable, email, max:255 | |
 | primary_counselor_id | integer | | nullable, exists:counselors,id | |
@@ -377,11 +376,11 @@ Laravelのセッション認証（Cookie + CSRF）で保護する。
 **概要**: クライアントを登録する。
 
 **リクエスト**:
-クライアント情報の項目（S-0301 と同じ。ただし主担当トレーナー・支援状態・連携機関は受け付けず、登録後にトレーナー側で設定する）。
+クライアント情報の項目（S-0301 と同じ。ただし主担当トレーナー・支援状態は受け付けず、登録後にトレーナー側で設定する）。
 
 **処理**:
 - トークンの有効性を再チェック（無効ならエラー画面）
-- クライアントを登録（internal_idを採番。主担当トレーナー・支援状態・連携機関はNULL）
+- クライアントを登録（internal_idを採番。主担当トレーナー・支援状態はNULL）
 - トークンを使用済み（is_used=true）にし、登録したクライアントを紐付け
 
 **レスポンス**:
