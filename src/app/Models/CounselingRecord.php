@@ -19,8 +19,7 @@ class CounselingRecord extends Model
         'consultation_type_id', 'consultation_detail',
         'counselor1_id', 'counselor2_id',
         'record_content', 'impression',
-        'phase_id', 'attendance',
-        'consultation_format', 'consultation_format_detail',
+        'phase_id',
         // 最終更新者
         'updated_by',
     ];

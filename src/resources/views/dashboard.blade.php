@@ -122,8 +122,6 @@
                         <th>名前</th>
                         <th>支援状態</th>
                         <th>最終トレーニング日</th>
-                        <th>参加状況</th>
-                        <th>参加形態</th>
                         <th>担当1</th>
                         <th>担当2</th>
                     </tr>
@@ -154,20 +152,6 @@
                                     </a>
                                 @else
                                     <span class="text-muted">トレーニング記録なし</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($lastRecord)
-                                    {{ $lastRecord->attendance ?? '—' }}
-                                @else
-                                    <span class="text-muted">—</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($lastRecord)
-                                    {{ $lastRecord->consultation_format ?? '—' }}
-                                @else
-                                    <span class="text-muted">—</span>
                                 @endif
                             </td>
                             <td>

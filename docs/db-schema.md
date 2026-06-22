@@ -92,8 +92,6 @@ erDiagram
         date consultation_date
         boolean is_intake
         boolean is_followup
-        string attendance
-        string consultation_format
     }
 
     consultation_types {
@@ -264,9 +262,6 @@ erDiagram
 | consultation_time | TIME | YES | NULL | トレーニング時刻（HH:MM形式） |
 | counselor1_id | BIGINT UNSIGNED | NO | — | 担当1のトレーナーのID（外部キー） |
 | counselor2_id | BIGINT UNSIGNED | YES | NULL | 担当2のトレーナーのID（外部キー） |
-| attendance | VARCHAR(20) | NO | — | 参加状況（5-10.参照） |
-| consultation_format | VARCHAR(20) | NO | — | 参加形態（5-11.参照） |
-| consultation_format_detail | VARCHAR(255) | YES | NULL | 参加形態の詳細（「その他」選択時など） |
 | is_intake | BOOLEAN | NO | false | インテーク（初回トレーニング）フラグ |
 | is_followup | BOOLEAN | NO | false | フォローアップ面談フラグ |
 | consultation_type_id | BIGINT UNSIGNED | YES | NULL | トレーニング内容マスタのID（外部キー） |
@@ -298,8 +293,6 @@ erDiagram
 | counseling_records_client_id_foreign | FOREIGN KEY | client_id → clients(id) | CASCADE | クライアント削除時にトレーニング記録も削除 |
 | counseling_records_counselor1_id_foreign | FOREIGN KEY | counselor1_id → counselors(id) | RESTRICT | 担当1があるトレーナーは削除不可 |
 | counseling_records_counselor2_id_foreign | FOREIGN KEY | counselor2_id → counselors(id) | SET NULL | 担当2が削除された場合はNULLにする |
-| counseling_records_attendance_check | CHECK | attendance IN ('参加', 'キャンセル（連絡あり）', 'キャンセル（連絡なし）') | — | 定義済みの参加状況のみ許可（5-10.参照） |
-| counseling_records_format_check | CHECK | consultation_format IN ('対面', 'ビデオ通話', '電話', 'メール', '同行', '訪問', 'その他') | — | 定義済みの参加形態のみ許可（5-11.参照） |
 | counseling_records_consultation_type_id_foreign | FOREIGN KEY | consultation_type_id → consultation_types(id) | SET NULL | トレーニング内容マスタ削除時はNULLにする |
 | counseling_records_phase_id_foreign | FOREIGN KEY | phase_id → phases(id) | SET NULL | フェーズマスタ削除時はNULLにする |
 | counseling_records_updated_by_foreign | FOREIGN KEY | updated_by → counselors(id) | SET NULL | トレーナー削除時は最終更新者をNULLにする |
@@ -683,26 +676,6 @@ erDiagram
 | 男 | |
 | 女 | |
 | その他 | |
-
-### 5-10. 参加状況
-
-| 値 | 説明 |
-|----|------|
-| 参加 | トレーニングに参加した |
-| キャンセル（連絡あり） | 事前に連絡があったキャンセル |
-| キャンセル（連絡なし） | 連絡なしのキャンセル（無断キャンセル） |
-
-### 5-11. 参加形態
-
-| 値 | 説明 |
-|----|------|
-| 対面 | クライアントがトレーニング機関に来所 |
-| ビデオ通話 | オンラインでの面談 |
-| 電話 | 電話でのトレーニング |
-| メール | メールでのトレーニング |
-| 同行 | トレーナーがクライアントに同行 |
-| 訪問 | トレーナーがクライアントを訪問 |
-| その他 | 上記に該当しない形態 |
 
 ### 5-13. 音声ソース種別
 

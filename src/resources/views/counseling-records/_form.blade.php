@@ -82,51 +82,6 @@
                 </div>
             </div>
             <div class="row g-3 mt-1">
-                {{-- 参加状況 --}}
-                <div class="col-md-4">
-                    <label for="attendance" class="form-label">参加状況 <span class="text-danger">*</span></label>
-                    <select name="attendance" id="attendance" class="form-select @error('attendance') is-invalid @enderror" required>
-                        <option value="">選択してください</option>
-                        @foreach(['参加', 'キャンセル（連絡あり）', 'キャンセル（連絡なし）'] as $option)
-                            <option value="{{ $option }}"
-                                {{ old('attendance', $record?->attendance) === $option ? 'selected' : '' }}>
-                                {{ $option }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('attendance')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                {{-- 参加形態 --}}
-                <div class="col-md-4">
-                    <label for="consultation_format" class="form-label">参加形態 <span class="text-danger">*</span></label>
-                    <select name="consultation_format" id="consultation_format" class="form-select @error('consultation_format') is-invalid @enderror" required>
-                        <option value="">選択してください</option>
-                        @foreach(['対面', 'ビデオ通話', '電話', 'メール', '同行', '訪問', 'その他'] as $option)
-                            <option value="{{ $option }}"
-                                {{ old('consultation_format', $record?->consultation_format) === $option ? 'selected' : '' }}>
-                                {{ $option }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('consultation_format')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                {{-- 参加形態（詳細） --}}
-                <div class="col-md-4">
-                    <label for="consultation_format_detail" class="form-label">参加形態（詳細）</label>
-                    <input type="text" name="consultation_format_detail" id="consultation_format_detail"
-                        class="form-control @error('consultation_format_detail') is-invalid @enderror"
-                        inputmode="text" value="{{ old('consultation_format_detail', $record?->consultation_format_detail) }}"
-                        maxlength="255" placeholder="「その他」の場合に入力">
-                    @error('consultation_format_detail')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
             </div>
         </div>
     </div>
@@ -294,10 +249,8 @@ document.addEventListener('DOMContentLoaded', function() {
         checkRequired('counselor1_id', '担当1を選択してください。');
 
         // 5. 参加状況
-        checkRequired('attendance', '参加状況を選択してください。');
 
         // 6. 参加形態
-        checkRequired('consultation_format', '参加形態を選択してください。');
 
         // エラーがある場合はフォーム送信をブロックし、エラーサマリーを表示
         if (errors.length > 0) {

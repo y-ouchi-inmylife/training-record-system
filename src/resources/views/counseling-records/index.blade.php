@@ -54,28 +54,6 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label">参加状況</label>
-                        <select name="attendance" class="form-select">
-                            <option value="">すべて</option>
-                            @foreach(['参加', 'キャンセル（連絡あり）', 'キャンセル（連絡なし）'] as $option)
-                                <option value="{{ $option }}" {{ request('attendance') === $option ? 'selected' : '' }}>
-                                    {{ $option }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">参加形態</label>
-                        <select name="consultation_format" class="form-select">
-                            <option value="">すべて</option>
-                            @foreach(['対面', 'ビデオ通話', '電話', 'メール', '同行', '訪問', 'その他'] as $option)
-                                <option value="{{ $option }}" {{ request('consultation_format') === $option ? 'selected' : '' }}>
-                                    {{ $option }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
                     <div class="col-md">
                         <label class="form-label">キーワード（トレーニング記録・所感を検索）</label>
                         <input type="text" name="keyword" class="form-control" inputmode="text" value="{{ request('keyword') }}" maxlength="100" placeholder="キーワードを入力">
@@ -126,8 +104,6 @@
                     </th>
                     <th>担当1</th>
                     <th>担当2</th>
-                    <th>参加状況</th>
-                    <th>参加形態</th>
                     <th>初回</th>
                     <th>トレーニング内容</th>
                     <th>フェーズ</th>
@@ -141,15 +117,13 @@
                         <td>{{ $record->consultation_date->format('Y/m/d') }}</td>
                         <td>{{ $record->counselor1->name ?? '—' }}</td>
                         <td>{{ $record->counselor2->name ?? '—' }}</td>
-                        <td>{{ $record->attendance ?? '—' }}</td>
-                        <td>{{ $record->consultation_format ?? '—' }}</td>
                         <td>{{ $record->is_intake ? '●' : '' }}</td>
                         <td>{{ $record->consultationType->name ?? '—' }}</td>
                         <td>{{ $record->phase->name ?? '—' }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="11" class="text-center text-muted py-4">該当するトレーニング記録がありません。</td>
+                        <td colspan="8" class="text-center text-muted py-4">該当するトレーニング記録がありません。</td>
                     </tr>
                 @endforelse
             </tbody>

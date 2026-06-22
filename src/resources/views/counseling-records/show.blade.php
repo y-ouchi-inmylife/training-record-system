@@ -45,8 +45,6 @@
             <div class="row">
                 <div class="col-md-6">
                     <table class="table table-borderless table-sm">
-                        <tr><th class="text-muted" style="width:40%">参加状況</th><td>{{ $counselingRecord->attendance ?: '—' }}</td></tr>
-                        <tr><th class="text-muted">参加形態</th><td>{{ $counselingRecord->consultation_format ?: '—' }} {{ $counselingRecord->consultation_format_detail ? '（' . $counselingRecord->consultation_format_detail . '）' : '' }}</td></tr>
                     </table>
                 </div>
             </div>

@@ -72,16 +72,6 @@ class CounselingRecordController extends Controller
             });
         }
 
-        // 参加状況フィルター
-        if ($request->filled('attendance')) {
-            $query->where('attendance', $request->input('attendance'));
-        }
-
-        // 参加形態フィルター
-        if ($request->filled('consultation_format')) {
-            $query->where('consultation_format', $request->input('consultation_format'));
-        }
-
         // キーワード検索（トレーニング記録・所感の全文検索）
         if ($request->filled('keyword')) {
             $keyword = $request->input('keyword');
@@ -275,7 +265,6 @@ class CounselingRecordController extends Controller
             'client_id' => 'required|exists:clients,id',
             'consultation_date' => 'required|date',
             'consultation_time' => 'nullable|date_format:H:i',
-            'consultation_format' => 'required|in:対面,ビデオ通話,電話,メール,同行,訪問,その他',
             'counselor1_id' => 'required|exists:counselors,id',
             'counselor2_id' => 'nullable|exists:counselors,id|different:counselor1_id',
         ]);
@@ -288,11 +277,9 @@ class CounselingRecordController extends Controller
                     'client_id' => $validated['client_id'],
                     'consultation_date' => $validated['consultation_date'],
                     'consultation_time' => $validated['consultation_time'] ?? null,
-                    'consultation_format' => $validated['consultation_format'],
                     'counselor1_id' => $validated['counselor1_id'],
                     'counselor2_id' => $validated['counselor2_id'] ?? null,
                     'record_content' => $audioRecord->summary_text,
-                    'attendance' => '参加',
                 ]);
 
                 return $record;
@@ -328,9 +315,6 @@ class CounselingRecordController extends Controller
             'record_content' => 'nullable|string',
             'impression' => 'nullable|string',
             'phase_id' => 'nullable|exists:phases,id',
-            'attendance' => 'required|in:参加,キャンセル（連絡あり）,キャンセル（連絡なし）',
-            'consultation_format' => 'required|in:対面,ビデオ通話,電話,メール,同行,訪問,その他',
-            'consultation_format_detail' => 'nullable|string|max:255',
         ];
     }
 }

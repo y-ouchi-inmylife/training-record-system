@@ -23,9 +23,6 @@ return new class extends Migration
             $table->text('record_content')->nullable()->comment('相談記録');
             $table->text('impression')->nullable()->comment('所感');
             $table->unsignedBigInteger('phase_id')->nullable();
-            $table->string('attendance', 20);
-            $table->string('consultation_format', 20);
-            $table->string('consultation_format_detail', 255)->nullable()->comment('相談形態の詳細');
             $table->timestamps();
             $table->unsignedBigInteger('updated_by')->nullable();
 
@@ -53,9 +50,6 @@ return new class extends Migration
                 ->references('id')->on('counselors')->nullOnDelete();
         });
 
-        // CHECK 制約（全角文字は既存マイグレーションから正確にコピー）
-        DB::statement("ALTER TABLE counseling_records ADD CONSTRAINT counseling_records_attendance_check CHECK (attendance IN ('参加', 'キャンセル（連絡あり）', 'キャンセル（連絡なし）'))");
-        DB::statement("ALTER TABLE counseling_records ADD CONSTRAINT counseling_records_format_check CHECK (consultation_format IN ('対面', 'ビデオ通話', '電話', 'メール', '同行', '訪問', 'その他'))");
     }
 
     public function down(): void

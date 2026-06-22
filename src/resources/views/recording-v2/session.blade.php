@@ -239,19 +239,6 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="consultation_format_select" class="form-label">参加形態 <span class="text-danger">*</span></label>
-                        <select class="form-select" id="consultation_format_select" required>
-                            <option value="">選択してください</option>
-                            <option value="対面">対面</option>
-                            <option value="ビデオ通話">ビデオ通話</option>
-                            <option value="電話">電話</option>
-                            <option value="メール">メール</option>
-                            <option value="同行">同行</option>
-                            <option value="訪問">訪問</option>
-                            <option value="その他">その他</option>
-                        </select>
-                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" id="btn-cancel-create-record">キャンセル</button>
@@ -713,12 +700,6 @@
             // 「作成する」→ 処理開始
             var btnSubmit = document.getElementById('btn-submit-create-record');
             var submitHandler = async function() {
-                var consultationFormat = document.getElementById('consultation_format_select').value;
-                if (!consultationFormat) {
-                    alert('参加形態を選択してください');
-                    return;
-                }
-
                 var counselor1Id = document.getElementById('counselor1_select').value;
                 if (!counselor1Id) {
                     alert('担当1を選択してください');
@@ -785,7 +766,6 @@
                             client_id: clientId,
                             consultation_date: currentDate,
                             consultation_time: formatTimeHHMM(recordingStartTime) || null,
-                            consultation_format: consultationFormat,
                             counselor1_id: counselor1Id,
                             counselor2_id: counselor2Id || null
                         })

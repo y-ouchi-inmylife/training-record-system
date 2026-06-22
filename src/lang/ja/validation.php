@@ -226,7 +226,6 @@ return [
         'consultation_date' => 'トレーニング日',
         'consultation_type_id' => 'トレーニング内容',
         'phase_id' => 'フェーズ',
-        'consultation_format' => '参加形態',
         'internal_id' => '内部ID',
     ],
 
