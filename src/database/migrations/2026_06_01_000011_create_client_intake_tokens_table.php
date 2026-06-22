@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('client_intake_tokens', function (Blueprint $table) {
@@ -16,32 +13,27 @@ return new class extends Migration
             $table->string('token', 64)->unique();
             $table->string('email')->nullable();
             $table->text('memo')->nullable();
+            $table->date('initial_consultation_date')->nullable();
             $table->timestamp('expires_at');
             $table->boolean('is_used')->default(false);
             $table->unsignedBigInteger('client_id')->nullable();
             $table->timestamps();
             $table->unsignedBigInteger('created_by')->nullable();
 
+            // インデックス（SHOW CREATE TABLE の出現順）
             $table->index('expires_at', 'client_intake_tokens_expires_at_idx');
             $table->index('is_used', 'client_intake_tokens_is_used_idx');
             $table->index('client_id', 'client_intake_tokens_client_id_idx');
             $table->index('created_by', 'client_intake_tokens_created_by_idx');
 
-            $table->foreign('client_id')
-                  ->references('id')
-                  ->on('clients')
-                  ->onDelete('set null');
-
-            $table->foreign('created_by')
-                  ->references('id')
-                  ->on('counselors')
-                  ->onDelete('set null');
+            // 外部キー
+            $table->foreign('client_id', 'client_intake_tokens_client_id_foreign')
+                ->references('id')->on('clients')->nullOnDelete();
+            $table->foreign('created_by', 'client_intake_tokens_created_by_foreign')
+                ->references('id')->on('counselors')->nullOnDelete();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('client_intake_tokens');

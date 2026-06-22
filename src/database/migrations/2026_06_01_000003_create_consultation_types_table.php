@@ -7,9 +7,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * 相談内容マスタテーブル作成
-     */
     public function up(): void
     {
         Schema::create('consultation_types', function (Blueprint $table) {
@@ -24,9 +21,6 @@ return new class extends Migration
         DB::statement("ALTER TABLE consultation_types ADD CONSTRAINT consultation_types_sort_check CHECK (sort_order >= 0)");
     }
 
-    /**
-     * ロールバック
-     */
     public function down(): void
     {
         Schema::dropIfExists('consultation_types');

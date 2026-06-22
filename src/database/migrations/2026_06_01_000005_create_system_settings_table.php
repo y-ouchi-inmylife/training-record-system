@@ -7,9 +7,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * システム設定テーブル作成
-     */
     public function up(): void
     {
         Schema::create('system_settings', function (Blueprint $table) {
@@ -22,9 +19,6 @@ return new class extends Migration
         DB::statement("ALTER TABLE system_settings ADD CONSTRAINT system_settings_key_check CHECK (`key` REGEXP '^[a-z][a-z0-9_]*$')");
     }
 
-    /**
-     * ロールバック
-     */
     public function down(): void
     {
         Schema::dropIfExists('system_settings');

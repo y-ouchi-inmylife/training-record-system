@@ -7,9 +7,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * フェーズマスタテーブル作成
-     */
     public function up(): void
     {
         Schema::create('phases', function (Blueprint $table) {
@@ -24,9 +21,6 @@ return new class extends Migration
         DB::statement("ALTER TABLE phases ADD CONSTRAINT phases_sort_check CHECK (sort_order >= 0)");
     }
 
-    /**
-     * ロールバック
-     */
     public function down(): void
     {
         Schema::dropIfExists('phases');

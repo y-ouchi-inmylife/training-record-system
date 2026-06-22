@@ -6,24 +6,24 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * セッションテーブル作成（Laravel標準構造 + counselors外部キー）
-     */
     public function up(): void
     {
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index()->constrained('counselors')->cascadeOnDelete();
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->longText('payload');
-            $table->integer('last_activity')->index();
+            $table->integer('last_activity');
+
+            $table->index('user_id', 'sessions_user_id_index');
+            $table->index('last_activity', 'sessions_last_activity_index');
+
+            $table->foreign('user_id', 'sessions_user_id_foreign')
+                ->references('id')->on('counselors')->cascadeOnDelete();
         });
     }
 
-    /**
-     * ロールバック
-     */
     public function down(): void
     {
         Schema::dropIfExists('sessions');
