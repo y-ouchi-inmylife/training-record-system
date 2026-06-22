@@ -224,17 +224,6 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <div class="d-flex align-items-center gap-2 mb-2">
-                            <label class="form-label mb-0">参加者 <span class="text-danger">*</span></label>
-                            <button type="button" class="btn btn-outline-primary btn-sm" id="btn-add-participant">追加</button>
-                        </div>
-                        <div id="participants_container"></div>
-                        <div class="form-text">
-                            例: 区分「支援者」詳細「〇〇病院 ケースワーカー佐藤さん」、区分「母」詳細「山田花子」
-                        </div>
-                    </div>
-
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="counselor1_select" class="form-label">担当1 <span class="text-danger">*</span></label>
@@ -681,52 +670,6 @@
         // モーダル3: トレーニング記録登録フォーム
         // ========================================
 
-        // 参加者の区分一覧
-        var participantTypes = ['本人', '支援者', '母', '父', '配偶者', 'きょうだい', '子', '祖父母', 'その他'];
-
-        function addParticipantRow() {
-            var container = document.getElementById('participants_container');
-            var optionsHtml = '<option value="">区分を選択</option>' +
-                participantTypes.map(function(t) { return '<option value="' + t + '">' + t + '</option>'; }).join('');
-
-            var row = document.createElement('div');
-            row.className = 'row g-3 mb-2 modal-participant-row';
-            row.innerHTML =
-                '<div class="col-4"><select class="form-select participant-type">' + optionsHtml + '</select></div>' +
-                '<div class="col-6"><input type="text" class="form-control participant-detail" maxlength="255" placeholder="詳細（関係性、所属、名前など）"></div>' +
-                '<div class="col-2"><button type="button" class="btn btn-outline-danger w-100 btn-remove-participant">削除</button></div>';
-            container.appendChild(row);
-        }
-
-        // 参加者行の削除（イベント委任）
-        document.getElementById('participants_container').addEventListener('click', function(e) {
-            if (e.target.classList.contains('btn-remove-participant')) {
-                var row = e.target.closest('.modal-participant-row');
-                var container = document.getElementById('participants_container');
-                if (container.children.length > 1) {
-                    row.remove();
-                } else {
-                    row.querySelector('.participant-type').value = '';
-                    row.querySelector('.participant-detail').value = '';
-                }
-            }
-        });
-
-        document.getElementById('btn-add-participant').addEventListener('click', addParticipantRow);
-
-        function getParticipantsData() {
-            var rows = document.querySelectorAll('.modal-participant-row');
-            var participants = [];
-            rows.forEach(function(row) {
-                var type = row.querySelector('.participant-type').value;
-                var detail = row.querySelector('.participant-detail').value;
-                if (type || detail) {
-                    participants.push({ participant_type: type, participant_detail: detail });
-                }
-            });
-            return participants;
-        }
-
         // トレーナー一覧を読み込み
         async function loadCounselors() {
             var response = await fetch('/api/counselors', {
@@ -758,9 +701,6 @@
             await loadCounselors();
 
             // 参加者の初期行を1つ追加
-            document.getElementById('participants_container').innerHTML = '';
-            addParticipantRow();
-
             var modal = new bootstrap.Modal(document.getElementById('modal-create-record'));
             modal.show();
 
@@ -782,12 +722,6 @@
                 var counselor1Id = document.getElementById('counselor1_select').value;
                 if (!counselor1Id) {
                     alert('担当1を選択してください');
-                    return;
-                }
-
-                var participants = getParticipantsData();
-                if (participants.length === 0) {
-                    alert('参加者を1人以上設定してください');
                     return;
                 }
 
@@ -853,8 +787,7 @@
                             consultation_time: formatTimeHHMM(recordingStartTime) || null,
                             consultation_format: consultationFormat,
                             counselor1_id: counselor1Id,
-                            counselor2_id: counselor2Id || null,
-                            participants: participants
+                            counselor2_id: counselor2Id || null
                         })
                     });
 

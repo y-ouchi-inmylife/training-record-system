@@ -16,7 +16,6 @@
         'action' => route('counseling-records.update', $counselingRecord),
         'method' => 'PUT',
         'record' => $counselingRecord,
-        'participants' => $counselingRecord->participants,
     ])
 </div>
 @endsection

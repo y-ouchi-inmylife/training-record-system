@@ -32,7 +32,7 @@ class CounselingRecordController extends Controller
             ]
         );
 
-        $query = CounselingRecord::with(['client', 'consultationType', 'counselor1', 'counselor2', 'phase', 'participants']);
+        $query = CounselingRecord::with(['client', 'consultationType', 'counselor1', 'counselor2', 'phase']);
 
         // 内部ID（部分一致）
         if ($request->filled('internal_id')) {
@@ -171,11 +171,8 @@ class CounselingRecordController extends Controller
         $validated['updated_by'] = auth()->id();
 
         try {
-            DB::transaction(function () use ($validated, $request) {
-                $record = CounselingRecord::create($validated);
-
-                // 参加者の登録
-                $this->syncParticipants($record, $request->input('participants', []));
+            DB::transaction(function () use ($validated) {
+                CounselingRecord::create($validated);
             });
         } catch (\Exception $e) {
             \Log::error('トレーニング記録登録エラー', [
@@ -200,7 +197,7 @@ class CounselingRecordController extends Controller
     {
         $counselingRecord->load([
             'client', 'consultationType', 'counselor1', 'counselor2',
-            'phase', 'participants',
+            'phase',
         ]);
 
         return view('counseling-records.show', compact('counselingRecord'));
@@ -211,7 +208,7 @@ class CounselingRecordController extends Controller
      */
     public function edit(CounselingRecord $counselingRecord): View
     {
-        $counselingRecord->load(['client', 'participants']);
+        $counselingRecord->load(['client']);
 
         $consultationTypes = ConsultationType::orderBy('sort_order')->get();
         $counselors = Counselor::practitioners()->orderBy('display_order')->orderBy('name')->get();
@@ -232,18 +229,8 @@ class CounselingRecordController extends Controller
         $validated['updated_by'] = auth()->id();
 
         try {
-            DB::transaction(function () use ($validated, $request, $counselingRecord) {
+            DB::transaction(function () use ($validated, $counselingRecord) {
                 $counselingRecord->update($validated);
-
-                // 参加者の再作成（全削除 → 再登録）
-                $counselingRecord->participants()->delete();
-                $this->syncParticipants($counselingRecord, $request->input('participants', []));
-
-                // 参加者の変更もトレーニング記録の更新として扱う
-                // 本体カラムが dirty でなくても、参加者だけ変更されたケースで
-                // updated_at/updated_by を確実に更新する（bugs.md No.191 対応）
-                $counselingRecord->updated_by = auth()->id();
-                $counselingRecord->touch();
             });
         } catch (\Exception $e) {
             \Log::error('トレーニング記録更新エラー', [
@@ -291,9 +278,6 @@ class CounselingRecordController extends Controller
             'consultation_format' => 'required|in:対面,ビデオ通話,電話,メール,同行,訪問,その他',
             'counselor1_id' => 'required|exists:counselors,id',
             'counselor2_id' => 'nullable|exists:counselors,id|different:counselor1_id',
-            'participants' => 'nullable|array',
-            'participants.*.participant_type' => 'nullable|in:本人,支援者,母,父,配偶者,きょうだい,子,祖父母,その他',
-            'participants.*.participant_detail' => 'nullable|string|max:255',
         ]);
 
         try {
@@ -311,9 +295,6 @@ class CounselingRecordController extends Controller
                     'attendance' => '参加',
                 ]);
 
-                // 参加者の登録
-                $this->syncParticipants($record, $validated['participants'] ?? []);
-
                 return $record;
             });
 
@@ -326,22 +307,6 @@ class CounselingRecordController extends Controller
                 'success' => false,
                 'message' => 'トレーニング記録の作成に失敗しました: ' . $e->getMessage(),
             ], 500);
-        }
-    }
-
-    /**
-     * 参加者の登録
-     */
-    private function syncParticipants(CounselingRecord $record, array $participants): void
-    {
-        foreach ($participants as $participant) {
-            if (empty($participant['participant_type'])) {
-                continue;
-            }
-            $record->participants()->create([
-                'participant_type' => $participant['participant_type'],
-                'participant_detail' => $participant['participant_detail'] ?? null,
-            ]);
         }
     }
 
@@ -366,9 +331,6 @@ class CounselingRecordController extends Controller
             'attendance' => 'required|in:参加,キャンセル（連絡あり）,キャンセル（連絡なし）',
             'consultation_format' => 'required|in:対面,ビデオ通話,電話,メール,同行,訪問,その他',
             'consultation_format_detail' => 'nullable|string|max:255',
-            'participants' => 'nullable|array',
-            'participants.*.participant_type' => 'nullable|in:本人,支援者,母,父,配偶者,きょうだい,子,祖父母,その他',
-            'participants.*.participant_detail' => 'nullable|string|max:255',
         ];
     }
 }

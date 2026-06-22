@@ -158,7 +158,7 @@ class ClientController extends Controller
     public function show(Client $client): View
     {
         $client->load(['primaryCounselor', 'supportStatus', 'counselingRecords' => function ($query) {
-            $query->with(['consultationType', 'counselor1', 'counselor2', 'phase', 'participants'])
+            $query->with(['consultationType', 'counselor1', 'counselor2', 'phase'])
                   ->orderBy('consultation_date', 'desc')
                   ->orderBy('consultation_time', 'desc');
         }]);

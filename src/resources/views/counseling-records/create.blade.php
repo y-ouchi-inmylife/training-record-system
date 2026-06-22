@@ -16,7 +16,6 @@
         'action' => route('counseling-records.store'),
         'method' => 'POST',
         'record' => null,
-        'participants' => [],
     ])
 </div>
 @endsection

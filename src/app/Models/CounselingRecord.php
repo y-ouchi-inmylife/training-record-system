@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * トレーニング記録モデル
@@ -58,11 +57,6 @@ class CounselingRecord extends Model
     public function phase(): BelongsTo
     {
         return $this->belongsTo(Phase::class);
-    }
-
-    public function participants(): HasMany
-    {
-        return $this->hasMany(CounselingParticipant::class);
     }
 
     /**

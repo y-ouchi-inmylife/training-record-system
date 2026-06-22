@@ -109,7 +109,6 @@
                     <thead class="table-light">
                         <tr>
                             <th>トレーニング日</th>
-                            <th>参加者</th>
                             <th>担当1</th>
                             <th>担当2</th>
                             <th>参加状況</th>
@@ -129,7 +128,6 @@
                                         {{ $record->consultation_date->format('Y/m/d') }}
                                     @endif
                                 </td>
-                                <td>{{ $record->participants->pluck('participant_type')->filter()->implode('、') ?: '—' }}</td>
                                 <td>{{ $record->counselor1->name ?? '—' }}</td>
                                 <td>{{ $record->counselor2->name ?? '—' }}</td>
                                 <td>{{ $record->attendance ?? '—' }}</td>

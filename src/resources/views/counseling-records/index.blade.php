@@ -124,7 +124,6 @@
                             @endif
                         </a>
                     </th>
-                    <th>参加者</th>
                     <th>担当1</th>
                     <th>担当2</th>
                     <th>参加状況</th>
@@ -140,7 +139,6 @@
                         <td><a href="{{ route('counseling-records.show', $record) }}" class="stretched-link text-decoration-none text-reset">{{ $record->client->internal_id ?? '—' }}</a></td>
                         <td>{{ $record->client->display_name ?? '—' }}</td>
                         <td>{{ $record->consultation_date->format('Y/m/d') }}</td>
-                        <td>{{ $record->participants->pluck('participant_type')->filter()->implode('、') ?: '—' }}</td>
                         <td>{{ $record->counselor1->name ?? '—' }}</td>
                         <td>{{ $record->counselor2->name ?? '—' }}</td>
                         <td>{{ $record->attendance ?? '—' }}</td>

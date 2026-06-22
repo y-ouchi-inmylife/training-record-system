@@ -108,15 +108,8 @@ erDiagram
         integer sort_order
     }
 
-    counseling_participants {
-        bigint id PK
-        bigint counseling_record_id FK
-        string participant_type
-    }
-
     consultation_types ||--|| counseling_records : "分類する"
     phases ||--|| counseling_records : "段階を示す"
-    counseling_records ||--|{ counseling_participants : "含む"
 
 
     audio_records {
@@ -261,9 +254,6 @@ erDiagram
 
 #### D-0200 counseling_records（トレーニング記録）
 
-##### 設計ポリシー 
-（参加者の正規化）D-0200 の「参加者」項目は、1トレーニング記録に対して複数の参加者を登録する業務要件を満たすため、別テーブル D-0300 counseling_participants に切り出している。
-
 ##### カラム定義
 
 | カラム名 | 型 | NULL | デフォルト | 説明 |
@@ -313,34 +303,6 @@ erDiagram
 | counseling_records_consultation_type_id_foreign | FOREIGN KEY | consultation_type_id → consultation_types(id) | SET NULL | トレーニング内容マスタ削除時はNULLにする |
 | counseling_records_phase_id_foreign | FOREIGN KEY | phase_id → phases(id) | SET NULL | フェーズマスタ削除時はNULLにする |
 | counseling_records_updated_by_foreign | FOREIGN KEY | updated_by → counselors(id) | SET NULL | トレーナー削除時は最終更新者をNULLにする |
-
-
----
-
-#### D-0300 counseling_participants（参加者）
-
-##### カラム定義
-
-| カラム名 | 型 | NULL | デフォルト | 説明 |
-|---------|-----|------|----------|------|
-| id | BIGINT UNSIGNED | NO | auto_increment | 主キー |
-| counseling_record_id | BIGINT UNSIGNED | NO | — | トレーニング記録のID（外部キー） |
-| participant_type | VARCHAR(10) | NO | — | 参加者区分（5-12.参照） |
-| participant_detail | VARCHAR(255) | YES | NULL | 参加者の詳細（関係性、所属、名前など）。例: 母、〇〇病院 ケースワーカー佐藤さん |
-
-##### インデックス
-
-| インデックス名 | カラム | 種類 | 目的 |
-|---------------|--------|------|------|
-| PRIMARY | id | PRIMARY KEY | 主キー |
-| counseling_participants_record_idx | counseling_record_id | INDEX | トレーニング記録別の参加者取得（外部キー制約と兼用）|
-
-##### 制約
-
-| 制約名 | 種類 | 条件 | ON DELETE | 説明 |
-|--------|------|------|-----------|------|
-| counseling_participants_counseling_record_id_foreign | FOREIGN KEY | counseling_record_id → counseling_records(id) | CASCADE | トレーニング記録削除時に参加者も削除 |
-| counseling_participants_type_check | CHECK | participant_type IN ('本人', '支援者', '母', '父', '配偶者', 'きょうだい', '子', '祖父母', 'その他') | — | 定義済みの参加者区分のみ許可（5-12.参照） |
 
 
 ---
@@ -742,20 +704,6 @@ erDiagram
 | 訪問 | トレーナーがクライアントを訪問 |
 | その他 | 上記に該当しない形態 |
 
-### 5-12. 参加者区分
-
-| 値 | 説明 |
-|----|------|
-| 本人 | クライアント本人 |
-| 支援者 | 外部の支援者（ケースワーカー等） |
-| 母 | クライアントの母 |
-| 父 | クライアントの父 |
-| 配偶者 | クライアントの配偶者 |
-| きょうだい | クライアントのきょうだい |
-| 子 | クライアントの子 |
-| 祖父母 | クライアントの祖父母 |
-| その他 | 上記に該当しない参加者 |
-
 ### 5-13. 音声ソース種別
 
 | 値 | 説明 |
@@ -834,7 +782,6 @@ erDiagram
 | 5 | phases | なし |
 | 6 | support_statuses | なし |
 | 7 | counseling_records | clients, counselors, consultation_types, phases |
-| 8 | counseling_participants | counseling_records |
 | 9 | audio_records | counselors, clients |
 | 10 | access_logs | counselors |
 | 11 | system_settings | なし |

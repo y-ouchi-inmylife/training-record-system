@@ -51,28 +51,6 @@
                 </div>
             </div>
 
-            {{-- 参加者 --}}
-            <h6 class="mt-3 mb-2">参加者（{{ $counselingRecord->participants->count() }}名）</h6>
-            @if($counselingRecord->participants->count() > 0)
-                <table class="table table-sm">
-                    <thead class="table-light">
-                        <tr>
-                            <th>本人との関係</th>
-                            <th>関係の詳細</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($counselingRecord->participants as $participant)
-                            <tr>
-                                <td>{{ $participant->participant_type }}</td>
-                                <td>{{ $participant->participant_detail ?: '—' }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @else
-                <p class="text-muted mb-0">参加者の登録はありません。</p>
-            @endif
         </div>
         </div>
     </div>

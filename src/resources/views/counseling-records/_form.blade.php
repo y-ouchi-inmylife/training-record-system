@@ -46,71 +46,6 @@
                     @enderror
                 </div>
 
-                {{-- 参加者 --}}
-                <div class="col-md-12">
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <label class="form-label mb-0">参加者 <span class="text-danger">*</span></label>
-                        <button type="button" class="btn btn-outline-primary btn-sm" id="add-participant">追加</button>
-                    </div>
-                    <div id="participants-container">
-                        @php
-                            $oldParticipants = old('participants', $participants instanceof \Illuminate\Support\Collection ? $participants->toArray() : $participants);
-                        @endphp
-                        @forelse($oldParticipants as $index => $participant)
-                            <div class="row g-3 mb-2 participant-row">
-                                <div class="col-md-3">
-                                    <select name="participants[{{ $index }}][participant_type]" class="form-select">
-                                        <option value="">本人との関係を選択</option>
-                                        @foreach(['本人', '支援者', '母', '父', '配偶者', 'きょうだい', '子', '祖父母', 'その他'] as $type)
-                                            <option value="{{ $type }}"
-                                                {{ ($participant['participant_type'] ?? '') === $type ? 'selected' : '' }}>
-                                                {{ $type }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-md-7">
-                                    <input type="text" name="participants[{{ $index }}][participant_detail]"
-                                        class="form-control"
-                                        inputmode="text" value="{{ $participant['participant_detail'] ?? '' }}"
-                                        maxlength="255" placeholder="関係の詳細">
-                                </div>
-                                <div class="col-md-2">
-                                    <button type="button" class="btn btn-outline-danger remove-participant">削除</button>
-                                </div>
-                            </div>
-                        @empty
-                            <div class="row g-3 mb-2 participant-row">
-                                <div class="col-md-3">
-                                    <select name="participants[0][participant_type]" class="form-select">
-                                        <option value="">本人との関係を選択</option>
-                                        @foreach(['本人', '支援者', '母', '父', '配偶者', 'きょうだい', '子', '祖父母', 'その他'] as $type)
-                                            <option value="{{ $type }}">{{ $type }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-md-7">
-                                    <input type="text" name="participants[0][participant_detail]"
-                                        class="form-control"
-                                        inputmode="text" maxlength="255" placeholder="関係の詳細">
-                                </div>
-                                <div class="col-md-2">
-                                    <button type="button" class="btn btn-outline-danger remove-participant">削除</button>
-                                </div>
-                            </div>
-                        @endforelse
-                    </div>
-                    @if($errors->has('participants') || $errors->has('participants.*') || $errors->has('participants.*.participant_type') || $errors->has('participants.*.participant_detail'))
-                        <div class="text-danger small mt-1">
-                            @foreach($errors->get('participants.*') as $key => $messages)
-                                @foreach($messages as $message)
-                                    {{ $message }}<br>
-                                @endforeach
-                            @endforeach
-                        </div>
-                    @endif
-                    <p class="text-muted small mt-1 mb-0">例:「支援者」「〇〇病院 ケースワーカー佐藤さん」、「母」「山田花子」</p>
-                </div>
 
                 {{-- 担当1 --}}
                 <div class="col-md-4">
@@ -312,45 +247,8 @@
     </div>
 </form>
 
-{{-- 参加者の動的追加JavaScript --}}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const container = document.getElementById('participants-container');
-    const addBtn = document.getElementById('add-participant');
-
-    // 参加者行の追加
-    addBtn.addEventListener('click', function() {
-        const rows = container.querySelectorAll('.participant-row');
-        const index = rows.length;
-        const row = document.createElement('div');
-        row.className = 'row g-3 mb-2 participant-row';
-        row.innerHTML = `
-            <div class="col-md-3">
-                <select name="participants[${index}][participant_type]" class="form-select">
-                    <option value="">本人との関係を選択</option>
-                    <option value="本人">本人</option>
-                    <option value="支援者">支援者</option>
-                    <option value="母">母</option>
-                    <option value="父">父</option>
-                    <option value="配偶者">配偶者</option>
-                    <option value="きょうだい">きょうだい</option>
-                    <option value="子">子</option>
-                    <option value="祖父母">祖父母</option>
-                    <option value="その他">その他</option>
-                </select>
-            </div>
-            <div class="col-md-7">
-                <input type="text" name="participants[${index}][participant_detail]"
-                    class="form-control"
-                    inputmode="text" maxlength="255" placeholder="関係の詳細">
-            </div>
-            <div class="col-md-2">
-                <button type="button" class="btn btn-outline-danger remove-participant">削除</button>
-            </div>
-        `;
-        container.appendChild(row);
-    });
-
     // フォーム送信時に必須チェックを実行（上部・下部ボタン共通）
     const form = document.getElementById('counselingRecordForm');
     form.addEventListener('submit', function(e) {
@@ -392,24 +290,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // 2. トレーニング日
         checkRequired('consultation_date', 'トレーニング日を入力してください。');
 
-        // 3. 参加者（最低1人は区分を選択していること）
-        var participantSelects = container.querySelectorAll('.participant-row select');
-        var hasParticipant = false;
-        participantSelects.forEach(function(select) {
-            if (select.value) hasParticipant = true;
-        });
-        var participantsContainer = document.getElementById('participants-container');
-        var existingParticipantAlert = participantsContainer.parentElement.querySelector('.participant-error');
-        if (existingParticipantAlert) existingParticipantAlert.remove();
-        if (!hasParticipant) {
-            var participantAlert = document.createElement('div');
-            participantAlert.className = 'text-danger small mt-1 participant-error';
-            participantAlert.textContent = '参加者を1人以上設定してください。';
-            participantsContainer.after(participantAlert);
-            errors.push('参加者を1人以上設定してください。');
-            if (!firstInvalidElement) firstInvalidElement = participantSelects[0];
-        }
-
         // 4. 担当1
         checkRequired('counselor1_id', '担当1を選択してください。');
 
@@ -431,21 +311,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // エラーサマリーにスクロール
             summary.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-    });
-
-    // 参加者行の削除（イベント委任）
-    container.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-participant')) {
-            const row = e.target.closest('.participant-row');
-            // 最低1行は残す
-            if (container.querySelectorAll('.participant-row').length > 1) {
-                row.remove();
-            } else {
-                // 最後の1行はクリアのみ
-                row.querySelector('select').value = '';
-                row.querySelector('input').value = '';
-            }
         }
     });
 });
@@ -665,30 +530,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (counselor2Select) counselor2Select.value = counselor2Id;
     }
 
-    // participants_data がある場合、参加者行を復元
-    var participantsDataJson = params.get('participants_data');
-    if (participantsDataJson) {
-        try {
-            var participantsData = JSON.parse(participantsDataJson);
-            var container = document.getElementById('participants-container');
-            var existingRows = container.querySelectorAll('.participant-row');
-
-            participantsData.forEach(function(p, i) {
-                // 既存行があればそこに入力、なければ追加ボタンで行を増やす
-                if (i < existingRows.length) {
-                    var row = existingRows[i];
-                    if (p.participant_type) row.querySelector('select').value = p.participant_type;
-                    if (p.participant_detail) row.querySelector('input').value = p.participant_detail;
-                } else {
-                    document.getElementById('add-participant').click();
-                    var newRows = container.querySelectorAll('.participant-row');
-                    var newRow = newRows[newRows.length - 1];
-                    if (p.participant_type) newRow.querySelector('select').value = p.participant_type;
-                    if (p.participant_detail) newRow.querySelector('input').value = p.participant_detail;
-                }
-            });
-        } catch (e) { /* 復元失敗は無視 */ }
-    }
 });
 </script>
 @endpush
