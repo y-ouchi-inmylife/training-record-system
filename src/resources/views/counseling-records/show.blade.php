@@ -42,13 +42,6 @@
                     </table>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <table class="table table-borderless table-sm">
-                    </table>
-                </div>
-            </div>
-
         </div>
         </div>
     </div>
@@ -61,10 +54,6 @@
         <div class="collapse show" id="section-content">
         <div class="card-body">
             <div class="row">
-                <div class="col-md-6">
-                    <table class="table table-borderless table-sm">
-                    </table>
-                </div>
                 <div class="col-md-6">
                     <table class="table table-borderless table-sm">
                         <tr><th class="text-muted" style="width:40%">トレーニング内容</th><td>{{ $counselingRecord->consultationType->name ?? '—' }}</td></tr>
