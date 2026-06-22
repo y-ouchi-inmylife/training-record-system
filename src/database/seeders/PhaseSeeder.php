@@ -24,7 +24,10 @@ class PhaseSeeder extends Seeder
         ];
 
         foreach ($phases as $phase) {
-            Phase::create($phase);
+            Phase::firstOrCreate(
+                ['name' => $phase['name']],
+                ['sort_order' => $phase['sort_order']]
+            );
         }
     }
 }

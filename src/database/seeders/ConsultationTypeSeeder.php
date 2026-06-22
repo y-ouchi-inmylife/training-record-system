@@ -21,7 +21,10 @@ class ConsultationTypeSeeder extends Seeder
         ];
 
         foreach ($types as $type) {
-            ConsultationType::create($type);
+            ConsultationType::firstOrCreate(
+                ['name' => $type['name']],
+                ['sort_order' => $type['sort_order']]
+            );
         }
     }
 }
