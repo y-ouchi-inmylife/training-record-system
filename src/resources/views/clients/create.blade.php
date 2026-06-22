@@ -12,9 +12,6 @@
             <span class="badge bg-primary step-badge" data-step="1">1. 基本情報</span>
             <span class="badge bg-secondary step-badge" data-step="2">2. 支援管理</span>
             <span class="badge bg-secondary step-badge" data-step="3">3. 連絡先</span>
-            <span class="badge bg-secondary step-badge" data-step="4">4. 学歴・職歴</span>
-            <span class="badge bg-secondary step-badge" data-step="5">5. 障害・医療情報</span>
-            <span class="badge bg-secondary step-badge" data-step="6">6. 生活状況</span>
         </div>
         <div class="progress">
             <div class="progress-bar" role="progressbar" style="width: 16.7%" id="progressBar"></div>
@@ -22,7 +19,8 @@
     </div>
 
     <form method="POST" action="{{ route('clients.store') }}" id="clientForm"
-          onkeydown="if(event.key === 'Enter' && event.target.tagName !== 'TEXTAREA') { event.preventDefault(); }">
+          onkeydown="if(event.key === 'Enter' && event.target.tagName !== 'TEXTAREA') { event.preventDefault(); }"
+          onsubmit="return validateBeforeSubmit()">
         @csrf
 
         {{-- バリデーションエラー表示 --}}
@@ -39,7 +37,7 @@
         {{-- ステップ1: 基本情報 --}}
         <div class="card step-card" id="step1">
             <div class="card-header">
-                <h5 class="mb-0">ステップ 1/6: 基本情報</h5>
+                <h5 class="mb-0">ステップ 1/3: 基本情報</h5>
             </div>
             <div class="card-body">
                 <div class="row g-3">
@@ -124,7 +122,7 @@
         {{-- ステップ2: 支援管理 --}}
         <div class="card step-card d-none" id="step2">
             <div class="card-header">
-                <h5 class="mb-0">ステップ 2/6: 支援管理</h5>
+                <h5 class="mb-0">ステップ 2/3: 支援管理</h5>
             </div>
             <div class="card-body">
                 <div class="row g-3">
@@ -164,7 +162,7 @@
         {{-- ステップ3: 連絡先 --}}
         <div class="card step-card d-none" id="step3">
             <div class="card-header">
-                <h5 class="mb-0">ステップ 3/6: 連絡先</h5>
+                <h5 class="mb-0">ステップ 3/3: 連絡先</h5>
             </div>
             <div class="card-body">
                 <div class="row g-3">
@@ -248,221 +246,10 @@
             </div>
             <div class="card-footer d-flex justify-content-between">
                 <button type="button" class="btn btn-secondary" onclick="showStep(2)">戻る</button>
-                <button type="button" class="btn btn-primary" onclick="showStep(4)">次へ</button>
-            </div>
-        </div>
-
-        {{-- ステップ4: 学歴・職歴 --}}
-        <div class="card step-card d-none" id="step4">
-            <div class="card-header">
-                <h5 class="mb-0">ステップ 4/6: 学歴・職歴</h5>
-            </div>
-            <div class="card-body">
-                {{-- 学歴 --}}
-                <h6 class="border-bottom pb-2 mb-3">学歴</h6>
-                <div class="row g-3 mb-4">
-                    <div class="col-md-3">
-                        <label for="education_level" class="form-label">学歴</label>
-                        <select class="form-select" id="education_level" name="education_level">
-                            <option value="">選択してください</option>
-                            @foreach(['中学', '全日制高校', '定時制高校', '通信制高校', '高専', '専門学校', '大学', '短大', '大学院', 'その他'] as $level)
-                                <option value="{{ $level }}" {{ old('education_level') === $level ? 'selected' : '' }}>{{ $level }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="education_status" class="form-label">学歴（状態）</label>
-                        <select class="form-select" id="education_status" name="education_status">
-                            <option value="">選択してください</option>
-                            @foreach(['卒業', '中退', '在学中', '休学中'] as $status)
-                                <option value="{{ $status }}" {{ old('education_status') === $status ? 'selected' : '' }}>{{ $status }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-check mt-4">
-                            <input class="form-check-input" type="checkbox" id="education_dropout_expected"
-                                   name="education_dropout_expected" value="1"
-                                   {{ old('education_dropout_expected') ? 'checked' : '' }}>
-                            <label class="form-check-label" for="education_dropout_expected">中退見込</label>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <label for="education_detail" class="form-label">学歴（詳細）</label>
-                        <input type="text" class="form-control" id="education_detail" name="education_detail" inputmode="text" value="{{ old('education_detail') }}">
-                    </div>
-                </div>
-
-                {{-- 職歴 --}}
-                <h6 class="border-bottom pb-2 mb-3">職歴</h6>
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <label for="employment_type" class="form-label">雇用形態</label>
-                        <select class="form-select" id="employment_type" name="employment_type">
-                            <option value="">選択してください</option>
-                            @foreach(['正社員・正規職員', '契約社員・嘱託社員', 'パート・アルバイト', '派遣社員', 'その他・詳細不明'] as $type)
-                                <option value="{{ $type }}" {{ old('employment_type') === $type ? 'selected' : '' }}>{{ $type }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="employment_hours" class="form-label">週の労働時間</label>
-                        <select class="form-select" id="employment_hours" name="employment_hours">
-                            <option value="">選択してください</option>
-                            @foreach(['週20時間以上', '週20時間未満', '不定期'] as $hours)
-                                <option value="{{ $hours }}" {{ old('employment_hours') === $hours ? 'selected' : '' }}>{{ $hours }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="employment_period" class="form-label">雇用期間</label>
-                        <select class="form-select" id="employment_period" name="employment_period">
-                            <option value="">選択してください</option>
-                            @foreach(['有期雇用（3ヶ月未満）', '有期雇用（3～6ヶ月未満）', '有期雇用（6ヶ月～1年未満）', '有期雇用（1年以上）', '無期雇用'] as $period)
-                                <option value="{{ $period }}" {{ old('employment_period') === $period ? 'selected' : '' }}>{{ $period }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="unemployment_period" class="form-label">無職期間</label>
-                        <select class="form-select" id="unemployment_period" name="unemployment_period">
-                            <option value="">選択してください</option>
-                            @foreach(['6ヶ月未満', '6ヶ月～1年', '1～3年', '3～5年', '5～10年', '10年以上'] as $period)
-                                <option value="{{ $period }}" {{ old('unemployment_period') === $period ? 'selected' : '' }}>{{ $period }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-12">
-                        <label for="employment_detail" class="form-label">職歴（詳細）</label>
-                        <textarea class="form-control" id="employment_detail" name="employment_detail" inputmode="text" rows="2">{{ old('employment_detail') }}</textarea>
-                    </div>
-                </div>
-            </div>
-            <div class="card-footer d-flex justify-content-between">
-                <button type="button" class="btn btn-secondary" onclick="showStep(3)">戻る</button>
-                <button type="button" class="btn btn-primary" onclick="showStep(5)">次へ</button>
-            </div>
-        </div>
-
-        {{-- ステップ5: 障害・医療情報 --}}
-        <div class="card step-card d-none" id="step5">
-            <div class="card-header">
-                <h5 class="mb-0">ステップ 5/6: 障害・医療情報</h5>
-            </div>
-            <div class="card-body">
-                <div class="row g-3">
-                    {{-- 行1: 身体障害者手帳 + 精神障害者保健福祉手帳 --}}
-                    <div class="col-md-3">
-                        <label for="disability_physical" class="form-label">身体障害者手帳</label>
-                        <select class="form-select" id="disability_physical" name="disability_physical">
-                            <option value="">選択してください</option>
-                            <option value="あり" {{ old('disability_physical') === 'あり' ? 'selected' : '' }}>あり</option>
-                            <option value="なし" {{ old('disability_physical') === 'なし' ? 'selected' : '' }}>なし</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="disability_physical_grade" class="form-label">級・取得時期など</label>
-                        <input type="text" class="form-control" id="disability_physical_grade"
-                               name="disability_physical_grade" value="{{ old('disability_physical_grade') }}">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="disability_mental" class="form-label">精神障害者保健福祉手帳</label>
-                        <select class="form-select" id="disability_mental" name="disability_mental">
-                            <option value="">選択してください</option>
-                            <option value="あり" {{ old('disability_mental') === 'あり' ? 'selected' : '' }}>あり</option>
-                            <option value="なし" {{ old('disability_mental') === 'なし' ? 'selected' : '' }}>なし</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="disability_mental_grade" class="form-label">級・取得時期など</label>
-                        <input type="text" class="form-control" id="disability_mental_grade"
-                               name="disability_mental_grade" value="{{ old('disability_mental_grade') }}">
-                    </div>
-                    {{-- 行2: 療育手帳 --}}
-                    <div class="col-md-3">
-                        <label for="disability_intellectual" class="form-label">療育手帳</label>
-                        <select class="form-select" id="disability_intellectual" name="disability_intellectual">
-                            <option value="">選択してください</option>
-                            <option value="あり" {{ old('disability_intellectual') === 'あり' ? 'selected' : '' }}>あり</option>
-                            <option value="なし" {{ old('disability_intellectual') === 'なし' ? 'selected' : '' }}>なし</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="disability_intellectual_grade" class="form-label">級・取得時期など</label>
-                        <input type="text" class="form-control" id="disability_intellectual_grade"
-                               name="disability_intellectual_grade" value="{{ old('disability_intellectual_grade') }}">
-                    </div>
-                    <div class="col-md-12">
-                        <label for="disability_detail" class="form-label">障害者手帳（詳細）</label>
-                        <textarea class="form-control" id="disability_detail" name="disability_detail" inputmode="text" rows="2">{{ old('disability_detail') }}</textarea>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="hospital" class="form-label">通院先</label>
-                        <textarea class="form-control" id="hospital" name="hospital" inputmode="text" rows="2">{{ old('hospital') }}</textarea>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="medication" class="form-label">服薬</label>
-                        <textarea class="form-control" id="medication" name="medication" inputmode="text" rows="2">{{ old('medication') }}</textarea>
-                    </div>
-                </div>
-            </div>
-            <div class="card-footer d-flex justify-content-between">
-                <button type="button" class="btn btn-secondary" onclick="showStep(4)">戻る</button>
-                <button type="button" class="btn btn-primary" onclick="showStep(6)">次へ</button>
-            </div>
-        </div>
-
-        {{-- ステップ6: 生活状況 --}}
-        <div class="card step-card d-none" id="step6">
-            <div class="card-header">
-                <h5 class="mb-0">ステップ 6/6: 生活状況</h5>
-            </div>
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <label for="financial_status" class="form-label">経済状態</label>
-                        <select class="form-select" id="financial_status" name="financial_status">
-                            <option value="">選択してください</option>
-                            @foreach(['生活保護を受給している', '逼迫している', '特に困っていない'] as $fs)
-                                <option value="{{ $fs }}" {{ old('financial_status') === $fs ? 'selected' : '' }}>{{ $fs }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-9">
-                        <label for="financial_detail" class="form-label">経済状態（詳細）</label>
-                        <textarea class="form-control" id="financial_detail" name="financial_detail" inputmode="text" rows="1">{{ old('financial_detail') }}</textarea>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="hikikomori" class="form-label">ひきこもり経験</label>
-                        <select class="form-select" id="hikikomori" name="hikikomori">
-                            <option value="">選択してください</option>
-                            <option value="あり" {{ old('hikikomori') === 'あり' ? 'selected' : '' }}>あり</option>
-                            <option value="なし" {{ old('hikikomori') === 'なし' ? 'selected' : '' }}>なし</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="school_refusal" class="form-label">不登校経験</label>
-                        <select class="form-select" id="school_refusal" name="school_refusal">
-                            <option value="">選択してください</option>
-                            <option value="あり" {{ old('school_refusal') === 'あり' ? 'selected' : '' }}>あり</option>
-                            <option value="なし" {{ old('school_refusal') === 'なし' ? 'selected' : '' }}>なし</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="bullying" class="form-label">いじめを受けた経験</label>
-                        <select class="form-select" id="bullying" name="bullying">
-                            <option value="">選択してください</option>
-                            <option value="あり" {{ old('bullying') === 'あり' ? 'selected' : '' }}>あり</option>
-                            <option value="なし" {{ old('bullying') === 'なし' ? 'selected' : '' }}>なし</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="card-footer d-flex justify-content-between">
-                <button type="button" class="btn btn-secondary" onclick="showStep(5)">戻る</button>
                 <button type="submit" class="btn btn-success">登録</button>
             </div>
         </div>
+
     </form>
 </div>
 
@@ -513,33 +300,13 @@
             }
         }
 
-        // 前進時のみステップ3のバリデーション
-        if (currentStepNum === 3 && step > 3) {
-            let valid = true;
-            clearFieldError('email');
-
-            // メールアドレスの形式チェック
-            const email = document.getElementById('email').value.trim();
-            if (email !== '') {
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(email)) {
-                    showFieldError('email', 'メールアドレスの形式が正しくありません。');
-                    valid = false;
-                }
-            }
-
-            if (!valid) {
-                return;
-            }
-        }
-
         // 全ステップを非表示
         document.querySelectorAll('.step-card').forEach(card => card.classList.add('d-none'));
         // 対象ステップを表示
         document.getElementById('step' + step).classList.remove('d-none');
 
         // プログレスバー更新
-        document.getElementById('progressBar').style.width = (step * 100 / 6) + '%';
+        document.getElementById('progressBar').style.width = (step * 100 / 3) + '%';
 
         // バッジ更新
         document.querySelectorAll('.step-badge').forEach(badge => {
@@ -577,6 +344,24 @@
     function showNameError(fieldId, message) { showFieldError(fieldId, message); }
     function clearNameError() {
         ['last_name'].forEach(clearFieldError);
+    }
+
+    // フォーム送信前のバリデーション（最終ステップで実行）
+    function validateBeforeSubmit() {
+        let valid = true;
+        clearFieldError('email');
+
+        // メールアドレスの形式チェック
+        const email = document.getElementById('email').value.trim();
+        if (email !== '') {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showFieldError('email', 'メールアドレスの形式が正しくありません。');
+                valid = false;
+            }
+        }
+
+        return valid;
     }
 
     function searchAddress() {

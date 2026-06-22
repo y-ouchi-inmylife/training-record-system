@@ -25,19 +25,6 @@ class Client extends Model
         'phone1', 'phone2', 'phone3', 'email',
         'postal_code', 'address1', 'address2', 'address3', 'address4',
         'nearest_station',
-        // カテゴリー3: 学歴
-        'education_level', 'education_detail', 'education_status', 'education_dropout_expected',
-        // カテゴリー4: 職歴
-        'employment_type', 'employment_hours', 'employment_period',
-        'unemployment_period', 'employment_detail',
-        // カテゴリー5: 障害・医療情報
-        'disability_physical', 'disability_physical_grade',
-        'disability_mental', 'disability_mental_grade',
-        'disability_intellectual', 'disability_intellectual_grade',
-        'disability_detail', 'hospital', 'medication',
-        // カテゴリー6: 生活状況
-        'financial_status', 'financial_detail',
-        'hikikomori', 'school_refusal', 'bullying',
         // カテゴリー7: 支援管理
         'primary_counselor_id', 'cooperating_agencies', 'support_status_id',
         // 最終更新者
@@ -50,7 +37,6 @@ class Client extends Model
             'initial_consultation_date' => 'date',
             'birth_date' => 'date',
             'initial_age' => 'integer',
-            'education_dropout_expected' => 'boolean',
         ];
     }
 

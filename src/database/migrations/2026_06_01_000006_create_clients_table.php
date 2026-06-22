@@ -35,37 +35,6 @@ return new class extends Migration
             $table->string('address4', 100)->nullable()->comment('住所4（建物名・部屋番号）');
             $table->string('nearest_station', 50)->nullable()->comment('最寄り駅');
 
-            // カテゴリー3: 学歴
-            $table->string('education_level', 20)->nullable()->comment('学歴');
-            $table->text('education_detail')->nullable()->comment('学歴の詳細・備考');
-            $table->string('education_status', 10)->nullable()->comment('学歴の状態');
-            $table->boolean('education_dropout_expected')->nullable()->comment('中退見込フラグ');
-
-            // カテゴリー4: 職歴
-            $table->string('employment_type', 30)->nullable()->comment('雇用形態');
-            $table->string('employment_hours', 20)->nullable()->comment('週の労働時間');
-            $table->string('employment_period', 30)->nullable()->comment('雇用期間');
-            $table->string('unemployment_period', 20)->nullable()->comment('無職期間');
-            $table->text('employment_detail')->nullable()->comment('職歴の詳細');
-
-            // カテゴリー5: 障害・医療情報
-            $table->string('disability_physical', 5)->nullable()->comment('身体障害者手帳');
-            $table->string('disability_physical_grade', 100)->nullable();
-            $table->string('disability_mental', 5)->nullable()->comment('精神障害者保健福祉手帳');
-            $table->string('disability_mental_grade', 100)->nullable();
-            $table->string('disability_intellectual', 5)->nullable()->comment('療育手帳');
-            $table->string('disability_intellectual_grade', 100)->nullable();
-            $table->text('disability_detail')->nullable()->comment('障害者手帳の詳細');
-            $table->text('hospital')->nullable()->comment('通院先');
-            $table->text('medication')->nullable()->comment('服薬');
-
-            // カテゴリー6: 生活状況
-            $table->string('financial_status', 30)->nullable()->comment('経済状態');
-            $table->text('financial_detail')->nullable()->comment('経済状態の詳細');
-            $table->string('hikikomori', 5)->nullable()->comment('ひきこもり経験');
-            $table->string('school_refusal', 5)->nullable()->comment('不登校経験');
-            $table->string('bullying', 5)->nullable()->comment('いじめを受けた経験');
-
             // カテゴリー7: 支援管理
             $table->unsignedBigInteger('primary_counselor_id')->nullable();
             $table->text('cooperating_agencies')->nullable()->comment('連携機関');
@@ -93,19 +62,6 @@ return new class extends Migration
 
         // CHECK 制約（全角文字を含む文字列値は既存マイグレーションから正確にコピー）
         DB::statement("ALTER TABLE clients ADD CONSTRAINT clients_gender_check CHECK (gender IS NULL OR gender IN ('男', '女', 'その他'))");
-        DB::statement("ALTER TABLE clients ADD CONSTRAINT clients_education_level_check CHECK (education_level IS NULL OR education_level IN ('中学', '全日制高校', '定時制高校', '通信制高校', '高専', '専門学校', '大学', '短大', '大学院', 'その他'))");
-        DB::statement("ALTER TABLE clients ADD CONSTRAINT clients_education_status_check CHECK (education_status IS NULL OR education_status IN ('卒業', '中退', '在学中', '休学中'))");
-        DB::statement("ALTER TABLE clients ADD CONSTRAINT clients_employment_type_check CHECK (employment_type IS NULL OR employment_type IN ('正社員・正規職員', '契約社員・嘱託社員', 'パート・アルバイト', '派遣社員', 'その他・詳細不明'))");
-        DB::statement("ALTER TABLE clients ADD CONSTRAINT clients_employment_hours_check CHECK (employment_hours IS NULL OR employment_hours IN ('週20時間以上', '週20時間未満', '不定期'))");
-        DB::statement("ALTER TABLE clients ADD CONSTRAINT clients_employment_period_check CHECK (employment_period IS NULL OR employment_period IN ('有期雇用（3ヶ月未満）', '有期雇用（3～6ヶ月未満）', '有期雇用（6ヶ月～1年未満）', '有期雇用（1年以上）', '無期雇用'))");
-        DB::statement("ALTER TABLE clients ADD CONSTRAINT clients_unemployment_period_check CHECK (unemployment_period IS NULL OR unemployment_period IN ('6ヶ月未満', '6ヶ月～1年', '1～3年', '3～5年', '5～10年', '10年以上'))");
-        DB::statement("ALTER TABLE clients ADD CONSTRAINT clients_disability_phys_check CHECK (disability_physical IS NULL OR disability_physical IN ('あり', 'なし'))");
-        DB::statement("ALTER TABLE clients ADD CONSTRAINT clients_disability_mental_check CHECK (disability_mental IS NULL OR disability_mental IN ('あり', 'なし'))");
-        DB::statement("ALTER TABLE clients ADD CONSTRAINT clients_disability_intl_check CHECK (disability_intellectual IS NULL OR disability_intellectual IN ('あり', 'なし'))");
-        DB::statement("ALTER TABLE clients ADD CONSTRAINT clients_financial_check CHECK (financial_status IS NULL OR financial_status IN ('生活保護を受給している', '逼迫している', '特に困っていない'))");
-        DB::statement("ALTER TABLE clients ADD CONSTRAINT clients_hikikomori_check CHECK (hikikomori IS NULL OR hikikomori IN ('あり', 'なし'))");
-        DB::statement("ALTER TABLE clients ADD CONSTRAINT clients_school_refusal_check CHECK (school_refusal IS NULL OR school_refusal IN ('あり', 'なし'))");
-        DB::statement("ALTER TABLE clients ADD CONSTRAINT clients_bullying_check CHECK (bullying IS NULL OR bullying IN ('あり', 'なし'))");
         DB::statement("ALTER TABLE clients ADD CONSTRAINT clients_initial_age_check CHECK (initial_age IS NULL OR (initial_age >= 0 AND initial_age <= 150))");
     }
 

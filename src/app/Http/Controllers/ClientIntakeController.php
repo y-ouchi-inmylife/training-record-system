@@ -86,37 +86,6 @@ class ClientIntakeController extends Controller
             'address3' => 'nullable|string|max:100',
             'address4' => 'nullable|string|max:100',
             'nearest_station' => 'nullable|string|max:50',
-
-            // 学歴
-            'education_level' => 'nullable|in:中学,全日制高校,定時制高校,通信制高校,高専,専門学校,大学,短大,大学院,その他',
-            'education_detail' => 'nullable|string',
-            'education_status' => 'nullable|in:卒業,中退,在学中,休学中',
-            'education_dropout_expected' => 'nullable|boolean',
-
-            // 職歴
-            'employment_type' => 'nullable|in:正社員・正規職員,契約社員・嘱託社員,パート・アルバイト,派遣社員,その他・詳細不明',
-            'employment_hours' => 'nullable|in:週20時間以上,週20時間未満,不定期',
-            'employment_period' => 'nullable|in:有期雇用（3ヶ月未満）,有期雇用（3～6ヶ月未満）,有期雇用（6ヶ月～1年未満）,有期雇用（1年以上）,無期雇用',
-            'unemployment_period' => 'nullable|in:6ヶ月未満,6ヶ月～1年,1～3年,3～5年,5～10年,10年以上',
-            'employment_detail' => 'nullable|string',
-
-            // 障害・医療情報
-            'disability_physical' => 'nullable|in:あり,なし',
-            'disability_physical_grade' => 'nullable|string|max:100',
-            'disability_mental' => 'nullable|in:あり,なし',
-            'disability_mental_grade' => 'nullable|string|max:100',
-            'disability_intellectual' => 'nullable|in:あり,なし',
-            'disability_intellectual_grade' => 'nullable|string|max:100',
-            'disability_detail' => 'nullable|string',
-            'hospital' => 'nullable|string',
-            'medication' => 'nullable|string',
-
-            // 生活状況
-            'financial_status' => 'nullable|in:生活保護を受給している,逼迫している,特に困っていない',
-            'financial_detail' => 'nullable|string',
-            'hikikomori' => 'nullable|in:あり,なし',
-            'school_refusal' => 'nullable|in:あり,なし',
-            'bullying' => 'nullable|in:あり,なし',
         ]);
 
         // トランザクション内でクライアント登録 + トークン更新

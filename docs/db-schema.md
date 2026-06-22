@@ -234,29 +234,6 @@ erDiagram
 | address3 | VARCHAR(100) | YES | NULL | 住所3（町名・番地） |
 | address4 | VARCHAR(100) | YES | NULL | 住所4（建物名・部屋番号） |
 | nearest_station | VARCHAR(50) | YES | NULL | 最寄り駅 |
-| education_level | VARCHAR(20) | YES | NULL | 学歴（5-3.参照） |
-| education_status | VARCHAR(10) | YES | NULL | 学歴の状態（5-4.参照） |
-| education_dropout_expected | BOOLEAN | YES | NULL | 中退見込フラグ |
-| education_detail | TEXT | YES | NULL | 学歴の詳細・備考（学校名、学部、複数学歴など） |
-| employment_type | VARCHAR(30) | YES | NULL | 雇用形態（5-5.参照） |
-| employment_hours | VARCHAR(20) | YES | NULL | 週の労働時間（5-6.参照） |
-| employment_period | VARCHAR(30) | YES | NULL | 雇用期間（5-7.参照） |
-| unemployment_period | VARCHAR(20) | YES | NULL | 無職期間（5-8.参照） |
-| employment_detail | TEXT | YES | NULL | 職歴の詳細（会社名、職種、複数職歴など） |
-| disability_physical | VARCHAR(5) | YES | NULL | 身体障害者手帳（あり/なし） |
-| disability_physical_grade | VARCHAR(100) | YES | NULL | 身体障害者手帳の級・取得時期など |
-| disability_mental | VARCHAR(5) | YES | NULL | 精神障害者保健福祉手帳（あり/なし） |
-| disability_mental_grade | VARCHAR(100) | YES | NULL | 精神障害者保健福祉手帳の級・取得時期など |
-| disability_intellectual | VARCHAR(5) | YES | NULL | 療育手帳（あり/なし） |
-| disability_intellectual_grade | VARCHAR(100) | YES | NULL | 療育手帳の級・取得時期など（地域により表記が異なる） |
-| disability_detail | TEXT | YES | NULL | 障害者手帳の詳細 |
-| hospital | TEXT | YES | NULL | 通院先 |
-| medication | TEXT | YES | NULL | 服薬 |
-| financial_status | VARCHAR(30) | YES | NULL | 経済状態（5-9.参照） |
-| financial_detail | TEXT | YES | NULL | 経済状態の詳細 |
-| hikikomori | VARCHAR(5) | YES | NULL | ひきこもり経験（あり/なし） |
-| school_refusal | VARCHAR(5) | YES | NULL | 不登校経験（あり/なし） |
-| bullying | VARCHAR(5) | YES | NULL | いじめを受けた経験（あり/なし） |
 | created_at | TIMESTAMP | YES | NULL | 作成日時 |
 | updated_at | TIMESTAMP | YES | NULL | 更新日時 |
 | updated_by | BIGINT UNSIGNED | YES | NULL | 最終更新者のトレーナーのID（外部キー） |
@@ -281,19 +258,6 @@ erDiagram
 | clients_initial_age_check | CHECK | initial_age IS NULL OR (initial_age >= 0 AND initial_age <= 150) | — | 年齢の妥当な範囲を制限 |
 | clients_primary_counselor_id_foreign | FOREIGN KEY | primary_counselor_id → counselors(id) | SET NULL | トレーナー削除時は主担当をNULLにする |
 | clients_support_status_id_foreign | FOREIGN KEY | support_status_id → support_statuses(id) | SET NULL | 支援状態マスタ削除時はNULLにする |
-| clients_education_level_check | CHECK | education_level IS NULL OR education_level IN ('中学', '全日制高校', '定時制高校', '通信制高校', '高専', '専門学校', '大学', '短大', '大学院', 'その他') | — | 定義済みの学歴のみ許可（5-3.参照） |
-| clients_education_status_check | CHECK | education_status IS NULL OR education_status IN ('卒業', '中退', '在学中', '休学中') | — | 定義済みの状態のみ許可（5-4.参照） |
-| clients_employment_type_check | CHECK | employment_type IS NULL OR employment_type IN ('正社員・正規職員', '契約社員・嘱託社員', 'パート・アルバイト', '派遣社員', 'その他・詳細不明') | — | 定義済みの雇用形態のみ許可（5-5.参照） |
-| clients_employment_hours_check | CHECK | employment_hours IS NULL OR employment_hours IN ('週20時間以上', '週20時間未満', '不定期') | — | 定義済みの労働時間のみ許可（5-6.参照） |
-| clients_employment_period_check | CHECK | employment_period IS NULL OR employment_period IN ('有期雇用（3ヶ月未満）', '有期雇用（3～6ヶ月未満）', '有期雇用（6ヶ月～1年未満）', '有期雇用（1年以上）', '無期雇用') | — | 定義済みの雇用期間のみ許可（5-7.参照） |
-| clients_unemployment_period_check | CHECK | unemployment_period IS NULL OR unemployment_period IN ('6ヶ月未満', '6ヶ月～1年', '1～3年', '3～5年', '5～10年', '10年以上') | — | 定義済みの無職期間のみ許可（5-8.参照） |
-| clients_disability_phys_check | CHECK | disability_physical IS NULL OR disability_physical IN ('あり', 'なし') | — | あり/なしのみ許可 |
-| clients_disability_mental_check | CHECK | disability_mental IS NULL OR disability_mental IN ('あり', 'なし') | — | あり/なしのみ許可 |
-| clients_disability_intl_check | CHECK | disability_intellectual IS NULL OR disability_intellectual IN ('あり', 'なし') | — | あり/なしのみ許可 |
-| clients_financial_check | CHECK | financial_status IS NULL OR financial_status IN ('生活保護を受給している', '逼迫している', '特に困っていない') | — | 定義済みの経済状態のみ許可（5-9.参照） |
-| clients_hikikomori_check | CHECK | hikikomori IS NULL OR hikikomori IN ('あり', 'なし') | — | あり/なしのみ許可 |
-| clients_school_refusal_check | CHECK | school_refusal IS NULL OR school_refusal IN ('あり', 'なし') | — | あり/なしのみ許可 |
-| clients_bullying_check | CHECK | bullying IS NULL OR bullying IN ('あり', 'なし') | — | あり/なしのみ許可 |
 | clients_updated_by_foreign | FOREIGN KEY | updated_by → counselors(id) | SET NULL | トレーナー削除時は最終更新者をNULLにする |
 
 
@@ -761,77 +725,6 @@ erDiagram
 | 男 | |
 | 女 | |
 | その他 | |
-
-### 5-3. 学歴
-
-| 値 | 説明 |
-|----|------|
-| 中学 | |
-| 全日制高校 | |
-| 定時制高校 | |
-| 通信制高校 | |
-| 高専 | 高等専門学校 |
-| 専門学校 | |
-| 大学 | |
-| 短大 | 短期大学 |
-| 大学院 | |
-| その他 | 上記に該当しない学歴 |
-
-### 5-4. 学歴の状態
-
-| 値 | 説明 |
-|----|------|
-| 卒業 | |
-| 中退 | |
-| 在学中 | |
-| 休学中 | |
-
-### 5-5. 雇用形態
-
-| 値 | 説明 |
-|----|------|
-| 正社員・正規職員 | |
-| 契約社員・嘱託社員 | |
-| パート・アルバイト | |
-| 派遣社員 | |
-| その他・詳細不明 | 上記に該当しない場合 |
-
-### 5-6. 週の労働時間
-
-| 値 | 説明 |
-|----|------|
-| 週20時間以上 | |
-| 週20時間未満 | |
-| 不定期 | 勤務日、勤務時間が一定でない場合 |
-
-### 5-7. 雇用期間
-
-| 値 | 説明 |
-|----|------|
-| 有期雇用（3ヶ月未満） | |
-| 有期雇用（3～6ヶ月未満） | |
-| 有期雇用（6ヶ月～1年未満） | |
-| 有期雇用（1年以上） | |
-| 無期雇用 | 期間の定めがない雇用 |
-
-### 5-8. 無職期間
-
-| 値 | 説明 |
-|----|------|
-| 6ヶ月未満 | |
-| 6ヶ月～1年 | |
-| 1～3年 | |
-| 3～5年 | |
-| 5～10年 | |
-| 10年以上 | |
-
-### 5-9. 経済状態
-
-| 値 | 説明 |
-|----|------|
-| 生活保護を受給している | |
-| 逼迫している | 生活が困窮している状態 |
-| 特に困っていない | |
 
 ### 5-10. 参加状況
 
