@@ -111,7 +111,6 @@
                             <th>トレーニング日</th>
                             <th>担当1</th>
                             <th>担当2</th>
-                            <th>初回</th>
                             <th>トレーニング内容</th>
                             <th>フェーズ</th>
                         </tr>
@@ -128,7 +127,6 @@
                                 </td>
                                 <td>{{ $record->counselor1->name ?? '—' }}</td>
                                 <td>{{ $record->counselor2->name ?? '—' }}</td>
-                                <td>{{ $record->is_intake ? '●' : '' }}</td>
                                 <td>{{ $record->consultationType->name ?? '—' }}</td>
                                 <td>{{ $record->phase->name ?? '—' }}</td>
                             </tr>

@@ -104,7 +104,6 @@
                     </th>
                     <th>担当1</th>
                     <th>担当2</th>
-                    <th>初回</th>
                     <th>トレーニング内容</th>
                     <th>フェーズ</th>
                 </tr>
@@ -117,13 +116,12 @@
                         <td>{{ $record->consultation_date->format('Y/m/d') }}</td>
                         <td>{{ $record->counselor1->name ?? '—' }}</td>
                         <td>{{ $record->counselor2->name ?? '—' }}</td>
-                        <td>{{ $record->is_intake ? '●' : '' }}</td>
                         <td>{{ $record->consultationType->name ?? '—' }}</td>
                         <td>{{ $record->phase->name ?? '—' }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="text-center text-muted py-4">該当するトレーニング記録がありません。</td>
+                        <td colspan="7" class="text-center text-muted py-4">該当するトレーニング記録がありません。</td>
                     </tr>
                 @endforelse
             </tbody>

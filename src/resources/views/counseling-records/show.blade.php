@@ -63,8 +63,6 @@
             <div class="row">
                 <div class="col-md-6">
                     <table class="table table-borderless table-sm">
-                        <tr><th class="text-muted" style="width:40%">インテーク</th><td>{{ $counselingRecord->is_intake ? 'はい' : 'いいえ' }}</td></tr>
-                        <tr><th class="text-muted">フォローアップ</th><td>{{ $counselingRecord->is_followup ? 'はい' : 'いいえ' }}</td></tr>
                     </table>
                 </div>
                 <div class="col-md-6">

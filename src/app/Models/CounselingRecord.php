@@ -15,7 +15,6 @@ class CounselingRecord extends Model
 
     protected $fillable = [
         'client_id', 'consultation_date', 'consultation_time',
-        'is_intake', 'is_followup',
         'consultation_type_id', 'consultation_detail',
         'counselor1_id', 'counselor2_id',
         'record_content', 'impression',
@@ -28,8 +27,6 @@ class CounselingRecord extends Model
     {
         return [
             'consultation_date' => 'date',
-            'is_intake' => 'boolean',
-            'is_followup' => 'boolean',
         ];
     }
 

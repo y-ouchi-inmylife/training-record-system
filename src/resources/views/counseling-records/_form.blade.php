@@ -93,22 +93,6 @@
         </div>
         <div class="card-body">
             <div class="row g-3">
-                {{-- インテーク・フォローアップ --}}
-                <div class="col-md-12">
-                    <div class="form-check form-check-inline">
-                        <input type="hidden" name="is_intake" value="0">
-                        <input class="form-check-input" type="checkbox" name="is_intake" id="is_intake" value="1"
-                            {{ old('is_intake', $record?->is_intake) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="is_intake">インテーク</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                        <input type="hidden" name="is_followup" value="0">
-                        <input class="form-check-input" type="checkbox" name="is_followup" id="is_followup" value="1"
-                            {{ old('is_followup', $record?->is_followup) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="is_followup">フォローアップ</label>
-                    </div>
-                </div>
-
                 {{-- トレーニング内容 --}}
                 <div class="col-md-4">
                     <label for="consultation_type_id" class="form-label">トレーニング内容</label>

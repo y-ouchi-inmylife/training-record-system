@@ -306,8 +306,6 @@ class CounselingRecordController extends Controller
             'client_id' => 'required|exists:clients,id',
             'consultation_date' => 'required|date',
             'consultation_time' => 'nullable|date_format:H:i',
-            'is_intake' => 'boolean',
-            'is_followup' => 'boolean',
             'consultation_type_id' => 'nullable|exists:consultation_types,id',
             'consultation_detail' => 'nullable|string|max:255',
             'counselor1_id' => 'required|exists:counselors,id',

@@ -14,8 +14,6 @@ return new class extends Migration
             $table->unsignedBigInteger('client_id');
             $table->date('consultation_date')->comment('相談日');
             $table->time('consultation_time')->nullable()->comment('相談時間');
-            $table->boolean('is_intake')->default(false)->comment('インテークフラグ');
-            $table->boolean('is_followup')->default(false)->comment('フォローアップフラグ');
             $table->unsignedBigInteger('consultation_type_id')->nullable();
             $table->string('consultation_detail', 255)->nullable()->comment('相談内容の詳細');
             $table->unsignedBigInteger('counselor1_id');

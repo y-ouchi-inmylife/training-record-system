@@ -90,8 +90,6 @@ erDiagram
         bigint consultation_type_id FK
         bigint phase_id FK
         date consultation_date
-        boolean is_intake
-        boolean is_followup
     }
 
     consultation_types {
@@ -262,8 +260,6 @@ erDiagram
 | consultation_time | TIME | YES | NULL | トレーニング時刻（HH:MM形式） |
 | counselor1_id | BIGINT UNSIGNED | NO | — | 担当1のトレーナーのID（外部キー） |
 | counselor2_id | BIGINT UNSIGNED | YES | NULL | 担当2のトレーナーのID（外部キー） |
-| is_intake | BOOLEAN | NO | false | インテーク（初回トレーニング）フラグ |
-| is_followup | BOOLEAN | NO | false | フォローアップ面談フラグ |
 | consultation_type_id | BIGINT UNSIGNED | YES | NULL | トレーニング内容マスタのID（外部キー） |
 | consultation_detail | VARCHAR(255) | YES | NULL | トレーニング内容の詳細（主旨を1行で要約） |
 | phase_id | BIGINT UNSIGNED | YES | NULL | フェーズマスタのID（外部キー） |
