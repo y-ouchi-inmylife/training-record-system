@@ -10,11 +10,11 @@
                 <h2 class="mb-0">トレーナー登録</h2>
                 <div class="d-flex gap-2">
                     <button type="submit" form="counselor-create-form" class="btn btn-success">登録</button>
-                    <a href="{{ route('counselors.index') }}" class="btn btn-secondary">キャンセル</a>
+                    <a href="{{ route('trainers.index') }}" class="btn btn-secondary">キャンセル</a>
                 </div>
             </div>
 
-            <form id="counselor-create-form" method="POST" action="{{ route('counselors.store') }}">
+            <form id="counselor-create-form" method="POST" action="{{ route('trainers.store') }}">
                 @csrf
 
                 <div class="mb-3">

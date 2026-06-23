@@ -659,7 +659,7 @@
 
         // トレーナー一覧を読み込み
         async function loadCounselors() {
-            var response = await fetch('/api/counselors', {
+            var response = await fetch('/api/trainers', {
                 headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
             });
             var counselors = await response.json();
@@ -753,7 +753,7 @@
                         '<p>&#x2705; 要約完了</p>' +
                         '<p>&#x23F3; トレーニング記録を作成中...</p>';
 
-                    var createResponse = await fetch('/api/counseling-records/auto-create', {
+                    var createResponse = await fetch('/api/training-records/auto-create', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

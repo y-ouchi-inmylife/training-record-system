@@ -11,7 +11,7 @@
             {{-- 新規追加フォーム --}}
             <div class="mb-5">
                 <label class="form-label">新規追加</label>
-                <form method="POST" action="{{ route('master.consultation-types.store') }}" class="d-flex gap-2 align-items-start">
+                <form method="POST" action="{{ route('master.training-types.store') }}" class="d-flex gap-2 align-items-start">
                     @csrf
                     <div class="flex-grow-1">
                         <input type="text" name="name" id="name"
@@ -47,13 +47,13 @@
                                         <span>{{ $index + 1 }}</span>
                                         <div class="d-flex gap-1">
                                             {{-- 上へ移動（先頭は無効化） --}}
-                                            <form method="POST" action="{{ route('master.consultation-types.move-up', $type) }}" class="d-inline">
+                                            <form method="POST" action="{{ route('master.training-types.move-up', $type) }}" class="d-inline">
                                                 @csrf
                                                 @method('PATCH')
                                                 <button type="submit" class="btn btn-outline-secondary btn-sm" {{ $index === 0 ? 'disabled' : '' }}>↑</button>
                                             </form>
                                             {{-- 下へ移動（末尾は無効化） --}}
-                                            <form method="POST" action="{{ route('master.consultation-types.move-down', $type) }}" class="d-inline">
+                                            <form method="POST" action="{{ route('master.training-types.move-down', $type) }}" class="d-inline">
                                                 @csrf
                                                 @method('PATCH')
                                                 <button type="submit" class="btn btn-outline-secondary btn-sm" {{ $index === $types->count() - 1 ? 'disabled' : '' }}>↓</button>
@@ -65,7 +65,7 @@
                                     {{-- 表示モード --}}
                                     <span class="type-name-display">{{ $type->name }}</span>
                                     {{-- 編集モード --}}
-                                    <form method="POST" action="{{ route('master.consultation-types.update', $type) }}"
+                                    <form method="POST" action="{{ route('master.training-types.update', $type) }}"
                                           class="type-name-edit d-none">
                                         @csrf
                                         @method('PUT')
@@ -84,7 +84,7 @@
                                         <button type="button" class="btn btn-outline-primary btn-sm btn-edit">編集</button>
 
                                         {{-- 削除 --}}
-                                        <form method="POST" action="{{ route('master.consultation-types.destroy', $type) }}"
+                                        <form method="POST" action="{{ route('master.training-types.destroy', $type) }}"
                                               class="d-inline"
                                               onsubmit="@if($type->counseling_records_count > 0) alert('このトレーニング内容はトレーニング記録で使用されているため削除できません。'); return false; @else return confirm('「{{ $type->name }}」を削除しますか？'); @endif">
                                             @csrf

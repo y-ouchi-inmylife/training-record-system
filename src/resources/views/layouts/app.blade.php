@@ -59,7 +59,7 @@
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->is('counseling-records*') ? 'active' : '' }}" href="{{ route('counseling-records.index') }}">
+                            <a class="nav-link {{ request()->is('training-records*') ? 'active' : '' }}" href="{{ route('training-records.index') }}">
                                 トレーニング記録
                             </a>
                         </li>
@@ -91,18 +91,18 @@
                     @if(Auth::user()->isAdminOnly())
                         {{-- 業務管理者用メニュー（adminのみ、system_adminには非表示） --}}
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle {{ request()->is('counselors*') || request()->is('access-logs*') || request()->is('settings/summary-prompts*') || request()->is('master*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
+                            <a class="nav-link dropdown-toggle {{ request()->is('trainers*') || request()->is('access-logs*') || request()->is('settings/summary-prompts*') || request()->is('master*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
                                 【管理者】
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{{ route('counselors.index') }}">トレーナー管理</a></li>
+                                <li><a class="dropdown-item" href="{{ route('trainers.index') }}">トレーナー管理</a></li>
                                 <li><a class="dropdown-item" href="{{ route('access-logs.index') }}">トレーナー操作履歴</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{{ route('settings.summary-prompts.edit') }}">要約プロンプト</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><h6 class="dropdown-header">マスタ管理</h6></li>
                                 <li><a class="dropdown-item" href="{{ route('master.support-statuses.index') }}">支援状態</a></li>
-                                <li><a class="dropdown-item" href="{{ route('master.consultation-types.index') }}">トレーニング内容</a></li>
+                                <li><a class="dropdown-item" href="{{ route('master.training-types.index') }}">トレーニング内容</a></li>
                                 <li><a class="dropdown-item" href="{{ route('master.phases.index') }}">フェーズ</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{{ route('settings.auto-logout.edit') }}">自動ログアウト</a></li>

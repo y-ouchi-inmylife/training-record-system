@@ -1,21 +1,21 @@
 @extends('layouts.app')
 
-@section('title', 'トレーニング記録登録')
+@section('title', 'トレーニング記録編集')
 
 @section('content')
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">トレーニング記録登録</h2>
+        <h2 class="mb-0">トレーニング記録編集</h2>
         <div class="d-flex gap-2">
-            <a href="{{ $selectedClientId ? route('clients.show', $selectedClientId) : route('counseling-records.index') }}" class="btn btn-secondary js-leave-link">キャンセル</a>
-            <button type="submit" form="counselingRecordForm" class="btn btn-success">登録</button>
+            <a href="{{ route('clients.show', $counselingRecord->client_id) }}" class="btn btn-secondary js-leave-link">キャンセル</a>
+            <button type="submit" form="counselingRecordForm" class="btn btn-success">更新</button>
         </div>
     </div>
 
-    @include('counseling-records._form', [
-        'action' => route('counseling-records.store'),
-        'method' => 'POST',
-        'record' => null,
+    @include('training-records._form', [
+        'action' => route('training-records.update', $counselingRecord),
+        'method' => 'PUT',
+        'record' => $counselingRecord,
     ])
 </div>
 @endsection

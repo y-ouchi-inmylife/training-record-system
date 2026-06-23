@@ -10,11 +10,11 @@
                 <h2 class="mb-0">トレーナー編集</h2>
                 <div class="d-flex gap-2">
                     <button type="submit" form="counselor-edit-form" class="btn btn-success">更新</button>
-                    <a href="{{ route('counselors.index') }}" class="btn btn-secondary">キャンセル</a>
+                    <a href="{{ route('trainers.index') }}" class="btn btn-secondary">キャンセル</a>
                 </div>
             </div>
 
-            <form id="counselor-edit-form" method="POST" action="{{ route('counselors.update', $counselor) }}">
+            <form id="counselor-edit-form" method="POST" action="{{ route('trainers.update', $counselor) }}">
                 @csrf
                 @method('PUT')
 

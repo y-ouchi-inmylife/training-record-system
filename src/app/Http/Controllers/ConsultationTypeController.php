@@ -17,7 +17,7 @@ class ConsultationTypeController extends Controller
     {
         $types = ConsultationType::withCount('counselingRecords')->orderBy('sort_order')->orderBy('id')->get();
 
-        return view('master.consultation-types.index', compact('types'));
+        return view('master.training-types.index', compact('types'));
     }
 
     /**
@@ -39,7 +39,7 @@ class ConsultationTypeController extends Controller
 
         ConsultationType::create($validated);
 
-        return redirect()->route('master.consultation-types.index')
+        return redirect()->route('master.training-types.index')
             ->with('success', 'トレーニング内容を追加しました。');
     }
 
@@ -58,7 +58,7 @@ class ConsultationTypeController extends Controller
 
         $consultationType->update($validated);
 
-        return redirect()->route('master.consultation-types.index')
+        return redirect()->route('master.training-types.index')
             ->with('success', 'トレーニング内容を更新しました。');
     }
 
@@ -69,13 +69,13 @@ class ConsultationTypeController extends Controller
     {
         // 使用中のトレーニング内容は削除不可
         if ($consultationType->counselingRecords()->exists()) {
-            return redirect()->route('master.consultation-types.index')
+            return redirect()->route('master.training-types.index')
                 ->with('error', 'このトレーニング内容はトレーニング記録で使用されているため削除できません。');
         }
 
         $consultationType->delete();
 
-        return redirect()->route('master.consultation-types.index')
+        return redirect()->route('master.training-types.index')
             ->with('success', 'トレーニング内容を削除しました。');
     }
 
@@ -94,7 +94,7 @@ class ConsultationTypeController extends Controller
             $previous->update(['sort_order' => $tempOrder]);
         }
 
-        return redirect()->route('master.consultation-types.index');
+        return redirect()->route('master.training-types.index');
     }
 
     /**
@@ -112,6 +112,6 @@ class ConsultationTypeController extends Controller
             $next->update(['sort_order' => $tempOrder]);
         }
 
-        return redirect()->route('master.consultation-types.index');
+        return redirect()->route('master.training-types.index');
     }
 }

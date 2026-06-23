@@ -11,11 +11,11 @@
                 <div class="d-flex gap-2">
                     <button type="submit" form="counselor-reset-password-form" class="btn btn-success"
                             onclick="return confirm('{{ $counselor->name }} のパスワードをリセットしますか？')">更新</button>
-                    <a href="{{ route('counselors.index') }}" class="btn btn-secondary">キャンセル</a>
+                    <a href="{{ route('trainers.index') }}" class="btn btn-secondary">キャンセル</a>
                 </div>
             </div>
 
-            <form id="counselor-reset-password-form" method="POST" action="{{ route('counselors.reset-password.update', $counselor) }}">
+            <form id="counselor-reset-password-form" method="POST" action="{{ route('trainers.reset-password.update', $counselor) }}">
                 @csrf
                 @method('PUT')
 

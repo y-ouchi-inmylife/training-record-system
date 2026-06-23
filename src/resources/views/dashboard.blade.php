@@ -147,7 +147,7 @@
                             @endif
                             <td>
                                 @if($client->last_consultation_date && $lastRecord)
-                                    <a href="{{ route('counseling-records.show', $lastRecord->id) }}" class="text-decoration-none">
+                                    <a href="{{ route('training-records.show', $lastRecord->id) }}" class="text-decoration-none">
                                         {{ \Carbon\Carbon::parse($client->last_consultation_date)->format('Y年m月d日') }}
                                     </a>
                                 @else

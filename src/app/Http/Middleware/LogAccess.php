@@ -18,10 +18,10 @@ class LogAccess
         'clients.store' => 'create_client',
         'clients.update' => 'edit_client',
         'clients.destroy' => 'delete_client',
-        'counseling-records.show' => 'view_counseling_record',
-        'counseling-records.store' => 'create_counseling_record',
-        'counseling-records.update' => 'edit_counseling_record',
-        'counseling-records.destroy' => 'delete_counseling_record',
+        'training-records.show' => 'view_counseling_record',
+        'training-records.store' => 'create_counseling_record',
+        'training-records.update' => 'edit_counseling_record',
+        'training-records.destroy' => 'delete_counseling_record',
     ];
 
     public function handle(Request $request, Closure $next): Response
@@ -57,7 +57,7 @@ class LogAccess
             $targetId = is_object($param) ? $param->id : $param;
         } elseif (str_contains($action, 'counseling_record')) {
             $targetType = 'CounselingRecord';
-            $param = $request->route('counseling_record') ?? $request->route('counselingRecord');
+            $param = $request->route('training_record') ?? $request->route('trainingRecord');
             $targetId = is_object($param) ? $param->id : $param;
         }
 

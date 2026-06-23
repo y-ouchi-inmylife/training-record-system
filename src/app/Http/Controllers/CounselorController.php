@@ -44,7 +44,7 @@ class CounselorController extends Controller
 
         $adminCount = $counselors->where('role', 'admin')->count();
 
-        return view('counselors.index', compact('counselors', 'adminCount'));
+        return view('trainers.index', compact('counselors', 'adminCount'));
     }
 
     /**
@@ -52,7 +52,7 @@ class CounselorController extends Controller
      */
     public function create(): View
     {
-        return view('counselors.create');
+        return view('trainers.create');
     }
 
     /**
@@ -82,7 +82,7 @@ class CounselorController extends Controller
         $validated['display_order'] = (Counselor::max('display_order') ?? 0) + 1;
         Counselor::create($validated);
 
-        return redirect()->route('counselors.index')
+        return redirect()->route('trainers.index')
             ->with('success', 'トレーナーを登録しました。初回ログイン時にパスワード変更が求められます。');
     }
 
@@ -92,11 +92,11 @@ class CounselorController extends Controller
     public function edit(Counselor $counselor)
     {
         if ($counselor->isSystemAdmin()) {
-            return redirect()->route('counselors.index')
+            return redirect()->route('trainers.index')
                 ->with('error', 'システム管理者アカウントは編集できません。');
         }
 
-        return view('counselors.edit', compact('counselor'));
+        return view('trainers.edit', compact('counselor'));
     }
 
     /**
@@ -118,7 +118,7 @@ class CounselorController extends Controller
         if ($counselor->role === 'admin' && $validated['role'] === 'staff') {
             $adminCount = Counselor::where('role', 'admin')->count();
             if ($adminCount <= 1) {
-                return redirect()->route('counselors.edit', $counselor)
+                return redirect()->route('trainers.edit', $counselor)
                     ->with('error', '管理者は最低1名必要です。権限を変更できません。');
             }
         }
@@ -128,7 +128,7 @@ class CounselorController extends Controller
             'role' => $validated['role'],
         ]);
 
-        return redirect()->route('counselors.index')
+        return redirect()->route('trainers.index')
             ->with('success', 'トレーナー情報を更新しました。');
     }
 
@@ -139,13 +139,13 @@ class CounselorController extends Controller
     {
         // system_adminは削除できない
         if ($counselor->isSystemAdmin()) {
-            return redirect()->route('counselors.index')
+            return redirect()->route('trainers.index')
                 ->with('error', 'システム管理者アカウントは削除できません。');
         }
 
         // 自分自身は削除不可
         if ($counselor->id === auth()->id()) {
-            return redirect()->route('counselors.index')
+            return redirect()->route('trainers.index')
                 ->with('error', '自分自身を削除することはできません。');
         }
 
@@ -153,7 +153,7 @@ class CounselorController extends Controller
         if ($counselor->role === 'admin') {
             $adminCount = Counselor::where('role', 'admin')->count();
             if ($adminCount <= 1) {
-                return redirect()->route('counselors.index')
+                return redirect()->route('trainers.index')
                     ->with('error', '管理者は最低1名必要です。削除できません。');
             }
         }
@@ -161,7 +161,7 @@ class CounselorController extends Controller
         // クライアントの主担当トレーナーになっているかチェック
         $primaryClientsCount = Client::where('primary_counselor_id', $counselor->id)->count();
         if ($primaryClientsCount > 0) {
-            return redirect()->route('counselors.index')
+            return redirect()->route('trainers.index')
                 ->with('error', "{$counselor->name} は {$primaryClientsCount} 件のクライアントの主担当トレーナーです。先に主担当を変更してから削除してください。");
         }
 
@@ -170,13 +170,13 @@ class CounselorController extends Controller
             ->orWhere('counselor2_id', $counselor->id)
             ->count();
         if ($recordsCount > 0) {
-            return redirect()->route('counselors.index')
+            return redirect()->route('trainers.index')
                 ->with('error', "{$counselor->name} は {$recordsCount} 件のトレーニング記録の担当者です。削除できません。");
         }
 
         $counselor->delete();
 
-        return redirect()->route('counselors.index')
+        return redirect()->route('trainers.index')
             ->with('success', "{$counselor->name} を削除しました。");
     }
 
@@ -186,7 +186,7 @@ class CounselorController extends Controller
     public function unlock(Counselor $counselor): RedirectResponse
     {
         if (!$counselor->is_locked) {
-            return redirect()->route('counselors.index')
+            return redirect()->route('trainers.index')
                 ->with('error', 'このアカウントはロックされていません。');
         }
 
@@ -197,7 +197,7 @@ class CounselorController extends Controller
             ->where('success', false)
             ->delete();
 
-        return redirect()->route('counselors.index')
+        return redirect()->route('trainers.index')
             ->with('success', $counselor->name . ' のアカウントロックを解除しました。');
     }
 
@@ -208,13 +208,13 @@ class CounselorController extends Controller
     {
         // system_adminは無効化できない
         if ($counselor->isSystemAdmin()) {
-            return redirect()->route('counselors.index')
+            return redirect()->route('trainers.index')
                 ->with('error', 'システム管理者アカウントは無効化できません。');
         }
 
         // 自分自身は無効化できない
         if ($counselor->id === auth()->id()) {
-            return redirect()->route('counselors.index')
+            return redirect()->route('trainers.index')
                 ->with('error', '自分自身のアカウントを無効化することはできません。');
         }
 
@@ -224,7 +224,7 @@ class CounselorController extends Controller
                 ->where('is_active', true)
                 ->count();
             if ($activeAdminCount <= 1) {
-                return redirect()->route('counselors.index')
+                return redirect()->route('trainers.index')
                     ->with('error', '管理者は最低1名必要です。無効化できません。');
             }
         }
@@ -232,7 +232,7 @@ class CounselorController extends Controller
         $counselor->update(['is_active' => !$counselor->is_active]);
         $status = $counselor->is_active ? '有効化' : '無効化';
 
-        return redirect()->route('counselors.index')
+        return redirect()->route('trainers.index')
             ->with('success', $counselor->name . ' のアカウントを' . $status . 'しました。');
     }
 
@@ -243,11 +243,11 @@ class CounselorController extends Controller
     {
         // system_adminはパスワードをリセットできない
         if ($counselor->isSystemAdmin()) {
-            return redirect()->route('counselors.index')
+            return redirect()->route('trainers.index')
                 ->with('error', 'システム管理者アカウントはパスワードをリセットできません。');
         }
 
-        return view('counselors.reset-password', compact('counselor'));
+        return view('trainers.reset-password', compact('counselor'));
     }
 
     /**
@@ -257,7 +257,7 @@ class CounselorController extends Controller
     {
         // system_adminはパスワードをリセットできない
         if ($counselor->isSystemAdmin()) {
-            return redirect()->route('counselors.index')
+            return redirect()->route('trainers.index')
                 ->with('error', 'システム管理者アカウントはパスワードをリセットできません。');
         }
 
@@ -273,7 +273,7 @@ class CounselorController extends Controller
             'must_change_password' => true,
         ]);
 
-        return redirect()->route('counselors.index')
+        return redirect()->route('trainers.index')
             ->with('success', $counselor->name . ' のパスワードをリセットしました。次回ログイン時にパスワード変更が求められます。');
     }
 
@@ -283,7 +283,7 @@ class CounselorController extends Controller
     public function moveUp(Counselor $counselor): RedirectResponse
     {
         if ($counselor->isSystemAdmin()) {
-            return redirect()->route('counselors.index');
+            return redirect()->route('trainers.index');
         }
 
         return $this->swapAdjacent($counselor, -1);
@@ -295,7 +295,7 @@ class CounselorController extends Controller
     public function moveDown(Counselor $counselor): RedirectResponse
     {
         if ($counselor->isSystemAdmin()) {
-            return redirect()->route('counselors.index');
+            return redirect()->route('trainers.index');
         }
 
         return $this->swapAdjacent($counselor, 1);
@@ -320,7 +320,7 @@ class CounselorController extends Controller
 
         // 対象が見つからない、もしくは移動先が範囲外なら何もしない
         if ($index === false || $targetIndex < 0 || $targetIndex >= $counselors->count()) {
-            return redirect()->route('counselors.index');
+            return redirect()->route('trainers.index');
         }
 
         // 一覧上で位置を入れ替え
@@ -333,7 +333,7 @@ class CounselorController extends Controller
             $c->save();
         }
 
-        return redirect()->route('counselors.index')
+        return redirect()->route('trainers.index')
             ->with('success', '表示順を変更しました。');
     }
 }

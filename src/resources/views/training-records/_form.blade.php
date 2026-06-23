@@ -180,7 +180,7 @@
         @if($record)
             <a href="{{ route('clients.show', $record->client_id) }}" class="btn btn-secondary js-leave-link">キャンセル</a>
         @else
-            <a href="{{ $selectedClientId ? route('clients.show', $selectedClientId) : route('counseling-records.index') }}" class="btn btn-secondary js-leave-link">キャンセル</a>
+            <a href="{{ $selectedClientId ? route('clients.show', $selectedClientId) : route('training-records.index') }}" class="btn btn-secondary js-leave-link">キャンセル</a>
         @endif
         <button type="submit" class="btn btn-success">{{ $record ? '更新' : '登録' }}</button>
     </div>

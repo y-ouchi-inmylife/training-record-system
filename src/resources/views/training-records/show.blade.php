@@ -8,9 +8,9 @@
         <h2 class="mb-0">トレーニング記録詳細</h2>
         <div class="d-flex gap-2 align-items-center">
             <a href="{{ route('clients.show', $counselingRecord->client_id) }}" class="btn btn-outline-secondary">&laquo; クライアント詳細に戻る</a>
-            <a href="{{ route('counseling-records.edit', $counselingRecord) }}" class="btn btn-success">編集</a>
+            <a href="{{ route('training-records.edit', $counselingRecord) }}" class="btn btn-success">編集</a>
             @if(auth()->user()->isAdmin())
-                <form method="POST" action="{{ route('counseling-records.destroy', $counselingRecord) }}" class="d-inline"
+                <form method="POST" action="{{ route('training-records.destroy', $counselingRecord) }}" class="d-inline"
                       onsubmit="return confirm('このトレーニング記録を削除しますか？')">
                     @csrf
                     @method('DELETE')

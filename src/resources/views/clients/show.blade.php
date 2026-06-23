@@ -101,7 +101,7 @@
             <h6 class="mb-0">
                 トレーニング記録（{{ $client->counselingRecords->count() }}件）
             </h6>
-            <a href="{{ route('counseling-records.create', ['client_id' => $client->id]) }}" class="btn btn-primary">新規登録</a>
+            <a href="{{ route('training-records.create', ['client_id' => $client->id]) }}" class="btn btn-primary">新規登録</a>
         </div>
         @if($client->counselingRecords->count() > 0)
             <div class="consultation-records-scroll">
@@ -117,7 +117,7 @@
                     </thead>
                     <tbody>
                         @foreach($client->counselingRecords as $record)
-                            <tr style="cursor: pointer;" onclick="location.href='{{ route('counseling-records.show', $record) }}'">
+                            <tr style="cursor: pointer;" onclick="location.href='{{ route('training-records.show', $record) }}'">
                                 <td>
                                     @if($record->consultation_date > now()->startOfDay())
                                         <span class="text-primary">{{ $record->consultation_date->format('Y/m/d') }}</span>

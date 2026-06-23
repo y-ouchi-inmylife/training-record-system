@@ -9,7 +9,7 @@
     {{-- 検索フォーム --}}
     <div class="card mb-4">
         <div class="card-body">
-            <form method="GET" action="{{ route('counseling-records.index') }}">
+            <form method="GET" action="{{ route('training-records.index') }}">
                 @if ($errors->has('date_to') || $errors->has('date_from'))
                     <div class="alert alert-danger">{{ $errors->first('date_to') ?: $errors->first('date_from') }}</div>
                 @endif
@@ -63,7 +63,7 @@
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-search"></i> 検索
                     </button>
-                    <a href="{{ route('counseling-records.index') }}" class="btn btn-secondary">クリア</a>
+                    <a href="{{ route('training-records.index') }}" class="btn btn-secondary">クリア</a>
                 </div>
             </form>
         </div>
@@ -79,7 +79,7 @@
             <thead class="table-light">
                 <tr>
                     <th>
-                        <a href="{{ route('counseling-records.index', array_merge(request()->query(), ['sort' => 'internal_id', 'direction' => request('sort') === 'internal_id' && request('direction') === 'asc' ? 'desc' : 'asc'])) }}" class="text-decoration-none text-dark">
+                        <a href="{{ route('training-records.index', array_merge(request()->query(), ['sort' => 'internal_id', 'direction' => request('sort') === 'internal_id' && request('direction') === 'asc' ? 'desc' : 'asc'])) }}" class="text-decoration-none text-dark">
                             内部ID
                             @if(request('sort') === 'internal_id')
                                 {{ request('direction') === 'asc' ? '▲' : '▼' }}
@@ -87,7 +87,7 @@
                         </a>
                     </th>
                     <th>
-                        <a href="{{ route('counseling-records.index', array_merge(request()->query(), ['sort' => 'client_name', 'direction' => request('sort') === 'client_name' && request('direction') === 'asc' ? 'desc' : 'asc'])) }}" class="text-decoration-none text-dark">
+                        <a href="{{ route('training-records.index', array_merge(request()->query(), ['sort' => 'client_name', 'direction' => request('sort') === 'client_name' && request('direction') === 'asc' ? 'desc' : 'asc'])) }}" class="text-decoration-none text-dark">
                             名前
                             @if(request('sort') === 'client_name')
                                 {{ request('direction') === 'asc' ? '▲' : '▼' }}
@@ -95,7 +95,7 @@
                         </a>
                     </th>
                     <th>
-                        <a href="{{ route('counseling-records.index', array_merge(request()->query(), ['sort' => 'consultation_date', 'direction' => request('sort') === 'consultation_date' && request('direction', 'desc') === 'desc' ? 'asc' : 'desc'])) }}" class="text-decoration-none text-dark">
+                        <a href="{{ route('training-records.index', array_merge(request()->query(), ['sort' => 'consultation_date', 'direction' => request('sort') === 'consultation_date' && request('direction', 'desc') === 'desc' ? 'asc' : 'desc'])) }}" class="text-decoration-none text-dark">
                             トレーニング日
                             @if(request('sort', 'consultation_date') === 'consultation_date')
                                 {{ request('direction', 'desc') === 'desc' ? '▼' : '▲' }}
@@ -111,7 +111,7 @@
             <tbody>
                 @forelse($records as $record)
                     <tr class="position-relative" style="cursor: pointer;">
-                        <td><a href="{{ route('counseling-records.show', $record) }}" class="stretched-link text-decoration-none text-reset">{{ $record->client->internal_id ?? '—' }}</a></td>
+                        <td><a href="{{ route('training-records.show', $record) }}" class="stretched-link text-decoration-none text-reset">{{ $record->client->internal_id ?? '—' }}</a></td>
                         <td>{{ $record->client->display_name ?? '—' }}</td>
                         <td>{{ $record->consultation_date->format('Y/m/d') }}</td>
                         <td>{{ $record->counselor1->name ?? '—' }}</td>

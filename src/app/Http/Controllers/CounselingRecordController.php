@@ -115,7 +115,7 @@ class CounselingRecordController extends Controller
         $consultationTypes = ConsultationType::orderBy('sort_order')->get();
         $counselors = Counselor::practitioners()->orderBy('display_order')->orderBy('name')->get();
 
-        return view('counseling-records.index', compact('records', 'consultationTypes', 'counselors'));
+        return view('training-records.index', compact('records', 'consultationTypes', 'counselors'));
     }
 
     /**
@@ -146,7 +146,7 @@ class CounselingRecordController extends Controller
 
         $audioRecordId = $request->input('audio_record_id');
 
-        return view('counseling-records.create', compact(
+        return view('training-records.create', compact(
             'consultationTypes', 'counselors', 'phases', 'selectedClientId', 'selectedClient', 'audioRecordId'
         ));
     }
@@ -190,7 +190,7 @@ class CounselingRecordController extends Controller
             'phase',
         ]);
 
-        return view('counseling-records.show', compact('counselingRecord'));
+        return view('training-records.show', compact('counselingRecord'));
     }
 
     /**
@@ -204,7 +204,7 @@ class CounselingRecordController extends Controller
         $counselors = Counselor::practitioners()->orderBy('display_order')->orderBy('name')->get();
         $phases = Phase::orderBy('sort_order')->get();
 
-        return view('counseling-records.edit', compact(
+        return view('training-records.edit', compact(
             'counselingRecord', 'consultationTypes', 'counselors', 'phases'
         ));
     }
