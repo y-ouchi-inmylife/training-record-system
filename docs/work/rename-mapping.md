@@ -68,7 +68,7 @@
 | counselors_display_order_index | trainers_display_order_index |
 | consultation_types_order_idx | training_types_order_idx |
 
-### その他制約（clients / counselors など、棚卸しで未列挙のものは実ファイル確認時に追加）
+### その他制約（clients / counselors など）
 
 | 旧 | 新 |
 |---|---|
@@ -80,7 +80,22 @@
 | clients_primary_counselor_id_foreign | clients_primary_trainer_id_foreign |
 | phases_*（counselingを含まない） | （変更なし） |
 
-※ この節は棚卸しで全制約名が出きっていないため、実装フェーズで各マイグレーションを確認して補完する。
+### 他テーブル（counselor_id 系FK／段階3 investigation で補完）
+
+counseling_records / counselors / consultation_types の3テーブル中心の棚卸しでは漏れていた、`counselor_id`（単独FK）を持つテーブルの制約名。
+
+| 旧 | 新 |
+|---|---|
+| clients_primary_counselor_idx | clients_primary_trainer_idx |
+| access_logs_counselor_id_created_at_idx | access_logs_trainer_id_created_at_idx |
+| access_logs_counselor_id_foreign | access_logs_trainer_id_foreign |
+| audio_records_counselor_idx | audio_records_trainer_idx |
+| audio_records_counselor_id_foreign | audio_records_trainer_id_foreign |
+| login_attempts_counselor_idx | login_attempts_trainer_idx |
+| login_attempts_counselor_id_foreign | login_attempts_trainer_id_foreign |
+| sessions_user_id_foreign | （変更なし — カラム名 user_id は変えない。FK 参照先が `counselors` → `trainers` に変わるだけ） |
+
+※ 段階3 investigation で上記7件を補完済み。これにより段階3で変更すべき全制約名が対応表に揃った。
 
 ---
 
@@ -226,5 +241,5 @@ requirements.md / db-schema.md / api-design.md / screen-design.md / batch-design
 3. **client_intake_tokens 系は対象外**（語幹を含まない別機能）。
 4. **btn-preset-counseling / summary_prompt_preset_counseling は変更しない（確定）**。要約プロンプトの「心理カウンセリング用」プリセットは過去に意図的な温存方針が決まっており、この counseling は「カウンセリング業務向けプロンプト」という意味で残す。リネーム後、システム全体で counseling が残るのはこのプリセット関連のみ（key名・ボタンID・コメント）。これは設計判断による意図的な残置であり、リネーム漏れではない。
 5. **created_by / updated_by カラム自体は変更なし**（FK先が trainers になるだけ）。
-6. **制約名（C節）は棚卸しで全部出きっていない**ため、実装フェーズで各マイグレーションを開いて全制約名を確認・補完する。
+6. **制約名（C節）は段階3 investigation で7件を補完済み**。counselor_id（単独FK）を持つテーブル（access_logs / audio_records / login_attempts / clients）の制約名を「他テーブル（counselor_id 系FK）」サブセクションに追加した。
 7. **段階的に進める**。一度に全部やらず、独立性の高いもの（DOM ID、docs、view名）から、連動の大きいもの（テーブル名・カラム名・クラス名）へ。各段階で migrate:fresh --seed と test green を確認。
