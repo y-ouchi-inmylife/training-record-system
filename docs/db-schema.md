@@ -24,7 +24,7 @@
 
 ```mermaid
 erDiagram
-    counselors {
+    trainers {
         bigint id PK
         string login_id UK
         string name
@@ -37,21 +37,21 @@ erDiagram
 
     login_attempts {
         bigint id PK
-        bigint counselor_id FK
+        bigint trainer_id FK
         string login_id_input
         boolean success
     }
 
     access_logs {
         bigint id PK
-        bigint counselor_id FK
+        bigint trainer_id FK
         string action
         string target_type
         bigint target_id
     }
 
-    counselors ||--o{ login_attempts : "試行する"
-    counselors ||--o{ access_logs : "操作を記録する"
+    trainers ||--o{ login_attempts : "試行する"
+    trainers ||--o{ access_logs : "操作を記録する"
 
 
     clients {
@@ -61,7 +61,7 @@ erDiagram
         string first_name
         date initial_consultation_date
         bigint support_status_id FK
-        bigint primary_counselor_id FK
+        bigint primary_trainer_id FK
     }
 
     support_statuses {
@@ -82,17 +82,17 @@ erDiagram
         bigint created_by FK
     }
 
-    counseling_records {
+    training_records {
         bigint id PK
         bigint client_id FK
-        bigint counselor1_id FK
-        bigint counselor2_id FK
-        bigint consultation_type_id FK
+        bigint trainer1_id FK
+        bigint trainer2_id FK
+        bigint training_type_id FK
         bigint phase_id FK
-        date consultation_date
+        date training_date
     }
 
-    consultation_types {
+    training_types {
         bigint id PK
         string name
         integer sort_order
@@ -104,13 +104,13 @@ erDiagram
         integer sort_order
     }
 
-    consultation_types ||--|| counseling_records : "分類する"
-    phases ||--|| counseling_records : "段階を示す"
+    training_types ||--|| training_records : "分類する"
+    phases ||--|| training_records : "段階を示す"
 
 
     audio_records {
         bigint id PK
-        bigint counselor_id FK
+        bigint trainer_id FK
         bigint client_id FK
         string title
         string source
@@ -129,16 +129,16 @@ erDiagram
     }
 
 
-    counselors ||--|| clients : "主担当"
-    counselors ||--|| counseling_records : "担当1"
-    counselors ||--|| counseling_records : "担当2"
-    clients ||--o{ counseling_records : "トレーニングを受ける"
+    trainers ||--|| clients : "主担当"
+    trainers ||--|| training_records : "担当1"
+    trainers ||--|| training_records : "担当2"
+    clients ||--o{ training_records : "トレーニングを受ける"
 
-    counselors ||--o{ audio_records : "録音・アップロード・テキスト入力する"
+    trainers ||--o{ audio_records : "録音・アップロード・テキスト入力する"
 
     clients ||--o{ audio_records : "対象となる"
     clients ||--o{ client_intake_tokens : "トークンで登録"
-    counselors ||--o{ client_intake_tokens : "発行"
+    trainers ||--o{ client_intake_tokens : "発行"
 ```
 
 ※ER図はテーブル間の関連と主要カラム（主キー・ユニークキー・外部キー・主な業務識別/区分カラム）のみを示す。`created_at`/`updated_at`/`updated_by` 等の共通カラムおよび非識別カラムは省略しているため、全カラムは4章のテーブル定義を参照。clientsテーブルは7カテゴリー50業務項目＋共通カラムで構成され、ER図には代表カラムのみ掲載している。
@@ -209,7 +209,7 @@ erDiagram
 | first_name_kana | VARCHAR(50) | YES | NULL | めい（本人）。ひらがなのみ |
 | birth_date | DATE | YES | NULL | 生年月日（本人） |
 | gender | VARCHAR(10) | YES | NULL | 性別（5-2.参照） |
-| primary_counselor_id | BIGINT UNSIGNED | YES | NULL | 主担当トレーナーのID（外部キー） |
+| primary_trainer_id | BIGINT UNSIGNED | YES | NULL | 主担当トレーナーのID（外部キー） |
 | support_status_id | BIGINT UNSIGNED | YES | NULL | 支援状態マスタのID（外部キー） |
 | phone1 | VARCHAR(20) | YES | NULL | 電話番号1。ハイフンあり/なし両対応 |
 | phone2 | VARCHAR(20) | YES | NULL | 電話番号2。ハイフンあり/なし両対応 |
@@ -231,7 +231,7 @@ erDiagram
 | PRIMARY | id | PRIMARY KEY | 主キー |
 | clients_internal_id_unique | internal_id | UNIQUE | 内部IDの重複を防ぐ。内部IDによる検索にも使用 |
 | clients_initial_date_idx | initial_consultation_date | INDEX | 初回日によるソート・検索 |
-| clients_primary_counselor_idx | primary_counselor_id | INDEX | 主担当による検索 |
+| clients_primary_trainer_idx | primary_trainer_id | INDEX | 主担当による検索 |
 | clients_support_status_idx | support_status_id | INDEX | 支援状態によるフィルタリング |
 | clients_created_at_idx | created_at | INDEX | 登録日時によるソート。一覧画面のデフォルトソートで使用 |
 | clients_updated_by_foreign | updated_by | INDEX | 最終更新者による検索。外部キー制約に伴い自動付与 |
@@ -241,14 +241,14 @@ erDiagram
 | 制約名 | 種類 | 条件 | ON DELETE | 説明 |
 |--------|------|------|-----------|------|
 | clients_gender_check | CHECK | gender IS NULL OR gender IN ('男', '女', 'その他') | — | 定義済みの性別のみ許可（5-2.参照） |
-| clients_primary_counselor_id_foreign | FOREIGN KEY | primary_counselor_id → counselors(id) | SET NULL | トレーナー削除時は主担当をNULLにする |
+| clients_primary_trainer_id_foreign | FOREIGN KEY | primary_trainer_id → trainers(id) | SET NULL | トレーナー削除時は主担当をNULLにする |
 | clients_support_status_id_foreign | FOREIGN KEY | support_status_id → support_statuses(id) | SET NULL | 支援状態マスタ削除時はNULLにする |
-| clients_updated_by_foreign | FOREIGN KEY | updated_by → counselors(id) | SET NULL | トレーナー削除時は最終更新者をNULLにする |
+| clients_updated_by_foreign | FOREIGN KEY | updated_by → trainers(id) | SET NULL | トレーナー削除時は最終更新者をNULLにする |
 
 
 ---
 
-#### D-0200 counseling_records（トレーニング記録）
+#### D-0200 training_records（トレーニング記録）
 
 ##### カラム定義
 
@@ -256,12 +256,12 @@ erDiagram
 |---------|-----|------|----------|------|
 | id | BIGINT UNSIGNED | NO | auto_increment | 主キー |
 | client_id | BIGINT UNSIGNED | NO | — | クライアントのID（外部キー） |
-| consultation_date | DATE | NO | — | トレーニング日 |
-| consultation_time | TIME | YES | NULL | トレーニング時刻（HH:MM形式） |
-| counselor1_id | BIGINT UNSIGNED | NO | — | 担当1のトレーナーのID（外部キー） |
-| counselor2_id | BIGINT UNSIGNED | YES | NULL | 担当2のトレーナーのID（外部キー） |
-| consultation_type_id | BIGINT UNSIGNED | YES | NULL | トレーニング内容マスタのID（外部キー） |
-| consultation_detail | VARCHAR(255) | YES | NULL | トレーニング内容の詳細（主旨を1行で要約） |
+| training_date | DATE | NO | — | トレーニング日 |
+| training_time | TIME | YES | NULL | トレーニング時刻（HH:MM形式） |
+| trainer1_id | BIGINT UNSIGNED | NO | — | 担当1のトレーナーのID（外部キー） |
+| trainer2_id | BIGINT UNSIGNED | YES | NULL | 担当2のトレーナーのID（外部キー） |
+| training_type_id | BIGINT UNSIGNED | YES | NULL | トレーニング内容マスタのID（外部キー） |
+| training_detail | VARCHAR(255) | YES | NULL | トレーニング内容の詳細（主旨を1行で要約） |
 | phase_id | BIGINT UNSIGNED | YES | NULL | フェーズマスタのID（外部キー） |
 | record_content | TEXT | YES | NULL | トレーニング記録（事実を客観的に記録、クライアント開示前提） |
 | impression | TEXT | YES | NULL | 所感（トレーナー間共有、クライアント非開示） |
@@ -274,24 +274,24 @@ erDiagram
 | インデックス名 | カラム | 種類 | 目的 |
 |---------------|--------|------|------|
 | PRIMARY | id | PRIMARY KEY | 主キー |
-| counseling_records_client_date_idx | client_id, consultation_date | INDEX（複合） | クライアント別・日付順ソート。トレーニング履歴の時系列表示で使用。※Laravelマイグレーションの制約によりソート方向指定なし |
-| counseling_records_date_idx | consultation_date | INDEX | 日付による検索・ソート |
-| counseling_records_counselor1_idx | counselor1_id | INDEX | 担当1による検索 |
-| counseling_records_counselor2_idx | counselor2_id | INDEX | 担当2による検索 |
-| counseling_records_type_idx | consultation_type_id | INDEX | トレーニング内容による絞り込み検索 |
-| counseling_records_phase_idx | phase_id | INDEX | フェーズによる絞り込み検索 |
-| counseling_records_updated_by_foreign | updated_by | INDEX | 最終更新者による検索。外部キー制約に伴い自動付与 |
+| training_records_client_date_idx | client_id, training_date | INDEX（複合） | クライアント別・日付順ソート。トレーニング履歴の時系列表示で使用。※Laravelマイグレーションの制約によりソート方向指定なし |
+| training_records_date_idx | training_date | INDEX | 日付による検索・ソート |
+| training_records_trainer1_idx | trainer1_id | INDEX | 担当1による検索 |
+| training_records_trainer2_idx | trainer2_id | INDEX | 担当2による検索 |
+| training_records_type_idx | training_type_id | INDEX | トレーニング内容による絞り込み検索 |
+| training_records_phase_idx | phase_id | INDEX | フェーズによる絞り込み検索 |
+| training_records_updated_by_foreign | updated_by | INDEX | 最終更新者による検索。外部キー制約に伴い自動付与 |
 
 ##### 制約
 
 | 制約名 | 種類 | 条件 | ON DELETE | 説明 |
 |--------|------|------|-----------|------|
-| counseling_records_client_id_foreign | FOREIGN KEY | client_id → clients(id) | CASCADE | クライアント削除時にトレーニング記録も削除 |
-| counseling_records_counselor1_id_foreign | FOREIGN KEY | counselor1_id → counselors(id) | RESTRICT | 担当1があるトレーナーは削除不可 |
-| counseling_records_counselor2_id_foreign | FOREIGN KEY | counselor2_id → counselors(id) | SET NULL | 担当2が削除された場合はNULLにする |
-| counseling_records_consultation_type_id_foreign | FOREIGN KEY | consultation_type_id → consultation_types(id) | SET NULL | トレーニング内容マスタ削除時はNULLにする |
-| counseling_records_phase_id_foreign | FOREIGN KEY | phase_id → phases(id) | SET NULL | フェーズマスタ削除時はNULLにする |
-| counseling_records_updated_by_foreign | FOREIGN KEY | updated_by → counselors(id) | SET NULL | トレーナー削除時は最終更新者をNULLにする |
+| training_records_client_id_foreign | FOREIGN KEY | client_id → clients(id) | CASCADE | クライアント削除時にトレーニング記録も削除 |
+| training_records_trainer1_id_foreign | FOREIGN KEY | trainer1_id → trainers(id) | RESTRICT | 担当1があるトレーナーは削除不可 |
+| training_records_trainer2_id_foreign | FOREIGN KEY | trainer2_id → trainers(id) | SET NULL | 担当2が削除された場合はNULLにする |
+| training_records_training_type_id_foreign | FOREIGN KEY | training_type_id → training_types(id) | SET NULL | トレーニング内容マスタ削除時はNULLにする |
+| training_records_phase_id_foreign | FOREIGN KEY | phase_id → phases(id) | SET NULL | フェーズマスタ削除時はNULLにする |
+| training_records_updated_by_foreign | FOREIGN KEY | updated_by → trainers(id) | SET NULL | トレーナー削除時は最終更新者をNULLにする |
 
 
 ---
@@ -303,7 +303,7 @@ erDiagram
 | カラム名 | 型 | NULL | デフォルト | 説明 |
 |---------|-----|------|----------|------|
 | id | BIGINT UNSIGNED | NO | auto_increment | 主キー |
-| counselor_id | BIGINT UNSIGNED | NO | — | アップロード・録音・テキスト入力したトレーナーのID（外部キー） |
+| trainer_id | BIGINT UNSIGNED | NO | — | アップロード・録音・テキスト入力したトレーナーのID（外部キー） |
 | client_id | BIGINT UNSIGNED | NO | — | 音声記録の対象となるクライアントのID（外部キー）。誤紐付け防止のため登録時必須 |
 | title | VARCHAR(255) | NO | — | 表示名 |
 | source | VARCHAR(20) | NO | — | 音声ソース種別（5-13.参照） |
@@ -323,7 +323,7 @@ erDiagram
 | インデックス名 | カラム | 種類 | 目的 |
 |---------------|--------|------|------|
 | PRIMARY | id | PRIMARY KEY | 主キー |
-| audio_records_counselor_idx | counselor_id | INDEX | トレーナー別の音声記録取得。一般は自分の音声記録のみ表示（外部キー制約と兼用） |
+| audio_records_trainer_idx | trainer_id | INDEX | トレーナー別の音声記録取得。一般は自分の音声記録のみ表示（外部キー制約と兼用） |
 | audio_records_status_idx | status | INDEX | 音声処理状態によるフィルタリング |
 | audio_records_created_at_idx | created_at | INDEX | 一覧画面で最新を先頭に表示するためのソート用（クエリ側で `ORDER BY created_at DESC`）。Laravelマイグレーションの制約によりインデックス方向指定なし |
 | audio_records_client_id_foreign | client_id | INDEX | クライアント別の音声記録取得（外部キー制約と兼用） |
@@ -332,7 +332,7 @@ erDiagram
 
 | 制約名 | 種類 | 条件 | ON DELETE | 説明 |
 |--------|------|------|-----------|------|
-| audio_records_counselor_id_foreign | FOREIGN KEY | counselor_id → counselors(id) | CASCADE | トレーナー削除時に音声記録も削除 |
+| audio_records_trainer_id_foreign | FOREIGN KEY | trainer_id → trainers(id) | CASCADE | トレーナー削除時に音声記録も削除 |
 | audio_records_client_id_foreign | FOREIGN KEY | client_id → clients(id) | RESTRICT | クライアントが関連する音声記録を持つ場合は削除制限 |
 | audio_records_source_check | CHECK | source IN ('recording', 'upload', 'text_paste') | — | 定義済みの音声ソース種別のみ許可（5-13.参照） |
 | audio_records_status_check | CHECK | status IN ('unprocessed', 'transcribing', 'transcribed', 'summarizing', 'completed', 'error') | — | 定義済みのステータスのみ許可（5-14.参照） |
@@ -342,7 +342,7 @@ erDiagram
 
 ---
 
-#### D-0500 counselors（トレーナー）
+#### D-0500 trainers（トレーナー）
 
 ##### カラム定義
 
@@ -366,15 +366,15 @@ erDiagram
 | インデックス名 | カラム | 種類 | 目的 |
 |---------------|--------|------|------|
 | PRIMARY | id | PRIMARY KEY | 主キー |
-| counselors_login_id_unique | login_id | UNIQUE | ログインIDの重複を防ぐ。ログイン時の検索にも使用 |
-| counselors_display_order_index | display_order | INDEX | 表示順でのソートを高速化 |
+| trainers_login_id_unique | login_id | UNIQUE | ログインIDの重複を防ぐ。ログイン時の検索にも使用 |
+| trainers_display_order_index | display_order | INDEX | 表示順でのソートを高速化 |
 
 ##### 制約
 
 | 制約名 | 種類 | 条件 | 説明 |
 |--------|------|------|------|
-| counselors_role_check | CHECK | role IN ('system_admin', 'admin', 'staff') | 定義済みの権限のみ許可（5-15.参照） |
-| counselors_login_id_check | CHECK | login_id REGEXP '^[a-zA-Z0-9_]+$' | 半角英数字とアンダースコアのみ |
+| trainers_role_check | CHECK | role IN ('system_admin', 'admin', 'staff') | 定義済みの権限のみ許可（5-15.参照） |
+| trainers_login_id_check | CHECK | login_id REGEXP '^[a-zA-Z0-9_]+$' | 半角英数字とアンダースコアのみ |
 
 
 ---
@@ -409,7 +409,7 @@ erDiagram
 
 ---
 
-#### DM-0200 consultation_types（トレーニング内容）
+#### DM-0200 training_types（トレーニング内容）
 
 ##### カラム定義
 
@@ -426,14 +426,14 @@ erDiagram
 | インデックス名 | カラム | 種類 | 目的 |
 |---------------|--------|------|------|
 | PRIMARY | id | PRIMARY KEY | 主キー |
-| consultation_types_name_unique | name | UNIQUE | 名称の重複を防ぐ |
-| consultation_types_order_idx | sort_order | INDEX | 表示順でのソート |
+| training_types_name_unique | name | UNIQUE | 名称の重複を防ぐ |
+| training_types_order_idx | sort_order | INDEX | 表示順でのソート |
 
 ##### 制約
 
 | 制約名 | 種類 | 条件 | 説明 |
 |--------|------|------|------|
-| consultation_types_sort_check | CHECK | sort_order >= 0 | 表示順序は0以上 |
+| training_types_sort_check | CHECK | sort_order >= 0 | 表示順序は0以上 |
 
 
 ---
@@ -554,7 +554,7 @@ erDiagram
 | 制約名 | 種類 | 条件 | ON DELETE | 説明 |
 |--------|------|------|-----------|------|
 | client_intake_tokens_client_id_foreign | FOREIGN KEY | client_id → clients(id) | SET NULL | クライアント削除時は NULL にする（トークン履歴は残す） |
-| client_intake_tokens_created_by_foreign | FOREIGN KEY | created_by → counselors(id) | SET NULL | 発行者トレーナー削除時は NULL にする |
+| client_intake_tokens_created_by_foreign | FOREIGN KEY | created_by → trainers(id) | SET NULL | 発行者トレーナー削除時は NULL にする |
 
 ---
 
@@ -571,7 +571,7 @@ erDiagram
 | カラム名 | 型 | NULL | デフォルト | 説明 |
 |---------|-----|------|----------|------|
 | id | BIGINT UNSIGNED | NO | auto_increment | 主キー |
-| counselor_id | BIGINT UNSIGNED | YES | NULL | トレーナーのID（外部キー）。存在しないユーザーIDでの試行はNULL |
+| trainer_id | BIGINT UNSIGNED | YES | NULL | トレーナーのID（外部キー）。存在しないユーザーIDでの試行はNULL |
 | login_id_input | VARCHAR(50) | NO | — | 入力されたログインID。存在しないIDでの試行も記録するため別カラムで保持 |
 | ip_address | VARCHAR(45) | YES | NULL | 接続元IPアドレス。セキュリティ監査用 |
 | attempted_at | TIMESTAMP | NO | CURRENT_TIMESTAMP | 試行日時 |
@@ -582,13 +582,13 @@ erDiagram
 | インデックス名 | カラム | 種類 | 目的 |
 |---------------|--------|------|------|
 | PRIMARY | id | PRIMARY KEY | 主キー |
-| login_attempts_counselor_idx | counselor_id, attempted_at | INDEX（複合） | 直近の連続失敗回数を効率的にカウント。アカウントロック判定で使用（クエリ側で `ORDER BY attempted_at DESC` を指定）。Laravelマイグレーションの制約によりインデックス方向指定なし |
+| login_attempts_trainer_idx | trainer_id, attempted_at | INDEX（複合） | 直近の連続失敗回数を効率的にカウント。アカウントロック判定で使用（クエリ側で `ORDER BY attempted_at DESC` を指定）。Laravelマイグレーションの制約によりインデックス方向指定なし |
 
 ##### 制約
 
 | 制約名 | 種類 | 条件 | ON DELETE | 説明 |
 |--------|------|------|-----------|------|
-| login_attempts_counselor_id_foreign | FOREIGN KEY | counselor_id → counselors(id) | SET NULL | トレーナー削除時はNULLにする（試行記録は残す） |
+| login_attempts_trainer_id_foreign | FOREIGN KEY | trainer_id → trainers(id) | SET NULL | トレーナー削除時はNULLにする（試行記録は残す） |
 
 
 ---
@@ -636,9 +636,9 @@ erDiagram
 | カラム名 | 型 | NULL | デフォルト | 説明 |
 |---------|-----|------|----------|------|
 | id | BIGINT UNSIGNED | NO | auto_increment | 主キー |
-| counselor_id | BIGINT UNSIGNED | NO | — | トレーナーのID（外部キー） |
+| trainer_id | BIGINT UNSIGNED | NO | — | トレーナーのID（外部キー） |
 | action | VARCHAR(100) | NO | — | 操作種別（5-16.参照） |
-| target_type | VARCHAR(50) | YES | NULL | 対象モデル名（Client, CounselingRecord 等） |
+| target_type | VARCHAR(50) | YES | NULL | 対象モデル名（Client, TrainingRecord 等） |
 | target_id | BIGINT UNSIGNED | YES | NULL | 対象レコードID |
 | ip_address | VARCHAR(45) | YES | NULL | 接続元IPアドレス |
 | user_agent | VARCHAR(500) | YES | NULL | ブラウザ情報 |
@@ -650,14 +650,14 @@ erDiagram
 | インデックス名 | カラム | 種類 | 目的 |
 |---------------|--------|------|------|
 | PRIMARY | id | PRIMARY KEY | 主キー |
-| access_logs_counselor_id_created_at_idx | counselor_id, created_at | INDEX | トレーナー別・日時順の検索 |
+| access_logs_trainer_id_created_at_idx | trainer_id, created_at | INDEX | トレーナー別・日時順の検索 |
 | access_logs_action_created_at_idx | action, created_at | INDEX | アクション別・日時順の検索 |
 
 ##### 制約
 
 | 制約名 | 種類 | 条件 | ON DELETE | 説明 |
 |--------|------|------|-----------|------|
-| access_logs_counselor_id_foreign | FOREIGN KEY | counselor_id → counselors(id) | CASCADE | トレーナー削除時にログも削除 |
+| access_logs_trainer_id_foreign | FOREIGN KEY | trainer_id → trainers(id) | CASCADE | トレーナー削除時にログも削除 |
 
 
 ---
@@ -710,10 +710,10 @@ erDiagram
 | create_client | クライアント登録 |
 | edit_client | クライアント編集 |
 | delete_client | クライアント削除 |
-| view_counseling_record | トレーニング記録詳細（参照） |
-| create_counseling_record | トレーニング記録登録 |
-| edit_counseling_record | トレーニング記録編集 |
-| delete_counseling_record | トレーニング記録削除 |
+| view_training_record | トレーニング記録詳細（参照） |
+| create_training_record | トレーニング記録登録 |
+| edit_training_record | トレーニング記録編集 |
+| delete_training_record | トレーニング記録削除 |
 
 ---
 
@@ -744,15 +744,15 @@ erDiagram
 
 | 順序 | テーブル | 依存先 |
 |:----:|----------|--------|
-| 1 | counselors | なし |
-| 2 | login_attempts | counselors |
-| 3 | clients | counselors, support_statuses |
-| 4 | consultation_types | なし |
+| 1 | trainers | なし |
+| 2 | login_attempts | trainers |
+| 3 | clients | trainers, support_statuses |
+| 4 | training_types | なし |
 | 5 | phases | なし |
 | 6 | support_statuses | なし |
-| 7 | counseling_records | clients, counselors, consultation_types, phases |
-| 9 | audio_records | counselors, clients |
-| 10 | access_logs | counselors |
+| 7 | training_records | clients, trainers, training_types, phases |
+| 9 | audio_records | trainers, clients |
+| 10 | access_logs | trainers |
 | 11 | system_settings | なし |
 | 12 | ip_whitelist | なし |
 | 13 | client_intake_tokens | clients |
@@ -766,15 +766,15 @@ erDiagram
 | ファイル名 | 内容 | 実行タイミング |
 |-----------|------|---------------|
 | `DatabaseSeeder.php` | 全シーダーの呼び出し元 | `php artisan db:seed` |
-| `CounselorSeeder.php` | 管理者アカウントの初期データ（7.2.1参照） | 初回セットアップ時 |
+| `TrainerSeeder.php` | 管理者アカウントの初期データ（7.2.1参照） | 初回セットアップ時 |
 | `SupportStatusSeeder.php` | 支援状態マスタの初期データ（7.2.2参照） | 初回セットアップ時 |
-| `ConsultationTypeSeeder.php` | トレーニング内容マスタの初期データ（7.2.3参照） | 初回セットアップ時 |
+| `TrainingTypeSeeder.php` | トレーニング内容マスタの初期データ（7.2.3参照） | 初回セットアップ時 |
 | `PhaseSeeder.php` | フェーズマスタの初期データ（7.2.4参照） | 初回セットアップ時 |
 | `SystemSettingSeeder.php` | システム設定の初期データ（7.2.5参照） | 初回セットアップ時 |
 
 ### 7-2. シードデータ（初期データ）の詳細
 
-#### D-0500 counselors（トレーナー）
+#### D-0500 trainers（トレーナー）
 
 | login_id | display_order | name | role | password | 備考 |
 |---------|---------------|------|------|----------|------|
@@ -783,7 +783,7 @@ erDiagram
 | staff | 2 | 一般トレーナー | staff | InMyLife1965! | 開発用サンプル — 一般トレーナー（閲覧・登録・編集） |
 
 **注意事項（本番運用時）**:
-- 上記 3 アカウントは **開発環境専用のサンプル**。本番導入時は `CounselorSeeder` を実行せず、システム管理者アカウントを 1 つだけ手動で作成する想定
+- 上記 3 アカウントは **開発環境専用のサンプル**。本番導入時は `TrainerSeeder` を実行せず、システム管理者アカウントを 1 つだけ手動で作成する想定
 - パスワード `InMyLife1965!` は **開発環境専用のハードコード値**。本番環境では絶対に使用しないこと
 - 本番では初回ログイン時にパスワード変更を促すため、`must_change_password = true` を設定する運用が望ましい
 
@@ -798,7 +798,7 @@ erDiagram
 | 5 | 利用中止 | 5 |
 | 6 | 利用せず | 6 |
 
-#### DM-0200 consultation_types（トレーニング内容）
+#### DM-0200 training_types（トレーニング内容）
 
 | id | name | sort_order |
 |----|------|--------|
