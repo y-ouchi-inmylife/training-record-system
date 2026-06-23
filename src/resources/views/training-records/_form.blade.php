@@ -1,5 +1,5 @@
 {{-- トレーニング記録登録・編集共通フォーム（クライアントは常に固定モード） --}}
-<form method="POST" action="{{ $action }}" id="counselingRecordForm" novalidate>
+<form method="POST" action="{{ $action }}" id="trainingRecordForm" novalidate>
     @csrf
     @if($method === 'PUT')
         @method('PUT')
@@ -189,7 +189,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // フォーム送信時に必須チェックを実行（上部・下部ボタン共通）
-    const form = document.getElementById('counselingRecordForm');
+    const form = document.getElementById('trainingRecordForm');
     form.addEventListener('submit', function(e) {
         var errors = [];
         var firstInvalidElement = null;
@@ -447,10 +447,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // training_date がある場合、トレーニング日を設定
-    var consultationDate = params.get('training_date');
-    if (consultationDate) {
+    var trainingDate = params.get('training_date');
+    if (trainingDate) {
         var dateInput = document.getElementById('training_date');
-        if (dateInput) dateInput.value = consultationDate;
+        if (dateInput) dateInput.value = trainingDate;
     }
 
     // trainer1_id がある場合、担当1を設定

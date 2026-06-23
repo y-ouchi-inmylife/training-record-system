@@ -4,7 +4,7 @@
  *
  * 使用例:
  *   new window.UnsavedChangesGuard({
- *       formSelector: '#counselingRecordForm',
+ *       formSelector: '#trainingRecordForm',
  *       leaveLinkSelector: '.js-leave-link',
  *       message: '保存されていない変更があります。移動しますか？'
  *   }).init();

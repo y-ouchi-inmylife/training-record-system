@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('file_name', 255)->nullable()->comment('元のファイル名。録音時は日時から自動生成');
             $table->string('file_path', 500)->nullable()->comment('サーバー上の保存パス（storage/audio/ 以下）。音声のみ削除時にNULL');
             $table->string('status', 20)->default('unprocessed')->comment('処理状態: unprocessed/transcribing/transcribed/summarizing/completed/error');
-            $table->longText('transcription_text')->nullable()->comment('文字起こし結果。カウンセラーが編集可能');
-            $table->longText('summary_text')->nullable()->comment('要約結果。カウンセラーが編集可能');
+            $table->longText('transcription_text')->nullable()->comment('文字起こし結果。トレーナーが編集可能');
+            $table->longText('summary_text')->nullable()->comment('要約結果。トレーナーが編集可能');
             $table->integer('duration_seconds')->nullable()->comment('音声の長さ（秒）。Whisper API処理時に取得');
             $table->bigInteger('file_size')->nullable()->comment('ファイルサイズ（バイト）');
             $table->timestamp('summarized_at')->nullable()->comment('要約完了日時');

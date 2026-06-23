@@ -8,7 +8,7 @@
         <h2 class="mb-0">トレーニング記録登録</h2>
         <div class="d-flex gap-2">
             <a href="{{ $selectedClientId ? route('clients.show', $selectedClientId) : route('training-records.index') }}" class="btn btn-secondary js-leave-link">キャンセル</a>
-            <button type="submit" form="counselingRecordForm" class="btn btn-success">登録</button>
+            <button type="submit" form="trainingRecordForm" class="btn btn-success">登録</button>
         </div>
     </div>
 
@@ -38,7 +38,7 @@
 
         // 未保存変更警告
         new window.UnsavedChangesGuard({
-            formSelector: '#counselingRecordForm',
+            formSelector: '#trainingRecordForm',
             leaveLinkSelector: '.js-leave-link'
         }).init();
     });

@@ -11,7 +11,7 @@ return new class extends Migration
     {
         Schema::create('trainers', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 100)->comment('カウンセラーの氏名');
+            $table->string('name', 100)->comment('トレーナーの氏名');
             $table->string('login_id', 50)->unique()->comment('ログインID');
             $table->string('password', 255)->comment('パスワードのハッシュ値');
             // 旧 DEFAULT 'general' は確定済み修正方針により廃止（必須カラム化）

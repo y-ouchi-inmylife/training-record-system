@@ -287,7 +287,7 @@ class TrainingRecordController extends Controller
 
             return response()->json([
                 'success' => true,
-                'counseling_record_id' => $record->id,
+                'training_record_id' => $record->id,
             ]);
         } catch (\Exception $e) {
             return response()->json([

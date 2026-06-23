@@ -4,33 +4,33 @@
 
 @push('styles')
 <style>
-.consultation-records-scroll {
+.training-records-scroll {
     max-height: 200px;
     overflow-y: auto;
     overflow-x: auto;
 }
-.consultation-records-scroll::-webkit-scrollbar {
+.training-records-scroll::-webkit-scrollbar {
     width: 8px;
 }
-.consultation-records-scroll::-webkit-scrollbar-track {
+.training-records-scroll::-webkit-scrollbar-track {
     background: #f1f1f1;
     border-radius: 10px;
 }
-.consultation-records-scroll::-webkit-scrollbar-thumb {
+.training-records-scroll::-webkit-scrollbar-thumb {
     background: #888;
     border-radius: 10px;
 }
-.consultation-records-scroll::-webkit-scrollbar-thumb:hover {
+.training-records-scroll::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
-.consultation-records-scroll thead th {
+.training-records-scroll thead th {
     position: sticky;
     top: 0;
     z-index: 1;
     background-color: #f8f9fa;
 }
-.consultation-records-table tbody td,
-.consultation-records-table thead th {
+.training-records-table tbody td,
+.training-records-table thead th {
     padding-top: 0.65rem;
     padding-bottom: 0.65rem;
 }
@@ -104,8 +104,8 @@
             <a href="{{ route('training-records.create', ['client_id' => $client->id]) }}" class="btn btn-primary">新規登録</a>
         </div>
         @if($client->trainingRecords->count() > 0)
-            <div class="consultation-records-scroll">
-                <table class="table table-hover table-sm mb-0 consultation-records-table">
+            <div class="training-records-scroll">
+                <table class="table table-hover table-sm mb-0 training-records-table">
                     <thead class="table-light">
                         <tr>
                             <th>トレーニング日</th>

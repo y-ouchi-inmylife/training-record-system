@@ -220,7 +220,7 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">トレーニング時刻</label>
-                            <input type="text" class="form-control bg-light" id="record-consultation-time" readonly>
+                            <input type="text" class="form-control bg-light" id="record-training-time" readonly>
                         </div>
                     </div>
 
@@ -682,7 +682,7 @@
             document.getElementById('record-client-name').value = clientName;
 
             // 録音開始時刻を表示（HH:MM形式）
-            document.getElementById('record-consultation-time').value = formatTimeHHMM(recordingStartTime);
+            document.getElementById('record-training-time').value = formatTimeHHMM(recordingStartTime);
 
             // トレーナー一覧を読み込み
             await loadTrainers();
