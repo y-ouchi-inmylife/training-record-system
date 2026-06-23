@@ -2,13 +2,13 @@
 
 namespace Database\Seeders;
 
-use App\Models\ConsultationType;
+use App\Models\TrainingType;
 use Illuminate\Database\Seeder;
 
 /**
  * トレーニング内容マスタの初期データ
  */
-class ConsultationTypeSeeder extends Seeder
+class TrainingTypeSeeder extends Seeder
 {
     public function run(): void
     {
@@ -19,7 +19,7 @@ class ConsultationTypeSeeder extends Seeder
         ];
 
         foreach ($types as $type) {
-            ConsultationType::firstOrCreate(
+            TrainingType::firstOrCreate(
                 ['name' => $type['name']],
                 ['sort_order' => $type['sort_order']]
             );

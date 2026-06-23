@@ -86,9 +86,9 @@ class Client extends Model
     /**
      * 主担当トレーナー
      */
-    public function primaryCounselor(): BelongsTo
+    public function primaryTrainer(): BelongsTo
     {
-        return $this->belongsTo(Counselor::class, 'primary_counselor_id');
+        return $this->belongsTo(Trainer::class, 'primary_counselor_id');
     }
 
     /**
@@ -104,7 +104,7 @@ class Client extends Model
      */
     public function counselingRecords(): HasMany
     {
-        return $this->hasMany(CounselingRecord::class);
+        return $this->hasMany(TrainingRecord::class);
     }
 
     /**
@@ -112,6 +112,6 @@ class Client extends Model
      */
     public function updatedBy(): BelongsTo
     {
-        return $this->belongsTo(Counselor::class, 'updated_by');
+        return $this->belongsTo(Trainer::class, 'updated_by');
     }
 }

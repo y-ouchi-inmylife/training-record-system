@@ -658,7 +658,7 @@
         // ========================================
 
         // トレーナー一覧を読み込み
-        async function loadCounselors() {
+        async function loadTrainers() {
             var response = await fetch('/api/trainers', {
                 headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
             });
@@ -685,7 +685,7 @@
             document.getElementById('record-consultation-time').value = formatTimeHHMM(recordingStartTime);
 
             // トレーナー一覧を読み込み
-            await loadCounselors();
+            await loadTrainers();
 
             // 参加者の初期行を1つ追加
             var modal = new bootstrap.Modal(document.getElementById('modal-create-record'));

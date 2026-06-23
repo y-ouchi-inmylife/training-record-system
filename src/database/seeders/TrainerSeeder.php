@@ -2,13 +2,13 @@
 
 namespace Database\Seeders;
 
-use App\Models\Counselor;
+use App\Models\Trainer;
 use Illuminate\Database\Seeder;
 
 /**
  * トレーナーアカウントの初期データ
  */
-class CounselorSeeder extends Seeder
+class TrainerSeeder extends Seeder
 {
     public function run(): void
     {
@@ -46,7 +46,7 @@ class CounselorSeeder extends Seeder
         ];
 
         foreach ($counselors as $data) {
-            Counselor::firstOrCreate(
+            Trainer::firstOrCreate(
                 ['login_id' => $data['login_id']],
                 $data
             );

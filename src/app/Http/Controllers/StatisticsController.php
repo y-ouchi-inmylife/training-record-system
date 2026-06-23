@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CounselingRecord;
+use App\Models\TrainingRecord;
 use App\Models\Client;
-use App\Models\Counselor;
+use App\Models\Trainer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -43,7 +43,7 @@ class StatisticsController extends Controller
         session(['statistics_view_type' => $viewType]);
 
         // トレーナー一覧取得（表示順）
-        $counselors = Counselor::practitioners()->orderBy('display_order')->orderBy('name')->get();
+        $counselors = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
 
         // 年度別/年別推移データ（降順）
         $periodData = $this->getPeriodData($counselorId, $viewType);
@@ -75,9 +75,9 @@ class StatisticsController extends Controller
      */
     private function getPeriodData(string $counselorId, string $viewType): array
     {
-        $query = CounselingRecord::query();
+        $query = TrainingRecord::query();
 
-        $this->applyCounselorFilter($query, $counselorId);
+        $this->applyTrainerFilter($query, $counselorId);
 
         if ($viewType === 'fiscal_year') {
             // 年度別（4月〜翌3月）
@@ -122,8 +122,8 @@ class StatisticsController extends Controller
             return [];
         }
 
-        $query = CounselingRecord::query();
-        $this->applyCounselorFilter($query, $counselorId);
+        $query = TrainingRecord::query();
+        $this->applyTrainerFilter($query, $counselorId);
 
         if ($viewType === 'fiscal_year') {
             $startDate = $selectedPeriod . '-04-01';
@@ -193,7 +193,7 @@ class StatisticsController extends Controller
     /**
      * トレーナーフィルタを適用
      */
-    private function applyCounselorFilter($query, string $counselorId): void
+    private function applyTrainerFilter($query, string $counselorId): void
     {
         if ($counselorId !== 'all') {
             $query->where(function ($q) use ($counselorId) {
@@ -208,8 +208,8 @@ class StatisticsController extends Controller
      */
     private function getClientIdsInPeriod(string $counselorId, string $viewType, int $period): array
     {
-        $query = CounselingRecord::query();
-        $this->applyCounselorFilter($query, $counselorId);
+        $query = TrainingRecord::query();
+        $this->applyTrainerFilter($query, $counselorId);
 
         if ($viewType === 'fiscal_year') {
             $startDate = $period . '-04-01';
@@ -227,8 +227,8 @@ class StatisticsController extends Controller
      */
     private function getClientIdsByMonth(string $counselorId, int $year, int $month): array
     {
-        $query = CounselingRecord::query();
-        $this->applyCounselorFilter($query, $counselorId);
+        $query = TrainingRecord::query();
+        $this->applyTrainerFilter($query, $counselorId);
 
         return $query->whereYear('consultation_date', $year)
             ->whereMonth('consultation_date', $month)
@@ -293,7 +293,7 @@ class StatisticsController extends Controller
 
         if (!$firstConsultationDate) {
             // フォールバック: 最初のトレーニング記録の日付
-            $firstRecord = CounselingRecord::where('client_id', $client->id)
+            $firstRecord = TrainingRecord::where('client_id', $client->id)
                 ->orderBy('consultation_date')
                 ->first();
 

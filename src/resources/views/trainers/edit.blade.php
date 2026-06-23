@@ -14,13 +14,13 @@
                 </div>
             </div>
 
-            <form id="counselor-edit-form" method="POST" action="{{ route('trainers.update', $counselor) }}">
+            <form id="counselor-edit-form" method="POST" action="{{ route('trainers.update', $trainer) }}">
                 @csrf
                 @method('PUT')
 
                 <div class="mb-3">
                     <label class="form-label">ログインID</label>
-                    <input type="text" class="form-control" value="{{ $counselor->login_id }}" disabled
+                    <input type="text" class="form-control" value="{{ $trainer->login_id }}" disabled
                            style="max-width: 700px;">
                 </div>
 
@@ -29,7 +29,7 @@
                     <input type="text" name="name" id="name"
                            class="form-control @error('name') is-invalid @enderror"
                            inputmode="text"
-                           value="{{ old('name', $counselor->name) }}" maxlength="100" required
+                           value="{{ old('name', $trainer->name) }}" maxlength="100" required
                            style="max-width: 700px;">
                     @error('name')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -40,8 +40,8 @@
                     <label for="role" class="form-label">権限 <span class="text-danger">*</span></label>
                     <select name="role" id="role" class="form-select @error('role') is-invalid @enderror" required
                             style="max-width: 250px;">
-                        <option value="staff" {{ old('role', $counselor->role) === 'staff' ? 'selected' : '' }}>一般</option>
-                        <option value="admin" {{ old('role', $counselor->role) === 'admin' ? 'selected' : '' }}>管理者</option>
+                        <option value="staff" {{ old('role', $trainer->role) === 'staff' ? 'selected' : '' }}>一般</option>
+                        <option value="admin" {{ old('role', $trainer->role) === 'admin' ? 'selected' : '' }}>管理者</option>
                     </select>
                     @error('role')
                         <div class="invalid-feedback">{{ $message }}</div>

@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Counselor;
+use App\Models\Trainer;
 
 return [
 
@@ -64,7 +64,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', Counselor::class),
+            'model' => env('AUTH_MODEL', Trainer::class),
         ],
 
         // 'users' => [

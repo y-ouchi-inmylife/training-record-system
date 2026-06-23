@@ -34,7 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withSchedule(function (Schedule $schedule): void {
         // 毎日午前2時に未ログイントレーナーを自動ロック
-        $schedule->command('counselors:lock-inactive')->dailyAt('02:00');
+        $schedule->command('trainers:lock-inactive')->dailyAt('02:00');
         // 毎日午前3時に保存期間を過ぎた音声ファイルを自動削除
         $schedule->command('audio-records:delete-expired --days=7')->dailyAt('03:00');
     })

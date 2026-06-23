@@ -7,15 +7,15 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0">トレーニング記録編集</h2>
         <div class="d-flex gap-2">
-            <a href="{{ route('clients.show', $counselingRecord->client_id) }}" class="btn btn-secondary js-leave-link">キャンセル</a>
+            <a href="{{ route('clients.show', $trainingRecord->client_id) }}" class="btn btn-secondary js-leave-link">キャンセル</a>
             <button type="submit" form="counselingRecordForm" class="btn btn-success">更新</button>
         </div>
     </div>
 
     @include('training-records._form', [
-        'action' => route('training-records.update', $counselingRecord),
+        'action' => route('training-records.update', $trainingRecord),
         'method' => 'PUT',
-        'record' => $counselingRecord,
+        'record' => $trainingRecord,
     ])
 </div>
 @endsection

@@ -33,7 +33,7 @@ class ClientIntakeToken extends Model
     // 発行者（トークンを発行したトレーナー）とのリレーション
     public function creator()
     {
-        return $this->belongsTo(Counselor::class, 'created_by');
+        return $this->belongsTo(Trainer::class, 'created_by');
     }
 
     // 有効期限切れかチェック

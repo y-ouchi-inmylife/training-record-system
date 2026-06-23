@@ -7,10 +7,10 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0">トレーニング記録詳細</h2>
         <div class="d-flex gap-2 align-items-center">
-            <a href="{{ route('clients.show', $counselingRecord->client_id) }}" class="btn btn-outline-secondary">&laquo; クライアント詳細に戻る</a>
-            <a href="{{ route('training-records.edit', $counselingRecord) }}" class="btn btn-success">編集</a>
+            <a href="{{ route('clients.show', $trainingRecord->client_id) }}" class="btn btn-outline-secondary">&laquo; クライアント詳細に戻る</a>
+            <a href="{{ route('training-records.edit', $trainingRecord) }}" class="btn btn-success">編集</a>
             @if(auth()->user()->isAdmin())
-                <form method="POST" action="{{ route('training-records.destroy', $counselingRecord) }}" class="d-inline"
+                <form method="POST" action="{{ route('training-records.destroy', $trainingRecord) }}" class="d-inline"
                       onsubmit="return confirm('このトレーニング記録を削除しますか？')">
                     @csrf
                     @method('DELETE')
@@ -30,15 +30,15 @@
             <div class="row">
                 <div class="col-md-6">
                     <table class="table table-borderless table-sm">
-                        <tr><th class="text-muted" style="width:40%">クライアント</th><td>{{ $counselingRecord->client->display_name }}</td></tr>
-                        <tr><th class="text-muted">トレーニング日</th><td>{{ $counselingRecord->consultation_date->format('Y/m/d') }}</td></tr>
-                        <tr><th class="text-muted">トレーニング時刻</th><td>{{ $counselingRecord->consultation_time ?: '—' }}</td></tr>
+                        <tr><th class="text-muted" style="width:40%">クライアント</th><td>{{ $trainingRecord->client->display_name }}</td></tr>
+                        <tr><th class="text-muted">トレーニング日</th><td>{{ $trainingRecord->consultation_date->format('Y/m/d') }}</td></tr>
+                        <tr><th class="text-muted">トレーニング時刻</th><td>{{ $trainingRecord->consultation_time ?: '—' }}</td></tr>
                     </table>
                 </div>
                 <div class="col-md-6">
                     <table class="table table-borderless table-sm">
-                        <tr><th class="text-muted" style="width:40%">担当1</th><td>{{ $counselingRecord->counselor1->name ?? '—' }}</td></tr>
-                        <tr><th class="text-muted">担当2</th><td>{{ $counselingRecord->counselor2->name ?? '—' }}</td></tr>
+                        <tr><th class="text-muted" style="width:40%">担当1</th><td>{{ $trainingRecord->counselor1->name ?? '—' }}</td></tr>
+                        <tr><th class="text-muted">担当2</th><td>{{ $trainingRecord->counselor2->name ?? '—' }}</td></tr>
                     </table>
                 </div>
             </div>
@@ -56,9 +56,9 @@
             <div class="row">
                 <div class="col-md-6">
                     <table class="table table-borderless table-sm">
-                        <tr><th class="text-muted" style="width:40%">トレーニング内容</th><td>{{ $counselingRecord->consultationType->name ?? '—' }}</td></tr>
-                        <tr><th class="text-muted">トレーニング内容（詳細）</th><td>{{ $counselingRecord->consultation_detail ?: '—' }}</td></tr>
-                        <tr><th class="text-muted">フェーズ</th><td>{{ $counselingRecord->phase->name ?? '—' }}</td></tr>
+                        <tr><th class="text-muted" style="width:40%">トレーニング内容</th><td>{{ $trainingRecord->consultationType->name ?? '—' }}</td></tr>
+                        <tr><th class="text-muted">トレーニング内容（詳細）</th><td>{{ $trainingRecord->consultation_detail ?: '—' }}</td></tr>
+                        <tr><th class="text-muted">フェーズ</th><td>{{ $trainingRecord->phase->name ?? '—' }}</td></tr>
                     </table>
                 </div>
             </div>
@@ -73,8 +73,8 @@
         </div>
         <div class="collapse show" id="section-record">
             <div class="card-body">
-                @if($counselingRecord->record_content)
-                    <div>{!! nl2br(e($counselingRecord->record_content)) !!}</div>
+                @if($trainingRecord->record_content)
+                    <div>{!! nl2br(e($trainingRecord->record_content)) !!}</div>
                 @else
                     <div class="text-muted">未記入</div>
                 @endif
@@ -89,8 +89,8 @@
         </div>
         <div class="collapse show" id="section-impression">
             <div class="card-body">
-                @if($counselingRecord->impression)
-                    <div>{!! nl2br(e($counselingRecord->impression)) !!}</div>
+                @if($trainingRecord->impression)
+                    <div>{!! nl2br(e($trainingRecord->impression)) !!}</div>
                 @else
                     <div class="text-muted">未記入</div>
                 @endif
@@ -100,7 +100,7 @@
 
     {{-- 最終更新 --}}
     <div class="text-end text-muted small mb-3">
-        最終更新: {{ $counselingRecord->updated_at->format('Y/m/d H:i') }} {{ $counselingRecord->updatedBy?->name ?? '—' }}
+        最終更新: {{ $trainingRecord->updated_at->format('Y/m/d H:i') }} {{ $trainingRecord->updatedBy?->name ?? '—' }}
     </div>
 </div>
 @endsection

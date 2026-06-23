@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\SummarizeJob;
 use App\Jobs\TranscribeAudioJob;
 use App\Models\AudioRecord;
-use App\Models\Counselor;
+use App\Models\Trainer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -44,14 +44,14 @@ class AudioRecordController extends Controller
         $audioRecords = $query->paginate(5)->appends($request->query());
 
         // プルダウン用トレーナー一覧（system_adminを除外）
-        $counselors = Counselor::practitioners()
+        $counselors = Trainer::practitioners()
             ->orderBy('display_order')
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        $selectedCounselorId = $counselorId ?? $user->id;
+        $selectedTrainerId = $counselorId ?? $user->id;
 
-        return view('audio.index', compact('audioRecords', 'counselors', 'selectedCounselorId'));
+        return view('audio.index', compact('audioRecords', 'counselors', 'selectedTrainerId'));
     }
 
     /**

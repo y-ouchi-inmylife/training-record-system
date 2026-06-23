@@ -6,9 +6,9 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\AutoLogoutController;
 use App\Http\Controllers\ClientController;
-use App\Http\Controllers\ConsultationTypeController;
-use App\Http\Controllers\CounselingRecordController;
-use App\Http\Controllers\CounselorController;
+use App\Http\Controllers\TrainingTypeController;
+use App\Http\Controllers\TrainingRecordController;
+use App\Http\Controllers\TrainerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IpRestrictionController;
 use App\Http\Controllers\PhaseController;
@@ -69,7 +69,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('practitioners')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::resource('clients', ClientController::class);
-        Route::resource('training-records', CounselingRecordController::class);
+        Route::resource('training-records', TrainingRecordController::class);
 
         // 旧録音画面 → 録音【改良版】にリダイレクト
         Route::get('recording', function () {
@@ -120,13 +120,13 @@ Route::middleware('auth')->group(function () {
         Route::put('settings/summary-prompts', [SummaryPromptController::class, 'update'])->name('settings.summary-prompts.update');
 
         // トレーナーアカウント管理
-        Route::resource('trainers', CounselorController::class)->except(['show']);
-        Route::get('trainers/{trainer}/reset-password', [CounselorController::class, 'showResetPassword'])->name('trainers.reset-password');
-        Route::put('trainers/{trainer}/reset-password', [CounselorController::class, 'resetPassword'])->name('trainers.reset-password.update');
-        Route::patch('trainers/{trainer}/unlock', [CounselorController::class, 'unlock'])->name('trainers.unlock');
-        Route::patch('trainers/{trainer}/toggle-active', [CounselorController::class, 'toggleActive'])->name('trainers.toggle-active');
-        Route::patch('trainers/{trainer}/move-up', [CounselorController::class, 'moveUp'])->name('trainers.move-up');
-        Route::patch('trainers/{trainer}/move-down', [CounselorController::class, 'moveDown'])->name('trainers.move-down');
+        Route::resource('trainers', TrainerController::class)->except(['show']);
+        Route::get('trainers/{trainer}/reset-password', [TrainerController::class, 'showResetPassword'])->name('trainers.reset-password');
+        Route::put('trainers/{trainer}/reset-password', [TrainerController::class, 'resetPassword'])->name('trainers.reset-password.update');
+        Route::patch('trainers/{trainer}/unlock', [TrainerController::class, 'unlock'])->name('trainers.unlock');
+        Route::patch('trainers/{trainer}/toggle-active', [TrainerController::class, 'toggleActive'])->name('trainers.toggle-active');
+        Route::patch('trainers/{trainer}/move-up', [TrainerController::class, 'moveUp'])->name('trainers.move-up');
+        Route::patch('trainers/{trainer}/move-down', [TrainerController::class, 'moveDown'])->name('trainers.move-down');
 
         // トレーナー操作履歴
         Route::get('access-logs', [AccessLogController::class, 'index'])->name('access-logs.index');
@@ -134,12 +134,12 @@ Route::middleware('auth')->group(function () {
         // マスタ管理
         Route::prefix('master')->name('master.')->group(function () {
             // トレーニング内容マスタ
-            Route::get('training-types', [ConsultationTypeController::class, 'index'])->name('training-types.index');
-            Route::post('training-types', [ConsultationTypeController::class, 'store'])->name('training-types.store');
-            Route::put('training-types/{consultationType}', [ConsultationTypeController::class, 'update'])->name('training-types.update');
-            Route::delete('training-types/{consultationType}', [ConsultationTypeController::class, 'destroy'])->name('training-types.destroy');
-            Route::patch('training-types/{consultationType}/move-up', [ConsultationTypeController::class, 'moveUp'])->name('training-types.move-up');
-            Route::patch('training-types/{consultationType}/move-down', [ConsultationTypeController::class, 'moveDown'])->name('training-types.move-down');
+            Route::get('training-types', [TrainingTypeController::class, 'index'])->name('training-types.index');
+            Route::post('training-types', [TrainingTypeController::class, 'store'])->name('training-types.store');
+            Route::put('training-types/{trainingType}', [TrainingTypeController::class, 'update'])->name('training-types.update');
+            Route::delete('training-types/{trainingType}', [TrainingTypeController::class, 'destroy'])->name('training-types.destroy');
+            Route::patch('training-types/{trainingType}/move-up', [TrainingTypeController::class, 'moveUp'])->name('training-types.move-up');
+            Route::patch('training-types/{trainingType}/move-down', [TrainingTypeController::class, 'moveDown'])->name('training-types.move-down');
 
             // フェーズマスタ
             Route::get('phases', [PhaseController::class, 'index'])->name('phases.index');

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AccessLog;
-use App\Models\Counselor;
+use App\Models\Trainer;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -50,7 +50,7 @@ class AccessLogController extends Controller
         }
 
         $logs = $query->paginate(50)->withQueryString();
-        $counselors = Counselor::orderBy('name')->get();
+        $counselors = Trainer::orderBy('name')->get();
 
         return view('access-logs.index', compact('logs', 'counselors'));
     }

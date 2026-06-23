@@ -30,6 +30,6 @@ class LoginAttempt extends Model
 
     public function counselor(): BelongsTo
     {
-        return $this->belongsTo(Counselor::class);
+        return $this->belongsTo(Trainer::class);
     }
 }

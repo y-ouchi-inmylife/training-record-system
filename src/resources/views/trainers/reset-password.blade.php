@@ -10,26 +10,26 @@
                 <h2 class="mb-0">パスワードリセット</h2>
                 <div class="d-flex gap-2">
                     <button type="submit" form="counselor-reset-password-form" class="btn btn-success"
-                            onclick="return confirm('{{ $counselor->name }} のパスワードをリセットしますか？')">更新</button>
+                            onclick="return confirm('{{ $trainer->name }} のパスワードをリセットしますか？')">更新</button>
                     <a href="{{ route('trainers.index') }}" class="btn btn-secondary">キャンセル</a>
                 </div>
             </div>
 
-            <form id="counselor-reset-password-form" method="POST" action="{{ route('trainers.reset-password.update', $counselor) }}">
+            <form id="counselor-reset-password-form" method="POST" action="{{ route('trainers.reset-password.update', $trainer) }}">
                 @csrf
                 @method('PUT')
 
                 <div class="mb-3">
                     <label for="login_id" class="form-label">ログインID</label>
                     <input type="text" id="login_id" class="form-control"
-                           value="{{ $counselor->login_id }}" disabled
+                           value="{{ $trainer->login_id }}" disabled
                            style="max-width: 700px;">
                 </div>
 
                 <div class="mb-3">
                     <label for="counselor_name" class="form-label">名前</label>
                     <input type="text" id="counselor_name" class="form-control"
-                           value="{{ $counselor->name }}" disabled
+                           value="{{ $trainer->name }}" disabled
                            style="max-width: 700px;">
                 </div>
 

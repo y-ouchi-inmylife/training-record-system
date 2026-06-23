@@ -73,7 +73,7 @@ class AudioRecord extends Model
      */
     public function counselor(): BelongsTo
     {
-        return $this->belongsTo(Counselor::class, 'counselor_id');
+        return $this->belongsTo(Trainer::class, 'counselor_id');
     }
 
     /**

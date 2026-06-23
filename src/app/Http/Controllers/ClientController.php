@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
-use App\Models\CounselingRecord;
-use App\Models\Counselor;
+use App\Models\TrainingRecord;
+use App\Models\Trainer;
 use App\Models\Phase;
 use App\Models\SupportStatus;
 use App\Services\ClientInternalIdService;
@@ -32,14 +32,14 @@ class ClientController extends Controller
             ]
         );
 
-        $query = Client::with(['primaryCounselor', 'supportStatus'])
+        $query = Client::with(['primaryTrainer', 'supportStatus'])
             ->addSelect([
-                'last_consultation_date' => CounselingRecord::select('consultation_date')
+                'last_consultation_date' => TrainingRecord::select('consultation_date')
                     ->whereColumn('client_id', 'clients.id')
                     ->orderBy('consultation_date', 'desc')
                     ->orderBy('consultation_time', 'desc')
                     ->limit(1),
-                'latest_phase_id' => CounselingRecord::select('phase_id')
+                'latest_phase_id' => TrainingRecord::select('phase_id')
                     ->whereColumn('client_id', 'clients.id')
                     ->whereNotNull('phase_id')
                     ->orderBy('consultation_date', 'desc')
@@ -109,7 +109,7 @@ class ClientController extends Controller
         }
 
         $clients = $query->paginate(20)->withQueryString();
-        $counselors = Counselor::practitioners()->orderBy('display_order')->orderBy('name')->get();
+        $counselors = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
         $phases = Phase::pluck('name', 'id');
         $supportStatuses = SupportStatus::orderBy('sort_order')->get();
 
@@ -121,7 +121,7 @@ class ClientController extends Controller
      */
     public function create(): View
     {
-        $counselors = Counselor::practitioners()->orderBy('display_order')->orderBy('name')->get();
+        $counselors = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
         $supportStatuses = SupportStatus::orderBy('sort_order')->get();
 
         // 次の内部IDを計算
@@ -157,13 +157,13 @@ class ClientController extends Controller
      */
     public function show(Client $client): View
     {
-        $client->load(['primaryCounselor', 'supportStatus', 'counselingRecords' => function ($query) {
+        $client->load(['primaryTrainer', 'supportStatus', 'counselingRecords' => function ($query) {
             $query->with(['consultationType', 'counselor1', 'counselor2', 'phase'])
                   ->orderBy('consultation_date', 'desc')
                   ->orderBy('consultation_time', 'desc');
         }]);
 
-        $counselors = Counselor::practitioners()->orderBy('display_order')->orderBy('name')->get();
+        $counselors = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
 
         return view('clients.show', compact('client', 'counselors'));
     }
@@ -173,7 +173,7 @@ class ClientController extends Controller
      */
     public function edit(Client $client): View
     {
-        $counselors = Counselor::practitioners()->orderBy('display_order')->orderBy('name')->get();
+        $counselors = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
         $supportStatuses = SupportStatus::orderBy('sort_order')->get();
         return view('clients.edit', compact('client', 'counselors', 'supportStatuses'));
     }

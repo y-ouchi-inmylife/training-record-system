@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\AccessLog;
-use App\Models\Counselor;
+use App\Models\Trainer;
 use App\Models\LoginAttempt;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -40,7 +40,7 @@ class LoginController extends Controller
         $ipAddress = $request->ip();
 
         // トレーナーを検索
-        $counselor = Counselor::where('login_id', $userId)->first();
+        $counselor = Trainer::where('login_id', $userId)->first();
 
         // アカウント無効化チェック
         if ($counselor && !$counselor->is_active) {
@@ -119,7 +119,7 @@ class LoginController extends Controller
     /**
      * 連続失敗回数を確認し、上限に達したらアカウントをロック
      */
-    private function checkAndLockAccount(Counselor $counselor): void
+    private function checkAndLockAccount(Trainer $counselor): void
     {
         // 直近の連続失敗回数を取得（最後の成功以降の失敗数）
         $lastSuccess = LoginAttempt::where('counselor_id', $counselor->id)

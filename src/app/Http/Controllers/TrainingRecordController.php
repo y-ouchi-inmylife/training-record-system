@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\AudioRecord;
 use App\Models\Client;
-use App\Models\ConsultationType;
-use App\Models\Counselor;
-use App\Models\CounselingRecord;
+use App\Models\TrainingType;
+use App\Models\Trainer;
+use App\Models\TrainingRecord;
 use App\Models\Phase;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -14,7 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
-class CounselingRecordController extends Controller
+class TrainingRecordController extends Controller
 {
     /**
      * トレーニング記録検索・一覧画面（S-0402）
@@ -32,7 +32,7 @@ class CounselingRecordController extends Controller
             ]
         );
 
-        $query = CounselingRecord::with(['client', 'consultationType', 'counselor1', 'counselor2', 'phase']);
+        $query = TrainingRecord::with(['client', 'consultationType', 'counselor1', 'counselor2', 'phase']);
 
         // 内部ID（部分一致）
         if ($request->filled('internal_id')) {
@@ -112,8 +112,8 @@ class CounselingRecordController extends Controller
         $query->orderBy('consultation_time', $sortDir);
 
         $records = $query->paginate(20)->withQueryString();
-        $consultationTypes = ConsultationType::orderBy('sort_order')->get();
-        $counselors = Counselor::practitioners()->orderBy('display_order')->orderBy('name')->get();
+        $consultationTypes = TrainingType::orderBy('sort_order')->get();
+        $counselors = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
 
         return view('training-records.index', compact('records', 'consultationTypes', 'counselors'));
     }
@@ -140,8 +140,8 @@ class CounselingRecordController extends Controller
                 ->with('error', '指定されたクライアントが見つかりません');
         }
 
-        $consultationTypes = ConsultationType::orderBy('sort_order')->get();
-        $counselors = Counselor::practitioners()->orderBy('display_order')->orderBy('name')->get();
+        $consultationTypes = TrainingType::orderBy('sort_order')->get();
+        $counselors = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
         $phases = Phase::orderBy('sort_order')->get();
 
         $audioRecordId = $request->input('audio_record_id');
@@ -162,7 +162,7 @@ class CounselingRecordController extends Controller
 
         try {
             DB::transaction(function () use ($validated) {
-                CounselingRecord::create($validated);
+                TrainingRecord::create($validated);
             });
         } catch (\Exception $e) {
             \Log::error('トレーニング記録登録エラー', [
@@ -183,44 +183,44 @@ class CounselingRecordController extends Controller
     /**
      * トレーニング記録詳細画面
      */
-    public function show(CounselingRecord $counselingRecord): View
+    public function show(TrainingRecord $trainingRecord): View
     {
-        $counselingRecord->load([
+        $trainingRecord->load([
             'client', 'consultationType', 'counselor1', 'counselor2',
             'phase',
         ]);
 
-        return view('training-records.show', compact('counselingRecord'));
+        return view('training-records.show', compact('trainingRecord'));
     }
 
     /**
      * トレーニング記録編集画面（S-0404 編集モード）
      */
-    public function edit(CounselingRecord $counselingRecord): View
+    public function edit(TrainingRecord $trainingRecord): View
     {
-        $counselingRecord->load(['client']);
+        $trainingRecord->load(['client']);
 
-        $consultationTypes = ConsultationType::orderBy('sort_order')->get();
-        $counselors = Counselor::practitioners()->orderBy('display_order')->orderBy('name')->get();
+        $consultationTypes = TrainingType::orderBy('sort_order')->get();
+        $counselors = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
         $phases = Phase::orderBy('sort_order')->get();
 
         return view('training-records.edit', compact(
-            'counselingRecord', 'consultationTypes', 'counselors', 'phases'
+            'trainingRecord', 'consultationTypes', 'counselors', 'phases'
         ));
     }
 
     /**
      * トレーニング記録更新処理
      */
-    public function update(Request $request, CounselingRecord $counselingRecord): RedirectResponse
+    public function update(Request $request, TrainingRecord $trainingRecord): RedirectResponse
     {
         $validated = $request->validate($this->validationRules());
 
         $validated['updated_by'] = auth()->id();
 
         try {
-            DB::transaction(function () use ($validated, $counselingRecord) {
-                $counselingRecord->update($validated);
+            DB::transaction(function () use ($validated, $trainingRecord) {
+                $trainingRecord->update($validated);
             });
         } catch (\Exception $e) {
             \Log::error('トレーニング記録更新エラー', [
@@ -234,21 +234,21 @@ class CounselingRecordController extends Controller
         }
 
         return redirect()
-            ->route('clients.show', $counselingRecord->client_id)
+            ->route('clients.show', $trainingRecord->client_id)
             ->with('success', 'トレーニング記録を更新しました。');
     }
 
     /**
      * トレーニング記録削除処理（管理トレーナーのみ）
      */
-    public function destroy(CounselingRecord $counselingRecord): RedirectResponse
+    public function destroy(TrainingRecord $trainingRecord): RedirectResponse
     {
         if (!auth()->user()->isAdmin()) {
             abort(403, '管理者のみ削除できます。');
         }
 
-        $clientId = $counselingRecord->client_id;
-        $counselingRecord->delete();
+        $clientId = $trainingRecord->client_id;
+        $trainingRecord->delete();
 
         return redirect()
             ->route('clients.show', $clientId)
@@ -273,7 +273,7 @@ class CounselingRecordController extends Controller
             $record = DB::transaction(function () use ($validated) {
                 $audioRecord = AudioRecord::findOrFail($validated['audio_record_id']);
 
-                $record = CounselingRecord::create([
+                $record = TrainingRecord::create([
                     'client_id' => $validated['client_id'],
                     'consultation_date' => $validated['consultation_date'],
                     'consultation_time' => $validated['consultation_time'] ?? null,

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
-use App\Models\Counselor;
-use App\Models\CounselingRecord;
+use App\Models\Trainer;
+use App\Models\TrainingRecord;
 use App\Models\LoginAttempt;
 use App\Rules\StrongPassword;
 use Illuminate\Http\JsonResponse;
@@ -15,14 +15,14 @@ use Illuminate\View\View;
 /**
  * トレーナーアカウント管理コントローラー
  */
-class CounselorController extends Controller
+class TrainerController extends Controller
 {
     /**
      * 有効なトレーナー一覧を取得（API）
      */
     public function apiList(): JsonResponse
     {
-        $counselors = Counselor::practitioners()
+        $counselors = Trainer::practitioners()
             ->orderBy('display_order')
             ->orderBy('name')
             ->get(['id', 'name']);
@@ -35,11 +35,11 @@ class CounselorController extends Controller
      */
     public function index(): View
     {
-        $counselors = Counselor::where('role', '!=', 'system_admin')
+        $counselors = Trainer::where('role', '!=', 'system_admin')
             ->withCount([
                 'primaryClients',
-                'counselingRecordsAsCounselor1',
-                'counselingRecordsAsCounselor2',
+                'counselingRecordsAsTrainer1',
+                'counselingRecordsAsTrainer2',
             ])->orderBy('display_order')->orderBy('name')->get();
 
         $adminCount = $counselors->where('role', 'admin')->count();
@@ -79,8 +79,8 @@ class CounselorController extends Controller
         ]);
 
         $validated['must_change_password'] = true;
-        $validated['display_order'] = (Counselor::max('display_order') ?? 0) + 1;
-        Counselor::create($validated);
+        $validated['display_order'] = (Trainer::max('display_order') ?? 0) + 1;
+        Trainer::create($validated);
 
         return redirect()->route('trainers.index')
             ->with('success', 'トレーナーを登録しました。初回ログイン時にパスワード変更が求められます。');
@@ -89,20 +89,20 @@ class CounselorController extends Controller
     /**
      * トレーナー編集画面
      */
-    public function edit(Counselor $counselor)
+    public function edit(Trainer $trainer)
     {
-        if ($counselor->isSystemAdmin()) {
+        if ($trainer->isSystemAdmin()) {
             return redirect()->route('trainers.index')
                 ->with('error', 'システム管理者アカウントは編集できません。');
         }
 
-        return view('trainers.edit', compact('counselor'));
+        return view('trainers.edit', compact('trainer'));
     }
 
     /**
      * トレーナー更新処理
      */
-    public function update(Request $request, Counselor $counselor): RedirectResponse
+    public function update(Request $request, Trainer $trainer): RedirectResponse
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100',
@@ -115,15 +115,15 @@ class CounselorController extends Controller
         ]);
 
         // 最後の管理者を一般に変更することを防止
-        if ($counselor->role === 'admin' && $validated['role'] === 'staff') {
-            $adminCount = Counselor::where('role', 'admin')->count();
+        if ($trainer->role === 'admin' && $validated['role'] === 'staff') {
+            $adminCount = Trainer::where('role', 'admin')->count();
             if ($adminCount <= 1) {
-                return redirect()->route('trainers.edit', $counselor)
+                return redirect()->route('trainers.edit', $trainer)
                     ->with('error', '管理者は最低1名必要です。権限を変更できません。');
             }
         }
 
-        $counselor->update([
+        $trainer->update([
             'name' => $validated['name'],
             'role' => $validated['role'],
         ]);
@@ -135,23 +135,23 @@ class CounselorController extends Controller
     /**
      * トレーナー削除
      */
-    public function destroy(Counselor $counselor): RedirectResponse
+    public function destroy(Trainer $trainer): RedirectResponse
     {
         // system_adminは削除できない
-        if ($counselor->isSystemAdmin()) {
+        if ($trainer->isSystemAdmin()) {
             return redirect()->route('trainers.index')
                 ->with('error', 'システム管理者アカウントは削除できません。');
         }
 
         // 自分自身は削除不可
-        if ($counselor->id === auth()->id()) {
+        if ($trainer->id === auth()->id()) {
             return redirect()->route('trainers.index')
                 ->with('error', '自分自身を削除することはできません。');
         }
 
         // 管理トレーナーが1名の場合は削除不可
-        if ($counselor->role === 'admin') {
-            $adminCount = Counselor::where('role', 'admin')->count();
+        if ($trainer->role === 'admin') {
+            $adminCount = Trainer::where('role', 'admin')->count();
             if ($adminCount <= 1) {
                 return redirect()->route('trainers.index')
                     ->with('error', '管理者は最低1名必要です。削除できません。');
@@ -159,68 +159,68 @@ class CounselorController extends Controller
         }
 
         // クライアントの主担当トレーナーになっているかチェック
-        $primaryClientsCount = Client::where('primary_counselor_id', $counselor->id)->count();
+        $primaryClientsCount = Client::where('primary_counselor_id', $trainer->id)->count();
         if ($primaryClientsCount > 0) {
             return redirect()->route('trainers.index')
-                ->with('error', "{$counselor->name} は {$primaryClientsCount} 件のクライアントの主担当トレーナーです。先に主担当を変更してから削除してください。");
+                ->with('error', "{$trainer->name} は {$primaryClientsCount} 件のクライアントの主担当トレーナーです。先に主担当を変更してから削除してください。");
         }
 
         // トレーニング記録の担当者になっているかチェック（担当者1・担当者2）
-        $recordsCount = CounselingRecord::where('counselor1_id', $counselor->id)
-            ->orWhere('counselor2_id', $counselor->id)
+        $recordsCount = TrainingRecord::where('counselor1_id', $trainer->id)
+            ->orWhere('counselor2_id', $trainer->id)
             ->count();
         if ($recordsCount > 0) {
             return redirect()->route('trainers.index')
-                ->with('error', "{$counselor->name} は {$recordsCount} 件のトレーニング記録の担当者です。削除できません。");
+                ->with('error', "{$trainer->name} は {$recordsCount} 件のトレーニング記録の担当者です。削除できません。");
         }
 
-        $counselor->delete();
+        $trainer->delete();
 
         return redirect()->route('trainers.index')
-            ->with('success', "{$counselor->name} を削除しました。");
+            ->with('success', "{$trainer->name} を削除しました。");
     }
 
     /**
      * アカウントロック解除
      */
-    public function unlock(Counselor $counselor): RedirectResponse
+    public function unlock(Trainer $trainer): RedirectResponse
     {
-        if (!$counselor->is_locked) {
+        if (!$trainer->is_locked) {
             return redirect()->route('trainers.index')
                 ->with('error', 'このアカウントはロックされていません。');
         }
 
-        $counselor->update(['is_locked' => false]);
+        $trainer->update(['is_locked' => false]);
 
         // 失敗履歴をクリア
-        LoginAttempt::where('counselor_id', $counselor->id)
+        LoginAttempt::where('counselor_id', $trainer->id)
             ->where('success', false)
             ->delete();
 
         return redirect()->route('trainers.index')
-            ->with('success', $counselor->name . ' のアカウントロックを解除しました。');
+            ->with('success', $trainer->name . ' のアカウントロックを解除しました。');
     }
 
     /**
      * アカウント有効/無効の切り替え
      */
-    public function toggleActive(Counselor $counselor): RedirectResponse
+    public function toggleActive(Trainer $trainer): RedirectResponse
     {
         // system_adminは無効化できない
-        if ($counselor->isSystemAdmin()) {
+        if ($trainer->isSystemAdmin()) {
             return redirect()->route('trainers.index')
                 ->with('error', 'システム管理者アカウントは無効化できません。');
         }
 
         // 自分自身は無効化できない
-        if ($counselor->id === auth()->id()) {
+        if ($trainer->id === auth()->id()) {
             return redirect()->route('trainers.index')
                 ->with('error', '自分自身のアカウントを無効化することはできません。');
         }
 
         // 最後の管理者を無効化することを防止
-        if ($counselor->role === 'admin' && $counselor->is_active) {
-            $activeAdminCount = Counselor::where('role', 'admin')
+        if ($trainer->role === 'admin' && $trainer->is_active) {
+            $activeAdminCount = Trainer::where('role', 'admin')
                 ->where('is_active', true)
                 ->count();
             if ($activeAdminCount <= 1) {
@@ -229,34 +229,34 @@ class CounselorController extends Controller
             }
         }
 
-        $counselor->update(['is_active' => !$counselor->is_active]);
-        $status = $counselor->is_active ? '有効化' : '無効化';
+        $trainer->update(['is_active' => !$trainer->is_active]);
+        $status = $trainer->is_active ? '有効化' : '無効化';
 
         return redirect()->route('trainers.index')
-            ->with('success', $counselor->name . ' のアカウントを' . $status . 'しました。');
+            ->with('success', $trainer->name . ' のアカウントを' . $status . 'しました。');
     }
 
     /**
      * パスワードリセット画面
      */
-    public function showResetPassword(Counselor $counselor): View|RedirectResponse
+    public function showResetPassword(Trainer $trainer): View|RedirectResponse
     {
         // system_adminはパスワードをリセットできない
-        if ($counselor->isSystemAdmin()) {
+        if ($trainer->isSystemAdmin()) {
             return redirect()->route('trainers.index')
                 ->with('error', 'システム管理者アカウントはパスワードをリセットできません。');
         }
 
-        return view('trainers.reset-password', compact('counselor'));
+        return view('trainers.reset-password', compact('trainer'));
     }
 
     /**
      * パスワードリセット処理
      */
-    public function resetPassword(Request $request, Counselor $counselor): RedirectResponse
+    public function resetPassword(Request $request, Trainer $trainer): RedirectResponse
     {
         // system_adminはパスワードをリセットできない
-        if ($counselor->isSystemAdmin()) {
+        if ($trainer->isSystemAdmin()) {
             return redirect()->route('trainers.index')
                 ->with('error', 'システム管理者アカウントはパスワードをリセットできません。');
         }
@@ -268,37 +268,37 @@ class CounselorController extends Controller
             'password.confirmed' => 'パスワード（確認）が一致しません。',
         ]);
 
-        $counselor->update([
+        $trainer->update([
             'password' => $validated['password'],
             'must_change_password' => true,
         ]);
 
         return redirect()->route('trainers.index')
-            ->with('success', $counselor->name . ' のパスワードをリセットしました。次回ログイン時にパスワード変更が求められます。');
+            ->with('success', $trainer->name . ' のパスワードをリセットしました。次回ログイン時にパスワード変更が求められます。');
     }
 
     /**
      * 表示順を1つ上に移動
      */
-    public function moveUp(Counselor $counselor): RedirectResponse
+    public function moveUp(Trainer $trainer): RedirectResponse
     {
-        if ($counselor->isSystemAdmin()) {
+        if ($trainer->isSystemAdmin()) {
             return redirect()->route('trainers.index');
         }
 
-        return $this->swapAdjacent($counselor, -1);
+        return $this->swapAdjacent($trainer, -1);
     }
 
     /**
      * 表示順を1つ下に移動
      */
-    public function moveDown(Counselor $counselor): RedirectResponse
+    public function moveDown(Trainer $trainer): RedirectResponse
     {
-        if ($counselor->isSystemAdmin()) {
+        if ($trainer->isSystemAdmin()) {
             return redirect()->route('trainers.index');
         }
 
-        return $this->swapAdjacent($counselor, 1);
+        return $this->swapAdjacent($trainer, 1);
     }
 
     /**
@@ -306,16 +306,16 @@ class CounselorController extends Controller
      *
      * @param int $offset -1=上に移動、+1=下に移動
      */
-    private function swapAdjacent(Counselor $counselor, int $offset): RedirectResponse
+    private function swapAdjacent(Trainer $trainer, int $offset): RedirectResponse
     {
         // indexと同じソート順で全トレーナーを取得（一覧上の位置を特定するため）
-        $counselors = Counselor::where('role', '!=', 'system_admin')
+        $counselors = Trainer::where('role', '!=', 'system_admin')
             ->orderBy('display_order')
             ->orderBy('name')
             ->get()
             ->values();
 
-        $index = $counselors->search(fn ($c) => $c->id === $counselor->id);
+        $index = $counselors->search(fn ($c) => $c->id === $trainer->id);
         $targetIndex = $index + $offset;
 
         // 対象が見つからない、もしくは移動先が範囲外なら何もしない

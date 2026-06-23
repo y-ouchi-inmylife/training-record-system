@@ -9,7 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 /**
  * トレーナーモデル（認証ユーザー）
  */
-class Counselor extends Authenticatable
+class Trainer extends Authenticatable
 {
     use HasFactory;
 
@@ -111,17 +111,17 @@ class Counselor extends Authenticatable
     /**
      * 担当したトレーニング記録（担当1）
      */
-    public function counselingRecordsAsCounselor1(): HasMany
+    public function counselingRecordsAsTrainer1(): HasMany
     {
-        return $this->hasMany(CounselingRecord::class, 'counselor1_id');
+        return $this->hasMany(TrainingRecord::class, 'counselor1_id');
     }
 
     /**
      * 担当したトレーニング記録（担当2）
      */
-    public function counselingRecordsAsCounselor2(): HasMany
+    public function counselingRecordsAsTrainer2(): HasMany
     {
-        return $this->hasMany(CounselingRecord::class, 'counselor2_id');
+        return $this->hasMany(TrainingRecord::class, 'counselor2_id');
     }
 
     /**

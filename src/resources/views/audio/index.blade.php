@@ -10,9 +10,9 @@
     <div class="d-flex align-items-center gap-2 mb-4">
         <label for="counselor-filter" class="form-label mb-0 text-nowrap">登録者:</label>
         <select id="counselor-filter" class="form-select" style="width: auto;">
-            <option value="all" {{ $selectedCounselorId == 'all' ? 'selected' : '' }}>全員</option>
+            <option value="all" {{ $selectedTrainerId == 'all' ? 'selected' : '' }}>全員</option>
             @foreach($counselors as $counselor)
-                <option value="{{ $counselor->id }}" {{ $selectedCounselorId == $counselor->id ? 'selected' : '' }}>
+                <option value="{{ $counselor->id }}" {{ $selectedTrainerId == $counselor->id ? 'selected' : '' }}>
                     {{ $counselor->name }}
                 </option>
             @endforeach

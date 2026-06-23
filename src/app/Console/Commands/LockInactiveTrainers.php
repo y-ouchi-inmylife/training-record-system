@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Counselor;
+use App\Models\Trainer;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -11,18 +11,18 @@ use Illuminate\Support\Facades\Log;
  * 30日間ログインがないトレーナーを自動ロックするコマンド
  *
  * 使用例:
- *   php artisan counselors:lock-inactive
- *   php artisan counselors:lock-inactive --days=60
+ *   php artisan trainers:lock-inactive
+ *   php artisan trainers:lock-inactive --days=60
  */
-class LockInactiveCounselors extends Command
+class LockInactiveTrainers extends Command
 {
-    protected $signature = 'counselors:lock-inactive {--days=30 : 未ログイン日数のしきい値}';
+    protected $signature = 'trainers:lock-inactive {--days=30 : 未ログイン日数のしきい値}';
 
     protected $description = '指定日数ログインがないトレーナーを自動ロックします';
 
     public function handle(): int
     {
-        Log::info('[LockInactiveCounselors] アカウントロック（長期間未ログイン）バッチを開始します');
+        Log::info('[LockInactiveTrainers] アカウントロック（長期間未ログイン）バッチを開始します');
 
         try {
             $days = (int) $this->option('days');
@@ -33,7 +33,7 @@ class LockInactiveCounselors extends Command
             // 退職・休職者対策のバッチ。最終ログイン日時を持ち、かつ指定日数以上前のアカウントのみを対象とする。
             // 一度もログインしていない（last_login_at が null の）アカウントは作成直後でも誤ロックされるため対象外とし、
             // 未使用の新規発行アカウント対策は別途分離する（No.199 / No.200）。
-            $candidates = Counselor::where('is_active', true)
+            $candidates = Trainer::where('is_active', true)
                 ->where('is_locked', false)
                 ->where('role', '!=', 'system_admin') // system_adminは自動ロック対象外
                 ->whereNotNull('last_login_at') // 未ログインアカウントは判定対象から除外（No.199）
@@ -44,7 +44,7 @@ class LockInactiveCounselors extends Command
             foreach ($candidates as $counselor) {
                 // 最後の有効な管理者（admin）はロックしない（system_adminは別途除外済み）
                 if ($counselor->role === 'admin') {
-                    $activeAdminCount = Counselor::where('role', 'admin')
+                    $activeAdminCount = Trainer::where('role', 'admin')
                         ->where('is_active', true)
                         ->where('is_locked', false)
                         ->count();
@@ -65,11 +65,11 @@ class LockInactiveCounselors extends Command
 
             $message = "{$count}件のトレーナーをロックしました。";
             $this->info($message);
-            Log::info("[LockInactiveCounselors] {$message}");
+            Log::info("[LockInactiveTrainers] {$message}");
 
             return Command::SUCCESS;
         } catch (\Throwable $e) {
-            $errorMessage = '[LockInactiveCounselors] エラー: ' . $e->getMessage();
+            $errorMessage = '[LockInactiveTrainers] エラー: ' . $e->getMessage();
             $this->error($errorMessage);
             Log::error($errorMessage, ['exception' => $e]);
 

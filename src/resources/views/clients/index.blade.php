@@ -125,7 +125,7 @@
                         <td class="text-muted">{{ $client->display_name_kana }}</td>
                         <td>{{ $client->estimated_age }}</td>
                         <td>{{ $client->gender }}</td>
-                        <td>{{ $client->primaryCounselor?->name }}</td>
+                        <td>{{ $client->primaryTrainer?->name }}</td>
                         @if($client->supportStatus)
                             <td>
                                 <span class="badge bg-secondary fs-6">{{ $client->supportStatus->name }}</span>

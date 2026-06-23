@@ -8,8 +8,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * トレーニング内容マスタモデル
  */
-class ConsultationType extends Model
+class TrainingType extends Model
 {
+    // 段階3でテーブル名を training_types にリネームするまでの橋渡し（クラス名が先行）
+    protected $table = 'consultation_types';
+
     protected $fillable = [
         'name',
         'sort_order',
@@ -24,6 +27,6 @@ class ConsultationType extends Model
 
     public function counselingRecords(): HasMany
     {
-        return $this->hasMany(CounselingRecord::class);
+        return $this->hasMany(TrainingRecord::class);
     }
 }

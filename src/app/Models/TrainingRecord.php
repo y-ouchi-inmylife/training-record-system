@@ -9,9 +9,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * トレーニング記録モデル
  */
-class CounselingRecord extends Model
+class TrainingRecord extends Model
 {
     use HasFactory;
+
+    // 段階3でテーブル名を training_records にリネームするまでの橋渡し（クラス名が先行）
+    protected $table = 'counseling_records';
 
     protected $fillable = [
         'client_id', 'consultation_date', 'consultation_time',
@@ -37,17 +40,17 @@ class CounselingRecord extends Model
 
     public function consultationType(): BelongsTo
     {
-        return $this->belongsTo(ConsultationType::class);
+        return $this->belongsTo(TrainingType::class);
     }
 
     public function counselor1(): BelongsTo
     {
-        return $this->belongsTo(Counselor::class, 'counselor1_id');
+        return $this->belongsTo(Trainer::class, 'counselor1_id');
     }
 
     public function counselor2(): BelongsTo
     {
-        return $this->belongsTo(Counselor::class, 'counselor2_id');
+        return $this->belongsTo(Trainer::class, 'counselor2_id');
     }
 
     public function phase(): BelongsTo
@@ -60,6 +63,6 @@ class CounselingRecord extends Model
      */
     public function updatedBy(): BelongsTo
     {
-        return $this->belongsTo(Counselor::class, 'updated_by');
+        return $this->belongsTo(Trainer::class, 'updated_by');
     }
 }

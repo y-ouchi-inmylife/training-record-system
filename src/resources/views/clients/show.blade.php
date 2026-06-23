@@ -151,7 +151,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <table class="table table-borderless table-sm">
-                            <tr><th class="text-muted" style="width:40%">主担当</th><td>{{ $client->primaryCounselor?->name ?: '—' }}</td></tr>
+                            <tr><th class="text-muted" style="width:40%">主担当</th><td>{{ $client->primaryTrainer?->name ?: '—' }}</td></tr>
                         </table>
                     </div>
                     <div class="col-md-6">
