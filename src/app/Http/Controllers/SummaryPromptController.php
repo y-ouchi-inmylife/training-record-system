@@ -22,13 +22,7 @@ class SummaryPromptController extends Controller
         $currentPrompt = SystemSetting::where('key', 'summary_prompt_current')
             ->value('value') ?? '';
 
-        // プリセット原本も DB から取得して Blade に渡す（Blade 側のハードコードは廃止）
-        $presets = [
-            'counseling' => SystemSetting::where('key', 'summary_prompt_preset_counseling')->value('value') ?? '',
-            'employment' => SystemSetting::where('key', 'summary_prompt_preset_employment')->value('value') ?? '',
-        ];
-
-        return view('settings.summary-prompts', compact('currentPrompt', 'presets'));
+        return view('settings.summary-prompts', compact('currentPrompt'));
     }
 
     /**

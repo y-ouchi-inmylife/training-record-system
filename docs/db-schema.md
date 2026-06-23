@@ -821,5 +821,3 @@ erDiagram
 | auto_logout_minutes | 15 | 自動ログアウトまでの時間（分） |
 | enable_ip_restriction | false | IPアドレス制限（false: 無効、true: 有効）。許可IPアドレスは ip_whitelist テーブルで管理 |
 | summary_prompt_current | （初期プロンプト本文） | 音声要約に使用するプロンプト。初期値を投入。設定画面（要約プロンプト）からトレーナーが編集可能。本文の実体はシーダーを参照 |
-| summary_prompt_preset_counseling | （心理カウンセリング用プロンプト本文） | 要約プロンプト画面の心理カウンセリング用プリセット。本文の実体はシーダーを参照 |
-| summary_prompt_preset_employment | （就労支援用プロンプト本文） | 要約プロンプト画面の就労支援用プリセット。本文の実体はシーダーを参照 |
