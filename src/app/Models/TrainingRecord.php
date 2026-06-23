@@ -13,13 +13,10 @@ class TrainingRecord extends Model
 {
     use HasFactory;
 
-    // 段階3でテーブル名を training_records にリネームするまでの橋渡し（クラス名が先行）
-    protected $table = 'counseling_records';
-
     protected $fillable = [
-        'client_id', 'consultation_date', 'consultation_time',
-        'consultation_type_id', 'consultation_detail',
-        'counselor1_id', 'counselor2_id',
+        'client_id', 'training_date', 'training_time',
+        'training_type_id', 'training_detail',
+        'trainer1_id', 'trainer2_id',
         'record_content', 'impression',
         'phase_id',
         // 最終更新者
@@ -29,7 +26,7 @@ class TrainingRecord extends Model
     protected function casts(): array
     {
         return [
-            'consultation_date' => 'date',
+            'training_date' => 'date',
         ];
     }
 
@@ -38,19 +35,19 @@ class TrainingRecord extends Model
         return $this->belongsTo(Client::class);
     }
 
-    public function consultationType(): BelongsTo
+    public function trainingType(): BelongsTo
     {
         return $this->belongsTo(TrainingType::class);
     }
 
-    public function counselor1(): BelongsTo
+    public function trainer1(): BelongsTo
     {
-        return $this->belongsTo(Trainer::class, 'counselor1_id');
+        return $this->belongsTo(Trainer::class, 'trainer1_id');
     }
 
-    public function counselor2(): BelongsTo
+    public function trainer2(): BelongsTo
     {
-        return $this->belongsTo(Trainer::class, 'counselor2_id');
+        return $this->belongsTo(Trainer::class, 'trainer2_id');
     }
 
     public function phase(): BelongsTo

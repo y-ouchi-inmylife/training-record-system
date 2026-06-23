@@ -28,12 +28,12 @@ class AccessLogController extends Controller
             ]
         );
 
-        $query = AccessLog::with('counselor')
+        $query = AccessLog::with('trainer')
             ->orderBy('created_at', 'desc');
 
         // トレーナーフィルター
-        if ($request->filled('counselor_id')) {
-            $query->where('counselor_id', $request->input('counselor_id'));
+        if ($request->filled('trainer_id')) {
+            $query->where('trainer_id', $request->input('trainer_id'));
         }
 
         // 操作フィルター
@@ -50,8 +50,8 @@ class AccessLogController extends Controller
         }
 
         $logs = $query->paginate(50)->withQueryString();
-        $counselors = Trainer::orderBy('name')->get();
+        $trainers = Trainer::orderBy('name')->get();
 
-        return view('access-logs.index', compact('logs', 'counselors'));
+        return view('access-logs.index', compact('logs', 'trainers'));
     }
 }

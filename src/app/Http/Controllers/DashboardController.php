@@ -14,7 +14,7 @@ class DashboardController extends Controller
     public function index(): View
     {
         // 主担当クライアントの基本条件
-        $baseQuery = Client::where('primary_counselor_id', Auth::id())
+        $baseQuery = Client::where('primary_trainer_id', Auth::id())
             ->where(function ($query) {
                 $query->whereHas('supportStatus', function ($q) {
                     $q->where('show_in_dashboard', true);
@@ -28,16 +28,16 @@ class DashboardController extends Controller
         $myClients = (clone $baseQuery)
             ->select('clients.*')
             ->selectSub(
-                'SELECT MAX(consultation_date) FROM counseling_records WHERE counseling_records.client_id = clients.id',
-                'last_consultation_date'
+                'SELECT MAX(training_date) FROM training_records WHERE training_records.client_id = clients.id',
+                'last_training_date'
             )
-            ->with(['supportStatus', 'counselingRecords' => function ($query) {
-                $query->orderBy('consultation_date', 'desc')
-                      ->orderBy('consultation_time', 'desc')
+            ->with(['supportStatus', 'trainingRecords' => function ($query) {
+                $query->orderBy('training_date', 'desc')
+                      ->orderBy('training_time', 'desc')
                       ->limit(1)
-                      ->with(['counselor1', 'counselor2']);
+                      ->with(['trainer1', 'trainer2']);
             }])
-            ->orderByRaw('CASE WHEN last_consultation_date IS NULL THEN 1 ELSE 0 END, last_consultation_date DESC')
+            ->orderByRaw('CASE WHEN last_training_date IS NULL THEN 1 ELSE 0 END, last_training_date DESC')
             ->limit(10)
             ->get();
 

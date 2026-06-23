@@ -42,7 +42,7 @@
                 <tr>
                     <td>{{ $audioRecord->created_at->format('Y-m-d H:i') }}</td>
                     <td>{{ $audioRecord->title }}</td>
-                    <td>{{ $audioRecord->counselor->name ?? '—' }}</td>
+                    <td>{{ $audioRecord->trainer->name ?? '—' }}</td>
                     <td>{{ $audioRecord->file_name ?? $audioRecord->title }}</td>
                     <td>{{ formatFileSize($audioRecord->file_size) }}</td>
                 </tr>

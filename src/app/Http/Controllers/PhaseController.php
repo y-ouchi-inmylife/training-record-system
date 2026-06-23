@@ -15,7 +15,7 @@ class PhaseController extends Controller
      */
     public function index()
     {
-        $phases = Phase::withCount('counselingRecords')->orderBy('sort_order')->orderBy('id')->get();
+        $phases = Phase::withCount('trainingRecords')->orderBy('sort_order')->orderBy('id')->get();
 
         return view('master.phases.index', compact('phases'));
     }
@@ -68,7 +68,7 @@ class PhaseController extends Controller
     public function destroy(Phase $phase)
     {
         // 使用中のフェーズは削除不可
-        if ($phase->counselingRecords()->exists()) {
+        if ($phase->trainingRecords()->exists()) {
             return redirect()->route('master.phases.index')
                 ->with('error', 'このフェーズはトレーニング記録で使用されているため削除できません。');
         }

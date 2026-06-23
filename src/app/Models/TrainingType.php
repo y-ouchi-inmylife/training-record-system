@@ -10,9 +10,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class TrainingType extends Model
 {
-    // 段階3でテーブル名を training_types にリネームするまでの橋渡し（クラス名が先行）
-    protected $table = 'consultation_types';
-
     protected $fillable = [
         'name',
         'sort_order',
@@ -25,7 +22,7 @@ class TrainingType extends Model
         ];
     }
 
-    public function counselingRecords(): HasMany
+    public function trainingRecords(): HasMany
     {
         return $this->hasMany(TrainingRecord::class);
     }

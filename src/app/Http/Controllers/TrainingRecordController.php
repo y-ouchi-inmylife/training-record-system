@@ -32,7 +32,7 @@ class TrainingRecordController extends Controller
             ]
         );
 
-        $query = TrainingRecord::with(['client', 'consultationType', 'counselor1', 'counselor2', 'phase']);
+        $query = TrainingRecord::with(['client', 'trainingType', 'trainer1', 'trainer2', 'phase']);
 
         // 内部ID（部分一致）
         if ($request->filled('internal_id')) {
@@ -57,18 +57,18 @@ class TrainingRecordController extends Controller
 
         // トレーニング日（期間指定）
         if ($request->filled('date_from')) {
-            $query->where('consultation_date', '>=', $request->input('date_from'));
+            $query->where('training_date', '>=', $request->input('date_from'));
         }
         if ($request->filled('date_to')) {
-            $query->where('consultation_date', '<=', $request->input('date_to'));
+            $query->where('training_date', '<=', $request->input('date_to'));
         }
 
         // 担当者フィルター（担当者1または担当者2に含まれていれば表示）
-        if ($request->filled('counselor_id')) {
-            $counselorId = $request->input('counselor_id');
-            $query->where(function ($q) use ($counselorId) {
-                $q->where('counselor1_id', $counselorId)
-                  ->orWhere('counselor2_id', $counselorId);
+        if ($request->filled('trainer_id')) {
+            $trainerId = $request->input('trainer_id');
+            $query->where(function ($q) use ($trainerId) {
+                $q->where('trainer1_id', $trainerId)
+                  ->orWhere('trainer2_id', $trainerId);
             });
         }
 
@@ -78,44 +78,44 @@ class TrainingRecordController extends Controller
             $query->where(function ($q) use ($keyword) {
                 $q->where('record_content', 'like', "%{$keyword}%")
                   ->orWhere('impression', 'like', "%{$keyword}%")
-                  ->orWhere('consultation_detail', 'like', "%{$keyword}%");
+                  ->orWhere('training_detail', 'like', "%{$keyword}%");
             });
         }
 
         // ソート
-        $sortBy = $request->input('sort', 'consultation_date');
+        $sortBy = $request->input('sort', 'training_date');
         $sortDir = $request->input('direction', 'desc');
-        $allowedSorts = ['consultation_date', 'internal_id', 'client_name', 'created_at'];
+        $allowedSorts = ['training_date', 'internal_id', 'client_name', 'created_at'];
         if (!in_array($sortBy, $allowedSorts)) {
-            $sortBy = 'consultation_date';
+            $sortBy = 'training_date';
         }
         $sortDir = $sortDir === 'asc' ? 'asc' : 'desc';
 
         if ($sortBy === 'internal_id') {
             // クライアントの内部IDで数値ソート（文字列型だが数値のみ格納）
-            $query->leftJoin('clients', 'counseling_records.client_id', '=', 'clients.id')
-                ->select('counseling_records.*')
+            $query->leftJoin('clients', 'training_records.client_id', '=', 'clients.id')
+                ->select('training_records.*')
                 ->orderByRaw('CAST(clients.internal_id AS UNSIGNED) ' . $sortDir);
         } elseif ($sortBy === 'client_name') {
             // 日本語照合順序で姓順に並べる
-            $query->leftJoin('clients', 'counseling_records.client_id', '=', 'clients.id')
-                ->select('counseling_records.*')
+            $query->leftJoin('clients', 'training_records.client_id', '=', 'clients.id')
+                ->select('training_records.*')
                 ->orderByRaw("clients.last_name COLLATE utf8mb4_ja_0900_as_cs " . $sortDir);
         } else {
             $query->orderBy($sortBy, $sortDir);
         }
 
         // 2次ソート: トレーニング日が同じレコードはトレーニング時刻で並び替える（NULLはMySQLのDESCで最後、ASCで最初）
-        if ($sortBy !== 'consultation_date') {
-            $query->orderBy('consultation_date', 'desc');
+        if ($sortBy !== 'training_date') {
+            $query->orderBy('training_date', 'desc');
         }
-        $query->orderBy('consultation_time', $sortDir);
+        $query->orderBy('training_time', $sortDir);
 
         $records = $query->paginate(20)->withQueryString();
-        $consultationTypes = TrainingType::orderBy('sort_order')->get();
-        $counselors = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
+        $trainingTypes = TrainingType::orderBy('sort_order')->get();
+        $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
 
-        return view('training-records.index', compact('records', 'consultationTypes', 'counselors'));
+        return view('training-records.index', compact('records', 'trainingTypes', 'trainers'));
     }
 
     /**
@@ -140,14 +140,14 @@ class TrainingRecordController extends Controller
                 ->with('error', '指定されたクライアントが見つかりません');
         }
 
-        $consultationTypes = TrainingType::orderBy('sort_order')->get();
-        $counselors = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
+        $trainingTypes = TrainingType::orderBy('sort_order')->get();
+        $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
         $phases = Phase::orderBy('sort_order')->get();
 
         $audioRecordId = $request->input('audio_record_id');
 
         return view('training-records.create', compact(
-            'consultationTypes', 'counselors', 'phases', 'selectedClientId', 'selectedClient', 'audioRecordId'
+            'trainingTypes', 'trainers', 'phases', 'selectedClientId', 'selectedClient', 'audioRecordId'
         ));
     }
 
@@ -186,7 +186,7 @@ class TrainingRecordController extends Controller
     public function show(TrainingRecord $trainingRecord): View
     {
         $trainingRecord->load([
-            'client', 'consultationType', 'counselor1', 'counselor2',
+            'client', 'trainingType', 'trainer1', 'trainer2',
             'phase',
         ]);
 
@@ -200,12 +200,12 @@ class TrainingRecordController extends Controller
     {
         $trainingRecord->load(['client']);
 
-        $consultationTypes = TrainingType::orderBy('sort_order')->get();
-        $counselors = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
+        $trainingTypes = TrainingType::orderBy('sort_order')->get();
+        $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
         $phases = Phase::orderBy('sort_order')->get();
 
         return view('training-records.edit', compact(
-            'trainingRecord', 'consultationTypes', 'counselors', 'phases'
+            'trainingRecord', 'trainingTypes', 'trainers', 'phases'
         ));
     }
 
@@ -263,10 +263,10 @@ class TrainingRecordController extends Controller
         $validated = $request->validate([
             'audio_record_id' => 'required|exists:audio_records,id',
             'client_id' => 'required|exists:clients,id',
-            'consultation_date' => 'required|date',
-            'consultation_time' => 'nullable|date_format:H:i',
-            'counselor1_id' => 'required|exists:counselors,id',
-            'counselor2_id' => 'nullable|exists:counselors,id|different:counselor1_id',
+            'training_date' => 'required|date',
+            'training_time' => 'nullable|date_format:H:i',
+            'trainer1_id' => 'required|exists:trainers,id',
+            'trainer2_id' => 'nullable|exists:trainers,id|different:trainer1_id',
         ]);
 
         try {
@@ -275,10 +275,10 @@ class TrainingRecordController extends Controller
 
                 $record = TrainingRecord::create([
                     'client_id' => $validated['client_id'],
-                    'consultation_date' => $validated['consultation_date'],
-                    'consultation_time' => $validated['consultation_time'] ?? null,
-                    'counselor1_id' => $validated['counselor1_id'],
-                    'counselor2_id' => $validated['counselor2_id'] ?? null,
+                    'training_date' => $validated['training_date'],
+                    'training_time' => $validated['training_time'] ?? null,
+                    'trainer1_id' => $validated['trainer1_id'],
+                    'trainer2_id' => $validated['trainer2_id'] ?? null,
                     'record_content' => $audioRecord->summary_text,
                 ]);
 
@@ -304,12 +304,12 @@ class TrainingRecordController extends Controller
     {
         return [
             'client_id' => 'required|exists:clients,id',
-            'consultation_date' => 'required|date',
-            'consultation_time' => 'nullable|date_format:H:i',
-            'consultation_type_id' => 'nullable|exists:consultation_types,id',
-            'consultation_detail' => 'nullable|string|max:255',
-            'counselor1_id' => 'required|exists:counselors,id',
-            'counselor2_id' => 'nullable|exists:counselors,id|different:counselor1_id',
+            'training_date' => 'required|date',
+            'training_time' => 'nullable|date_format:H:i',
+            'training_type_id' => 'nullable|exists:training_types,id',
+            'training_detail' => 'nullable|string|max:255',
+            'trainer1_id' => 'required|exists:trainers,id',
+            'trainer2_id' => 'nullable|exists:trainers,id|different:trainer1_id',
             'record_content' => 'nullable|string',
             'impression' => 'nullable|string',
             'phase_id' => 'nullable|exists:phases,id',

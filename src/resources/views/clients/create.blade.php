@@ -119,12 +119,12 @@
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-md-4">
-                        <label for="primary_counselor_id" class="form-label">主担当</label>
-                        <select class="form-select" id="primary_counselor_id" name="primary_counselor_id">
+                        <label for="primary_trainer_id" class="form-label">主担当</label>
+                        <select class="form-select" id="primary_trainer_id" name="primary_trainer_id">
                             <option value="">選択してください</option>
-                            @foreach($counselors as $counselor)
-                                <option value="{{ $counselor->id }}" {{ old('primary_counselor_id') == $counselor->id ? 'selected' : '' }}>
-                                    {{ $counselor->name }}
+                            @foreach($trainers as $trainer)
+                                <option value="{{ $trainer->id }}" {{ old('primary_trainer_id') == $trainer->id ? 'selected' : '' }}>
+                                    {{ $trainer->name }}
                                 </option>
                             @endforeach
                         </select>

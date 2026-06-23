@@ -54,7 +54,7 @@
                 </form>
                 <script>
                 function confirmDelete() {
-                    @if($client->counselingRecords->count() > 0)
+                    @if($client->trainingRecords->count() > 0)
                         alert('このクライアントにはトレーニング記録が登録されているため削除できません。');
                         return false;
                     @else
@@ -99,11 +99,11 @@
     <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h6 class="mb-0">
-                トレーニング記録（{{ $client->counselingRecords->count() }}件）
+                トレーニング記録（{{ $client->trainingRecords->count() }}件）
             </h6>
             <a href="{{ route('training-records.create', ['client_id' => $client->id]) }}" class="btn btn-primary">新規登録</a>
         </div>
-        @if($client->counselingRecords->count() > 0)
+        @if($client->trainingRecords->count() > 0)
             <div class="consultation-records-scroll">
                 <table class="table table-hover table-sm mb-0 consultation-records-table">
                     <thead class="table-light">
@@ -116,18 +116,18 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($client->counselingRecords as $record)
+                        @foreach($client->trainingRecords as $record)
                             <tr style="cursor: pointer;" onclick="location.href='{{ route('training-records.show', $record) }}'">
                                 <td>
-                                    @if($record->consultation_date > now()->startOfDay())
-                                        <span class="text-primary">{{ $record->consultation_date->format('Y/m/d') }}</span>
+                                    @if($record->training_date > now()->startOfDay())
+                                        <span class="text-primary">{{ $record->training_date->format('Y/m/d') }}</span>
                                     @else
-                                        {{ $record->consultation_date->format('Y/m/d') }}
+                                        {{ $record->training_date->format('Y/m/d') }}
                                     @endif
                                 </td>
-                                <td>{{ $record->counselor1->name ?? '—' }}</td>
-                                <td>{{ $record->counselor2->name ?? '—' }}</td>
-                                <td>{{ $record->consultationType->name ?? '—' }}</td>
+                                <td>{{ $record->trainer1->name ?? '—' }}</td>
+                                <td>{{ $record->trainer2->name ?? '—' }}</td>
+                                <td>{{ $record->trainingType->name ?? '—' }}</td>
                                 <td>{{ $record->phase->name ?? '—' }}</td>
                             </tr>
                         @endforeach

@@ -86,7 +86,7 @@
                                         {{-- 削除 --}}
                                         <form method="POST" action="{{ route('master.training-types.destroy', $type) }}"
                                               class="d-inline"
-                                              onsubmit="@if($type->counseling_records_count > 0) alert('このトレーニング内容はトレーニング記録で使用されているため削除できません。'); return false; @else return confirm('「{{ $type->name }}」を削除しますか？'); @endif">
+                                              onsubmit="@if($type->training_records_count > 0) alert('このトレーニング内容はトレーニング記録で使用されているため削除できません。'); return false; @else return confirm('「{{ $type->name }}」を削除しますか？'); @endif">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-outline-danger btn-sm">削除</button>

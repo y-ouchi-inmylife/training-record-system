@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('access_logs', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('counselor_id');
+            $table->unsignedBigInteger('trainer_id');
             $table->string('action', 100)->comment('login, view_client, edit_client 等');
             $table->string('target_type', 50)->nullable()->comment('対象モデル名');
             $table->unsignedBigInteger('target_id')->nullable()->comment('対象レコードID');
@@ -18,11 +18,11 @@ return new class extends Migration
             $table->string('user_agent', 500)->nullable();
             $table->timestamps();
 
-            $table->index(['counselor_id', 'created_at'], 'access_logs_counselor_id_created_at_idx');
+            $table->index(['trainer_id', 'created_at'], 'access_logs_trainer_id_created_at_idx');
             $table->index(['action', 'created_at'], 'access_logs_action_created_at_idx');
 
-            $table->foreign('counselor_id', 'access_logs_counselor_id_foreign')
-                ->references('id')->on('counselors')->cascadeOnDelete();
+            $table->foreign('trainer_id', 'access_logs_trainer_id_foreign')
+                ->references('id')->on('trainers')->cascadeOnDelete();
         });
     }
 

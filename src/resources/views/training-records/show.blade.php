@@ -31,14 +31,14 @@
                 <div class="col-md-6">
                     <table class="table table-borderless table-sm">
                         <tr><th class="text-muted" style="width:40%">クライアント</th><td>{{ $trainingRecord->client->display_name }}</td></tr>
-                        <tr><th class="text-muted">トレーニング日</th><td>{{ $trainingRecord->consultation_date->format('Y/m/d') }}</td></tr>
-                        <tr><th class="text-muted">トレーニング時刻</th><td>{{ $trainingRecord->consultation_time ?: '—' }}</td></tr>
+                        <tr><th class="text-muted">トレーニング日</th><td>{{ $trainingRecord->training_date->format('Y/m/d') }}</td></tr>
+                        <tr><th class="text-muted">トレーニング時刻</th><td>{{ $trainingRecord->training_time ?: '—' }}</td></tr>
                     </table>
                 </div>
                 <div class="col-md-6">
                     <table class="table table-borderless table-sm">
-                        <tr><th class="text-muted" style="width:40%">担当1</th><td>{{ $trainingRecord->counselor1->name ?? '—' }}</td></tr>
-                        <tr><th class="text-muted">担当2</th><td>{{ $trainingRecord->counselor2->name ?? '—' }}</td></tr>
+                        <tr><th class="text-muted" style="width:40%">担当1</th><td>{{ $trainingRecord->trainer1->name ?? '—' }}</td></tr>
+                        <tr><th class="text-muted">担当2</th><td>{{ $trainingRecord->trainer2->name ?? '—' }}</td></tr>
                     </table>
                 </div>
             </div>
@@ -56,8 +56,8 @@
             <div class="row">
                 <div class="col-md-6">
                     <table class="table table-borderless table-sm">
-                        <tr><th class="text-muted" style="width:40%">トレーニング内容</th><td>{{ $trainingRecord->consultationType->name ?? '—' }}</td></tr>
-                        <tr><th class="text-muted">トレーニング内容（詳細）</th><td>{{ $trainingRecord->consultation_detail ?: '—' }}</td></tr>
+                        <tr><th class="text-muted" style="width:40%">トレーニング内容</th><td>{{ $trainingRecord->trainingType->name ?? '—' }}</td></tr>
+                        <tr><th class="text-muted">トレーニング内容（詳細）</th><td>{{ $trainingRecord->training_detail ?: '—' }}</td></tr>
                         <tr><th class="text-muted">フェーズ</th><td>{{ $trainingRecord->phase->name ?? '—' }}</td></tr>
                     </table>
                 </div>

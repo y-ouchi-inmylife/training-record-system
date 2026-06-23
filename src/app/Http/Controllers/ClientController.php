@@ -34,16 +34,16 @@ class ClientController extends Controller
 
         $query = Client::with(['primaryTrainer', 'supportStatus'])
             ->addSelect([
-                'last_consultation_date' => TrainingRecord::select('consultation_date')
+                'last_training_date' => TrainingRecord::select('training_date')
                     ->whereColumn('client_id', 'clients.id')
-                    ->orderBy('consultation_date', 'desc')
-                    ->orderBy('consultation_time', 'desc')
+                    ->orderBy('training_date', 'desc')
+                    ->orderBy('training_time', 'desc')
                     ->limit(1),
                 'latest_phase_id' => TrainingRecord::select('phase_id')
                     ->whereColumn('client_id', 'clients.id')
                     ->whereNotNull('phase_id')
-                    ->orderBy('consultation_date', 'desc')
-                    ->orderBy('consultation_time', 'desc')
+                    ->orderBy('training_date', 'desc')
+                    ->orderBy('training_time', 'desc')
                     ->limit(1),
             ]);
 
@@ -69,20 +69,20 @@ class ClientController extends Controller
         }
 
         // 主担当トレーナーフィルター
-        if ($request->filled('primary_counselor_id')) {
-            $query->where('primary_counselor_id', $request->input('primary_counselor_id'));
+        if ($request->filled('primary_trainer_id')) {
+            $query->where('primary_trainer_id', $request->input('primary_trainer_id'));
         }
 
         // 最終トレーニング日の期間指定（最新のトレーニング記録日付で絞り込み）
         if ($request->filled('date_from')) {
             $query->whereRaw(
-                '(SELECT MAX(cr.consultation_date) FROM counseling_records cr WHERE cr.client_id = clients.id) >= ?',
+                '(SELECT MAX(cr.training_date) FROM training_records cr WHERE cr.client_id = clients.id) >= ?',
                 [$request->input('date_from')]
             );
         }
         if ($request->filled('date_to')) {
             $query->whereRaw(
-                '(SELECT MAX(cr.consultation_date) FROM counseling_records cr WHERE cr.client_id = clients.id) <= ?',
+                '(SELECT MAX(cr.training_date) FROM training_records cr WHERE cr.client_id = clients.id) <= ?',
                 [$request->input('date_to')]
             );
         }
@@ -109,11 +109,11 @@ class ClientController extends Controller
         }
 
         $clients = $query->paginate(20)->withQueryString();
-        $counselors = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
+        $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
         $phases = Phase::pluck('name', 'id');
         $supportStatuses = SupportStatus::orderBy('sort_order')->get();
 
-        return view('clients.index', compact('clients', 'counselors', 'phases', 'supportStatuses'));
+        return view('clients.index', compact('clients', 'trainers', 'phases', 'supportStatuses'));
     }
 
     /**
@@ -121,14 +121,14 @@ class ClientController extends Controller
      */
     public function create(): View
     {
-        $counselors = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
+        $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
         $supportStatuses = SupportStatus::orderBy('sort_order')->get();
 
         // 次の内部IDを計算
         $maxId = DB::selectOne('SELECT MAX(CAST(internal_id AS UNSIGNED)) as max_id FROM clients')->max_id;
         $nextInternalId = ($maxId ?? 0) + 1;
 
-        return view('clients.create', compact('counselors', 'supportStatuses', 'nextInternalId'));
+        return view('clients.create', compact('trainers', 'supportStatuses', 'nextInternalId'));
     }
 
     /**
@@ -157,15 +157,15 @@ class ClientController extends Controller
      */
     public function show(Client $client): View
     {
-        $client->load(['primaryTrainer', 'supportStatus', 'counselingRecords' => function ($query) {
-            $query->with(['consultationType', 'counselor1', 'counselor2', 'phase'])
-                  ->orderBy('consultation_date', 'desc')
-                  ->orderBy('consultation_time', 'desc');
+        $client->load(['primaryTrainer', 'supportStatus', 'trainingRecords' => function ($query) {
+            $query->with(['trainingType', 'trainer1', 'trainer2', 'phase'])
+                  ->orderBy('training_date', 'desc')
+                  ->orderBy('training_time', 'desc');
         }]);
 
-        $counselors = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
+        $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
 
-        return view('clients.show', compact('client', 'counselors'));
+        return view('clients.show', compact('client', 'trainers'));
     }
 
     /**
@@ -173,9 +173,9 @@ class ClientController extends Controller
      */
     public function edit(Client $client): View
     {
-        $counselors = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
+        $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
         $supportStatuses = SupportStatus::orderBy('sort_order')->get();
-        return view('clients.edit', compact('client', 'counselors', 'supportStatuses'));
+        return view('clients.edit', compact('client', 'trainers', 'supportStatuses'));
     }
 
     /**
@@ -210,7 +210,7 @@ class ClientController extends Controller
         }
 
         // トレーニング記録が存在する場合は削除不可
-        if ($client->counselingRecords()->exists()) {
+        if ($client->trainingRecords()->exists()) {
             return redirect()
                 ->route('clients.show', $client)
                 ->with('error', 'このクライアントにはトレーニング記録が登録されているため削除できません。');
@@ -301,7 +301,7 @@ class ClientController extends Controller
             'address4' => 'nullable|string|max:100',
 
             // カテゴリー7: 支援管理
-            'primary_counselor_id' => 'nullable|exists:counselors,id',
+            'primary_trainer_id' => 'nullable|exists:trainers,id',
             'support_status_id' => 'nullable|exists:support_statuses,id',
         ];
     }

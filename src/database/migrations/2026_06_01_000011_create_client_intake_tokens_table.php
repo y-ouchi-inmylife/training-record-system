@@ -30,7 +30,7 @@ return new class extends Migration
             $table->foreign('client_id', 'client_intake_tokens_client_id_foreign')
                 ->references('id')->on('clients')->nullOnDelete();
             $table->foreign('created_by', 'client_intake_tokens_created_by_foreign')
-                ->references('id')->on('counselors')->nullOnDelete();
+                ->references('id')->on('trainers')->nullOnDelete();
         });
     }
 

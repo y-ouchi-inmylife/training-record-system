@@ -9,12 +9,12 @@
             <div class="d-flex justify-content-between align-items-center mb-4" style="max-width: 700px;">
                 <h2 class="mb-0">トレーナー登録</h2>
                 <div class="d-flex gap-2">
-                    <button type="submit" form="counselor-create-form" class="btn btn-success">登録</button>
+                    <button type="submit" form="trainer-create-form" class="btn btn-success">登録</button>
                     <a href="{{ route('trainers.index') }}" class="btn btn-secondary">キャンセル</a>
                 </div>
             </div>
 
-            <form id="counselor-create-form" method="POST" action="{{ route('trainers.store') }}">
+            <form id="trainer-create-form" method="POST" action="{{ route('trainers.store') }}">
                 @csrf
 
                 <div class="mb-3">

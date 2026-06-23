@@ -9,12 +9,12 @@
             <div class="d-flex justify-content-between align-items-center mb-4" style="max-width: 700px;">
                 <h2 class="mb-0">トレーナー編集</h2>
                 <div class="d-flex gap-2">
-                    <button type="submit" form="counselor-edit-form" class="btn btn-success">更新</button>
+                    <button type="submit" form="trainer-edit-form" class="btn btn-success">更新</button>
                     <a href="{{ route('trainers.index') }}" class="btn btn-secondary">キャンセル</a>
                 </div>
             </div>
 
-            <form id="counselor-edit-form" method="POST" action="{{ route('trainers.update', $trainer) }}">
+            <form id="trainer-edit-form" method="POST" action="{{ route('trainers.update', $trainer) }}">
                 @csrf
                 @method('PUT')
 

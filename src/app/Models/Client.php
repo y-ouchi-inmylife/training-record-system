@@ -25,7 +25,7 @@ class Client extends Model
         'phone1', 'phone2', 'phone3', 'email',
         'postal_code', 'address1', 'address2', 'address3', 'address4',
         // カテゴリー7: 支援管理
-        'primary_counselor_id', 'support_status_id',
+        'primary_trainer_id', 'support_status_id',
         // 最終更新者
         'updated_by',
     ];
@@ -88,7 +88,7 @@ class Client extends Model
      */
     public function primaryTrainer(): BelongsTo
     {
-        return $this->belongsTo(Trainer::class, 'primary_counselor_id');
+        return $this->belongsTo(Trainer::class, 'primary_trainer_id');
     }
 
     /**
@@ -102,7 +102,7 @@ class Client extends Model
     /**
      * トレーニング記録
      */
-    public function counselingRecords(): HasMany
+    public function trainingRecords(): HasMany
     {
         return $this->hasMany(TrainingRecord::class);
     }

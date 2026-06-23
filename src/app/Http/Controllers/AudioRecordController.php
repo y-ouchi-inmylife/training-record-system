@@ -21,37 +21,37 @@ class AudioRecordController extends Controller
     /**
      * 音声管理一覧画面
      *
-     * トレーナーフィルタ（GETパラメータ counselor_id）で表示を切り替え
+     * トレーナーフィルタ（GETパラメータ trainer_id）で表示を切り替え
      * デフォルト: ログイン中のトレーナー自身の記録のみ表示
      */
     public function index(Request $request)
     {
         $user = Auth::user();
 
-        $query = AudioRecord::with(['counselor', 'client'])->orderBy('created_at', 'desc');
+        $query = AudioRecord::with(['trainer', 'client'])->orderBy('created_at', 'desc');
 
         // トレーナーフィルタ
-        $counselorId = $request->query('counselor_id');
-        if ($counselorId === 'all') {
+        $trainerId = $request->query('trainer_id');
+        if ($trainerId === 'all') {
             // フィルタなし（全員表示）
-        } elseif ($counselorId) {
-            $query->where('counselor_id', $counselorId);
+        } elseif ($trainerId) {
+            $query->where('trainer_id', $trainerId);
         } else {
             // デフォルト: 自分の記録のみ
-            $query->where('counselor_id', $user->id);
+            $query->where('trainer_id', $user->id);
         }
 
         $audioRecords = $query->paginate(5)->appends($request->query());
 
         // プルダウン用トレーナー一覧（system_adminを除外）
-        $counselors = Trainer::practitioners()
+        $trainers = Trainer::practitioners()
             ->orderBy('display_order')
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        $selectedTrainerId = $counselorId ?? $user->id;
+        $selectedTrainerId = $trainerId ?? $user->id;
 
-        return view('audio.index', compact('audioRecords', 'counselors', 'selectedTrainerId'));
+        return view('audio.index', compact('audioRecords', 'trainers', 'selectedTrainerId'));
     }
 
     /**
@@ -92,12 +92,12 @@ class AudioRecordController extends Controller
         $user = Auth::user();
         $originalName = $uploadedFile->getClientOriginalName();
 
-        // 保存先: storage/app/audio/{counselor_id}/
+        // 保存先: storage/app/audio/{trainer_id}/
         $directory = 'audio/' . $user->id;
         $storedPath = $uploadedFile->store($directory);
 
         AudioRecord::create([
-            'counselor_id' => $user->id,
+            'trainer_id' => $user->id,
             'client_id' => $validated['client_id'],
             // タイトル: アップロードファイル名から拡張子を除いた値
             'title' => pathinfo($originalName, PATHINFO_FILENAME),
@@ -150,12 +150,12 @@ class AudioRecordController extends Controller
         $user = Auth::user();
         $originalName = $uploadedFile->getClientOriginalName();
 
-        // 保存先: storage/app/audio/{counselor_id}/
+        // 保存先: storage/app/audio/{trainer_id}/
         $directory = 'audio/' . $user->id;
         $storedPath = $uploadedFile->store($directory);
 
         $audioRecord = AudioRecord::create([
-            'counselor_id' => $user->id,
+            'trainer_id' => $user->id,
             'client_id' => $validated['client_id'],
             // タイトル: 「YYYYMMDD_HHMM_ログインID」
             'title' => now()->format('Ymd_Hi') . '_' . $user->login_id,
@@ -205,7 +205,7 @@ class AudioRecordController extends Controller
         ]);
 
         AudioRecord::create([
-            'counselor_id' => Auth::id(),
+            'trainer_id' => Auth::id(),
             'client_id' => $validated['client_id'],
             'title' => $validated['title'],
             'source' => AudioRecord::SOURCE_TEXT_PASTE,
@@ -435,7 +435,7 @@ class AudioRecordController extends Controller
             'client_id.exists' => '選択されたクライアントが存在しません。',
         ]);
 
-        $query = AudioRecord::where('counselor_id', Auth::id())
+        $query = AudioRecord::where('trainer_id', Auth::id())
             ->where('client_id', $request->client_id)
             ->where('status', AudioRecord::STATUS_COMPLETED)
             ->whereNotNull('summary_text')
@@ -491,7 +491,7 @@ class AudioRecordController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->role === 'staff' && $audioRecord->counselor_id !== $user->id) {
+        if ($user->role === 'staff' && $audioRecord->trainer_id !== $user->id) {
             abort(403, 'この音声ファイルへのアクセス権がありません。');
         }
     }

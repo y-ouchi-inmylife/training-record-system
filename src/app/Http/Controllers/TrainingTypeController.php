@@ -15,7 +15,7 @@ class TrainingTypeController extends Controller
      */
     public function index()
     {
-        $types = TrainingType::withCount('counselingRecords')->orderBy('sort_order')->orderBy('id')->get();
+        $types = TrainingType::withCount('trainingRecords')->orderBy('sort_order')->orderBy('id')->get();
 
         return view('master.training-types.index', compact('types'));
     }
@@ -26,7 +26,7 @@ class TrainingTypeController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:50|unique:consultation_types,name',
+            'name' => 'required|string|max:50|unique:training_types,name',
         ], [
             'name.required' => 'トレーニング内容名は必須です。',
             'name.max' => 'トレーニング内容名は50文字以内で入力してください。',
@@ -49,7 +49,7 @@ class TrainingTypeController extends Controller
     public function update(Request $request, TrainingType $trainingType)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:50|unique:consultation_types,name,' . $trainingType->id,
+            'name' => 'required|string|max:50|unique:training_types,name,' . $trainingType->id,
         ], [
             'name.required' => 'トレーニング内容名は必須です。',
             'name.max' => 'トレーニング内容名は50文字以内で入力してください。',
@@ -68,7 +68,7 @@ class TrainingTypeController extends Controller
     public function destroy(TrainingType $trainingType)
     {
         // 使用中のトレーニング内容は削除不可
-        if ($trainingType->counselingRecords()->exists()) {
+        if ($trainingType->trainingRecords()->exists()) {
             return redirect()->route('master.training-types.index')
                 ->with('error', 'このトレーニング内容はトレーニング記録で使用されているため削除できません。');
         }

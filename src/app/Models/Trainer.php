@@ -13,8 +13,6 @@ class Trainer extends Authenticatable
 {
     use HasFactory;
 
-    protected $table = 'counselors';
-
     protected $fillable = [
         'name',
         'login_id',
@@ -105,23 +103,23 @@ class Trainer extends Authenticatable
      */
     public function primaryClients(): HasMany
     {
-        return $this->hasMany(Client::class, 'primary_counselor_id');
+        return $this->hasMany(Client::class, 'primary_trainer_id');
     }
 
     /**
      * 担当したトレーニング記録（担当1）
      */
-    public function counselingRecordsAsTrainer1(): HasMany
+    public function trainingRecordsAsTrainer1(): HasMany
     {
-        return $this->hasMany(TrainingRecord::class, 'counselor1_id');
+        return $this->hasMany(TrainingRecord::class, 'trainer1_id');
     }
 
     /**
      * 担当したトレーニング記録（担当2）
      */
-    public function counselingRecordsAsTrainer2(): HasMany
+    public function trainingRecordsAsTrainer2(): HasMany
     {
-        return $this->hasMany(TrainingRecord::class, 'counselor2_id');
+        return $this->hasMany(TrainingRecord::class, 'trainer2_id');
     }
 
     /**
@@ -129,6 +127,6 @@ class Trainer extends Authenticatable
      */
     public function audioRecords(): HasMany
     {
-        return $this->hasMany(AudioRecord::class, 'counselor_id');
+        return $this->hasMany(AudioRecord::class, 'trainer_id');
     }
 }

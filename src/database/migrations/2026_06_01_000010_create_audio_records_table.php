@@ -11,7 +11,7 @@ return new class extends Migration
     {
         Schema::create('audio_records', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('counselor_id');
+            $table->unsignedBigInteger('trainer_id');
             $table->unsignedBigInteger('client_id');
             $table->string('title', 255);
             $table->string('source', 20)->comment("データの作成経路: 'recording', 'upload', 'text_paste'");
@@ -27,17 +27,17 @@ return new class extends Migration
             $table->timestamps();
 
             // インデックス（SHOW CREATE TABLE の出現順）
-            $table->index('counselor_id', 'audio_records_counselor_idx');
+            $table->index('trainer_id', 'audio_records_trainer_idx');
             $table->index('status', 'audio_records_status_idx');
             $table->index('created_at', 'audio_records_created_at_idx');
             $table->index('client_id', 'audio_records_client_id_foreign');
 
-            // 外部キー（SHOW CREATE TABLE の出現順: client_id → counselor_id）
+            // 外部キー（SHOW CREATE TABLE の出現順: client_id → trainer_id）
             $table->foreign('client_id', 'audio_records_client_id_foreign')
                 ->references('id')->on('clients')
                 ->cascadeOnUpdate()->restrictOnDelete();
-            $table->foreign('counselor_id', 'audio_records_counselor_id_foreign')
-                ->references('id')->on('counselors')->cascadeOnDelete();
+            $table->foreign('trainer_id', 'audio_records_trainer_id_foreign')
+                ->references('id')->on('trainers')->cascadeOnDelete();
         });
 
         DB::statement("ALTER TABLE audio_records ADD CONSTRAINT audio_records_status_check CHECK (status IN ('unprocessed', 'transcribing', 'transcribed', 'summarizing', 'completed', 'error'))");

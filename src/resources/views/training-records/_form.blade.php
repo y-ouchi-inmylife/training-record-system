@@ -25,23 +25,23 @@
 
                 {{-- トレーニング日 --}}
                 <div class="col-md-3">
-                    <label for="consultation_date" class="form-label">トレーニング日 <span class="text-danger">*</span></label>
-                    <input type="text" name="consultation_date" id="consultation_date"
-                        class="form-control datepicker @error('consultation_date') is-invalid @enderror"
-                        value="{{ old('consultation_date', $record?->consultation_date?->format('Y-m-d') ?? date('Y-m-d')) }}"
+                    <label for="training_date" class="form-label">トレーニング日 <span class="text-danger">*</span></label>
+                    <input type="text" name="training_date" id="training_date"
+                        class="form-control datepicker @error('training_date') is-invalid @enderror"
+                        value="{{ old('training_date', $record?->training_date?->format('Y-m-d') ?? date('Y-m-d')) }}"
                         placeholder="例: 2026-04-01" pattern="\d{4}-\d{2}-\d{2}" maxlength="10" required>
-                    @error('consultation_date')
+                    @error('training_date')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
                 {{-- トレーニング時刻 --}}
                 <div class="col-md-3">
-                    <label for="consultation_time" class="form-label">トレーニング時刻</label>
-                    <input type="time" name="consultation_time" id="consultation_time"
-                        class="form-control @error('consultation_time') is-invalid @enderror"
-                        value="{{ old('consultation_time', $record?->consultation_time ? substr($record->consultation_time, 0, 5) : '') }}">
-                    @error('consultation_time')
+                    <label for="training_time" class="form-label">トレーニング時刻</label>
+                    <input type="time" name="training_time" id="training_time"
+                        class="form-control @error('training_time') is-invalid @enderror"
+                        value="{{ old('training_time', $record?->training_time ? substr($record->training_time, 0, 5) : '') }}">
+                    @error('training_time')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
@@ -49,34 +49,34 @@
 
                 {{-- 担当1 --}}
                 <div class="col-md-4">
-                    <label for="counselor1_id" class="form-label">担当1 <span class="text-danger">*</span></label>
-                    <select name="counselor1_id" id="counselor1_id" class="form-select @error('counselor1_id') is-invalid @enderror" required>
+                    <label for="trainer1_id" class="form-label">担当1 <span class="text-danger">*</span></label>
+                    <select name="trainer1_id" id="trainer1_id" class="form-select @error('trainer1_id') is-invalid @enderror" required>
                         <option value="">選択してください</option>
-                        @foreach($counselors as $counselor)
-                            <option value="{{ $counselor->id }}"
-                                {{ old('counselor1_id', $record?->counselor1_id ?? auth()->id()) == $counselor->id ? 'selected' : '' }}>
-                                {{ $counselor->name }}
+                        @foreach($trainers as $trainer)
+                            <option value="{{ $trainer->id }}"
+                                {{ old('trainer1_id', $record?->trainer1_id ?? auth()->id()) == $trainer->id ? 'selected' : '' }}>
+                                {{ $trainer->name }}
                             </option>
                         @endforeach
                     </select>
-                    @error('counselor1_id')
+                    @error('trainer1_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
                 {{-- 担当2 --}}
                 <div class="col-md-4">
-                    <label for="counselor2_id" class="form-label">担当2</label>
-                    <select name="counselor2_id" id="counselor2_id" class="form-select @error('counselor2_id') is-invalid @enderror">
+                    <label for="trainer2_id" class="form-label">担当2</label>
+                    <select name="trainer2_id" id="trainer2_id" class="form-select @error('trainer2_id') is-invalid @enderror">
                         <option value="">なし</option>
-                        @foreach($counselors as $counselor)
-                            <option value="{{ $counselor->id }}"
-                                {{ old('counselor2_id', $record?->counselor2_id) == $counselor->id ? 'selected' : '' }}>
-                                {{ $counselor->name }}
+                        @foreach($trainers as $trainer)
+                            <option value="{{ $trainer->id }}"
+                                {{ old('trainer2_id', $record?->trainer2_id) == $trainer->id ? 'selected' : '' }}>
+                                {{ $trainer->name }}
                             </option>
                         @endforeach
                     </select>
-                    @error('counselor2_id')
+                    @error('trainer2_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
@@ -95,29 +95,29 @@
             <div class="row g-3">
                 {{-- トレーニング内容 --}}
                 <div class="col-md-4">
-                    <label for="consultation_type_id" class="form-label">トレーニング内容</label>
-                    <select name="consultation_type_id" id="consultation_type_id" class="form-select @error('consultation_type_id') is-invalid @enderror">
+                    <label for="training_type_id" class="form-label">トレーニング内容</label>
+                    <select name="training_type_id" id="training_type_id" class="form-select @error('training_type_id') is-invalid @enderror">
                         <option value="">選択してください</option>
-                        @foreach($consultationTypes as $type)
+                        @foreach($trainingTypes as $type)
                             <option value="{{ $type->id }}"
-                                {{ old('consultation_type_id', $record?->consultation_type_id) == $type->id ? 'selected' : '' }}>
+                                {{ old('training_type_id', $record?->training_type_id) == $type->id ? 'selected' : '' }}>
                                 {{ $type->name }}
                             </option>
                         @endforeach
                     </select>
-                    @error('consultation_type_id')
+                    @error('training_type_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
                 {{-- トレーニング内容（詳細） --}}
                 <div class="col-md-8">
-                    <label for="consultation_detail" class="form-label">トレーニング内容（詳細）</label>
-                    <input type="text" name="consultation_detail" id="consultation_detail"
-                        class="form-control @error('consultation_detail') is-invalid @enderror"
-                        inputmode="text" value="{{ old('consultation_detail', $record?->consultation_detail) }}"
+                    <label for="training_detail" class="form-label">トレーニング内容（詳細）</label>
+                    <input type="text" name="training_detail" id="training_detail"
+                        class="form-control @error('training_detail') is-invalid @enderror"
+                        inputmode="text" value="{{ old('training_detail', $record?->training_detail) }}"
                         maxlength="255" placeholder="主旨">
-                    @error('consultation_detail')
+                    @error('training_detail')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
@@ -227,10 +227,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // 2. トレーニング日
-        checkRequired('consultation_date', 'トレーニング日を入力してください。');
+        checkRequired('training_date', 'トレーニング日を入力してください。');
 
         // 4. 担当1
-        checkRequired('counselor1_id', '担当1を選択してください。');
+        checkRequired('trainer1_id', '担当1を選択してください。');
 
         // 5. 参加状況
 
@@ -446,25 +446,25 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(function() { /* 要約取得失敗は無視 */ });
     }
 
-    // consultation_date がある場合、トレーニング日を設定
-    var consultationDate = params.get('consultation_date');
+    // training_date がある場合、トレーニング日を設定
+    var consultationDate = params.get('training_date');
     if (consultationDate) {
-        var dateInput = document.getElementById('consultation_date');
+        var dateInput = document.getElementById('training_date');
         if (dateInput) dateInput.value = consultationDate;
     }
 
-    // counselor1_id がある場合、担当1を設定
-    var counselor1Id = params.get('counselor1_id');
-    if (counselor1Id) {
-        var counselor1Select = document.getElementById('counselor1_id');
-        if (counselor1Select) counselor1Select.value = counselor1Id;
+    // trainer1_id がある場合、担当1を設定
+    var trainer1Id = params.get('trainer1_id');
+    if (trainer1Id) {
+        var trainer1Select = document.getElementById('trainer1_id');
+        if (trainer1Select) trainer1Select.value = trainer1Id;
     }
 
-    // counselor2_id がある場合、担当2を設定
-    var counselor2Id = params.get('counselor2_id');
-    if (counselor2Id) {
-        var counselor2Select = document.getElementById('counselor2_id');
-        if (counselor2Select) counselor2Select.value = counselor2Id;
+    // trainer2_id がある場合、担当2を設定
+    var trainer2Id = params.get('trainer2_id');
+    if (trainer2Id) {
+        var trainer2Select = document.getElementById('trainer2_id');
+        if (trainer2Select) trainer2Select.value = trainer2Id;
     }
 
 });

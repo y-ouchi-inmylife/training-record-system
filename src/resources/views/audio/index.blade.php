@@ -8,12 +8,12 @@
 
     {{-- 登録者フィルタ --}}
     <div class="d-flex align-items-center gap-2 mb-4">
-        <label for="counselor-filter" class="form-label mb-0 text-nowrap">登録者:</label>
-        <select id="counselor-filter" class="form-select" style="width: auto;">
+        <label for="trainer-filter" class="form-label mb-0 text-nowrap">登録者:</label>
+        <select id="trainer-filter" class="form-select" style="width: auto;">
             <option value="all" {{ $selectedTrainerId == 'all' ? 'selected' : '' }}>全員</option>
-            @foreach($counselors as $counselor)
-                <option value="{{ $counselor->id }}" {{ $selectedTrainerId == $counselor->id ? 'selected' : '' }}>
-                    {{ $counselor->name }}
+            @foreach($trainers as $trainer)
+                <option value="{{ $trainer->id }}" {{ $selectedTrainerId == $trainer->id ? 'selected' : '' }}>
+                    {{ $trainer->name }}
                 </option>
             @endforeach
         </select>
@@ -53,7 +53,7 @@
                                 {{-- タイトル --}}
                                 <td>{{ $audio->title ?? $audio->file_name }}</td>
                                 {{-- 担当トレーナー --}}
-                                <td>{{ $audio->counselor->name ?? '-' }}</td>
+                                <td>{{ $audio->trainer->name ?? '-' }}</td>
                                 {{-- 再生 --}}
                                 <td>
                                     @if($audio->file_path)
@@ -461,17 +461,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // トレーナーフィルタの変更時に画面遷移
-    const counselorFilter = document.getElementById('counselor-filter');
-    if (counselorFilter) {
-        counselorFilter.addEventListener('change', function() {
+    const trainerFilter = document.getElementById('trainer-filter');
+    if (trainerFilter) {
+        trainerFilter.addEventListener('change', function() {
             const value = this.value;
             const url = new URL(window.location.href);
             // ページをリセット
             url.searchParams.delete('page');
             if (value === 'all') {
-                url.searchParams.set('counselor_id', 'all');
+                url.searchParams.set('trainer_id', 'all');
             } else {
-                url.searchParams.set('counselor_id', value);
+                url.searchParams.set('trainer_id', value);
             }
             window.location.href = url.toString();
         });

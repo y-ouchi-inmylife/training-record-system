@@ -13,7 +13,7 @@ class LoginAttempt extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'counselor_id',
+        'trainer_id',
         'login_id_input',
         'ip_address',
         'attempted_at',
@@ -28,7 +28,7 @@ class LoginAttempt extends Model
         ];
     }
 
-    public function counselor(): BelongsTo
+    public function trainer(): BelongsTo
     {
         return $this->belongsTo(Trainer::class);
     }

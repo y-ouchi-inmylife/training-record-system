@@ -12,7 +12,7 @@ class TrainerSeeder extends Seeder
 {
     public function run(): void
     {
-        $counselors = [
+        $trainers = [
             [
                 'login_id' => 'system_admin',
                 'name' => 'システム管理者',
@@ -45,7 +45,7 @@ class TrainerSeeder extends Seeder
             ],
         ];
 
-        foreach ($counselors as $data) {
+        foreach ($trainers as $data) {
             Trainer::firstOrCreate(
                 ['login_id' => $data['login_id']],
                 $data

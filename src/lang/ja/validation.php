@@ -182,7 +182,7 @@ return [
         'first_name_kana' => [
             'regex' => 'めい（本人）はひらがなで入力してください。',
         ],
-        'counselor2_id' => [
+        'trainer2_id' => [
             'different' => '担当2は担当1と異なるトレーナーを選択してください。',
         ],
     ],
@@ -219,12 +219,12 @@ return [
         'name' => '氏名',
         'password' => 'パスワード',
         'role' => '権限',
-        'primary_counselor_id' => '主担当',
+        'primary_trainer_id' => '主担当',
         'support_status_id' => '支援状態',
-        'counselor1_id' => '担当1',
-        'counselor2_id' => '担当2',
-        'consultation_date' => 'トレーニング日',
-        'consultation_type_id' => 'トレーニング内容',
+        'trainer1_id' => '担当1',
+        'trainer2_id' => '担当2',
+        'training_date' => 'トレーニング日',
+        'training_type_id' => 'トレーニング内容',
         'phase_id' => 'フェーズ',
         'internal_id' => '内部ID',
     ],

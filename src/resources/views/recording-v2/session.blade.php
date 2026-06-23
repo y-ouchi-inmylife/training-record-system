@@ -226,14 +226,14 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="counselor1_select" class="form-label">担当1 <span class="text-danger">*</span></label>
-                            <select class="form-select" id="counselor1_select" required>
+                            <label for="trainer1_select" class="form-label">担当1 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="trainer1_select" required>
                                 <option value="">選択してください</option>
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="counselor2_select" class="form-label">担当2</label>
-                            <select class="form-select" id="counselor2_select">
+                            <label for="trainer2_select" class="form-label">担当2</label>
+                            <select class="form-select" id="trainer2_select">
                                 <option value="">なし</option>
                             </select>
                         </div>
@@ -336,7 +336,7 @@
         let dataArray = null;
         let animationId = null;
         let uploadedAudioRecordId = null;
-        let recordingStartTime = null; // 録音開始時刻（トレーニング記録の consultation_time 用）
+        let recordingStartTime = null; // 録音開始時刻（トレーニング記録の training_time 用）
 
         // Dateオブジェクトを「HH:MM」形式の文字列に変換（nullの場合は空文字）
         function formatTimeHHMM(date) {
@@ -662,19 +662,19 @@
             var response = await fetch('/api/trainers', {
                 headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
             });
-            var counselors = await response.json();
+            var trainers = await response.json();
 
             // 担当1（デフォルト: ログインユーザー）
-            var counselor1Options = counselors.map(function(c) {
+            var trainer1Options = trainers.map(function(c) {
                 return '<option value="' + c.id + '"' + (c.id === currentUserId ? ' selected' : '') + '>' + c.name + '</option>';
             }).join('');
-            document.getElementById('counselor1_select').innerHTML = '<option value="">選択してください</option>' + counselor1Options;
+            document.getElementById('trainer1_select').innerHTML = '<option value="">選択してください</option>' + trainer1Options;
 
             // 担当2（デフォルト: なし）
-            var counselor2Options = counselors.map(function(c) {
+            var trainer2Options = trainers.map(function(c) {
                 return '<option value="' + c.id + '">' + c.name + '</option>';
             }).join('');
-            document.getElementById('counselor2_select').innerHTML = '<option value="">なし</option>' + counselor2Options;
+            document.getElementById('trainer2_select').innerHTML = '<option value="">なし</option>' + trainer2Options;
         }
 
         async function showCreateRecordModal() {
@@ -700,15 +700,15 @@
             // 「作成する」→ 処理開始
             var btnSubmit = document.getElementById('btn-submit-create-record');
             var submitHandler = async function() {
-                var counselor1Id = document.getElementById('counselor1_select').value;
-                if (!counselor1Id) {
+                var trainer1Id = document.getElementById('trainer1_select').value;
+                if (!trainer1Id) {
                     alert('担当1を選択してください');
                     return;
                 }
 
-                var counselor2Id = document.getElementById('counselor2_select').value;
+                var trainer2Id = document.getElementById('trainer2_select').value;
                 // 担当1=担当2 は文字起こし（高コスト処理）の前に弾く（無駄な外部APIコストを防ぐ）
-                if (counselor2Id && counselor2Id === counselor1Id) {
+                if (trainer2Id && trainer2Id === trainer1Id) {
                     alert('担当2は担当1と異なるトレーナーを選択してください。');
                     return;
                 }
@@ -764,10 +764,10 @@
                         body: JSON.stringify({
                             audio_record_id: uploadedAudioRecordId,
                             client_id: clientId,
-                            consultation_date: currentDate,
-                            consultation_time: formatTimeHHMM(recordingStartTime) || null,
-                            counselor1_id: counselor1Id,
-                            counselor2_id: counselor2Id || null
+                            training_date: currentDate,
+                            training_time: formatTimeHHMM(recordingStartTime) || null,
+                            trainer1_id: trainer1Id,
+                            trainer2_id: trainer2Id || null
                         })
                     });
 
@@ -828,7 +828,7 @@
         const btnStartStop = document.getElementById('btn-start-recording');
         btnStartStop.addEventListener('click', function() {
             if (!isRecording) {
-                // 録音開始時刻を記録（トレーニング記録の consultation_time 用）
+                // 録音開始時刻を記録（トレーニング記録の training_time 用）
                 recordingStartTime = new Date();
 
                 // 録音開始

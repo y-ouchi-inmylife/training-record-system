@@ -32,7 +32,7 @@ class LockUnusedTrainers extends Command
 
             // 新規発行後に使われないままのアカウント対策のバッチ。
             // 一度もログインしていない（last_login_at が null の）アカウントのうち、作成日時が指定日数以上前のものを対象とする。
-            // ログイン履歴のあるアカウント（退職・休職者対策）は counselors:lock-inactive の領域のため対象外とする（No.200）。
+            // ログイン履歴のあるアカウント（退職・休職者対策）は trainers:lock-inactive の領域のため対象外とする（No.200）。
             $candidates = Trainer::where('is_active', true)
                 ->where('is_locked', false)
                 ->where('role', '!=', 'system_admin') // system_adminは自動ロック対象外
@@ -41,26 +41,26 @@ class LockUnusedTrainers extends Command
                 ->get();
 
             $count = 0;
-            foreach ($candidates as $counselor) {
+            foreach ($candidates as $trainer) {
                 // 最後の有効な管理者（admin）はロックしない（system_adminは別途除外済み）
-                if ($counselor->role === 'admin') {
+                if ($trainer->role === 'admin') {
                     $activeAdminCount = Trainer::where('role', 'admin')
                         ->where('is_active', true)
                         ->where('is_locked', false)
                         ->count();
 
                     if ($activeAdminCount <= 1) {
-                        $this->warn("有効な管理者が1人のため、{$counselor->name} をロックしませんでした。");
+                        $this->warn("有効な管理者が1人のため、{$trainer->name} をロックしませんでした。");
 
                         continue;
                     }
                 }
 
-                $counselor->update(['is_locked' => true]);
+                $trainer->update(['is_locked' => true]);
                 $count++;
 
-                $createdAt = $counselor->created_at?->format('Y-m-d') ?? '不明';
-                $this->info("  ロック: {$counselor->name}（作成日: {$createdAt}）");
+                $createdAt = $trainer->created_at?->format('Y-m-d') ?? '不明';
+                $this->info("  ロック: {$trainer->name}（作成日: {$createdAt}）");
             }
 
             $message = "{$count}件のトレーナーをロックしました。";

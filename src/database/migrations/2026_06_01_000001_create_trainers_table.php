@@ -9,7 +9,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('counselors', function (Blueprint $table) {
+        Schema::create('trainers', function (Blueprint $table) {
             $table->id();
             $table->string('name', 100)->comment('カウンセラーの氏名');
             $table->string('login_id', 50)->unique()->comment('ログインID');
@@ -23,15 +23,15 @@ return new class extends Migration
             $table->integer('display_order')->default(0);
             $table->timestamps();
 
-            $table->index('display_order', 'counselors_display_order_index');
+            $table->index('display_order', 'trainers_display_order_index');
         });
 
-        DB::statement("ALTER TABLE counselors ADD CONSTRAINT counselors_login_id_check CHECK (login_id REGEXP '^[a-zA-Z0-9_]+$')");
-        DB::statement("ALTER TABLE counselors ADD CONSTRAINT counselors_role_check CHECK (role IN ('system_admin', 'admin', 'staff'))");
+        DB::statement("ALTER TABLE trainers ADD CONSTRAINT trainers_login_id_check CHECK (login_id REGEXP '^[a-zA-Z0-9_]+$')");
+        DB::statement("ALTER TABLE trainers ADD CONSTRAINT trainers_role_check CHECK (role IN ('system_admin', 'admin', 'staff'))");
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('counselors');
+        Schema::dropIfExists('trainers');
     }
 };

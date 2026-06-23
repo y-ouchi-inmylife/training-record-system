@@ -20,11 +20,11 @@ class StatisticsController extends Controller
      */
     public function clients(Request $request)
     {
-        // staff は自分のデータのみ閲覧可。counselor_id を強制的に自身の ID に。
+        // staff は自分のデータのみ閲覧可。trainer_id を強制的に自身の ID に。
         if (auth()->user()->role === 'staff') {
-            $counselorId = (string) auth()->id();
+            $trainerId = (string) auth()->id();
         } else {
-            $counselorId = $request->get('counselor_id', 'all');
+            $trainerId = $request->get('trainer_id', 'all');
         }
         $viewType = $request->get('view_type', 'fiscal_year');
         $selectedPeriod = $request->get('period');
@@ -43,10 +43,10 @@ class StatisticsController extends Controller
         session(['statistics_view_type' => $viewType]);
 
         // トレーナー一覧取得（表示順）
-        $counselors = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
+        $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
 
         // 年度別/年別推移データ（降順）
-        $periodData = $this->getPeriodData($counselorId, $viewType);
+        $periodData = $this->getPeriodData($trainerId, $viewType);
 
         // 期間選択プルダウン用のデータ
         $availablePeriods = collect($periodData)->pluck('period');
@@ -57,11 +57,11 @@ class StatisticsController extends Controller
         }
 
         // 月別推移データ
-        $monthlyData = $this->getMonthlyData($counselorId, $viewType, $selectedPeriod);
+        $monthlyData = $this->getMonthlyData($trainerId, $viewType, $selectedPeriod);
 
         return view('statistics.clients', compact(
-            'counselors',
-            'counselorId',
+            'trainers',
+            'trainerId',
             'viewType',
             'periodData',
             'monthlyData',
@@ -73,18 +73,18 @@ class StatisticsController extends Controller
     /**
      * 年度別/年別推移データを取得（降順）
      */
-    private function getPeriodData(string $counselorId, string $viewType): array
+    private function getPeriodData(string $trainerId, string $viewType): array
     {
         $query = TrainingRecord::query();
 
-        $this->applyTrainerFilter($query, $counselorId);
+        $this->applyTrainerFilter($query, $trainerId);
 
         if ($viewType === 'fiscal_year') {
             // 年度別（4月〜翌3月）
-            $periodExpr = "CASE WHEN MONTH(consultation_date) >= 4 THEN YEAR(consultation_date) ELSE YEAR(consultation_date) - 1 END";
+            $periodExpr = "CASE WHEN MONTH(training_date) >= 4 THEN YEAR(training_date) ELSE YEAR(training_date) - 1 END";
         } else {
             // 年別（1月〜12月）
-            $periodExpr = "YEAR(consultation_date)";
+            $periodExpr = "YEAR(training_date)";
         }
 
         $basicData = $query->select(
@@ -100,7 +100,7 @@ class StatisticsController extends Controller
         // 各期間の性別・年代別内訳を取得
         $result = [];
         foreach ($basicData as $period => $data) {
-            $clientIds = $this->getClientIdsInPeriod($counselorId, $viewType, $period);
+            $clientIds = $this->getClientIdsInPeriod($trainerId, $viewType, $period);
             $breakdown = $this->calculateBreakdown($clientIds);
 
             $result[] = (object) array_merge([
@@ -116,28 +116,28 @@ class StatisticsController extends Controller
     /**
      * 月別推移データを取得（昇順）
      */
-    private function getMonthlyData(string $counselorId, string $viewType, ?int $selectedPeriod): array
+    private function getMonthlyData(string $trainerId, string $viewType, ?int $selectedPeriod): array
     {
         if (!$selectedPeriod) {
             return [];
         }
 
         $query = TrainingRecord::query();
-        $this->applyTrainerFilter($query, $counselorId);
+        $this->applyTrainerFilter($query, $trainerId);
 
         if ($viewType === 'fiscal_year') {
             $startDate = $selectedPeriod . '-04-01';
             $endDate = ($selectedPeriod + 1) . '-03-31';
 
-            $query->whereBetween('consultation_date', [$startDate, $endDate]);
+            $query->whereBetween('training_date', [$startDate, $endDate]);
 
             $data = $query->select(
-                    DB::raw('YEAR(consultation_date) as year'),
-                    DB::raw('MONTH(consultation_date) as month'),
+                    DB::raw('YEAR(training_date) as year'),
+                    DB::raw('MONTH(training_date) as month'),
                     DB::raw('COUNT(*) as total_records'),
                     DB::raw('COUNT(DISTINCT client_id) as unique_clients')
                 )
-                ->groupBy(DB::raw('YEAR(consultation_date)'), DB::raw('MONTH(consultation_date)'))
+                ->groupBy(DB::raw('YEAR(training_date)'), DB::raw('MONTH(training_date)'))
                 ->get()
                 ->keyBy(fn ($item) => $item->year . '-' . $item->month);
 
@@ -149,7 +149,7 @@ class StatisticsController extends Controller
                 $key = $year . '-' . $month;
 
                 $clientIds = isset($data[$key])
-                    ? $this->getClientIdsByMonth($counselorId, $year, $month)
+                    ? $this->getClientIdsByMonth($trainerId, $year, $month)
                     : [];
                 $breakdown = $this->calculateBreakdown($clientIds);
 
@@ -160,14 +160,14 @@ class StatisticsController extends Controller
                 ], $breakdown);
             }
         } else {
-            $query->whereYear('consultation_date', $selectedPeriod);
+            $query->whereYear('training_date', $selectedPeriod);
 
             $data = $query->select(
-                    DB::raw('MONTH(consultation_date) as month'),
+                    DB::raw('MONTH(training_date) as month'),
                     DB::raw('COUNT(*) as total_records'),
                     DB::raw('COUNT(DISTINCT client_id) as unique_clients')
                 )
-                ->groupBy(DB::raw('MONTH(consultation_date)'))
+                ->groupBy(DB::raw('MONTH(training_date)'))
                 ->get()
                 ->keyBy('month');
 
@@ -175,7 +175,7 @@ class StatisticsController extends Controller
             $result = [];
             for ($month = 1; $month <= 12; $month++) {
                 $clientIds = isset($data[$month])
-                    ? $this->getClientIdsByMonth($counselorId, $selectedPeriod, $month)
+                    ? $this->getClientIdsByMonth($trainerId, $selectedPeriod, $month)
                     : [];
                 $breakdown = $this->calculateBreakdown($clientIds);
 
@@ -193,12 +193,12 @@ class StatisticsController extends Controller
     /**
      * トレーナーフィルタを適用
      */
-    private function applyTrainerFilter($query, string $counselorId): void
+    private function applyTrainerFilter($query, string $trainerId): void
     {
-        if ($counselorId !== 'all') {
-            $query->where(function ($q) use ($counselorId) {
-                $q->where('counselor1_id', $counselorId)
-                  ->orWhere('counselor2_id', $counselorId);
+        if ($trainerId !== 'all') {
+            $query->where(function ($q) use ($trainerId) {
+                $q->where('trainer1_id', $trainerId)
+                  ->orWhere('trainer2_id', $trainerId);
             });
         }
     }
@@ -206,17 +206,17 @@ class StatisticsController extends Controller
     /**
      * 期間内のクライアントIDリストを取得
      */
-    private function getClientIdsInPeriod(string $counselorId, string $viewType, int $period): array
+    private function getClientIdsInPeriod(string $trainerId, string $viewType, int $period): array
     {
         $query = TrainingRecord::query();
-        $this->applyTrainerFilter($query, $counselorId);
+        $this->applyTrainerFilter($query, $trainerId);
 
         if ($viewType === 'fiscal_year') {
             $startDate = $period . '-04-01';
             $endDate = ($period + 1) . '-03-31';
-            $query->whereBetween('consultation_date', [$startDate, $endDate]);
+            $query->whereBetween('training_date', [$startDate, $endDate]);
         } else {
-            $query->whereYear('consultation_date', $period);
+            $query->whereYear('training_date', $period);
         }
 
         return $query->distinct()->pluck('client_id')->toArray();
@@ -225,13 +225,13 @@ class StatisticsController extends Controller
     /**
      * 特定月のクライアントIDリストを取得
      */
-    private function getClientIdsByMonth(string $counselorId, int $year, int $month): array
+    private function getClientIdsByMonth(string $trainerId, int $year, int $month): array
     {
         $query = TrainingRecord::query();
-        $this->applyTrainerFilter($query, $counselorId);
+        $this->applyTrainerFilter($query, $trainerId);
 
-        return $query->whereYear('consultation_date', $year)
-            ->whereMonth('consultation_date', $month)
+        return $query->whereYear('training_date', $year)
+            ->whereMonth('training_date', $month)
             ->distinct()
             ->pluck('client_id')
             ->toArray();
@@ -283,7 +283,7 @@ class StatisticsController extends Controller
     /**
      * 初回トレーニング時点の年齢を取得
      *
-     * 初回日: clients.initial_consultation_date（NULLの場合はMIN(counseling_records.consultation_date)）
+     * 初回日: clients.initial_consultation_date（NULLの場合はMIN(training_records.training_date)）
      * 年齢: 生年月日がある場合は計算、なければ集計対象外（null）
      */
     private function getAgeAtFirstConsultation(Client $client): ?int
@@ -294,11 +294,11 @@ class StatisticsController extends Controller
         if (!$firstConsultationDate) {
             // フォールバック: 最初のトレーニング記録の日付
             $firstRecord = TrainingRecord::where('client_id', $client->id)
-                ->orderBy('consultation_date')
+                ->orderBy('training_date')
                 ->first();
 
             if ($firstRecord) {
-                $firstConsultationDate = $firstRecord->consultation_date;
+                $firstConsultationDate = $firstRecord->training_date;
             }
         }
 

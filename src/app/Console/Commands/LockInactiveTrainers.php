@@ -41,26 +41,26 @@ class LockInactiveTrainers extends Command
                 ->get();
 
             $count = 0;
-            foreach ($candidates as $counselor) {
+            foreach ($candidates as $trainer) {
                 // 最後の有効な管理者（admin）はロックしない（system_adminは別途除外済み）
-                if ($counselor->role === 'admin') {
+                if ($trainer->role === 'admin') {
                     $activeAdminCount = Trainer::where('role', 'admin')
                         ->where('is_active', true)
                         ->where('is_locked', false)
                         ->count();
 
                     if ($activeAdminCount <= 1) {
-                        $this->warn("有効な管理者が1人のため、{$counselor->name} をロックしませんでした。");
+                        $this->warn("有効な管理者が1人のため、{$trainer->name} をロックしませんでした。");
 
                         continue;
                     }
                 }
 
-                $counselor->update(['is_locked' => true]);
+                $trainer->update(['is_locked' => true]);
                 $count++;
 
-                $lastLogin = $counselor->last_login_at?->format('Y-m-d') ?? '未ログイン';
-                $this->info("  ロック: {$counselor->name}（最終ログイン: {$lastLogin}）");
+                $lastLogin = $trainer->last_login_at?->format('Y-m-d') ?? '未ログイン';
+                $this->info("  ロック: {$trainer->name}（最終ログイン: {$lastLogin}）");
             }
 
             $message = "{$count}件のトレーナーをロックしました。";

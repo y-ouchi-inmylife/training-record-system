@@ -34,7 +34,7 @@ return new class extends Migration
             $table->string('address4', 100)->nullable()->comment('住所4（建物名・部屋番号）');
 
             // カテゴリー7: 支援管理
-            $table->unsignedBigInteger('primary_counselor_id')->nullable();
+            $table->unsignedBigInteger('primary_trainer_id')->nullable();
             $table->unsignedBigInteger('support_status_id')->nullable();
 
             $table->timestamps();
@@ -42,19 +42,19 @@ return new class extends Migration
 
             // インデックス（SHOW CREATE TABLE の出現順）
             $table->unique('internal_id', 'clients_internal_id_unique');
-            $table->index('primary_counselor_id', 'clients_primary_counselor_idx');
+            $table->index('primary_trainer_id', 'clients_primary_trainer_idx');
             $table->index('initial_consultation_date', 'clients_initial_date_idx');
             $table->index('created_at', 'clients_created_at_idx');
             $table->index('support_status_id', 'clients_support_status_idx');
             $table->index('updated_by', 'clients_updated_by_foreign');
 
             // 外部キー（作成順）
-            $table->foreign('primary_counselor_id', 'clients_primary_counselor_id_foreign')
-                ->references('id')->on('counselors')->nullOnDelete();
+            $table->foreign('primary_trainer_id', 'clients_primary_trainer_id_foreign')
+                ->references('id')->on('trainers')->nullOnDelete();
             $table->foreign('support_status_id', 'clients_support_status_id_foreign')
                 ->references('id')->on('support_statuses')->nullOnDelete();
             $table->foreign('updated_by', 'clients_updated_by_foreign')
-                ->references('id')->on('counselors')->nullOnDelete();
+                ->references('id')->on('trainers')->nullOnDelete();
         });
 
         // CHECK 制約（全角文字を含む文字列値は既存マイグレーションから正確にコピー）

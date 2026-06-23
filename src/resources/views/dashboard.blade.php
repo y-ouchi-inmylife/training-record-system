@@ -103,7 +103,7 @@
                 全{{ $myClientsTotal }}件
                 @if($myClientsTotal > 10)
                     中10件を表示 |
-                    <a href="{{ route('clients.index', ['primary_counselor_id' => Auth::id()]) }}">すべて表示</a>
+                    <a href="{{ route('clients.index', ['primary_trainer_id' => Auth::id()]) }}">すべて表示</a>
                 @endif
             </span>
         @endif
@@ -129,7 +129,7 @@
                 <tbody>
                     @foreach($myClients as $client)
                         @php
-                            $lastRecord = $client->counselingRecords->first();
+                            $lastRecord = $client->trainingRecords->first();
                         @endphp
                         <tr>
                             <td>
@@ -146,24 +146,24 @@
                                 <td><span class="text-muted small" style="opacity: 0.5;">未設定</span></td>
                             @endif
                             <td>
-                                @if($client->last_consultation_date && $lastRecord)
+                                @if($client->last_training_date && $lastRecord)
                                     <a href="{{ route('training-records.show', $lastRecord->id) }}" class="text-decoration-none">
-                                        {{ \Carbon\Carbon::parse($client->last_consultation_date)->format('Y年m月d日') }}
+                                        {{ \Carbon\Carbon::parse($client->last_training_date)->format('Y年m月d日') }}
                                     </a>
                                 @else
                                     <span class="text-muted">トレーニング記録なし</span>
                                 @endif
                             </td>
                             <td>
-                                @if($lastRecord && $lastRecord->counselor1)
-                                    {{ $lastRecord->counselor1->name }}
+                                @if($lastRecord && $lastRecord->trainer1)
+                                    {{ $lastRecord->trainer1->name }}
                                 @else
                                     <span class="text-muted">—</span>
                                 @endif
                             </td>
                             <td>
-                                @if($lastRecord && $lastRecord->counselor2)
-                                    {{ $lastRecord->counselor2->name }}
+                                @if($lastRecord && $lastRecord->trainer2)
+                                    {{ $lastRecord->trainer2->name }}
                                 @else
                                     <span class="text-muted">—</span>
                                 @endif

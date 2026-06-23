@@ -20,7 +20,7 @@ class ProfileController extends Controller
     public function edit(): View
     {
         return view('profile.edit', [
-            'counselor' => Auth::user(),
+            'trainer' => Auth::user(),
         ]);
     }
 

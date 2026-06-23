@@ -20,7 +20,7 @@ return new class extends Migration
             $table->index('last_activity', 'sessions_last_activity_index');
 
             $table->foreign('user_id', 'sessions_user_id_foreign')
-                ->references('id')->on('counselors')->cascadeOnDelete();
+                ->references('id')->on('trainers')->cascadeOnDelete();
         });
     }
 

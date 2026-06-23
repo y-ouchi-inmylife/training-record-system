@@ -47,12 +47,12 @@
             <form method="GET" action="{{ route('statistics.clients') }}" class="row g-3 align-items-end">
                 @if(auth()->user()->isAdmin())
                 <div class="col-auto">
-                    <label for="counselor_id" class="form-label">トレーナー</label>
-                    <select class="form-select" id="counselor_id" name="counselor_id" onchange="this.form.submit()">
-                        <option value="all" {{ $counselorId === 'all' ? 'selected' : '' }}>すべて</option>
-                        @foreach($counselors as $counselor)
-                            <option value="{{ $counselor->id }}" {{ (string)$counselorId === (string)$counselor->id ? 'selected' : '' }}>
-                                {{ $counselor->name }}
+                    <label for="trainer_id" class="form-label">トレーナー</label>
+                    <select class="form-select" id="trainer_id" name="trainer_id" onchange="this.form.submit()">
+                        <option value="all" {{ $trainerId === 'all' ? 'selected' : '' }}>すべて</option>
+                        @foreach($trainers as $trainer)
+                            <option value="{{ $trainer->id }}" {{ (string)$trainerId === (string)$trainer->id ? 'selected' : '' }}>
+                                {{ $trainer->name }}
                             </option>
                         @endforeach
                     </select>
@@ -162,7 +162,7 @@
         <h5 class="mb-0">月別推移</h5>
         @if($availablePeriods->isNotEmpty())
         <form method="GET" action="{{ route('statistics.clients') }}" class="d-inline-flex align-items-center">
-            <input type="hidden" name="counselor_id" value="{{ $counselorId }}">
+            <input type="hidden" name="trainer_id" value="{{ $trainerId }}">
             <input type="hidden" name="view_type" value="{{ $viewType }}">
             <label for="period_select" class="form-label mb-0 me-2 text-nowrap">
                 {{ $viewType === 'fiscal_year' ? '年度選択' : '年選択' }}:

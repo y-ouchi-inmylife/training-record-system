@@ -22,12 +22,12 @@ class TrainerController extends Controller
      */
     public function apiList(): JsonResponse
     {
-        $counselors = Trainer::practitioners()
+        $trainers = Trainer::practitioners()
             ->orderBy('display_order')
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        return response()->json($counselors);
+        return response()->json($trainers);
     }
 
     /**
@@ -35,16 +35,16 @@ class TrainerController extends Controller
      */
     public function index(): View
     {
-        $counselors = Trainer::where('role', '!=', 'system_admin')
+        $trainers = Trainer::where('role', '!=', 'system_admin')
             ->withCount([
                 'primaryClients',
-                'counselingRecordsAsTrainer1',
-                'counselingRecordsAsTrainer2',
+                'trainingRecordsAsTrainer1',
+                'trainingRecordsAsTrainer2',
             ])->orderBy('display_order')->orderBy('name')->get();
 
-        $adminCount = $counselors->where('role', 'admin')->count();
+        $adminCount = $trainers->where('role', 'admin')->count();
 
-        return view('trainers.index', compact('counselors', 'adminCount'));
+        return view('trainers.index', compact('trainers', 'adminCount'));
     }
 
     /**
@@ -61,7 +61,7 @@ class TrainerController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'login_id' => 'required|string|max:50|regex:/^[a-zA-Z0-9_]+$/|unique:counselors,login_id',
+            'login_id' => 'required|string|max:50|regex:/^[a-zA-Z0-9_]+$/|unique:trainers,login_id',
             'name' => 'required|string|max:100',
             'password' => ['required', 'string', 'confirmed', new StrongPassword()],
             'role' => 'required|in:admin,staff',
@@ -159,15 +159,15 @@ class TrainerController extends Controller
         }
 
         // クライアントの主担当トレーナーになっているかチェック
-        $primaryClientsCount = Client::where('primary_counselor_id', $trainer->id)->count();
+        $primaryClientsCount = Client::where('primary_trainer_id', $trainer->id)->count();
         if ($primaryClientsCount > 0) {
             return redirect()->route('trainers.index')
                 ->with('error', "{$trainer->name} は {$primaryClientsCount} 件のクライアントの主担当トレーナーです。先に主担当を変更してから削除してください。");
         }
 
         // トレーニング記録の担当者になっているかチェック（担当者1・担当者2）
-        $recordsCount = TrainingRecord::where('counselor1_id', $trainer->id)
-            ->orWhere('counselor2_id', $trainer->id)
+        $recordsCount = TrainingRecord::where('trainer1_id', $trainer->id)
+            ->orWhere('trainer2_id', $trainer->id)
             ->count();
         if ($recordsCount > 0) {
             return redirect()->route('trainers.index')
@@ -193,7 +193,7 @@ class TrainerController extends Controller
         $trainer->update(['is_locked' => false]);
 
         // 失敗履歴をクリア
-        LoginAttempt::where('counselor_id', $trainer->id)
+        LoginAttempt::where('trainer_id', $trainer->id)
             ->where('success', false)
             ->delete();
 
@@ -309,22 +309,22 @@ class TrainerController extends Controller
     private function swapAdjacent(Trainer $trainer, int $offset): RedirectResponse
     {
         // indexと同じソート順で全トレーナーを取得（一覧上の位置を特定するため）
-        $counselors = Trainer::where('role', '!=', 'system_admin')
+        $trainers = Trainer::where('role', '!=', 'system_admin')
             ->orderBy('display_order')
             ->orderBy('name')
             ->get()
             ->values();
 
-        $index = $counselors->search(fn ($c) => $c->id === $trainer->id);
+        $index = $trainers->search(fn ($c) => $c->id === $trainer->id);
         $targetIndex = $index + $offset;
 
         // 対象が見つからない、もしくは移動先が範囲外なら何もしない
-        if ($index === false || $targetIndex < 0 || $targetIndex >= $counselors->count()) {
+        if ($index === false || $targetIndex < 0 || $targetIndex >= $trainers->count()) {
             return redirect()->route('trainers.index');
         }
 
         // 一覧上で位置を入れ替え
-        $reordered = $counselors->all();
+        $reordered = $trainers->all();
         [$reordered[$index], $reordered[$targetIndex]] = [$reordered[$targetIndex], $reordered[$index]];
 
         // display_orderを 1, 2, 3... と振り直し（重複や歯抜けを解消）

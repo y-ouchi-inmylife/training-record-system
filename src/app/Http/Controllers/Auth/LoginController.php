@@ -40,11 +40,11 @@ class LoginController extends Controller
         $ipAddress = $request->ip();
 
         // トレーナーを検索
-        $counselor = Trainer::where('login_id', $userId)->first();
+        $trainer = Trainer::where('login_id', $userId)->first();
 
         // アカウント無効化チェック
-        if ($counselor && !$counselor->is_active) {
-            $this->recordLoginAttempt($counselor->id, $userId, $ipAddress, false);
+        if ($trainer && !$trainer->is_active) {
+            $this->recordLoginAttempt($trainer->id, $userId, $ipAddress, false);
 
             return back()
                 ->withInput($request->only('login_id'))
@@ -52,8 +52,8 @@ class LoginController extends Controller
         }
 
         // アカウントロック中かチェック
-        if ($counselor && $counselor->is_locked) {
-            $this->recordLoginAttempt($counselor->id, $userId, $ipAddress, false);
+        if ($trainer && $trainer->is_locked) {
+            $this->recordLoginAttempt($trainer->id, $userId, $ipAddress, false);
 
             return back()
                 ->withInput($request->only('login_id'))
@@ -61,36 +61,36 @@ class LoginController extends Controller
         }
 
         // 認証チェック
-        if ($counselor && Hash::check($password, $counselor->password)) {
+        if ($trainer && Hash::check($password, $trainer->password)) {
             // ログイン成功
-            $this->recordLoginAttempt($counselor->id, $userId, $ipAddress, true);
+            $this->recordLoginAttempt($trainer->id, $userId, $ipAddress, true);
 
             // 最終ログイン日時を記録
-            $counselor->update(['last_login_at' => now()]);
+            $trainer->update(['last_login_at' => now()]);
 
             // トレーナー操作履歴に記録
             AccessLog::create([
-                'counselor_id' => $counselor->id,
+                'trainer_id' => $trainer->id,
                 'action' => 'login',
                 'ip_address' => $ipAddress,
                 'user_agent' => substr($request->userAgent() ?? '', 0, 500),
             ]);
 
-            Auth::login($counselor);
+            Auth::login($trainer);
             $request->session()->regenerate();
 
             // システム管理者は音声ファイル一覧（S-0701）、それ以外はダッシュボード（S-0101）へ
-            $home = $counselor->isSystemAdmin() ? '/usage-stats' : '/dashboard';
+            $home = $trainer->isSystemAdmin() ? '/usage-stats' : '/dashboard';
 
             return redirect()->intended($home);
         }
 
         // ログイン失敗
-        $this->recordLoginAttempt($counselor?->id, $userId, $ipAddress, false);
+        $this->recordLoginAttempt($trainer?->id, $userId, $ipAddress, false);
 
         // 連続失敗回数を確認してロック
-        if ($counselor) {
-            $this->checkAndLockAccount($counselor);
+        if ($trainer) {
+            $this->checkAndLockAccount($trainer);
         }
 
         return back()
@@ -102,13 +102,13 @@ class LoginController extends Controller
      * ログイン試行を記録
      */
     private function recordLoginAttempt(
-        ?int $counselorId,
+        ?int $trainerId,
         string $loginIdInput,
         ?string $ipAddress,
         bool $success,
     ): void {
         LoginAttempt::create([
-            'counselor_id' => $counselorId,
+            'trainer_id' => $trainerId,
             'login_id_input' => $loginIdInput,
             'ip_address' => $ipAddress,
             'attempted_at' => now(),
@@ -119,15 +119,15 @@ class LoginController extends Controller
     /**
      * 連続失敗回数を確認し、上限に達したらアカウントをロック
      */
-    private function checkAndLockAccount(Trainer $counselor): void
+    private function checkAndLockAccount(Trainer $trainer): void
     {
         // 直近の連続失敗回数を取得（最後の成功以降の失敗数）
-        $lastSuccess = LoginAttempt::where('counselor_id', $counselor->id)
+        $lastSuccess = LoginAttempt::where('trainer_id', $trainer->id)
             ->where('success', true)
             ->orderByDesc('attempted_at')
             ->value('attempted_at');
 
-        $query = LoginAttempt::where('counselor_id', $counselor->id)
+        $query = LoginAttempt::where('trainer_id', $trainer->id)
             ->where('success', false);
 
         if ($lastSuccess) {
@@ -137,7 +137,7 @@ class LoginController extends Controller
         $failCount = $query->count();
 
         if ($failCount >= self::MAX_ATTEMPTS) {
-            $counselor->update(['is_locked' => true]);
+            $trainer->update(['is_locked' => true]);
         }
     }
 }

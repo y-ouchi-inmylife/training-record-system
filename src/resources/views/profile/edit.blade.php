@@ -20,7 +20,7 @@
                 <div class="mb-3">
                     <label for="login_id" class="form-label">ログインID</label>
                     <input type="text" id="login_id" class="form-control"
-                           value="{{ $counselor->login_id }}" disabled
+                           value="{{ $trainer->login_id }}" disabled
                            style="max-width: 700px;">
                 </div>
 
@@ -29,7 +29,7 @@
                     <input type="text" name="name" id="name"
                            class="form-control @error('name') is-invalid @enderror"
                            inputmode="text"
-                           value="{{ old('name', $counselor->name) }}" maxlength="100" required
+                           value="{{ old('name', $trainer->name) }}" maxlength="100" required
                            style="max-width: 700px;">
                     @error('name')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -39,7 +39,7 @@
                 <div class="mb-3">
                     <label for="role" class="form-label">権限</label>
                     <input type="text" id="role" class="form-control"
-                           value="{{ $counselor->role_display_name }}" disabled
+                           value="{{ $trainer->role_display_name }}" disabled
                            style="max-width: 700px;">
                 </div>
             </form>

@@ -41,7 +41,7 @@ class AudioRecord extends Model
     const MAX_FILE_SIZE = 500 * 1024 * 1024;
 
     protected $fillable = [
-        'counselor_id',
+        'trainer_id',
         'client_id',
         'title',
         'source',
@@ -71,9 +71,9 @@ class AudioRecord extends Model
     /**
      * アップロード・録音したトレーナー
      */
-    public function counselor(): BelongsTo
+    public function trainer(): BelongsTo
     {
-        return $this->belongsTo(Trainer::class, 'counselor_id');
+        return $this->belongsTo(Trainer::class, 'trainer_id');
     }
 
     /**

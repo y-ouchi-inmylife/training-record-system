@@ -30,7 +30,7 @@ class UsageStatsController extends Controller
 
         // 音声ファイル一覧（新しい順、10件/ページ）
         $audioRecords = $baseQuery
-            ->with('counselor')
+            ->with('trainer')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 

@@ -22,7 +22,7 @@ class Phase extends Model
         ];
     }
 
-    public function counselingRecords(): HasMany
+    public function trainingRecords(): HasMany
     {
         return $this->hasMany(TrainingRecord::class);
     }

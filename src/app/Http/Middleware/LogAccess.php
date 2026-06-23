@@ -62,7 +62,7 @@ class LogAccess
         }
 
         AccessLog::create([
-            'counselor_id' => auth()->id(),
+            'trainer_id' => auth()->id(),
             'action' => $action,
             'target_type' => $targetType,
             'target_id' => $targetId,

@@ -54,12 +54,12 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label for="primary_counselor_id" class="form-label">主担当</label>
-                        <select class="form-select" id="primary_counselor_id" name="primary_counselor_id">
+                        <label for="primary_trainer_id" class="form-label">主担当</label>
+                        <select class="form-select" id="primary_trainer_id" name="primary_trainer_id">
                             <option value="">すべて</option>
-                            @foreach($counselors as $counselor)
-                                <option value="{{ $counselor->id }}" {{ request('primary_counselor_id') == $counselor->id ? 'selected' : '' }}>
-                                    {{ $counselor->name }}
+                            @foreach($trainers as $trainer)
+                                <option value="{{ $trainer->id }}" {{ request('primary_trainer_id') == $trainer->id ? 'selected' : '' }}>
+                                    {{ $trainer->name }}
                                 </option>
                             @endforeach
                         </select>
@@ -133,7 +133,7 @@
                         @else
                             <td><span class="text-muted small" style="opacity: 0.5;">未設定</span></td>
                         @endif
-                        <td>{{ $client->last_consultation_date ? \Carbon\Carbon::parse($client->last_consultation_date)->format('Y/m/d') : '' }}</td>
+                        <td>{{ $client->last_training_date ? \Carbon\Carbon::parse($client->last_training_date)->format('Y/m/d') : '' }}</td>
                         <td>{{ $client->latest_phase_id ? ($phases[$client->latest_phase_id] ?? '') : '' }}</td>
                     </tr>
                 @empty

@@ -16,11 +16,11 @@
                 <div class="row g-3">
                     <div class="col-md-3">
                         <label class="form-label">トレーナー</label>
-                        <select name="counselor_id" class="form-select">
+                        <select name="trainer_id" class="form-select">
                             <option value="">すべて</option>
-                            @foreach($counselors as $counselor)
-                                <option value="{{ $counselor->id }}" {{ request('counselor_id') == $counselor->id ? 'selected' : '' }}>
-                                    {{ $counselor->name }}
+                            @foreach($trainers as $trainer)
+                                <option value="{{ $trainer->id }}" {{ request('trainer_id') == $trainer->id ? 'selected' : '' }}>
+                                    {{ $trainer->name }}
                                 </option>
                             @endforeach
                         </select>
@@ -70,7 +70,7 @@
                     @forelse($logs as $log)
                         <tr>
                             <td>{{ $log->created_at->format('Y/m/d H:i:s') }}</td>
-                            <td>{{ $log->counselor?->name ?? '—' }}</td>
+                            <td>{{ $log->trainer?->name ?? '—' }}</td>
                             <td>{{ $log->action_label }}</td>
                             <td>
                                 @if($log->target_type && $log->target_id)

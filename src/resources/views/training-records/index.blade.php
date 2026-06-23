@@ -45,11 +45,11 @@
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">担当1、担当2</label>
-                        <select name="counselor_id" class="form-select">
+                        <select name="trainer_id" class="form-select">
                             <option value="">すべて</option>
-                            @foreach($counselors as $counselor)
-                                <option value="{{ $counselor->id }}" {{ request('counselor_id') == $counselor->id ? 'selected' : '' }}>
-                                    {{ $counselor->name }}
+                            @foreach($trainers as $trainer)
+                                <option value="{{ $trainer->id }}" {{ request('trainer_id') == $trainer->id ? 'selected' : '' }}>
+                                    {{ $trainer->name }}
                                 </option>
                             @endforeach
                         </select>
@@ -95,9 +95,9 @@
                         </a>
                     </th>
                     <th>
-                        <a href="{{ route('training-records.index', array_merge(request()->query(), ['sort' => 'consultation_date', 'direction' => request('sort') === 'consultation_date' && request('direction', 'desc') === 'desc' ? 'asc' : 'desc'])) }}" class="text-decoration-none text-dark">
+                        <a href="{{ route('training-records.index', array_merge(request()->query(), ['sort' => 'training_date', 'direction' => request('sort') === 'training_date' && request('direction', 'desc') === 'desc' ? 'asc' : 'desc'])) }}" class="text-decoration-none text-dark">
                             トレーニング日
-                            @if(request('sort', 'consultation_date') === 'consultation_date')
+                            @if(request('sort', 'training_date') === 'training_date')
                                 {{ request('direction', 'desc') === 'desc' ? '▼' : '▲' }}
                             @endif
                         </a>
@@ -113,10 +113,10 @@
                     <tr class="position-relative" style="cursor: pointer;">
                         <td><a href="{{ route('training-records.show', $record) }}" class="stretched-link text-decoration-none text-reset">{{ $record->client->internal_id ?? '—' }}</a></td>
                         <td>{{ $record->client->display_name ?? '—' }}</td>
-                        <td>{{ $record->consultation_date->format('Y/m/d') }}</td>
-                        <td>{{ $record->counselor1->name ?? '—' }}</td>
-                        <td>{{ $record->counselor2->name ?? '—' }}</td>
-                        <td>{{ $record->consultationType->name ?? '—' }}</td>
+                        <td>{{ $record->training_date->format('Y/m/d') }}</td>
+                        <td>{{ $record->trainer1->name ?? '—' }}</td>
+                        <td>{{ $record->trainer2->name ?? '—' }}</td>
+                        <td>{{ $record->trainingType->name ?? '—' }}</td>
                         <td>{{ $record->phase->name ?? '—' }}</td>
                     </tr>
                 @empty

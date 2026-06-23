@@ -18,7 +18,7 @@ class LogoutController extends Controller
         // トレーナー操作履歴に記録
         try {
             AccessLog::create([
-                'counselor_id' => auth()->id(),
+                'trainer_id' => auth()->id(),
                 'action' => 'logout',
                 'ip_address' => $request->ip(),
                 'user_agent' => substr($request->userAgent() ?? '', 0, 500),

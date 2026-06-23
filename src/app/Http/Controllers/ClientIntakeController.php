@@ -92,7 +92,7 @@ class ClientIntakeController extends Controller
 
             $client = Client::create(array_merge($validated, [
                 'internal_id' => $newInternalId,
-                'primary_counselor_id' => null,
+                'primary_trainer_id' => null,
                 'support_status_id' => null,
             ]));
 

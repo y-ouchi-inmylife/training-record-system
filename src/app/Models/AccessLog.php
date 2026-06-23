@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class AccessLog extends Model
 {
     protected $fillable = [
-        'counselor_id',
+        'trainer_id',
         'action',
         'target_type',
         'target_id',
@@ -76,7 +76,7 @@ class AccessLog extends Model
             : null;
     }
 
-    public function counselor(): BelongsTo
+    public function trainer(): BelongsTo
     {
         return $this->belongsTo(Trainer::class);
     }
