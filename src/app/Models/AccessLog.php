@@ -34,10 +34,10 @@ class AccessLog extends Model
             'edit_client' => 'クライアント編集',
             'create_client' => 'クライアント登録',
             'delete_client' => 'クライアント削除',
-            'view_counseling_record' => 'トレーニング記録詳細',
-            'edit_counseling_record' => 'トレーニング記録編集',
-            'create_counseling_record' => 'トレーニング記録登録',
-            'delete_counseling_record' => 'トレーニング記録削除',
+            'view_training_record' => 'トレーニング記録詳細',
+            'edit_training_record' => 'トレーニング記録編集',
+            'create_training_record' => 'トレーニング記録登録',
+            'delete_training_record' => 'トレーニング記録削除',
         ];
     }
 
@@ -51,7 +51,7 @@ class AccessLog extends Model
     {
         return [
             'Client' => 'クライアント',
-            'CounselingRecord' => 'トレーニング記録',
+            'TrainingRecord' => 'トレーニング記録',
         ];
     }
 

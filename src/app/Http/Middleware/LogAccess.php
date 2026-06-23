@@ -18,10 +18,10 @@ class LogAccess
         'clients.store' => 'create_client',
         'clients.update' => 'edit_client',
         'clients.destroy' => 'delete_client',
-        'training-records.show' => 'view_counseling_record',
-        'training-records.store' => 'create_counseling_record',
-        'training-records.update' => 'edit_counseling_record',
-        'training-records.destroy' => 'delete_counseling_record',
+        'training-records.show' => 'view_training_record',
+        'training-records.store' => 'create_training_record',
+        'training-records.update' => 'edit_training_record',
+        'training-records.destroy' => 'delete_training_record',
     ];
 
     public function handle(Request $request, Closure $next): Response
@@ -51,12 +51,12 @@ class LogAccess
         $targetType = null;
         $targetId = null;
 
-        if (str_contains($action, 'client') && !str_contains($action, 'counseling')) {
+        if (str_contains($action, 'client')) {
             $targetType = 'Client';
             $param = $request->route('client');
             $targetId = is_object($param) ? $param->id : $param;
-        } elseif (str_contains($action, 'counseling_record')) {
-            $targetType = 'CounselingRecord';
+        } elseif (str_contains($action, 'training_record')) {
+            $targetType = 'TrainingRecord';
             $param = $request->route('training_record') ?? $request->route('trainingRecord');
             $targetId = is_object($param) ? $param->id : $param;
         }
