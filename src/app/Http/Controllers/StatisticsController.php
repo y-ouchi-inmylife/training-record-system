@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 /**
- * 統計・集計コントローラー
+ * レポートコントローラー
  *
  * トレーニング記録数推移画面（S-1101）の表示を担当する。
  */
