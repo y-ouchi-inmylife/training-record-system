@@ -90,9 +90,11 @@ Route::middleware('auth')->group(function () {
         Route::delete('client-intake-tokens/{id}', [ClientIntakeTokenController::class, 'destroy'])->name('client-intake-tokens.destroy');
 
         // メディア管理（全トレーナーがアクセス可能）
-        // 今回は S-1301 登録画面と S-1302 一覧画面のみ。更新・削除・再生・詳細モーダルは次フェーズ。
+        // 一覧・登録・詳細モーダル経由の更新/削除。再生(play)は api.php 側。
         Route::get('media-records', [MediaRecordController::class, 'index'])->name('media-records.index');
         Route::get('media-records/create', [MediaRecordController::class, 'create'])->name('media-records.create');
+        Route::put('media-records/{mediaRecord}', [MediaRecordController::class, 'update'])->name('media-records.update');
+        Route::delete('media-records/{mediaRecord}', [MediaRecordController::class, 'destroy'])->name('media-records.destroy');
 
         // 音声管理（全トレーナーがアクセス可能）
         Route::get('audio-records', [AudioRecordController::class, 'index'])->name('audio-records.index');

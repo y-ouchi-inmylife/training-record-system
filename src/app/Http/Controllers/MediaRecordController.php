@@ -78,6 +78,9 @@ class MediaRecordController extends Controller
                 'type' => $m->type,
                 'mime_type' => $m->mime_type,
                 'display_title' => $m->display_title,
+                // 編集フォーム用に「raw な title（NULL あり得る）」と「client_id」を別途持つ
+                'title_raw' => $m->title,
+                'client_id' => $m->client_id,
                 'original_filename' => $m->original_filename,
                 'created_at' => $m->created_at->format('Y/m/d H:i'),
                 'client_name' => $m->client
@@ -211,6 +214,48 @@ class MediaRecordController extends Controller
         ]);
 
         return response()->json(['data' => $mediaRecord], 201);
+    }
+
+    /**
+     * メディア更新（PUT /media-records/{id}）
+     *
+     * 表示名（title）と持ち主クライアント（client_id）のみ変更可能。
+     * 種別・ファイル・元ファイル名・mime_type は変更しない（ファイル差し替えは別フロー）。
+     */
+    public function update(Request $request, MediaRecord $mediaRecord): JsonResponse
+    {
+        $validated = $request->validate([
+            'client_id' => 'required|exists:clients,id',
+            'title' => 'nullable|string|max:255',
+        ], [
+            'client_id.required' => 'クライアントを選択してください。',
+            'client_id.exists' => '選択されたクライアントが存在しません。',
+            'title.max' => '表示名は255文字以内で入力してください。',
+        ]);
+
+        $mediaRecord->update([
+            'client_id' => $validated['client_id'],
+            'title' => $validated['title'] ?? null,
+        ]);
+
+        return response()->json(['data' => $mediaRecord->fresh()]);
+    }
+
+    /**
+     * メディア削除（DELETE /media-records/{id}）
+     *
+     * ファイル先削除 → 成功してからレコード削除（既存音声と同型）。
+     * sakura ディスクは config で throw=>true のため、ファイル削除失敗は例外で500に。
+     * その場合レコードは残り「DB ↔ ストレージ整合」の不変条件を保つ。
+     */
+    public function destroy(MediaRecord $mediaRecord): JsonResponse
+    {
+        if (Storage::disk(self::STORAGE_DISK)->exists($mediaRecord->file_path)) {
+            Storage::disk(self::STORAGE_DISK)->delete($mediaRecord->file_path);
+        }
+        $mediaRecord->delete();
+
+        return response()->json(['success' => true]);
     }
 
     /**

@@ -63,19 +63,25 @@
                 {{-- メディア表示エリア（JSで img / video / 非対応メッセージを差し込む） --}}
                 <div id="mediaDisplayArea" class="text-center mb-3" style="min-height: 200px;"></div>
 
-                {{-- メタ情報 --}}
+                {{-- メタ情報（表示のみ / 編集可能の混在）--}}
                 <dl class="row mb-0 small">
                     <dt class="col-sm-3">登録日時</dt>
                     <dd class="col-sm-9" id="mediaMetaCreatedAt"></dd>
 
-                    <dt class="col-sm-3">クライアント</dt>
-                    <dd class="col-sm-9" id="mediaMetaClient"></dd>
+                    <dt class="col-sm-3">クライアント <span class="text-danger">*</span></dt>
+                    <dd class="col-sm-9">
+                        <select id="mediaEditClientId" class="form-select form-select-sm select2-client-modal" style="width: 100%;">
+                            <option value="">クライアントを検索...</option>
+                        </select>
+                    </dd>
 
                     <dt class="col-sm-3">種別</dt>
                     <dd class="col-sm-9" id="mediaMetaType"></dd>
 
                     <dt class="col-sm-3">表示名</dt>
-                    <dd class="col-sm-9" id="mediaMetaTitle"></dd>
+                    <dd class="col-sm-9">
+                        <input type="text" id="mediaEditTitle" class="form-control form-control-sm" maxlength="255" placeholder="未入力時は元ファイル名を表示">
+                    </dd>
 
                     <dt class="col-sm-3">元ファイル名</dt>
                     <dd class="col-sm-9" id="mediaMetaOriginalFilename"></dd>
@@ -85,9 +91,8 @@
                 </dl>
             </div>
             <div class="modal-footer">
-                {{-- 更新・削除は次フェーズ。設計レイアウト保持のため disabled で配置 --}}
-                <button type="button" class="btn btn-success" disabled title="次フェーズで実装">更新</button>
-                <button type="button" class="btn btn-danger" disabled title="次フェーズで実装">削除</button>
+                <button type="button" class="btn btn-success" id="mediaUpdateBtn">更新</button>
+                <button type="button" class="btn btn-danger" id="mediaDeleteBtn">削除</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
             </div>
         </div>
@@ -95,7 +100,14 @@
 </div>
 @endsection
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+@endpush
+
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // 登録者フィルタの変更で trainer_id クエリを差し替えて再読み込み（ページはリセット）
@@ -119,11 +131,59 @@ document.addEventListener('DOMContentLoaded', function() {
     const modal = new bootstrap.Modal(modalEl);
     const displayArea = document.getElementById('mediaDisplayArea');
     const metaCreatedAt = document.getElementById('mediaMetaCreatedAt');
-    const metaClient = document.getElementById('mediaMetaClient');
     const metaType = document.getElementById('mediaMetaType');
-    const metaTitle = document.getElementById('mediaMetaTitle');
     const metaOriginalFilename = document.getElementById('mediaMetaOriginalFilename');
     const metaTrainer = document.getElementById('mediaMetaTrainer');
+    const editTitle = document.getElementById('mediaEditTitle');
+    const editClientSelect = document.getElementById('mediaEditClientId');
+    const updateBtn = document.getElementById('mediaUpdateBtn');
+    const deleteBtn = document.getElementById('mediaDeleteBtn');
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    // 編集中のメディアID（モーダル close 時にクリア）
+    let currentMediaId = null;
+
+    // モーダル内クライアント Select2 初期化（既存 audio upload-create と同型）
+    $(editClientSelect).select2({
+        theme: 'bootstrap-5',
+        placeholder: 'クライアントを検索（内部ID、名前、かな）',
+        allowClear: false,
+        width: '100%',
+        dropdownParent: $('#mediaDetailModal'),  // モーダル内z-index対策
+        ajax: {
+            url: '/api/clients/search',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) { return { q: params.term }; },
+            processResults: function (data) { return { results: data.results }; },
+            cache: true
+        },
+        minimumInputLength: 1,
+        language: {
+            inputTooShort: function () { return '1文字以上入力してください'; },
+            noResults: function () { return '該当するクライアントが見つかりません'; },
+            searching: function () { return '検索中...'; }
+        }
+    });
+
+    // 対象メディアの client_id を Select2 の初期値としてセット（id 指定で /api/clients/search を叩く）
+    function loadInitialClient(clientId) {
+        if (!clientId) {
+            $(editClientSelect).val(null).trigger('change');
+            return;
+        }
+        $.ajax({
+            url: '/api/clients/search',
+            data: { id: clientId },
+            dataType: 'json'
+        }).then(function(data) {
+            if (data.results && data.results.length > 0) {
+                const c = data.results[0];
+                const option = new Option(c.text, c.id, true, true);
+                $(editClientSelect).append(option).trigger('change');
+            }
+        });
+    }
 
     // メディア表示エリアに alert メッセージを差し込む
     function setDisplayAlert(text, level) {
@@ -141,13 +201,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const meta = mediaModalData[id];
             if (!meta) return;
 
-            // メタ情報を埋める（XSS回避のため textContent）
+            currentMediaId = id;
+
+            // 表示のみ項目（XSS回避のため textContent）
             metaCreatedAt.textContent = meta.created_at || '';
-            metaClient.textContent = meta.client_name || '（削除済み）';
             metaType.textContent = meta.type === 'photo' ? '写真' : (meta.type === 'video' ? '動画' : meta.type);
-            metaTitle.textContent = meta.display_title || '';
             metaOriginalFilename.textContent = meta.original_filename || '';
             metaTrainer.textContent = meta.trainer_name || '（削除済み）';
+
+            // 編集可能項目（input/select の値をセット）
+            editTitle.value = meta.title_raw || '';
+            loadInitialClient(meta.client_id);
 
             // 一旦「読み込み中」を出してからモーダルを開く
             setDisplayAlert('読み込み中…', 'secondary');
@@ -197,7 +261,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // モーダルclose時にクリーンアップ（動画停止・次回ちらつき防止）
+    // モーダルclose時にクリーンアップ（動画停止・次回ちらつき防止・編集状態クリア）
     modalEl.addEventListener('hidden.bs.modal', function() {
         const video = displayArea.querySelector('video');
         if (video) {
@@ -206,6 +270,84 @@ document.addEventListener('DOMContentLoaded', function() {
             video.load();
         }
         displayArea.innerHTML = '';
+        currentMediaId = null;
+        editTitle.value = '';
+        $(editClientSelect).val(null).trigger('change');
+    });
+
+    // 422等のエラーレスポンスからユーザー向けメッセージを組み立てる
+    async function readErrorMessage(res, fallback) {
+        try {
+            const body = await res.json();
+            if (body && body.errors) {
+                return Object.values(body.errors).flat().join('\n');
+            }
+            if (body && body.message) { return body.message; }
+        } catch (e) { /* ignore */ }
+        return fallback;
+    }
+
+    // 更新ボタン: title・client_id を PUT
+    updateBtn.addEventListener('click', async function() {
+        if (!currentMediaId) return;
+        const clientId = $(editClientSelect).val();
+        const title = editTitle.value.trim();
+
+        if (!clientId) { alert('クライアントを選択してください。'); return; }
+
+        updateBtn.disabled = true;
+        try {
+            const res = await fetch('/media-records/' + encodeURIComponent(currentMediaId), {
+                method: 'PUT',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    client_id: clientId,
+                    title: title || null,
+                }),
+            });
+            if (!res.ok) {
+                throw new Error(await readErrorMessage(res, '更新に失敗しました。'));
+            }
+            modal.hide();
+            window.location.reload();
+        } catch (e) {
+            console.error(e);
+            alert(e.message || '更新に失敗しました。');
+        } finally {
+            updateBtn.disabled = false;
+        }
+    });
+
+    // 削除ボタン: 確認 → DELETE（成功時 reload）
+    deleteBtn.addEventListener('click', async function() {
+        if (!currentMediaId) return;
+        if (!confirm('このメディアを削除します。レコードとストレージ上のファイルがともに削除され、元に戻せません。よろしいですか?')) {
+            return;
+        }
+        deleteBtn.disabled = true;
+        try {
+            const res = await fetch('/media-records/' + encodeURIComponent(currentMediaId), {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                },
+            });
+            if (!res.ok) {
+                throw new Error(await readErrorMessage(res, '削除に失敗しました。'));
+            }
+            modal.hide();
+            window.location.reload();
+        } catch (e) {
+            console.error(e);
+            alert(e.message || '削除に失敗しました。');
+        } finally {
+            deleteBtn.disabled = false;
+        }
     });
 });
 </script>
