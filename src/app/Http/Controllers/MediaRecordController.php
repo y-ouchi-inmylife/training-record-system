@@ -114,24 +114,28 @@ class MediaRecordController extends Controller
     {
         $validated = $request->validate([
             'original_filename' => 'required|string|max:255',
-            'mime_type' => 'required|string',
+            // mime_type は受け取るが採用しない（ブラウザの file.type は heic 等で空文字や image/heif に
+            // なるばらつきがあり信頼できないため、サーバは original_filename の拡張子から決定する）
+            'mime_type' => 'nullable|string',
             'file_size' => 'required|integer|min:1',
         ], [
             'original_filename.required' => '元ファイル名を指定してください。',
             'original_filename.max' => '元ファイル名は255文字以内で指定してください。',
-            'mime_type.required' => 'MIMEタイプを指定してください。',
             'file_size.required' => 'ファイルサイズを指定してください。',
             'file_size.integer' => 'ファイルサイズは整数で指定してください。',
             'file_size.min' => 'ファイルサイズは1バイト以上で指定してください。',
         ]);
 
-        // 形式（mime_type）→ 種別判定。許可リスト外は拒否
-        $type = MediaRecord::resolveTypeFromMime($validated['mime_type']);
-        if ($type === null) {
+        // 拡張子から正規の mime_type を決定（クライアントの mime_type は採用しない）
+        $mimeType = MediaRecord::resolveMimeFromFilename($validated['original_filename']);
+        if ($mimeType === null) {
             return response()->json([
-                'error' => ['mime_type' => ['対応形式は写真(jpeg/png/heic)・動画(mp4/mov)のみです。']],
+                'error' => ['original_filename' => ['対応形式は写真(jpeg/png/heic)・動画(mp4/mov)のみです。']],
             ], 422);
         }
+
+        // 形式 → 種別判定（決定した mime_type は EXTENSION_TO_MIME 由来なので常に許可リスト内）
+        $type = MediaRecord::resolveTypeFromMime($mimeType);
 
         // サイズ上限チェック（種別ごとに上限が異なる）
         $maxSize = MediaRecord::maxSizeForType($type);
@@ -142,8 +146,8 @@ class MediaRecordController extends Controller
             ], 422);
         }
 
-        // storage_key 採番: media/YYYYMM/{uuid}.{ext}
-        $extension = MediaRecord::extensionForMime($validated['mime_type']);
+        // storage_key 採番: media/YYYYMM/{uuid}.{ext}（拡張子は mime から正規化、.jpeg → jpg）
+        $extension = MediaRecord::extensionForMime($mimeType);
         $storageKey = sprintf('media/%s/%s.%s', now()->format('Ym'), (string) Str::uuid(), $extension);
 
         // 署名付きPUT URL発行（有効期限はクラス定数で管理）
@@ -171,7 +175,8 @@ class MediaRecordController extends Controller
             'client_id' => 'required|exists:clients,id',
             'storage_key' => 'required|string',
             'original_filename' => 'required|string|max:255',
-            'mime_type' => 'required|string',
+            // mime_type は受け取るが採用しない（uploadUrl と同じ理由。詳細はそちらのコメント参照）
+            'mime_type' => 'nullable|string',
             'file_size' => 'required|integer|min:1',
             'title' => 'nullable|string|max:255',
         ], [
@@ -180,7 +185,6 @@ class MediaRecordController extends Controller
             'storage_key.required' => '保存キーを指定してください。',
             'original_filename.required' => '元ファイル名を指定してください。',
             'original_filename.max' => '元ファイル名は255文字以内で指定してください。',
-            'mime_type.required' => 'MIMEタイプを指定してください。',
             'file_size.required' => 'ファイルサイズを指定してください。',
             'file_size.integer' => 'ファイルサイズは整数で指定してください。',
             'file_size.min' => 'ファイルサイズは1バイト以上で指定してください。',
@@ -194,13 +198,16 @@ class MediaRecordController extends Controller
             ], 422);
         }
 
-        // mime_type から種別確定
-        $type = MediaRecord::resolveTypeFromMime($validated['mime_type']);
-        if ($type === null) {
+        // 拡張子から正規の mime_type を決定（クライアントの mime_type は採用しない）
+        $mimeType = MediaRecord::resolveMimeFromFilename($validated['original_filename']);
+        if ($mimeType === null) {
             return response()->json([
-                'error' => ['mime_type' => ['対応形式は写真(jpeg/png/heic)・動画(mp4/mov)のみです。']],
+                'error' => ['original_filename' => ['対応形式は写真(jpeg/png/heic)・動画(mp4/mov)のみです。']],
             ], 422);
         }
+
+        // 種別確定（決定した mime_type は EXTENSION_TO_MIME 由来なので常に許可リスト内）
+        $type = MediaRecord::resolveTypeFromMime($mimeType);
 
         $mediaRecord = MediaRecord::create([
             'client_id' => $validated['client_id'],
@@ -209,7 +216,7 @@ class MediaRecordController extends Controller
             'title' => $validated['title'] ?? null,
             'original_filename' => $validated['original_filename'],
             'file_path' => $validated['storage_key'],
-            'mime_type' => $validated['mime_type'],
+            'mime_type' => $mimeType,
             'file_size' => $validated['file_size'],
         ]);
 

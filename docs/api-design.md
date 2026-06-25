@@ -1707,14 +1707,15 @@ POST /training-records と同じ。
 | パラメータ | 型 | 必須 | バリデーション | 説明 |
 |-----------|-----|------|---------------|------|
 | original_filename | string | ● | required, string, max:255 | アップロードするファイルの元ファイル名 |
-| mime_type | string | ● | required, string | ファイルのMIMEタイプ |
+| mime_type | string |  | nullable, string | ファイルのMIMEタイプ。クライアントから受け取るが採用しない（ブラウザの file.type は heic 等で空文字や image/heif になるばらつきがあり信頼できないため、サーバは original_filename の拡張子から決定する） |
 | file_size | integer | ● | required, integer, min:1 | ファイルサイズ（バイト） |
 
 **処理**:
-- mime_type から種別（photo / video）を判定する。許可形式（写真 jpeg/png/heic、動画 mp4/mov）以外は拒否する
+- original_filename の拡張子から正規のMIMEタイプを決定する。許可形式（写真 jpeg/png/heic/heif、動画 mp4/mov）以外は拒否する
+- 決定したMIMEタイプから種別（photo / video）を判定する
 - file_size を種別ごとの上限（写真20MB、動画1GB）と照合し、超過は拒否する
 - 保存キー（オブジェクトストレージ上のパス）を採番し、そのキーに対する署名付きPUT URLを発行する
-- ※申請値（mime_type・file_size）に基づく事前検証であり、実ファイルの検証は別途行う（直アップロードのためサーバを経由しない）
+- ※申請値（original_filename・file_size）に基づく事前検証であり、実ファイルの検証は別途行う（直アップロードのためサーバを経由しない）
 
 **レスポンス**（JSON）:
 - 成功：`{ "data": { ... } }`
@@ -1739,13 +1740,15 @@ POST /training-records と同じ。
 | client_id | integer | ● | required, exists:clients,id | 持ち主クライアント |
 | storage_key | string | ● | required, string | 署名付きURL発行時に採番された保存キー |
 | original_filename | string | ● | required, string, max:255 | 元ファイル名 |
-| mime_type | string | ● | required, string | MIMEタイプ |
+| mime_type | string |  | nullable, string | MIMEタイプ。クライアントから受け取るが採用しない（upload-url と同じ理由。サーバは original_filename の拡張子から決定する） |
 | file_size | integer | ● | required, integer, min:1 | ファイルサイズ（バイト） |
 | title | string | | nullable, string, max:255 | 表示名。未入力時は元ファイル名を表示 |
 
 **処理**:
 - storage_key の指すファイルを file_path として、media_records レコードを作成する
-- mime_type から種別（photo / video）を確定する
+- original_filename の拡張子から正規のMIMEタイプを決定し、許可形式以外は拒否する
+- 決定したMIMEタイプから種別（photo / video）を確定する
+- 決定したMIMEタイプを mime_type カラムに保存する
 - 登録者は、ログイン中のトレーナーを設定する
 
 **レスポンス**（JSON）:

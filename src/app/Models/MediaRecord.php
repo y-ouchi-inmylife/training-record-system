@@ -53,6 +53,20 @@ class MediaRecord extends Model
     const PHOTO_EXTENSIONS = ['jpg', 'jpeg', 'png', 'heic', 'heif'];
     const VIDEO_EXTENSIONS = ['mp4', 'mov'];
 
+    // 拡張子 → MIMEタイプ マッピング（サーバ側の mime_type 決定に使用）
+    // 採番用の MIME_TO_EXTENSION は mime→拡張子の片方向で .jpeg を扱えないため、別の独立した定数として持つ。
+    // ブラウザの file.type は heic などで空文字や image/heif になるばらつきがあり信頼できないため、
+    // 拡張子を主とし、ここから正規の mime_type を決定する。
+    const EXTENSION_TO_MIME = [
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'png' => 'image/png',
+        'heic' => 'image/heic',
+        'heif' => 'image/heif',
+        'mp4' => 'video/mp4',
+        'mov' => 'video/quicktime',
+    ];
+
     /**
      * MIMEタイプがブラウザで直接表示・再生可能か
      */
@@ -81,6 +95,21 @@ class MediaRecord extends Model
     public static function extensionForMime(string $mime): ?string
     {
         return self::MIME_TO_EXTENSION[$mime] ?? null;
+    }
+
+    /**
+     * ファイル名（元ファイル名）の拡張子から正規のMIMEタイプを決定する。未対応は null を返す。
+     *
+     * ブラウザの file.type は heic 等で空文字や image/heif になるばらつきがあるため、
+     * uploadUrl / store ではこのヘルパーで mime_type を決定する（クライアントの mime_type は不採用）。
+     */
+    public static function resolveMimeFromFilename(string $filename): ?string
+    {
+        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        if ($ext === '') {
+            return null;
+        }
+        return self::EXTENSION_TO_MIME[$ext] ?? null;
     }
 
     /**
