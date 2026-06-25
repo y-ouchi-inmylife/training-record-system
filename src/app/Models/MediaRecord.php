@@ -24,6 +24,59 @@ class MediaRecord extends Model
     const TYPE_PHOTO = 'photo';
     const TYPE_VIDEO = 'video';
 
+    // 許可するMIMEタイプ（写真: jpeg/png/heic/heif、動画: mp4/mov）
+    // image/heif はiOSがHEICファイルでも送出するケースの実機確認に基づき許可
+    const PHOTO_MIME_TYPES = ['image/jpeg', 'image/png', 'image/heic', 'image/heif'];
+    const VIDEO_MIME_TYPES = ['video/mp4', 'video/quicktime'];
+
+    // サイズ上限（要件 6-14-1）
+    const MAX_PHOTO_SIZE = 20 * 1024 * 1024;           // 写真: 20MB
+    const MAX_VIDEO_SIZE = 1024 * 1024 * 1024;         // 動画: 1GB
+
+    // MIMEタイプ → 拡張子マッピング（storage_key 採番時の拡張子決定に使用）
+    const MIME_TO_EXTENSION = [
+        'image/jpeg' => 'jpg',
+        'image/png' => 'png',
+        'image/heic' => 'heic',
+        'image/heif' => 'heif',
+        'video/mp4' => 'mp4',
+        'video/quicktime' => 'mov',
+    ];
+
+    /**
+     * MIMEタイプから種別（photo/video）を判定する。許可リスト外は null を返す
+     */
+    public static function resolveTypeFromMime(string $mime): ?string
+    {
+        if (in_array($mime, self::PHOTO_MIME_TYPES, true)) {
+            return self::TYPE_PHOTO;
+        }
+        if (in_array($mime, self::VIDEO_MIME_TYPES, true)) {
+            return self::TYPE_VIDEO;
+        }
+        return null;
+    }
+
+    /**
+     * MIMEタイプから拡張子を取得する。未対応は null を返す
+     */
+    public static function extensionForMime(string $mime): ?string
+    {
+        return self::MIME_TO_EXTENSION[$mime] ?? null;
+    }
+
+    /**
+     * 種別ごとのサイズ上限を取得する
+     */
+    public static function maxSizeForType(string $type): ?int
+    {
+        return match ($type) {
+            self::TYPE_PHOTO => self::MAX_PHOTO_SIZE,
+            self::TYPE_VIDEO => self::MAX_VIDEO_SIZE,
+            default => null,
+        };
+    }
+
     protected $fillable = [
         'client_id',
         'trainer_id',
