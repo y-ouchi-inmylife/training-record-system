@@ -108,6 +108,14 @@ erDiagram
     phases ||--|| training_records : "段階を示す"
 
 
+    media_records {
+        bigint id PK
+        bigint client_id FK
+        bigint trainer_id FK
+        string type
+        string title
+    }
+    
     audio_records {
         bigint id PK
         bigint trainer_id FK
@@ -134,6 +142,9 @@ erDiagram
     trainers ||--|| training_records : "担当2"
     clients ||--o{ training_records : "トレーニングを受ける"
 
+    clients ||--o{ media_records : "持ち主"
+    trainers ||--o{ media_records : "登録する"
+    
     trainers ||--o{ audio_records : "録音・アップロード・テキスト入力する"
 
     clients ||--o{ audio_records : "対象となる"
@@ -292,6 +303,56 @@ erDiagram
 | training_records_training_type_id_foreign | FOREIGN KEY | training_type_id → training_types(id) | SET NULL | トレーニング内容マスタ削除時はNULLにする |
 | training_records_phase_id_foreign | FOREIGN KEY | phase_id → phases(id) | SET NULL | フェーズマスタ削除時はNULLにする |
 | training_records_updated_by_foreign | FOREIGN KEY | updated_by → trainers(id) | SET NULL | トレーナー削除時は最終更新者をNULLにする |
+
+
+---
+
+#### D-0300 media_records（メディア）
+
+##### カラム定義
+
+| カラム名 | 型 | NULL | デフォルト | 説明 |
+|---------|-----|------|----------|------|
+| id | BIGINT UNSIGNED | NO | auto_increment | 主キー |
+| client_id | BIGINT UNSIGNED | YES | NULL | メディアの持ち主クライアントのID（外部キー）。登録時はアプリ側で必須。持ち主クライアント削除時にNULLになり、メディアはライブラリに残る |
+| trainer_id | BIGINT UNSIGNED | YES | NULL | アップロードしたトレーナーのID（外部キー）。登録者削除時はNULLになり、メディアはライブラリに残る |
+| type | VARCHAR(20) | NO | — | メディア種別（5-17.参照） |
+| title | VARCHAR(255) | YES | NULL | 表示名。未入力時は表示の際に元ファイル名（original_filename）をフォールバック表示する |
+| original_filename | VARCHAR(255) | NO | — | アップロード時の元ファイル名 |
+| file_path | VARCHAR(500) | NO | — | オブジェクトストレージ上の保存パス（キー） |
+| thumbnail_path | VARCHAR(500) | YES | NULL | サムネイルの保存パス（キー）。サムネイル生成は後フェーズのため当面NULL |
+| mime_type | VARCHAR(100) | NO | — | MIMEタイプ（image/jpeg, image/png, image/heic, video/mp4, video/quicktime 等） |
+| file_size | BIGINT | YES | NULL | ファイルサイズ（バイト） |
+| created_at | TIMESTAMP | YES | NULL | 登録日時 |
+| updated_at | TIMESTAMP | YES | NULL | 最終更新日時 |
+
+##### インデックス
+
+| インデックス名 | カラム | 種類 | 目的 |
+|---------------|--------|------|------|
+| PRIMARY | id | PRIMARY KEY | 主キー |
+| media_records_client_id_foreign | client_id | INDEX | クライアント別のメディア取得（外部キー制約と兼用） |
+| media_records_trainer_id_foreign | trainer_id | INDEX | 登録者別のメディア取得。一覧画面の登録者フィルタで使用（外部キー制約と兼用） |
+| media_records_type_idx | type | INDEX | 種別（写真／動画）によるフィルタリング |
+| media_records_created_at_idx | created_at | INDEX | 一覧画面で最新を先頭に表示するためのソート用（クエリ側で `ORDER BY created_at DESC`）。Laravelマイグレーションの制約によりインデックス方向指定なし |
+
+##### 制約
+
+| 制約名 | 種類 | 条件 | ON DELETE | 説明 |
+|--------|------|------|-----------|------|
+| media_records_client_id_foreign | FOREIGN KEY | client_id → clients(id) | SET NULL | クライアント削除時は持ち主をNULLにする（メディアはライブラリに残す） |
+| media_records_trainer_id_foreign | FOREIGN KEY | trainer_id → trainers(id) | SET NULL | 登録者トレーナー削除時はNULLにする（メディアはライブラリに残す） |
+| media_records_type_check | CHECK | type IN ('photo', 'video') | — | 定義済みのメディア種別のみ許可（5-17.参照） |
+| media_records_file_size_check | CHECK | file_size IS NULL OR file_size >= 0 | — | ファイルサイズは0以上 |
+
+##### 注記
+
+- **client_id / trainer_id の NULL 許容**: メディアはライブラリ型の独立資産であり、持ち主クライアント・登録者トレーナーが削除されても実体（ファイル・レコード）は保持する。このため両カラムは ON DELETE SET NULL とし、DB上は NULL を許容する。一方、新規登録時は持ち主クライアントを必須とするため、アプリ側バリデーションで client_id を required とする（3-3. の二層構成）。
+- **ファイル実体との関係**: file_path / thumbnail_path はオブジェクトストレージ上のファイルへの参照であり、レコード削除時のファイル実体削除はアプリ側で行う（DBの外部キー制約はレコードのみを対象とし、ストレージ上のファイルには作用しない）。
+
+##### 設計ポリシー
+
+- **ライブラリ型**: メディアはトレーニング記録に直接従属せず、独立した資産としてライブラリで管理する。トレーニング記録との紐付け（多対多の中間テーブル）は次フェーズで追加する。本テーブル単体では記録への参照を持たない。
 
 
 ---
@@ -715,6 +776,14 @@ erDiagram
 | edit_training_record | トレーニング記録編集 |
 | delete_training_record | トレーニング記録削除 |
 
+### 5-17. メディア種別
+
+| 値 | 説明 |
+|----|------|
+| photo | 写真。jpeg / png / heic 形式の画像 |
+| video | 動画。mp4 / mov 形式の動画 |
+
+
 ---
 
 ## 6. マイグレーション
@@ -751,7 +820,8 @@ erDiagram
 | 5 | phases | なし |
 | 6 | support_statuses | なし |
 | 7 | training_records | clients, trainers, training_types, phases |
-| 9 | audio_records | trainers, clients |
+| 8 | media_records | clients, trainers |
+| 9 | audio_records | clients, trainers |
 | 10 | access_logs | trainers |
 | 11 | system_settings | なし |
 | 12 | ip_whitelist | なし |

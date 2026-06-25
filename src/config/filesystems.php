@@ -72,6 +72,18 @@ return [
             'report' => false,
         ],
 
+        'sakura' => [
+            'driver' => 's3',
+            'key' => env('SAKURA_ACCESS_KEY_ID'),
+            'secret' => env('SAKURA_SECRET_ACCESS_KEY'),
+            'region' => env('SAKURA_DEFAULT_REGION', 'jp-east-1'),
+            'bucket' => env('SAKURA_BUCKET'),
+            'endpoint' => env('SAKURA_ENDPOINT'),
+            'use_path_style_endpoint' => true,
+            'throw' => true,
+            'report' => false,
+        ],
+
     ],
 
     /*
