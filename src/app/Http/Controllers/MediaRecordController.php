@@ -46,7 +46,9 @@ class MediaRecordController extends Controller
     {
         $user = Auth::user();
 
-        $query = MediaRecord::orderBy('created_at', 'desc');
+        // 詳細モーダルでクライアント名・登録者名を表示するため、N+1回避の eager load を入れる
+        $query = MediaRecord::with(['client', 'trainer'])
+            ->orderBy('created_at', 'desc');
 
         // 登録者フィルタ（既存の音声記録一覧と同型）
         $trainerId = $request->query('trainer_id');
@@ -69,7 +71,23 @@ class MediaRecordController extends Controller
 
         $selectedTrainerId = $trainerId ?? $user->id;
 
-        return view('media-records.index', compact('mediaRecords', 'trainers', 'selectedTrainerId'));
+        // 詳細モーダル用のメタ情報辞書（id → 表示用フィールドの連想配列）
+        // ビューでJSに JSON で渡し、カードクリック時にidで lookup する
+        $mediaModalData = $mediaRecords->getCollection()->mapWithKeys(function ($m) {
+            return [$m->id => [
+                'type' => $m->type,
+                'mime_type' => $m->mime_type,
+                'display_title' => $m->display_title,
+                'original_filename' => $m->original_filename,
+                'created_at' => $m->created_at->format('Y/m/d H:i'),
+                'client_name' => $m->client
+                    ? trim(($m->client->internal_id ?? '') . ' ' . $m->client->display_name)
+                    : null,
+                'trainer_name' => $m->trainer?->name,
+            ]];
+        });
+
+        return view('media-records.index', compact('mediaRecords', 'trainers', 'selectedTrainerId', 'mediaModalData'));
     }
 
     /**

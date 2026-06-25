@@ -43,6 +43,18 @@ class MediaRecord extends Model
         'video/quicktime' => 'mov',
     ];
 
+    // ブラウザがそのまま表示・再生できるMIMEタイプ
+    // heic/heif/quicktime は許可形式だが、変換しないとブラウザで開けない（変換対応は今後フェーズ）
+    const BROWSER_DISPLAYABLE_MIME_TYPES = ['image/jpeg', 'image/png', 'video/mp4'];
+
+    /**
+     * MIMEタイプがブラウザで直接表示・再生可能か
+     */
+    public static function isBrowserDisplayable(string $mime): bool
+    {
+        return in_array($mime, self::BROWSER_DISPLAYABLE_MIME_TYPES, true);
+    }
+
     /**
      * MIMEタイプから種別（photo/video）を判定する。許可リスト外は null を返す
      */
