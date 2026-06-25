@@ -47,6 +47,12 @@ class MediaRecord extends Model
     // heic/heif/quicktime は許可形式だが、変換しないとブラウザで開けない（変換対応は今後フェーズ）
     const BROWSER_DISPLAYABLE_MIME_TYPES = ['image/jpeg', 'image/png', 'video/mp4'];
 
+    // クライアント側の事前バリデーション用ファイル拡張子リスト
+    // heic ファイルなどでブラウザが file.type を返さないケースに備え、拡張子でも判定するために使用。
+    // MIME_TO_EXTENSION は採番用の片方向マップで .jpeg を含まないため、用途が異なる定数として別に持つ。
+    const PHOTO_EXTENSIONS = ['jpg', 'jpeg', 'png', 'heic', 'heif'];
+    const VIDEO_EXTENSIONS = ['mp4', 'mov'];
+
     /**
      * MIMEタイプがブラウザで直接表示・再生可能か
      */

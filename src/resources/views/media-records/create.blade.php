@@ -7,18 +7,23 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0">メディア登録（ファイルのアップロード）</h2>
         <div class="d-flex gap-2">
-            {{-- 設計上のキャンセル遷移先は S-1302。未実装のため当面はダッシュボードへ戻す --}}
-            <a href="{{ route('dashboard') }}" class="btn btn-secondary" id="cancelBtn">キャンセル</a>
+            <a href="{{ route('media-records.index') }}" class="btn btn-secondary" id="cancelBtn">キャンセル</a>
             <button type="button" class="btn btn-success" id="submitBtn">登録</button>
         </div>
     </div>
 
-    {{-- 登録完了メッセージ・作成内容（reality check用）。フォームリセット後も残す --}}
-    <div id="uploadResult" class="d-none"></div>
-
-    {{-- アップロード中表示 --}}
-    <div id="uploadInProgress" class="alert alert-warning d-none">
-        アップロード中… 画面を閉じないでください。
+    {{-- アップロード中表示（テキスト＋進捗バー） --}}
+    <div id="uploadInProgress" class="d-none mb-3">
+        <div class="alert alert-warning mb-2">
+            アップロード中… 画面を閉じないでください。
+        </div>
+        <div class="progress" style="height: 24px;">
+            <div id="progressBar"
+                 class="progress-bar progress-bar-striped progress-bar-animated"
+                 role="progressbar"
+                 style="width: 0%"
+                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+        </div>
     </div>
 
     <form id="mediaUploadForm" onsubmit="return false;">
@@ -38,6 +43,8 @@
             <input type="file" name="file" id="file"
                    class="form-control"
                    accept=".jpg,.jpeg,.png,.heic,.heif,.mp4,.mov">
+            {{-- ファイル選択時の事前バリデーションエラー（不適合時のみ表示） --}}
+            <div id="fileError" class="text-danger small mt-1 d-none"></div>
             <div class="form-text">
                 対応形式:<br>
                 写真 jpeg, png, heic（最大20MB）<br>
@@ -80,79 +87,134 @@ $(document).ready(function() {
         }
     });
 
+    // サーバ側定数を Single Source of Truth として渡す（クライアント側に値を二重に持たない）
+    const PHOTO_MIMES = @json(\App\Models\MediaRecord::PHOTO_MIME_TYPES);
+    const VIDEO_MIMES = @json(\App\Models\MediaRecord::VIDEO_MIME_TYPES);
+    const PHOTO_EXTS = @json(\App\Models\MediaRecord::PHOTO_EXTENSIONS);
+    const VIDEO_EXTS = @json(\App\Models\MediaRecord::VIDEO_EXTENSIONS);
+    const MAX_PHOTO_SIZE = @json(\App\Models\MediaRecord::MAX_PHOTO_SIZE);
+    const MAX_VIDEO_SIZE = @json(\App\Models\MediaRecord::MAX_VIDEO_SIZE);
+
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     const submitBtn = document.getElementById('submitBtn');
     const cancelBtn = document.getElementById('cancelBtn');
-    const form = document.getElementById('mediaUploadForm');
     const fileInput = document.getElementById('file');
     const clientSelect = document.getElementById('media_client_id');
-    const resultEl = document.getElementById('uploadResult');
+    const fileErrorEl = document.getElementById('fileError');
     const inProgressEl = document.getElementById('uploadInProgress');
+    const progressBar = document.getElementById('progressBar');
 
-    // アップロード中の入力不可制御
-    function setBusy(busy) {
+    // ファイルを写真／動画に分類（拡張子と MIME の OR 判定で heic file.type 問題に対応）
+    function classifyFile(file) {
+        const ext = (file.name.split('.').pop() || '').toLowerCase();
+        const mime = file.type;
+        if (PHOTO_MIMES.includes(mime) || PHOTO_EXTS.includes(ext)) return 'photo';
+        if (VIDEO_MIMES.includes(mime) || VIDEO_EXTS.includes(ext)) return 'video';
+        return null;
+    }
+
+    // ファイルの形式・サイズを検証
+    function validateFile(file) {
+        const type = classifyFile(file);
+        if (type === null) {
+            return { ok: false, message: '対応形式は写真(jpeg/png/heic)・動画(mp4/mov)のみです。' };
+        }
+        if (type === 'photo' && file.size > MAX_PHOTO_SIZE) {
+            return { ok: false, message: '写真は20MB以下にしてください。' };
+        }
+        if (type === 'video' && file.size > MAX_VIDEO_SIZE) {
+            return { ok: false, message: '動画は1GB以下にしてください。' };
+        }
+        return { ok: true };
+    }
+
+    // ファイル選択時の事前バリデーション
+    fileInput.addEventListener('change', function() {
+        fileErrorEl.classList.add('d-none');
+        fileErrorEl.textContent = '';
+        fileInput.classList.remove('is-invalid');
+
+        const file = this.files[0];
+        if (!file) return;
+
+        const result = validateFile(file);
+        if (!result.ok) {
+            fileErrorEl.textContent = result.message;
+            fileErrorEl.classList.remove('d-none');
+            fileInput.classList.add('is-invalid');
+        }
+    });
+
+    // 状態遷移（idle / uploading）。完了は遷移、エラーは idle に戻す。
+    function setState(state) {
+        const busy = (state === 'uploading');
         submitBtn.disabled = busy;
         cancelBtn.classList.toggle('disabled', busy);
         cancelBtn.setAttribute('aria-disabled', busy ? 'true' : 'false');
         fileInput.disabled = busy;
         $(clientSelect).prop('disabled', busy);
         inProgressEl.classList.toggle('d-none', !busy);
+        if (!busy) setProgress(0);
+    }
+
+    function setProgress(pct) {
+        progressBar.style.width = pct + '%';
+        progressBar.textContent = pct + '%';
+        progressBar.setAttribute('aria-valuenow', String(pct));
     }
 
     // 422等のエラーレスポンスからユーザー向けメッセージを組み立てる
     async function readErrorMessage(res, fallback) {
         try {
             const body = await res.json();
-            // Laravel標準422: { message, errors: { field: [msg] } }
             if (body && body.errors) {
                 return Object.values(body.errors).flat().join('\n');
             }
-            // 自前422: { error: { field: [msg] } }
             if (body && body.error) {
                 return Object.values(body.error).flat().join('\n');
             }
             if (body && body.message) { return body.message; }
-        } catch (e) { /* 本文がJSONでない場合のフォールバックは下へ */ }
+        } catch (e) { /* ignore */ }
         return fallback;
     }
 
-    // 完了メッセージと作成情報を表示（reset後も残す）
-    function showResult(media) {
-        const typeLabel = media.type === 'photo' ? '写真' : (media.type === 'video' ? '動画' : media.type);
-        // XSS回避のため値はtextContentで投入
-        resultEl.className = 'alert alert-success';
-        resultEl.textContent = '';
-        const strong = document.createElement('strong');
-        strong.textContent = '登録完了';
-        resultEl.appendChild(strong);
-        const detail = document.createElement('div');
-        detail.className = 'mt-2 small';
-        const rows = [
-            ['ID', media.id],
-            ['種別', typeLabel],
-            ['元ファイル名', media.original_filename || ''],
-            ['表示名', media.title || media.original_filename || ''],
-            ['クライアントID', media.client_id != null ? String(media.client_id) : ''],
-            ['file_path', media.file_path || ''],
-        ];
-        rows.forEach(function(r) {
-            const line = document.createElement('div');
-            line.textContent = r[0] + ': ' + r[1];
-            detail.appendChild(line);
+    // 直PUT（XHR + 進捗イベント）。別オリジン → CSRF・Cookie 不要、Promise でラップ。
+    function putWithProgress(url, file) {
+        return new Promise(function(resolve, reject) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('PUT', url);
+            xhr.upload.addEventListener('progress', function(e) {
+                if (e.lengthComputable) {
+                    setProgress(Math.round((e.loaded / e.total) * 100));
+                }
+            });
+            xhr.onload = function() {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    setProgress(100);
+                    resolve();
+                } else {
+                    reject(new Error('ストレージへのアップロードに失敗しました（HTTP ' + xhr.status + '）'));
+                }
+            };
+            xhr.onerror = function() {
+                reject(new Error('ストレージへの通信に失敗しました。'));
+            };
+            xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+            xhr.send(file);
         });
-        resultEl.appendChild(detail);
-        resultEl.classList.remove('d-none');
     }
 
     submitBtn.addEventListener('click', async function() {
         const clientId = clientSelect.value;
         const file = fileInput.files[0];
 
-        // 素朴なガード（形式・サイズの事前検証は次フェーズ）
+        // 押下時の素朴なガード（disable はしない方針。再チェック + alert で弾く）
         if (!clientId) { alert('クライアントを選択してください。'); return; }
         if (!file) { alert('ファイルを選択してください。'); return; }
+        const v = validateFile(file);
+        if (!v.ok) { alert(v.message); return; }
 
-        setBusy(true);
+        setState('uploading');
         try {
             // ①署名付きURL発行（自アプリ宛 → CSRF必要）
             const uploadUrlRes = await fetch('/api/media-records/upload-url', {
@@ -175,16 +237,8 @@ $(document).ready(function() {
             const uploadUrl = uploadUrlBody.data.upload_url;
             const storageKey = uploadUrlBody.data.storage_key;
 
-            // ②さくらストレージへの直PUT（別オリジン → CSRF・Cookie不要）
-            const putRes = await fetch(uploadUrl, {
-                method: 'PUT',
-                credentials: 'omit',
-                headers: { 'Content-Type': file.type || 'application/octet-stream' },
-                body: file,
-            });
-            if (!putRes.ok) {
-                throw new Error('ストレージへのアップロードに失敗しました（HTTP ' + putRes.status + '）。');
-            }
+            // ②さくらストレージへの直PUT（XHRで進捗取得、別オリジン → CSRF・Cookie不要）
+            await putWithProgress(uploadUrl, file);
 
             // ③メディアレコード作成（自アプリ宛 → CSRF必要）
             const storeRes = await fetch('/api/media-records', {
@@ -205,17 +259,14 @@ $(document).ready(function() {
             if (!storeRes.ok) {
                 throw new Error(await readErrorMessage(storeRes, 'メディアレコードの作成に失敗しました。'));
             }
-            const storeBody = await storeRes.json();
 
-            // 完了表示 → 次の登録に備えてフォームのみリセット（完了メッセージは残す）
-            showResult(storeBody.data);
-            form.reset();
-            $(clientSelect).val(null).trigger('change');
+            // 完了 → S-1302（メディア一覧）へ遷移（設計の完了状態）
+            window.location.href = '{{ route("media-records.index") }}';
         } catch (e) {
             console.error(e);
+            // エラー → 入力中（idle）へ復帰
+            setState('idle');
             alert(e.message || '登録に失敗しました。');
-        } finally {
-            setBusy(false);
         }
     });
 });
