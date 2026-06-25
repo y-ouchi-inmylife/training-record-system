@@ -129,4 +129,12 @@ class Trainer extends Authenticatable
     {
         return $this->hasMany(AudioRecord::class, 'trainer_id');
     }
+
+    /**
+     * アップロードしたメディア記録（写真・動画）
+     */
+    public function mediaRecords(): HasMany
+    {
+        return $this->hasMany(MediaRecord::class, 'trainer_id');
+    }
 }
