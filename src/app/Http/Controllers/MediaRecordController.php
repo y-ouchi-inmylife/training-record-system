@@ -20,8 +20,12 @@ use Illuminate\Support\Str;
  */
 class MediaRecordController extends Controller
 {
-    // 署名付きURLの有効期限（分）
+    // アップロード署名付きURLの有効期限（分）
     const UPLOAD_URL_EXPIRES_MINUTES = 15;
+
+    // 再生（GET）署名付きURLの有効期限（分）
+    // 将来のクライアント向け公開ではより短くする可能性があるため、UPLOAD と独立して持つ
+    const PLAY_URL_EXPIRES_MINUTES = 15;
 
     // オブジェクトストレージのディスク名
     const STORAGE_DISK = 'sakura';
@@ -189,5 +193,25 @@ class MediaRecordController extends Controller
         ]);
 
         return response()->json(['data' => $mediaRecord], 201);
+    }
+
+    /**
+     * 再生（GET /api/media-records/{id}/play）
+     *
+     * ストレージ上のメディア実体への presigned GET URL を発行して返す。
+     * クライアント（ブラウザ）はこのURLへ直接アクセスして再生・表示する。
+     * 存在確認は行わない（store 時の方針Bと整合。孤児レコードは sakura が 403/404 を返す）。
+     */
+    public function play(MediaRecord $mediaRecord): JsonResponse
+    {
+        $expiresAt = now()->addMinutes(self::PLAY_URL_EXPIRES_MINUTES);
+        $url = Storage::disk(self::STORAGE_DISK)->temporaryUrl($mediaRecord->file_path, $expiresAt);
+
+        return response()->json([
+            'data' => [
+                'url' => $url,
+                'expires_at' => $expiresAt->toIso8601String(),
+            ],
+        ]);
     }
 }
