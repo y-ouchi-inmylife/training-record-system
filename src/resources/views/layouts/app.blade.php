@@ -68,7 +68,8 @@
                                 メディア
                             </a>
                             <ul class="dropdown-menu">
-                                {{-- メディア一覧（S-1302）は次フェーズ。実装時にここへ追加 --}}
+                                <li><a class="dropdown-item" href="{{ route('media-records.index') }}">メディア一覧</a></li>
+                                <li><hr class="dropdown-divider"></li>
                                 <li><h6 class="dropdown-header">メディア登録</h6></li>
                                 <li><a class="dropdown-item" href="{{ route('media-records.create') }}">ファイル</a></li>
                             </ul>

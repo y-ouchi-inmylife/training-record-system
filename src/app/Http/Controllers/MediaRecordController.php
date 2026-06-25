@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MediaRecord;
+use App\Models\Trainer;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,6 +28,45 @@ class MediaRecordController extends Controller
 
     // storage_key の形式 media/YYYYMM/{uuid}.{ext}（store 時の形式検証用）
     const STORAGE_KEY_PATTERN = '#^media/\d{6}/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[a-z0-9]+$#';
+
+    // 一覧の1ページあたり件数（グリッド表示向け）
+    const INDEX_PER_PAGE = 24;
+
+    /**
+     * メディア一覧画面（GET /media-records）
+     *
+     * 登録者フィルタ（trainer_id クエリ）で絞り込み、登録日時降順で一覧表示する。
+     * 'all' は全件、整数値はそのトレーナーのみ、未指定はログイン中トレーナーをデフォルト。
+     */
+    public function index(Request $request): View
+    {
+        $user = Auth::user();
+
+        $query = MediaRecord::orderBy('created_at', 'desc');
+
+        // 登録者フィルタ（既存の音声記録一覧と同型）
+        $trainerId = $request->query('trainer_id');
+        if ($trainerId === 'all') {
+            // フィルタなし（NULL含む全件）
+        } elseif ($trainerId) {
+            $query->where('trainer_id', $trainerId);
+        } else {
+            // デフォルト: 自分が登録したもののみ
+            $query->where('trainer_id', $user->id);
+        }
+
+        $mediaRecords = $query->paginate(self::INDEX_PER_PAGE)->appends($request->query());
+
+        // 登録者プルダウン用トレーナー一覧（system_admin を除外）
+        $trainers = Trainer::practitioners()
+            ->orderBy('display_order')
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        $selectedTrainerId = $trainerId ?? $user->id;
+
+        return view('media-records.index', compact('mediaRecords', 'trainers', 'selectedTrainerId'));
+    }
 
     /**
      * メディア登録画面（GET /media-records/create）
