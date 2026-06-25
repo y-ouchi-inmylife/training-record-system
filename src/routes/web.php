@@ -11,6 +11,7 @@ use App\Http\Controllers\TrainingRecordController;
 use App\Http\Controllers\TrainerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IpRestrictionController;
+use App\Http\Controllers\MediaRecordController;
 use App\Http\Controllers\PhaseController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SupportStatusController;
@@ -87,6 +88,10 @@ Route::middleware('auth')->group(function () {
         Route::get('client-intake-tokens', [ClientIntakeTokenController::class, 'index'])->name('client-intake-tokens.index');
         Route::post('client-intake-tokens', [ClientIntakeTokenController::class, 'store'])->name('client-intake-tokens.store');
         Route::delete('client-intake-tokens/{id}', [ClientIntakeTokenController::class, 'destroy'])->name('client-intake-tokens.destroy');
+
+        // メディア管理（全トレーナーがアクセス可能）
+        // 今回は S-1301 メディア登録画面のみ。S-1302 一覧・更新・削除・再生は次フェーズ。
+        Route::get('media-records/create', [MediaRecordController::class, 'create'])->name('media-records.create');
 
         // 音声管理（全トレーナーがアクセス可能）
         Route::get('audio-records', [AudioRecordController::class, 'index'])->name('audio-records.index');

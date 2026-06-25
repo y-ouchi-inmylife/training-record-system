@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MediaRecord;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,6 +27,17 @@ class MediaRecordController extends Controller
 
     // storage_key の形式 media/YYYYMM/{uuid}.{ext}（store 時の形式検証用）
     const STORAGE_KEY_PATTERN = '#^media/\d{6}/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[a-z0-9]+$#';
+
+    /**
+     * メディア登録画面（GET /media-records/create）
+     *
+     * クライアント選択は Select2 + 内部API `/api/clients/search` を使用するため、
+     * コントローラから渡すデータは無い。
+     */
+    public function create(): View
+    {
+        return view('media-records.create');
+    }
 
     /**
      * 署名付きURL発行（POST /api/media-records/upload-url）

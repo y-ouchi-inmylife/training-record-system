@@ -64,6 +64,16 @@
                             </a>
                         </li>
                         <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle {{ request()->is('media-records*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
+                                メディア
+                            </a>
+                            <ul class="dropdown-menu">
+                                {{-- メディア一覧（S-1302）は次フェーズ。実装時にここへ追加 --}}
+                                <li><h6 class="dropdown-header">メディア登録</h6></li>
+                                <li><a class="dropdown-item" href="{{ route('media-records.create') }}">ファイル</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle {{ request()->is('audio-records*') || request()->is('recording*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
                                 音声記録
                             </a>
