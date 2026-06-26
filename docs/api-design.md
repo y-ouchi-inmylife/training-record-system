@@ -1745,7 +1745,7 @@ POST /training-records と同じ。
 | title | string | | nullable, string, max:255 | 表示名。未入力時は元ファイル名を表示 |
 
 **処理**:
-- storage_key の指すファイルを file_path として、media_records レコードを作成する
+- storage_key の指すファイルを original_path として、media_records レコードを作成する
 - original_filename の拡張子から正規のMIMEタイプを決定し、許可形式以外は拒否する
 - 決定したMIMEタイプから種別（photo / video）を確定する
 - 決定したMIMEタイプを mime_type カラムに保存する

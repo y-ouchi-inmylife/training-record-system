@@ -130,7 +130,7 @@ class MediaRecord extends Model
         'type',
         'title',
         'original_filename',
-        'file_path',
+        'original_path',
         'thumbnail_path',
         'mime_type',
         'file_size',

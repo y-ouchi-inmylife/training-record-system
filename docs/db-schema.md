@@ -319,7 +319,7 @@ erDiagram
 | type | VARCHAR(20) | NO | — | メディア種別（5-17.参照） |
 | title | VARCHAR(255) | YES | NULL | 表示名。未入力時は表示の際に元ファイル名（original_filename）をフォールバック表示する |
 | original_filename | VARCHAR(255) | NO | — | アップロード時の元ファイル名 |
-| file_path | VARCHAR(500) | NO | — | オブジェクトストレージ上の保存パス（キー） |
+| original_path | VARCHAR(500) | NO | — | アップロードされた原本ファイルのオブジェクトストレージ上の保存パス（キー） |
 | thumbnail_path | VARCHAR(500) | YES | NULL | サムネイルの保存パス（キー）。サムネイル生成は後フェーズのため当面NULL |
 | mime_type | VARCHAR(100) | NO | — | MIMEタイプ（image/jpeg, image/png, image/heic, video/mp4, video/quicktime 等） |
 | file_size | BIGINT | YES | NULL | ファイルサイズ（バイト） |
@@ -348,7 +348,7 @@ erDiagram
 ##### 注記
 
 - **client_id / trainer_id の NULL 許容**: メディアはライブラリ型の独立資産であり、持ち主クライアント・登録者トレーナーが削除されても実体（ファイル・レコード）は保持する。このため両カラムは ON DELETE SET NULL とし、DB上は NULL を許容する。一方、新規登録時は持ち主クライアントを必須とするため、アプリ側バリデーションで client_id を required とする（3-3. の二層構成）。
-- **ファイル実体との関係**: file_path / thumbnail_path はオブジェクトストレージ上のファイルへの参照であり、レコード削除時のファイル実体削除はアプリ側で行う（DBの外部キー制約はレコードのみを対象とし、ストレージ上のファイルには作用しない）。
+- **ファイル実体との関係**: original_path / thumbnail_path はオブジェクトストレージ上のファイルへの参照であり、レコード削除時のファイル実体削除はアプリ側で行う（DBの外部キー制約はレコードのみを対象とし、ストレージ上のファイルには作用しない）。
 
 ##### 設計ポリシー
 

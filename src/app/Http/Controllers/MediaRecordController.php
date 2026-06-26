@@ -215,7 +215,7 @@ class MediaRecordController extends Controller
             'type' => $type,
             'title' => $validated['title'] ?? null,
             'original_filename' => $validated['original_filename'],
-            'file_path' => $validated['storage_key'],
+            'original_path' => $validated['storage_key'],
             'mime_type' => $mimeType,
             'file_size' => $validated['file_size'],
         ]);
@@ -257,8 +257,8 @@ class MediaRecordController extends Controller
      */
     public function destroy(MediaRecord $mediaRecord): JsonResponse
     {
-        if (Storage::disk(self::STORAGE_DISK)->exists($mediaRecord->file_path)) {
-            Storage::disk(self::STORAGE_DISK)->delete($mediaRecord->file_path);
+        if (Storage::disk(self::STORAGE_DISK)->exists($mediaRecord->original_path)) {
+            Storage::disk(self::STORAGE_DISK)->delete($mediaRecord->original_path);
         }
         $mediaRecord->delete();
 
@@ -275,7 +275,7 @@ class MediaRecordController extends Controller
     public function play(MediaRecord $mediaRecord): JsonResponse
     {
         $expiresAt = now()->addMinutes(self::PLAY_URL_EXPIRES_MINUTES);
-        $url = Storage::disk(self::STORAGE_DISK)->temporaryUrl($mediaRecord->file_path, $expiresAt);
+        $url = Storage::disk(self::STORAGE_DISK)->temporaryUrl($mediaRecord->original_path, $expiresAt);
 
         return response()->json([
             'data' => [

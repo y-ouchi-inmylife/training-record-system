@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('type', 20)->comment("メディア種別: 'photo', 'video'");
             $table->string('title', 255)->nullable()->comment('表示名。未入力時は表示の際に original_filename をフォールバック表示');
             $table->string('original_filename', 255)->comment('アップロード時の元ファイル名');
-            $table->string('file_path', 500)->comment('オブジェクトストレージ上の保存パス（キー）');
+            $table->string('original_path', 500)->comment('アップロードされた原本ファイルのオブジェクトストレージ上の保存パス（キー）');
             $table->string('thumbnail_path', 500)->nullable()->comment('サムネイルの保存パス（キー）。サムネイル生成は後フェーズのため当面NULL');
             $table->string('mime_type', 100)->comment('MIMEタイプ（image/jpeg, image/png, image/heic, video/mp4, video/quicktime 等）');
             $table->bigInteger('file_size')->nullable()->comment('ファイルサイズ（バイト）');
