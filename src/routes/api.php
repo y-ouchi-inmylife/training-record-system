@@ -25,4 +25,5 @@ Route::middleware(['web', 'auth', 'practitioners'])->group(function () {
     Route::post('/media-records', [MediaRecordController::class, 'store'])->name('api.media-records.store');
     Route::get('/media-records/{mediaRecord}/play', [MediaRecordController::class, 'play'])->name('api.media-records.play');
     Route::post('/media-records/{mediaRecord}/convert', [MediaRecordController::class, 'convert'])->name('api.media-records.convert');
+    Route::post('/media-records/{mediaRecord}/generate-thumbnail', [MediaRecordController::class, 'generateThumbnail'])->name('api.media-records.generate-thumbnail');
 });

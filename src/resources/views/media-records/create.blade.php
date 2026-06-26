@@ -291,6 +291,24 @@ $(document).ready(function() {
                 }
             }
 
+            // ⑤サムネイル生成（3b-1 は写真のみ。動画は3b-2でこの条件を photo/video に拡張する）
+            //   全メディア（jpeg/png/mp4/heic/mov）が thumbnail_status=pending で store されるが、
+            //   3b-1 ではジョブが photo のみ処理するため、フロント側で type=photo に絞って呼ぶ。
+            //   失敗時はアラート → idle 復帰（既存 convert と同じ挙動）。
+            if (media.thumbnail_status === 'pending' && media.type === 'photo') {
+                setPhase('converting');
+                const thumbRes = await fetch('/api/media-records/' + encodeURIComponent(media.id) + '/generate-thumbnail', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                    },
+                });
+                if (!thumbRes.ok) {
+                    throw new Error(await readErrorMessage(thumbRes, 'サムネイル生成に失敗しました。'));
+                }
+            }
+
             // 完了 → S-1302（メディア一覧）へ遷移（設計の完了状態）
             window.location.href = '{{ route("media-records.index") }}';
         } catch (e) {

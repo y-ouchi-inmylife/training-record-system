@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\ConvertMediaJob;
+use App\Jobs\GenerateThumbnailJob;
 use App\Models\MediaRecord;
 use App\Models\Trainer;
 use Illuminate\Contracts\View\View;
@@ -74,13 +75,24 @@ class MediaRecordController extends Controller
         $selectedTrainerId = $trainerId ?? $user->id;
 
         // 詳細モーダル用のメタ情報辞書（id → 表示用フィールドの連想配列）
-        // ビューでJSに JSON で渡し、カードクリック時にidで lookup する
-        $mediaModalData = $mediaRecords->getCollection()->mapWithKeys(function ($m) {
+        // ビューでJSに JSON で渡し、カードクリック時にidで lookup する。
+        // 一覧カードのサムネイル表示にも使用するため thumbnail_url を同梱する。
+        $thumbnailExpiresAt = now()->addMinutes(self::PLAY_URL_EXPIRES_MINUTES);
+        $mediaModalData = $mediaRecords->getCollection()->mapWithKeys(function ($m) use ($thumbnailExpiresAt) {
+            // サムネイル presigned URL は thumbnail_status=done のものだけ発行（24件分、SDK 内 HMAC のみで高速）
+            $thumbnailUrl = null;
+            if ($m->thumbnail_status === MediaRecord::THUMBNAIL_DONE && $m->thumbnail_path) {
+                $thumbnailUrl = Storage::disk(self::STORAGE_DISK)->temporaryUrl($m->thumbnail_path, $thumbnailExpiresAt);
+            }
+
             return [$m->id => [
                 'type' => $m->type,
                 'mime_type' => $m->mime_type,
                 // 詳細モーダルの表示判定（done/not_required なら play を呼ぶ）に使う
                 'conversion_status' => $m->conversion_status,
+                // 一覧カードのサムネイル表示判定に使う
+                'thumbnail_status' => $m->thumbnail_status,
+                'thumbnail_url' => $thumbnailUrl,
                 'display_title' => $m->display_title,
                 // 編集フォーム用に「raw な title（NULL あり得る）」と「client_id」を別途持つ
                 'title_raw' => $m->title,
@@ -358,6 +370,52 @@ class MediaRecordController extends Controller
             // 詳細は Log::error 側のログとサーバログから追跡する。
             return response()->json([
                 'error' => '表示用変換に失敗しました。',
+                'media_record_id' => $mediaRecord->id,
+            ], 500);
+        }
+    }
+
+    /**
+     * サムネイル生成を起動（POST /api/media-records/{id}/generate-thumbnail）
+     *
+     * 原本から 200x200 のサムネイルを生成する。thumbnail_status が pending のときのみ実行可能。
+     * 開発は QUEUE_CONNECTION=sync で同期実行のため、レスポンス時点で done/error に遷移している。
+     * type 別の振り分けは GenerateThumbnailJob 側で行う（API は全メディアを受け付ける）。
+     */
+    public function generateThumbnail(MediaRecord $mediaRecord): JsonResponse
+    {
+        if ($mediaRecord->thumbnail_status !== MediaRecord::THUMBNAIL_PENDING) {
+            return response()->json([
+                'error' => 'サムネイル生成待ち状態ではないため処理できません。',
+                'thumbnail_status' => $mediaRecord->thumbnail_status,
+            ], 409);
+        }
+
+        try {
+            $mediaRecord->update(['thumbnail_status' => MediaRecord::THUMBNAIL_PROCESSING]);
+
+            // 同期実行: dispatch完了時点でサムネイル生成処理が完了している
+            GenerateThumbnailJob::dispatch($mediaRecord->id);
+
+            $mediaRecord->refresh();
+
+            return response()->json(['data' => $mediaRecord]);
+        } catch (\Throwable $e) {
+            Log::error('サムネイル生成エラー', [
+                'media_record_id' => $mediaRecord->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            // ジョブ内でエラーステータスに更新されていない場合の安全策（convert と同型）
+            $mediaRecord->refresh();
+            if ($mediaRecord->thumbnail_status === MediaRecord::THUMBNAIL_PROCESSING) {
+                $mediaRecord->update(['thumbnail_status' => MediaRecord::THUMBNAIL_ERROR]);
+            }
+
+            // convert と同じく、例外メッセージは外部プロセス由来で非UTF-8 になりうるため
+            // JSON に直接含めない。固定文言＋ログ突合用の media_record_id のみ返す。
+            return response()->json([
+                'error' => 'サムネイル生成に失敗しました。',
                 'media_record_id' => $mediaRecord->id,
             ], 500);
         }

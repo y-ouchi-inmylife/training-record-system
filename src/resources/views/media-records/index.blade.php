@@ -25,16 +25,22 @@
             データがありません。メディア登録から追加してください。
         </div>
     @else
-        {{-- レスポンシブグリッド（2列〜6列）。サムネイル無しのプレースホルダ表示。
-             サムネイル実装時は .ratio 内を <img> に差し替える素朴な構造。 --}}
+        {{-- レスポンシブグリッド（2列〜6列）。
+             サムネイル生成済み（thumbnail_url あり）なら .ratio 内に <img>、
+             それ以外（未生成・生成中・失敗・3b-2 未対応の動画）は今まで通りプレースホルダ表示。 --}}
         <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-3">
             @foreach($mediaRecords as $media)
+                @php($thumbnailUrl = $mediaModalData[$media->id]['thumbnail_url'] ?? null)
                 <div class="col">
                     <div class="card h-100 media-card" data-media-id="{{ $media->id }}" style="cursor: pointer;" role="button" tabindex="0">
                         <div class="ratio ratio-1x1 bg-light d-flex align-items-center justify-content-center">
-                            <span class="text-muted">
-                                {{ $media->type === \App\Models\MediaRecord::TYPE_PHOTO ? '写真' : '動画' }}
-                            </span>
+                            @if($thumbnailUrl)
+                                <img src="{{ $thumbnailUrl }}" alt="{{ $media->display_title }}" class="img-fluid">
+                            @else
+                                <span class="text-muted">
+                                    {{ $media->type === \App\Models\MediaRecord::TYPE_PHOTO ? '写真' : '動画' }}
+                                </span>
+                            @endif
                         </div>
                         <div class="card-body p-2 small">
                             <div class="text-muted">{{ $media->created_at->format('Y/m/d H:i') }}</div>
