@@ -209,6 +209,14 @@ class MediaRecordController extends Controller
         // 種別確定（決定した mime_type は EXTENSION_TO_MIME 由来なので常に許可リスト内）
         $type = MediaRecord::resolveTypeFromMime($mimeType);
 
+        // 表示用変換の要否を判定（ブラウザ表示可能＝変換不要、それ以外＝変換必要）
+        // 変換不要時は display_path に original_path と同値をセット（原本がそのまま表示用）
+        // 変換必要時は display_path は NULL のままで、conversion_status = pending として
+        // 変換ジョブの起動を待つ（変換ロジック本体は2b以降のフェーズ）
+        $isDisplayable = MediaRecord::isBrowserDisplayable($mimeType);
+        $conversionStatus = $isDisplayable ? 'not_required' : 'pending';
+        $displayPath = $isDisplayable ? $validated['storage_key'] : null;
+
         $mediaRecord = MediaRecord::create([
             'client_id' => $validated['client_id'],
             'trainer_id' => Auth::id(),
@@ -216,8 +224,10 @@ class MediaRecordController extends Controller
             'title' => $validated['title'] ?? null,
             'original_filename' => $validated['original_filename'],
             'original_path' => $validated['storage_key'],
+            'display_path' => $displayPath,
             'mime_type' => $mimeType,
             'file_size' => $validated['file_size'],
+            'conversion_status' => $conversionStatus,
         ]);
 
         return response()->json(['data' => $mediaRecord], 201);
@@ -268,14 +278,24 @@ class MediaRecordController extends Controller
     /**
      * 再生（GET /api/media-records/{id}/play）
      *
-     * ストレージ上のメディア実体への presigned GET URL を発行して返す。
+     * 表示用ファイル（display_path）への presigned GET URL を発行して返す。
      * クライアント（ブラウザ）はこのURLへ直接アクセスして再生・表示する。
      * 存在確認は行わない（store 時の方針Bと整合。孤児レコードは sakura が 403/404 を返す）。
+     *
+     * display_path が NULL（変換待ち・変換中・変換失敗）は表示用ファイルが未生成のため
+     * 409 を返す。呼び出し側は conversion_status に応じて「変換中」「変換失敗」を表示する。
      */
     public function play(MediaRecord $mediaRecord): JsonResponse
     {
+        if ($mediaRecord->display_path === null) {
+            return response()->json([
+                'error' => '表示用ファイルが未生成です。',
+                'conversion_status' => $mediaRecord->conversion_status,
+            ], 409);
+        }
+
         $expiresAt = now()->addMinutes(self::PLAY_URL_EXPIRES_MINUTES);
-        $url = Storage::disk(self::STORAGE_DISK)->temporaryUrl($mediaRecord->original_path, $expiresAt);
+        $url = Storage::disk(self::STORAGE_DISK)->temporaryUrl($mediaRecord->display_path, $expiresAt);
 
         return response()->json([
             'data' => [

@@ -217,6 +217,18 @@ document.addEventListener('DOMContentLoaded', function() {
             setDisplayAlert('読み込み中…', 'secondary');
             modal.show();
 
+            // ブラウザ表示可能なMIMEのみ play を呼ぶ。
+            // それ以外（heic/heif/mov等）は変換待ちで display_path が NULL のため
+            // play が 409 を返す。混乱を避けるため、呼ぶ前に非対応メッセージを出す。
+            // ※変換ロジック・convert API は2b以降のフェーズで追加予定。
+            if (!displayableMimes.includes(meta.mime_type)) {
+                setDisplayAlert(
+                    'このブラウザでは表示できない形式です（変換対応は今後）。MIME: ' + meta.mime_type,
+                    'warning'
+                );
+                return;
+            }
+
             // play で presigned GET URL を取得
             fetch('/api/media-records/' + encodeURIComponent(id) + '/play', {
                 headers: { 'Accept': 'application/json' }
@@ -228,15 +240,6 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(function(body) {
                 const url = body.data && body.data.url;
                 if (!url) { throw new Error('URL欠落'); }
-
-                // ブラウザ表示可能なMIMEのみ <img>/<video>。それ以外は非対応メッセージ。
-                if (!displayableMimes.includes(meta.mime_type)) {
-                    setDisplayAlert(
-                        'このブラウザでは表示できない形式です（変換対応は今後）。MIME: ' + meta.mime_type,
-                        'warning'
-                    );
-                    return;
-                }
 
                 displayArea.innerHTML = '';
                 if (meta.type === 'photo') {

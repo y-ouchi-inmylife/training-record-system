@@ -131,9 +131,11 @@ class MediaRecord extends Model
         'title',
         'original_filename',
         'original_path',
+        'display_path',
         'thumbnail_path',
         'mime_type',
         'file_size',
+        'conversion_status',
     ];
 
     protected function casts(): array
