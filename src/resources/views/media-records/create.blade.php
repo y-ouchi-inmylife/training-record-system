@@ -272,12 +272,12 @@ $(document).ready(function() {
                 throw new Error(await readErrorMessage(storeRes, 'メディアレコードの作成に失敗しました。'));
             }
 
-            // ④表示用変換（写真の heic/heif のみ、2b-1の対応範囲）
-            //   store のレスポンスで conversion_status=pending かつ type=photo の場合に convert を呼ぶ。
-            //   not_required（jpeg/png/mp4）は呼ばない。動画の pending（mov）は2b-2で対応。
+            // ④表示用変換（写真の heic/heif → jpeg、動画の mov → mp4）
+            //   store のレスポンスで conversion_status=pending（photo/video のどちらか）の場合に convert を呼ぶ。
+            //   not_required（jpeg/png/mp4）は呼ばない。
             const storeBody = await storeRes.json();
             const media = storeBody.data || {};
-            if (media.conversion_status === 'pending' && media.type === 'photo') {
+            if (media.conversion_status === 'pending' && (media.type === 'photo' || media.type === 'video')) {
                 setPhase('converting');
                 const convertRes = await fetch('/api/media-records/' + encodeURIComponent(media.id) + '/convert', {
                     method: 'POST',

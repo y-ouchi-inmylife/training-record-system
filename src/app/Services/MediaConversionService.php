@@ -15,8 +15,9 @@ use Illuminate\Support\Str;
  * 原本（オブジェクトストレージ）→ ローカル一時ファイル → 変換 → 表示用ファイル（オブジェクトストレージ）
  * のデータフローを担う。原本は常に残し、変換後の表示用ファイルを別キーで書き出す。
  *
- * 2b-1: 写真変換（heic/heif → jpeg）のみ実装。
- * 2b-2 以降で動画変換（mov → mp4）メソッドを追加予定。
+ * 写真変換（heic/heif → jpeg）と動画変換（mov → mp4）を提供する。
+ * 共通の骨格（get→tmp→Process→putFileAs→finally）と UTF-8 対策（toUtf8, 固定文言例外）を
+ * 揃え、変換コマンドだけ写真/動画で分岐させる構成。
  */
 class MediaConversionService
 {
@@ -28,6 +29,10 @@ class MediaConversionService
 
     // 一時ファイル置き場（storage/app 配下は git 管理外）
     private const TMP_DIR = 'tmp/conversion';
+
+    // 動画変換（ffmpeg）の実行タイムアウト（秒）
+    // 写真は短時間で済むため 300 秒で十分だが、動画は長尺になり得るので余裕を見て 600 秒。
+    private const VIDEO_PROCESS_TIMEOUT = 600;
 
     /**
      * 写真（heic/heif）を jpeg に変換し、変換後ファイルのストレージキーを返す
@@ -89,7 +94,7 @@ class MediaConversionService
 
             // 3. 変換後ファイルをオブジェクトストレージに書き戻す
             //    変換後キー: 原本と同じディレクトリ・同じファイル名（uuid）で拡張子を .jpg に
-            $displayPath = $this->buildDisplayPath($originalPath);
+            $displayPath = $this->buildDisplayPath($originalPath, 'jpg');
             $dir = pathinfo($displayPath, PATHINFO_DIRNAME);
             $basename = pathinfo($displayPath, PATHINFO_BASENAME);
 
@@ -103,16 +108,99 @@ class MediaConversionService
     }
 
     /**
-     * 原本パスから表示用ファイル（jpg）のキーを組み立てる
+     * 動画（mov）を mp4 に変換し、変換後ファイルのストレージキーを返す
      *
-     * 例: media/202606/{uuid}.heic → media/202606/{uuid}.jpg
+     * ブラウザ再生互換性を担保するため、コンテナ詰替えではなく常に再エンコードする。
+     * H.264 (libx264) + AAC + yuv420p で iOS/Android/Safari/Chrome すべてで再生可能とし、
+     * faststart で moov atom を先頭に置きストリーミング再生（バイト範囲リクエスト）を可能にする。
+     *
+     * @param string $originalPath 原本のストレージキー（例: media/202606/{uuid}.mov）
+     * @return string 変換後（表示用）のストレージキー（例: media/202606/{uuid}.mp4）
+     * @throws \RuntimeException 変換失敗時
      */
-    private function buildDisplayPath(string $originalPath): string
+    public function convertVideoToMp4(string $originalPath): string
+    {
+        $tmpDir = storage_path('app/' . self::TMP_DIR);
+        FileFacade::ensureDirectoryExists($tmpDir);
+
+        $tmpId = (string) Str::uuid();
+        $originalExt = pathinfo($originalPath, PATHINFO_EXTENSION) ?: 'bin';
+        $tmpIn = $tmpDir . DIRECTORY_SEPARATOR . $tmpId . '.' . $originalExt;
+        $tmpOut = $tmpDir . DIRECTORY_SEPARATOR . $tmpId . '.mp4';
+
+        try {
+            // 1. 原本をオブジェクトストレージから取得し、一時ファイルに書き出す
+            $bytes = Storage::disk(self::STORAGE_DISK)->get($originalPath);
+            if ($bytes === null) {
+                throw new \RuntimeException("原本ファイルが取得できません: {$originalPath}");
+            }
+            FileFacade::put($tmpIn, $bytes);
+
+            // 2. ffmpeg で mov→mp4 変換（常に再エンコード）
+            //    -y: 出力ファイル上書き許可
+            //    -c:v libx264 -preset medium -crf 23: 標準的な品質/速度バランス
+            //    -pix_fmt yuv420p: ブラウザ再生互換性のため必須（High 4:4:4 等の罠回避）
+            //    -c:a aac -b:a 128k: 音声は AAC 128kbps
+            //    -movflags +faststart: moov atom を先頭に置きストリーミング再生可能に
+            //    ffmpeg のパスは config 経由（Windows 開発ではフルパス必須、Linux 本番は 'ffmpeg' で PATH 解決）
+            $ffmpegPath = (string) config('media.ffmpeg_path', 'ffmpeg');
+            $result = Process::timeout(self::VIDEO_PROCESS_TIMEOUT)->run([
+                $ffmpegPath,
+                '-y',
+                '-i', $tmpIn,
+                '-c:v', 'libx264',
+                '-preset', 'medium',
+                '-crf', '23',
+                '-pix_fmt', 'yuv420p',
+                '-c:a', 'aac',
+                '-b:a', '128k',
+                '-movflags', '+faststart',
+                $tmpOut,
+            ]);
+
+            // 写真変換と同じく UTF-8 対策: stderr はログのみ、例外は固定文言。
+            // ffmpeg は進捗を stderr に大量出力するが、failed 時のみ拾うので量は問題なし。
+            if ($result->failed()) {
+                Log::error('MediaConversionService: ffmpeg 実行失敗', [
+                    'exit_code' => $result->exitCode(),
+                    'stderr' => $this->toUtf8($result->errorOutput()),
+                    'original_path' => $originalPath,
+                ]);
+                throw new \RuntimeException(
+                    "表示用変換に失敗しました（exit code {$result->exitCode()}）。詳細はサーバログを確認してください。"
+                );
+            }
+
+            if (!FileFacade::exists($tmpOut)) {
+                throw new \RuntimeException('変換後ファイルが生成されませんでした。');
+            }
+
+            // 3. 変換後ファイルをオブジェクトストレージに書き戻す
+            //    変換後キー: 原本と同じディレクトリ・同じファイル名（uuid）で拡張子を .mp4 に
+            $displayPath = $this->buildDisplayPath($originalPath, 'mp4');
+            $dir = pathinfo($displayPath, PATHINFO_DIRNAME);
+            $basename = pathinfo($displayPath, PATHINFO_BASENAME);
+
+            Storage::disk(self::STORAGE_DISK)->putFileAs($dir, new File($tmpOut), $basename);
+
+            return $displayPath;
+        } finally {
+            FileFacade::delete([$tmpIn, $tmpOut]);
+        }
+    }
+
+    /**
+     * 原本パスから表示用ファイルのキーを組み立てる（拡張子は呼び出し側が指定）
+     *
+     * 例: media/202606/{uuid}.heic, 'jpg' → media/202606/{uuid}.jpg
+     * 例: media/202606/{uuid}.mov,  'mp4' → media/202606/{uuid}.mp4
+     */
+    private function buildDisplayPath(string $originalPath, string $newExtension): string
     {
         $dir = pathinfo($originalPath, PATHINFO_DIRNAME);
         $name = pathinfo($originalPath, PATHINFO_FILENAME);
         // dirname が '.' になるケースは想定外（storage_key は必ず media/YYYYMM/... 形式）
-        return ($dir === '.' || $dir === '') ? $name . '.jpg' : $dir . '/' . $name . '.jpg';
+        return ($dir === '.' || $dir === '') ? $name . '.' . $newExtension : $dir . '/' . $name . '.' . $newExtension;
     }
 
     /**

@@ -314,10 +314,10 @@ class MediaRecordController extends Controller
     /**
      * 表示用変換を起動（POST /api/media-records/{id}/convert）
      *
-     * 写真（heic/heif）を jpeg に変換する。conversion_status が pending のときのみ実行可能。
+     * 写真（heic/heif）を jpeg に、動画（mov）を mp4 に変換する。
+     * conversion_status が pending のときのみ実行可能。
      * 開発は QUEUE_CONNECTION=sync で同期実行のため、レスポンス時点で done/error に遷移している。
-     *
-     * 2b-1 では写真のみ対応。動画（mov→mp4）は2b-2で対応予定のため、type=video は 422 で拒否する。
+     * type 別の振り分けは ConvertMediaJob 側で行う。
      */
     public function convert(MediaRecord $mediaRecord): JsonResponse
     {
@@ -326,14 +326,6 @@ class MediaRecordController extends Controller
                 'error' => '変換待ち状態ではないため処理できません。',
                 'conversion_status' => $mediaRecord->conversion_status,
             ], 409);
-        }
-
-        // 2b-1 は写真のみ実装。動画は2b-2で対応する
-        if ($mediaRecord->type !== MediaRecord::TYPE_PHOTO) {
-            return response()->json([
-                'error' => '動画変換は未対応です。',
-                'type' => $mediaRecord->type,
-            ], 422);
         }
 
         try {

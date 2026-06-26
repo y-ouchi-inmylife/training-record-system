@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Log;
  * 原本（heic/heif/mov）→ 表示用（jpeg/mp4）の変換を実行する。
  * 開発は QUEUE_CONNECTION=sync で同期実行、本番はキューワーカーで非同期実行する想定。
  *
- * 2b-1: 写真変換（heic/heif → jpeg）のみ対応。動画変換は2b-2で同骨格に分岐追加予定。
+ * type に応じて写真（heic/heif → jpeg）/ 動画（mov → mp4）の変換メソッドを振り分ける。
  */
 class ConvertMediaJob implements ShouldQueue
 {
@@ -47,12 +47,13 @@ class ConvertMediaJob implements ShouldQueue
         }
 
         try {
-            // 2b-1: 写真のみ対応。動画は2b-2で追加する分岐の入り口を明示しておく
-            if ($mediaRecord->type !== MediaRecord::TYPE_PHOTO) {
-                throw new \RuntimeException("動画変換は未実装です（2b-2で対応予定）。type: {$mediaRecord->type}");
-            }
-
-            $displayPath = $conversionService->convertPhotoToJpeg($mediaRecord->original_path);
+            // type で写真/動画を振り分け。default は DB CHECK 制約があるので実質到達しないが、
+            // type 列挙が将来増えたとき気づけるよう保険として残す。
+            $displayPath = match ($mediaRecord->type) {
+                MediaRecord::TYPE_PHOTO => $conversionService->convertPhotoToJpeg($mediaRecord->original_path),
+                MediaRecord::TYPE_VIDEO => $conversionService->convertVideoToMp4($mediaRecord->original_path),
+                default => throw new \RuntimeException("未対応のメディア種別: {$mediaRecord->type}"),
+            };
 
             $mediaRecord->update([
                 'display_path' => $displayPath,
