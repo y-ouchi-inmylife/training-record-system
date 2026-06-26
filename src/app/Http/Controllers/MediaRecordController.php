@@ -284,13 +284,24 @@ class MediaRecordController extends Controller
      * メディア削除（DELETE /media-records/{id}）
      *
      * ファイル先削除 → 成功してからレコード削除（既存音声と同型）。
+     * original_path / display_path / thumbnail_path の3キーから NULL を除き、重複
+     * （変換不要な jpeg/png/mp4 は original==display）を除いたユニーク集合を一括削除する。
      * sakura ディスクは config で throw=>true のため、ファイル削除失敗は例外で500に。
-     * その場合レコードは残り「DB ↔ ストレージ整合」の不変条件を保つ。
+     * その場合レコードは残り「DB ↔ ストレージ整合」の不変条件を保つ（孤児ファイル防止優先、
+     * ユーザーは再度の削除で再試行可能）。
+     * S3 互換 API の DELETE は冪等のため、存在確認チェックは不要（過剰防御を避ける）。
      */
     public function destroy(MediaRecord $mediaRecord): JsonResponse
     {
-        if (Storage::disk(self::STORAGE_DISK)->exists($mediaRecord->original_path)) {
-            Storage::disk(self::STORAGE_DISK)->delete($mediaRecord->original_path);
+        $keysToDelete = array_values(array_unique(array_filter([
+            $mediaRecord->original_path,
+            $mediaRecord->display_path,
+            $mediaRecord->thumbnail_path,
+        ])));
+
+        // original_path は NOT NULL なので通常空にならないが、念のためのガード
+        if (!empty($keysToDelete)) {
+            Storage::disk(self::STORAGE_DISK)->delete($keysToDelete);
         }
         $mediaRecord->delete();
 
