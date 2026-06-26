@@ -321,10 +321,11 @@ erDiagram
 | original_filename | VARCHAR(255) | NO | — | アップロード時の元ファイル名 |
 | original_path | VARCHAR(500) | NO | — | アップロードされた原本ファイルのオブジェクトストレージ上の保存パス（キー） |
 | display_path | VARCHAR(500) | YES | NULL | ブラウザ表示用ファイルのオブジェクトストレージ上の保存パス（キー）。表示・再生にはこのパスを用いる |
-| thumbnail_path | VARCHAR(500) | YES | NULL | サムネイルの保存パス（キー）。サムネイル生成は後フェーズのため当面NULL |
+| thumbnail_path | VARCHAR(500) | YES | NULL | サムネイルのオブジェクトストレージ上の保存パス（キー）。一覧表示に用いる |
 | mime_type | VARCHAR(100) | NO | — | MIMEタイプ（image/jpeg, image/png, image/heic, video/mp4, video/quicktime 等） |
 | file_size | BIGINT | YES | NULL | ファイルサイズ（バイト） |
 | conversion_status | VARCHAR(20) | NO | 'not_required' | 表示用変換の状態（5-18.参照） |
+| thumbnail_status | VARCHAR(20) | NO | 'pending' | サムネイル生成の状態（5-19.参照） |
 | created_at | TIMESTAMP | YES | NULL | 登録日時 |
 | updated_at | TIMESTAMP | YES | NULL | 最終更新日時 |
 
@@ -347,6 +348,7 @@ erDiagram
 | media_records_type_check | CHECK | type IN ('photo', 'video') | — | 定義済みのメディア種別のみ許可（5-17.参照） |
 | media_records_file_size_check | CHECK | file_size IS NULL OR file_size >= 0 | — | ファイルサイズは0以上 |
 | media_records_conversion_status_check | CHECK | conversion_status IN ('not_required', 'pending', 'processing', 'done', 'error') | — | 定義済みの変換状態のみ許可（5-18.参照） |
+| media_records_thumbnail_status_check | CHECK | thumbnail_status IN ('pending', 'processing', 'done', 'error') | — | 定義済みのサムネイル状態のみ許可（5-19.参照） |
 
 ##### 注記
 
@@ -795,6 +797,15 @@ erDiagram
 | processing | 変換中。表示用ファイルへの変換処理を実行している状態 |
 | done | 変換完了。表示用ファイルが生成され、display_path に保存された状態 |
 | error | エラー。変換処理中にエラーが発生した状態 |
+
+### 5-19. メディアサムネイル状態
+
+| 値 | 説明 |
+|----|------|
+| pending | 生成待ち。サムネイルの生成が未実行の状態 |
+| processing | 生成中。サムネイルの生成処理を実行している状態 |
+| done | 生成完了。サムネイルが生成され、thumbnail_path に保存された状態 |
+| error | エラー。サムネイル生成処理中にエラーが発生した状態 |
 
 
 ---

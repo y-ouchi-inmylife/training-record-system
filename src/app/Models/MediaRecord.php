@@ -59,6 +59,17 @@ class MediaRecord extends Model
     const CONVERSION_DONE = 'done';
     const CONVERSION_ERROR = 'error';
 
+    // サムネイル生成の状態（DBのCHECK制約 thumbnail_status IN (...) と対応・5-19参照）
+    // pending: 生成待ち。全メディアの store 直後の初期状態（サムネイルは全メディアが対象）
+    // processing: サムネイル生成ジョブが処理中
+    // done: 生成完了、thumbnail_path にサムネイルファイルのキーがセット済み
+    // error: 生成中にエラーが発生
+    // 変換と異なり not_required は無い（jpeg/png/mp4 でも一覧用サムネイルは生成する）
+    const THUMBNAIL_PENDING = 'pending';
+    const THUMBNAIL_PROCESSING = 'processing';
+    const THUMBNAIL_DONE = 'done';
+    const THUMBNAIL_ERROR = 'error';
+
     // クライアント側の事前バリデーション用ファイル拡張子リスト
     // heic ファイルなどでブラウザが file.type を返さないケースに備え、拡張子でも判定するために使用。
     // MIME_TO_EXTENSION は採番用の片方向マップで .jpeg を含まないため、用途が異なる定数として別に持つ。
@@ -148,6 +159,7 @@ class MediaRecord extends Model
         'mime_type',
         'file_size',
         'conversion_status',
+        'thumbnail_status',
     ];
 
     protected function casts(): array

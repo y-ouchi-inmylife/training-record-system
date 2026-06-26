@@ -18,10 +18,11 @@ return new class extends Migration
             $table->string('original_filename', 255)->comment('アップロード時の元ファイル名');
             $table->string('original_path', 500)->comment('アップロードされた原本ファイルのオブジェクトストレージ上の保存パス（キー）');
             $table->string('display_path', 500)->nullable()->comment('ブラウザ表示用ファイルのオブジェクトストレージ上の保存パス（キー）。変換不要時は original_path と同値、変換待ち/中/失敗時はNULL');
-            $table->string('thumbnail_path', 500)->nullable()->comment('サムネイルの保存パス（キー）。サムネイル生成は後フェーズのため当面NULL');
+            $table->string('thumbnail_path', 500)->nullable()->comment('サムネイルのオブジェクトストレージ上の保存パス（キー）。一覧表示に用いる');
             $table->string('mime_type', 100)->comment('MIMEタイプ（image/jpeg, image/png, image/heic, video/mp4, video/quicktime 等）');
             $table->bigInteger('file_size')->nullable()->comment('ファイルサイズ（バイト）');
             $table->string('conversion_status', 20)->default('not_required')->comment("表示用変換の状態: 'not_required'（変換不要・jpeg/png/mp4）, 'pending'（変換待ち・heic/mov）, 'processing', 'done', 'error'");
+            $table->string('thumbnail_status', 20)->default('pending')->comment("サムネイル生成の状態: 'pending'（生成待ち、全メディアの初期値）, 'processing', 'done', 'error'");
             $table->timestamps();
 
             // インデックス
@@ -42,6 +43,7 @@ return new class extends Migration
         DB::statement("ALTER TABLE media_records ADD CONSTRAINT media_records_type_check CHECK (type IN ('photo', 'video'))");
         DB::statement("ALTER TABLE media_records ADD CONSTRAINT media_records_file_size_check CHECK (file_size IS NULL OR file_size >= 0)");
         DB::statement("ALTER TABLE media_records ADD CONSTRAINT media_records_conversion_status_check CHECK (conversion_status IN ('not_required', 'pending', 'processing', 'done', 'error'))");
+        DB::statement("ALTER TABLE media_records ADD CONSTRAINT media_records_thumbnail_status_check CHECK (thumbnail_status IN ('pending', 'processing', 'done', 'error'))");
     }
 
     public function down(): void

@@ -223,6 +223,9 @@ class MediaRecordController extends Controller
             : MediaRecord::CONVERSION_PENDING;
         $displayPath = $isDisplayable ? $validated['storage_key'] : null;
 
+        // サムネイルは全メディア（jpeg/png/mp4/heic/mov）が生成対象のため、登録時は常に pending。
+        // DB default も 'pending' だが、CONVERSION_* と同じく意図を明示するため定数でセットする。
+        // サムネイル生成ロジックは3b以降のフェーズ。
         $mediaRecord = MediaRecord::create([
             'client_id' => $validated['client_id'],
             'trainer_id' => Auth::id(),
@@ -234,6 +237,7 @@ class MediaRecordController extends Controller
             'mime_type' => $mimeType,
             'file_size' => $validated['file_size'],
             'conversion_status' => $conversionStatus,
+            'thumbnail_status' => MediaRecord::THUMBNAIL_PENDING,
         ]);
 
         return response()->json(['data' => $mediaRecord], 201);
