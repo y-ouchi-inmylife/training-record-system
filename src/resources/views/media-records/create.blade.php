@@ -14,7 +14,7 @@
 
     {{-- アップロード中表示（テキスト＋進捗バー） --}}
     <div id="uploadInProgress" class="d-none mb-3">
-        <div class="alert alert-warning mb-2">
+        <div id="progressMessage" class="alert alert-warning mb-2">
             アップロード中… 画面を閉じないでください。
         </div>
         <div class="progress" style="height: 24px;">
@@ -102,6 +102,7 @@ $(document).ready(function() {
     const clientSelect = document.getElementById('media_client_id');
     const fileErrorEl = document.getElementById('fileError');
     const inProgressEl = document.getElementById('uploadInProgress');
+    const progressMessage = document.getElementById('progressMessage');
     const progressBar = document.getElementById('progressBar');
 
     // ファイルを写真／動画に分類（拡張子と MIME の OR 判定で heic file.type 問題に対応）
@@ -161,6 +162,17 @@ $(document).ready(function() {
         progressBar.style.width = pct + '%';
         progressBar.textContent = pct + '%';
         progressBar.setAttribute('aria-valuenow', String(pct));
+    }
+
+    // フェーズ別の進捗メッセージ切り替え（uploading → converting）。
+    // converting は変換完了まで時間がかかるため、進捗バーは100%縞アニメで「処理中」を示す。
+    function setPhase(phase) {
+        if (phase === 'converting') {
+            progressMessage.textContent = '変換中… 画面を閉じないでください。';
+            setProgress(100);
+        } else {
+            progressMessage.textContent = 'アップロード中… 画面を閉じないでください。';
+        }
     }
 
     // 422等のエラーレスポンスからユーザー向けメッセージを組み立てる
@@ -258,6 +270,25 @@ $(document).ready(function() {
             });
             if (!storeRes.ok) {
                 throw new Error(await readErrorMessage(storeRes, 'メディアレコードの作成に失敗しました。'));
+            }
+
+            // ④表示用変換（写真の heic/heif のみ、2b-1の対応範囲）
+            //   store のレスポンスで conversion_status=pending かつ type=photo の場合に convert を呼ぶ。
+            //   not_required（jpeg/png/mp4）は呼ばない。動画の pending（mov）は2b-2で対応。
+            const storeBody = await storeRes.json();
+            const media = storeBody.data || {};
+            if (media.conversion_status === 'pending' && media.type === 'photo') {
+                setPhase('converting');
+                const convertRes = await fetch('/api/media-records/' + encodeURIComponent(media.id) + '/convert', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                    },
+                });
+                if (!convertRes.ok) {
+                    throw new Error(await readErrorMessage(convertRes, '表示用変換に失敗しました。'));
+                }
             }
 
             // 完了 → S-1302（メディア一覧）へ遷移（設計の完了状態）

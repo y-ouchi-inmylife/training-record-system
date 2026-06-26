@@ -47,6 +47,18 @@ class MediaRecord extends Model
     // heic/heif/quicktime は許可形式だが、変換しないとブラウザで開けない（変換対応は今後フェーズ）
     const BROWSER_DISPLAYABLE_MIME_TYPES = ['image/jpeg', 'image/png', 'video/mp4'];
 
+    // 表示用変換の状態（DBのCHECK制約 conversion_status IN (...) と対応・5-18参照）
+    // not_required: jpeg/png/mp4 など原本がそのまま表示可能で変換が不要
+    // pending: heic/heif/mov など変換が必要だが未実行（store 直後の初期状態）
+    // processing: 変換ジョブが処理中（controller で dispatch 前にセット）
+    // done: 変換完了、display_path に変換後ファイルのキーがセット済み
+    // error: 変換中にエラーが発生
+    const CONVERSION_NOT_REQUIRED = 'not_required';
+    const CONVERSION_PENDING = 'pending';
+    const CONVERSION_PROCESSING = 'processing';
+    const CONVERSION_DONE = 'done';
+    const CONVERSION_ERROR = 'error';
+
     // クライアント側の事前バリデーション用ファイル拡張子リスト
     // heic ファイルなどでブラウザが file.type を返さないケースに備え、拡張子でも判定するために使用。
     // MIME_TO_EXTENSION は採番用の片方向マップで .jpeg を含まないため、用途が異なる定数として別に持つ。

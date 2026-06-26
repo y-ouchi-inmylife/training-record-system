@@ -122,9 +122,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // 詳細モーダル用データ（id → メタ情報辞書）と表示可能MIMEリスト
+    // 詳細モーダル用データ（id → メタ情報辞書）
     const mediaModalData = @json($mediaModalData ?? new \stdClass());
-    const displayableMimes = @json(\App\Models\MediaRecord::BROWSER_DISPLAYABLE_MIME_TYPES);
 
     const modalEl = document.getElementById('mediaDetailModal');
     if (!modalEl) return;
@@ -217,13 +216,17 @@ document.addEventListener('DOMContentLoaded', function() {
             setDisplayAlert('読み込み中…', 'secondary');
             modal.show();
 
-            // ブラウザ表示可能なMIMEのみ play を呼ぶ。
-            // それ以外（heic/heif/mov等）は変換待ちで display_path が NULL のため
-            // play が 409 を返す。混乱を避けるため、呼ぶ前に非対応メッセージを出す。
-            // ※変換ロジック・convert API は2b以降のフェーズで追加予定。
-            if (!displayableMimes.includes(meta.mime_type)) {
+            // 表示可否は conversion_status で判定する：
+            //   not_required（jpeg/png/mp4 など原本がそのまま表示可能）
+            //   done（変換済み・display_path に変換後ファイルがセット済み）
+            // これ以外（pending/processing/error）は display_path が未確定で
+            // play が 409 を返すため、呼ぶ前に状態併記の文言を出す。
+            const canDisplay =
+                meta.conversion_status === 'not_required' ||
+                meta.conversion_status === 'done';
+            if (!canDisplay) {
                 setDisplayAlert(
-                    'このブラウザでは表示できない形式です（変換対応は今後）。MIME: ' + meta.mime_type,
+                    '現在このメディアは表示できません（変換状態: ' + meta.conversion_status + '）。',
                     'warning'
                 );
                 return;

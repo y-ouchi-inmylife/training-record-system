@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ConvertMediaJob;
 use App\Models\MediaRecord;
 use App\Models\Trainer;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -77,6 +79,8 @@ class MediaRecordController extends Controller
             return [$m->id => [
                 'type' => $m->type,
                 'mime_type' => $m->mime_type,
+                // 詳細モーダルの表示判定（done/not_required なら play を呼ぶ）に使う
+                'conversion_status' => $m->conversion_status,
                 'display_title' => $m->display_title,
                 // 編集フォーム用に「raw な title（NULL あり得る）」と「client_id」を別途持つ
                 'title_raw' => $m->title,
@@ -214,7 +218,9 @@ class MediaRecordController extends Controller
         // 変換必要時は display_path は NULL のままで、conversion_status = pending として
         // 変換ジョブの起動を待つ（変換ロジック本体は2b以降のフェーズ）
         $isDisplayable = MediaRecord::isBrowserDisplayable($mimeType);
-        $conversionStatus = $isDisplayable ? 'not_required' : 'pending';
+        $conversionStatus = $isDisplayable
+            ? MediaRecord::CONVERSION_NOT_REQUIRED
+            : MediaRecord::CONVERSION_PENDING;
         $displayPath = $isDisplayable ? $validated['storage_key'] : null;
 
         $mediaRecord = MediaRecord::create([
@@ -303,5 +309,61 @@ class MediaRecordController extends Controller
                 'expires_at' => $expiresAt->toIso8601String(),
             ],
         ]);
+    }
+
+    /**
+     * 表示用変換を起動（POST /api/media-records/{id}/convert）
+     *
+     * 写真（heic/heif）を jpeg に変換する。conversion_status が pending のときのみ実行可能。
+     * 開発は QUEUE_CONNECTION=sync で同期実行のため、レスポンス時点で done/error に遷移している。
+     *
+     * 2b-1 では写真のみ対応。動画（mov→mp4）は2b-2で対応予定のため、type=video は 422 で拒否する。
+     */
+    public function convert(MediaRecord $mediaRecord): JsonResponse
+    {
+        if ($mediaRecord->conversion_status !== MediaRecord::CONVERSION_PENDING) {
+            return response()->json([
+                'error' => '変換待ち状態ではないため処理できません。',
+                'conversion_status' => $mediaRecord->conversion_status,
+            ], 409);
+        }
+
+        // 2b-1 は写真のみ実装。動画は2b-2で対応する
+        if ($mediaRecord->type !== MediaRecord::TYPE_PHOTO) {
+            return response()->json([
+                'error' => '動画変換は未対応です。',
+                'type' => $mediaRecord->type,
+            ], 422);
+        }
+
+        try {
+            $mediaRecord->update(['conversion_status' => MediaRecord::CONVERSION_PROCESSING]);
+
+            // 同期実行: dispatch完了時点で変換処理が完了している
+            ConvertMediaJob::dispatch($mediaRecord->id);
+
+            $mediaRecord->refresh();
+
+            return response()->json(['data' => $mediaRecord]);
+        } catch (\Throwable $e) {
+            Log::error('メディア変換エラー', [
+                'media_record_id' => $mediaRecord->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            // ジョブ内でエラーステータスに更新されていない場合の安全策（音声と同型）
+            $mediaRecord->refresh();
+            if ($mediaRecord->conversion_status === MediaRecord::CONVERSION_PROCESSING) {
+                $mediaRecord->update(['conversion_status' => MediaRecord::CONVERSION_ERROR]);
+            }
+
+            // 例外メッセージは外部プロセス由来で非UTF-8（CP932 等）になりうるため JSON に
+            // 直接含めない。固定文言＋ログ突合用の media_record_id のみ返す。
+            // 詳細は Log::error 側のログとサーバログから追跡する。
+            return response()->json([
+                'error' => '表示用変換に失敗しました。',
+                'media_record_id' => $mediaRecord->id,
+            ], 500);
+        }
     }
 }
