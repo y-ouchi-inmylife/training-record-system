@@ -18,8 +18,8 @@ use Illuminate\Support\Facades\Log;
  * 変換と独立に実行できる。開発は QUEUE_CONNECTION=sync で同期実行、本番はキューワーカーで
  * 非同期実行する想定。
  *
- * 3b-1: 写真サムネイル（heic/jpeg/png 原本 → jpeg）のみ対応。動画サムネイルは
- *       3b-2 で同骨格に分岐追加予定（ConvertMediaJob の 2b-1→2b-2 と同パターン）。
+ * type に応じて写真（heic/jpeg/png 原本 → jpeg）/ 動画（mov/mp4 原本 → jpeg、FFmpeg で
+ * フレーム抽出後 ImageMagick でサムネイル化）の生成メソッドを振り分ける。
  */
 class GenerateThumbnailJob implements ShouldQueue
 {
@@ -49,11 +49,11 @@ class GenerateThumbnailJob implements ShouldQueue
         }
 
         try {
-            // 3b-1: 写真のみ対応。動画は3b-2で追加する分岐の入り口を明示しておく
-            // （ConvertMediaJob の 2b-1 時点と同じパターン）
+            // type で写真/動画を振り分け。default は DB CHECK 制約があるので実質到達しないが、
+            // type 列挙が将来増えたとき気づけるよう保険として残す。
             $thumbnailPath = match ($mediaRecord->type) {
                 MediaRecord::TYPE_PHOTO => $thumbnailService->generatePhotoThumbnail($mediaRecord->original_path),
-                MediaRecord::TYPE_VIDEO => throw new \RuntimeException("動画サムネイルは未実装です（3b-2で対応予定）。"),
+                MediaRecord::TYPE_VIDEO => $thumbnailService->generateVideoThumbnail($mediaRecord->original_path),
                 default => throw new \RuntimeException("未対応のメディア種別: {$mediaRecord->type}"),
             };
 

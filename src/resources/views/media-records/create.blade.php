@@ -291,11 +291,11 @@ $(document).ready(function() {
                 }
             }
 
-            // ⑤サムネイル生成（3b-1 は写真のみ。動画は3b-2でこの条件を photo/video に拡張する）
-            //   全メディア（jpeg/png/mp4/heic/mov）が thumbnail_status=pending で store されるが、
-            //   3b-1 ではジョブが photo のみ処理するため、フロント側で type=photo に絞って呼ぶ。
+            // ⑤サムネイル生成（写真は heic/jpeg/png 原本から、動画は mov/mp4 原本から 1 秒目フレーム）
+            //   全メディア（jpeg/png/mp4/heic/mov）が thumbnail_status=pending で store されるので
+            //   pending かつ photo/video のどちらかなら generate-thumbnail を呼ぶ。
             //   失敗時はアラート → idle 復帰（既存 convert と同じ挙動）。
-            if (media.thumbnail_status === 'pending' && media.type === 'photo') {
+            if (media.thumbnail_status === 'pending' && (media.type === 'photo' || media.type === 'video')) {
                 setPhase('converting');
                 const thumbRes = await fetch('/api/media-records/' + encodeURIComponent(media.id) + '/generate-thumbnail', {
                     method: 'POST',
