@@ -144,6 +144,7 @@ IPアドレス制限が有効で、許可リストが登録されている場合
 | 内部API | - | POST | `/api/media-records/upload-url` | アップロード用の署名付きURLを発行する | auth | 管理者、一般 |
 | 内部API | - | POST | `/api/media-records` | アップロード完了後、メディアレコードを作成する | auth | 管理者、一般 |
 | 内部API | - | GET | `/api/media-records/{id}/play` | メディアを表示・再生する（ストリーミング） | auth | 管理者、一般 |
+| 内部API | - | POST | `/api/media-records/{id}/convert` | 表示用変換（heic→jpeg / mov→mp4）を起動する | auth | 管理者、一般 |
 
 ※ 認証列は実装のミドルウェア区分を示す。`public`＝認証不要（誰でもアクセス可）、`guest`＝未認証ユーザー向け（ログイン済みはホーム画面へリダイレクト）、`auth`＝要認証（ログイン済みのトレーナー）。
 ※ 権限列は認証後のロール制限を示す。`-`＝認証不要のため対象外、`全員`＝ログイン済みの全トレーナー（システム管理者を含む）、`管理者、一般`＝システム管理者を除く実務トレーナー、`管理者`＝管理者のみ、`システム管理者`＝システム管理者のみ。
@@ -1747,10 +1748,13 @@ POST /training-records と同じ。
 **処理**:
 - storage_key の指すファイルを original_path として、media_records レコードを作成する
 - original_filename の拡張子から正規のMIMEタイプを決定し、許可形式以外は拒否する
+- 形式に応じて conversion_status と display_path を設定する：
+  - 変換不要な形式（jpeg / png / mp4）：conversion_status を not_required とし、display_path に original_path と同じ値をセットする（原本がそのまま表示用）
+  - 変換が必要な形式（heic / mov）：conversion_status を pending とし、display_path は NULL のままとする（変換は別途 convert API で起動する）
 - 決定したMIMEタイプから種別（photo / video）を確定する
 - 決定したMIMEタイプを mime_type カラムに保存する
 - 登録者は、ログイン中のトレーナーを設定する
-
+  
 **レスポンス**（JSON）:
 - 成功：`{ "data": <メディア> }`（201）
 
@@ -1759,8 +1763,24 @@ POST /training-records と同じ。
 **概要**: メディアを表示・再生する内部API（ストリーミング）。メディア一覧の詳細モーダルのほか、将来的にトレーニング記録への紐付け・共有ビューなど複数の画面から横断的に利用するため、画面に依存しない内部APIとして配置する。
 
 **処理**:
-- 対象メディアのファイル実体を、オブジェクトストレージから取得して返す（ストリーミング）
+- 対象メディアの表示用ファイル（display_path）に対する署名付きGET URL（presigned URL）を発行して返す
+- display_path が NULL の場合（変換前・変換中・変換失敗）は、表示用ファイルが未生成のため表示・再生できない。この場合はエラー（または未生成を示すレスポンス）を返し、呼び出し側は conversion_status に応じて「変換中」「変換失敗」を表示する
 
-**レスポンス**:
-- メディアのストリーム（適切な Content-Type を付与）
+**レスポンス**（JSON）:
+- 成功：`{ "data": { "url": <署名付きURL>, "expires_at": <有効期限> } }`
+- display_path が NULL（表示用未生成）：エラーを返す（HTTP 409 等）
+- 該当なし：エラーを返す（HTTP 404）
+
+##### POST /api/media-records/{id}/convert
+
+**概要**: メディアの表示用変換（heic→jpeg / mov→mp4）を起動する内部API。登録画面（S-1301）で、レコード作成（store）後に conversion_status が pending（変換が必要）の場合に呼び出す。変換不要な形式では呼び出さない。
+
+**処理**:
+- 対象メディアの conversion_status が pending であることを確認する（既に処理中・完了・変換不要の場合は何もしないか、対象外として扱う）
+- 変換ジョブ（ConvertMediaJob）を起動する。ジョブは非同期（ShouldQueue）で、開発環境では同期実行、本番環境ではキューワーカーで非同期実行する
+- ジョブ内で、原本（original_path）をストレージから取得 → 変換（写真は ImageMagick で heic→jpeg、動画は FFmpeg で mov→mp4）→ 変換後ファイルをストレージに保存 → display_path にパスをセット → conversion_status を done に更新する
+- 変換中は conversion_status を processing、失敗時は error とする
+
+**レスポンス**（JSON）:
+- 成功（変換起動）：`{ "data": <メディア> }`（同期実行の場合は変換完了後の状態、非同期の場合は processing 状態）
 - 該当なし：エラーを返す（HTTP 404）

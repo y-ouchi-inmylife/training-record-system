@@ -320,9 +320,11 @@ erDiagram
 | title | VARCHAR(255) | YES | NULL | 表示名。未入力時は表示の際に元ファイル名（original_filename）をフォールバック表示する |
 | original_filename | VARCHAR(255) | NO | — | アップロード時の元ファイル名 |
 | original_path | VARCHAR(500) | NO | — | アップロードされた原本ファイルのオブジェクトストレージ上の保存パス（キー） |
+| display_path | VARCHAR(500) | YES | NULL | ブラウザ表示用ファイルのオブジェクトストレージ上の保存パス（キー）。表示・再生にはこのパスを用いる |
 | thumbnail_path | VARCHAR(500) | YES | NULL | サムネイルの保存パス（キー）。サムネイル生成は後フェーズのため当面NULL |
 | mime_type | VARCHAR(100) | NO | — | MIMEタイプ（image/jpeg, image/png, image/heic, video/mp4, video/quicktime 等） |
 | file_size | BIGINT | YES | NULL | ファイルサイズ（バイト） |
+| conversion_status | VARCHAR(20) | NO | 'not_required' | 表示用変換の状態（5-18.参照） |
 | created_at | TIMESTAMP | YES | NULL | 登録日時 |
 | updated_at | TIMESTAMP | YES | NULL | 最終更新日時 |
 
@@ -344,11 +346,12 @@ erDiagram
 | media_records_trainer_id_foreign | FOREIGN KEY | trainer_id → trainers(id) | SET NULL | 登録者トレーナー削除時はNULLにする（メディアはライブラリに残す） |
 | media_records_type_check | CHECK | type IN ('photo', 'video') | — | 定義済みのメディア種別のみ許可（5-17.参照） |
 | media_records_file_size_check | CHECK | file_size IS NULL OR file_size >= 0 | — | ファイルサイズは0以上 |
+| media_records_conversion_status_check | CHECK | conversion_status IN ('not_required', 'pending', 'processing', 'done', 'error') | — | 定義済みの変換状態のみ許可（5-18.参照） |
 
 ##### 注記
 
 - **client_id / trainer_id の NULL 許容**: メディアはライブラリ型の独立資産であり、持ち主クライアント・登録者トレーナーが削除されても実体（ファイル・レコード）は保持する。このため両カラムは ON DELETE SET NULL とし、DB上は NULL を許容する。一方、新規登録時は持ち主クライアントを必須とするため、アプリ側バリデーションで client_id を required とする（3-3. の二層構成）。
-- **ファイル実体との関係**: original_path / thumbnail_path はオブジェクトストレージ上のファイルへの参照であり、レコード削除時のファイル実体削除はアプリ側で行う（DBの外部キー制約はレコードのみを対象とし、ストレージ上のファイルには作用しない）。
+- **ファイル実体との関係**: original_path / display_path / thumbnail_path はオブジェクトストレージ上のファイルへの参照であり、レコード削除時のファイル実体削除はアプリ側で行う（DBの外部キー制約はレコードのみを対象とし、ストレージ上のファイルには作用しない）。削除時は原本・表示用・サムネイルの全ファイルを対象とする。
 
 ##### 設計ポリシー
 
@@ -782,6 +785,16 @@ erDiagram
 |----|------|
 | photo | 写真。jpeg / png / heic 形式の画像 |
 | video | 動画。mp4 / mov 形式の動画 |
+
+### 5-18. メディア変換状態
+
+| 値 | 説明 |
+|----|------|
+| not_required | 変換不要。jpeg / png / mp4 形式で、原本がそのままブラウザ表示・再生可能な状態 |
+| pending | 変換待ち。heic / mov 形式で、表示用ファイルへの変換が必要だが未実行の状態 |
+| processing | 変換中。表示用ファイルへの変換処理を実行している状態 |
+| done | 変換完了。表示用ファイルが生成され、display_path に保存された状態 |
+| error | エラー。変換処理中にエラーが発生した状態 |
 
 
 ---
