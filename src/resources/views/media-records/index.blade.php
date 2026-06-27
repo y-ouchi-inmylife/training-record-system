@@ -86,19 +86,10 @@
                     {{-- 右カラム：メタ情報 --}}
                     <div class="col-md-5">
                         {{-- メタ情報（表示のみ / 編集可能の混在）--}}
-                        <dl class="row mb-0 small">
+                        {{-- align-items-center で、入力欄のある行（表示名・クライアント）の dt を dd の縦中央に揃える --}}
+                        <dl class="row mb-0 small align-items-center">
                             <dt class="col-sm-3">登録日時</dt>
                             <dd class="col-sm-9" id="mediaMetaCreatedAt"></dd>
-
-                            <dt class="col-sm-3">クライアント <span class="text-danger">*</span></dt>
-                            <dd class="col-sm-9">
-                                <select id="mediaEditClientId" class="form-select form-select-sm select2-client-modal" style="width: 100%;">
-                                    <option value="">クライアントを検索...</option>
-                                </select>
-                            </dd>
-
-                            <dt class="col-sm-3">種別</dt>
-                            <dd class="col-sm-9" id="mediaMetaType"></dd>
 
                             <dt class="col-sm-3">表示名</dt>
                             <dd class="col-sm-9">
@@ -107,6 +98,16 @@
 
                             <dt class="col-sm-3">元ファイル名</dt>
                             <dd class="col-sm-9" id="mediaMetaOriginalFilename"></dd>
+
+                            <dt class="col-sm-3">種別</dt>
+                            <dd class="col-sm-9" id="mediaMetaType"></dd>
+
+                            <dt class="col-sm-3">クライアント <span class="text-danger">*</span></dt>
+                            <dd class="col-sm-9">
+                                <select id="mediaEditClientId" class="form-select form-select-sm select2-client-modal" style="width: 100%;">
+                                    <option value="">クライアントを検索...</option>
+                                </select>
+                            </dd>
 
                             <dt class="col-sm-3">登録者</dt>
                             <dd class="col-sm-9" id="mediaMetaTrainer"></dd>
