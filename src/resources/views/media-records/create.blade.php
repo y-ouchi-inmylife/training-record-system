@@ -46,9 +46,7 @@
             {{-- ファイル選択時の事前バリデーションエラー（不適合時のみ表示） --}}
             <div id="fileError" class="text-danger small mt-1 d-none"></div>
             <div class="form-text">
-                対応形式:<br>
-                写真 jpeg, png, heic（最大20MB）<br>
-                動画 mp4, mov（最大1GB）
+                対応形式: 【写真】 jpeg, png, heic（最大20MB）、【動画】 mp4, mov（最大1GB）
             </div>
 
             {{-- 選択ファイル一覧（ファイル選択後に表示。各行に状態バッジ：待機/処理中/完了/失敗） --}}
