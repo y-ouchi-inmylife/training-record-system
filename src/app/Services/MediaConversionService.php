@@ -53,12 +53,8 @@ class MediaConversionService
         $tmpOut = $tmpDir . DIRECTORY_SEPARATOR . $tmpId . '.jpg';
 
         try {
-            // 1. 原本をオブジェクトストレージから取得し、一時ファイルに書き出す
-            $bytes = Storage::disk(self::STORAGE_DISK)->get($originalPath);
-            if ($bytes === null) {
-                throw new \RuntimeException("原本ファイルが取得できません: {$originalPath}");
-            }
-            FileFacade::put($tmpIn, $bytes);
+            // 1. 原本をオブジェクトストレージから取得し、一時ファイルに書き出す（ストリームコピー）
+            $this->downloadOriginalToTempFile($originalPath, $tmpIn);
 
             // 2. magick で heic→jpeg 変換
             //    -auto-orient: heic に多い EXIF orientation を表示用に焼き込む
@@ -129,12 +125,8 @@ class MediaConversionService
         $tmpOut = $tmpDir . DIRECTORY_SEPARATOR . $tmpId . '.mp4';
 
         try {
-            // 1. 原本をオブジェクトストレージから取得し、一時ファイルに書き出す
-            $bytes = Storage::disk(self::STORAGE_DISK)->get($originalPath);
-            if ($bytes === null) {
-                throw new \RuntimeException("原本ファイルが取得できません: {$originalPath}");
-            }
-            FileFacade::put($tmpIn, $bytes);
+            // 1. 原本をオブジェクトストレージから取得し、一時ファイルに書き出す（ストリームコピー）
+            $this->downloadOriginalToTempFile($originalPath, $tmpIn);
 
             // 2. ffmpeg で mov→mp4 変換（常に再エンコード）
             //    -y: 出力ファイル上書き許可
@@ -201,6 +193,43 @@ class MediaConversionService
         $name = pathinfo($originalPath, PATHINFO_FILENAME);
         // dirname が '.' になるケースは想定外（storage_key は必ず media/YYYYMM/... 形式）
         return ($dir === '.' || $dir === '') ? $name . '.' . $newExtension : $dir . '/' . $name . '.' . $newExtension;
+    }
+
+    /**
+     * オブジェクトストレージの原本ファイルを、メモリにフルロードせず
+     * ストリームで一時ファイルにダウンロードする。
+     *
+     * Storage::get() は対象ファイル全体を PHP のメモリに読み込むため、
+     * 大容量メディア（数百MB〜1GB）で memory_limit を簡単に超える。
+     * readStream + stream_copy_to_stream に変更し、固定バッファでコピーすることで
+     * ファイルサイズに依存せず PHP メモリ使用量を一定に保つ。
+     *
+     * MediaThumbnailService に同じ実装がある。3つ目の Service が出てきたら trait 化を検討
+     * （toUtf8 と同じ方針）。
+     */
+    private function downloadOriginalToTempFile(string $originalPath, string $tmpIn): void
+    {
+        $readStream = Storage::disk(self::STORAGE_DISK)->readStream($originalPath);
+        if ($readStream === null || $readStream === false) {
+            throw new \RuntimeException("原本ファイルが取得できません: {$originalPath}");
+        }
+        $writeStream = fopen($tmpIn, 'wb');
+        if ($writeStream === false) {
+            fclose($readStream);
+            throw new \RuntimeException("一時ファイルを開けません: {$tmpIn}");
+        }
+        try {
+            if (stream_copy_to_stream($readStream, $writeStream) === false) {
+                throw new \RuntimeException("原本ダウンロード中にエラーが発生しました: {$originalPath}");
+            }
+        } finally {
+            if (is_resource($readStream)) {
+                fclose($readStream);
+            }
+            if (is_resource($writeStream)) {
+                fclose($writeStream);
+            }
+        }
     }
 
     /**
