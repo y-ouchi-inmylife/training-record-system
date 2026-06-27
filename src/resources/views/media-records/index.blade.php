@@ -61,9 +61,19 @@
 <div class="modal fade" id="mediaDetailModal" tabindex="-1" aria-labelledby="mediaDetailModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
+            {{-- ヘッダー右側に主要アクション（更新・削除）+ × を集約。
+                 システム他画面の流儀（タイトル左 / 操作ボタン右 / 削除は最右） に揃え、
+                 × と重複していた「閉じる」ボタンは廃止した。 --}}
             <div class="modal-header">
                 <h5 class="modal-title" id="mediaDetailModalLabel">メディア詳細</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+                {{-- ms-auto で右端に押し出す。Bootstrap の .modal-header は justify-content:space-between だが、
+                     本来は .btn-close 単独に margin-left:auto を当てる前提のため、btn-close を div でまとめたケースでは
+                     ms-auto を明示する方が確実。 --}}
+                <div class="d-flex gap-2 align-items-center ms-auto">
+                    <button type="button" class="btn btn-success" id="mediaUpdateBtn">更新</button>
+                    <button type="button" class="btn btn-danger" id="mediaDeleteBtn">削除</button>
+                    <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="閉じる"></button>
+                </div>
             </div>
             <div class="modal-body">
                 {{-- 左右2カラム（md 未満では Bootstrap の挙動で自動的に縦積み） --}}
@@ -73,10 +83,10 @@
                         <div id="mediaDisplayArea" class="text-center" style="min-height: 200px;"></div>
                     </div>
 
-                    {{-- 右カラム：メタ情報 + ボタン群（flex 下部にボタンを押し込む） --}}
-                    <div class="col-md-5 d-flex flex-column">
+                    {{-- 右カラム：メタ情報 --}}
+                    <div class="col-md-5">
                         {{-- メタ情報（表示のみ / 編集可能の混在）--}}
-                        <dl class="row mb-3 small">
+                        <dl class="row mb-0 small">
                             <dt class="col-sm-3">登録日時</dt>
                             <dd class="col-sm-9" id="mediaMetaCreatedAt"></dd>
 
@@ -101,13 +111,6 @@
                             <dt class="col-sm-3">登録者</dt>
                             <dd class="col-sm-9" id="mediaMetaTrainer"></dd>
                         </dl>
-
-                        {{-- ボタン群（mt-auto で右カラム下部に配置） --}}
-                        <div class="mt-auto d-flex justify-content-end gap-2">
-                            <button type="button" class="btn btn-success" id="mediaUpdateBtn">更新</button>
-                            <button type="button" class="btn btn-danger" id="mediaDeleteBtn">削除</button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
-                        </div>
                     </div>
                 </div>
             </div>
