@@ -231,6 +231,19 @@
         height: auto;
         cursor: zoom-out;
     }
+
+    /* 詳細モーダル右カラムの dl 各行の高さを揃える。
+       入力欄の行（表示名 input、クライアント Select2 ≒ 31px）と
+       テキストのみの行（≒ 21px）で高さがバラついていたのを統一し、
+       既存の align-items-center と組み合わせてラベル(dt)が縦に等間隔に並ぶようにする。
+       sm 以上で適用（縦積み時は dt/dd が独立行になり、min-height を効かせると
+       テキスト行の dd 枠に無駄な空白が出るため無効化する）。 */
+    @media (min-width: 576px) {
+        #mediaDetailModal .modal-body dl.row > dt,
+        #mediaDetailModal .modal-body dl.row > dd {
+            min-height: 2.5rem;
+        }
+    }
 </style>
 @endpush
 
