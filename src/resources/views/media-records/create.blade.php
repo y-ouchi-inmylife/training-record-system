@@ -292,14 +292,35 @@ $(document).ready(function() {
         progressBar.setAttribute('aria-valuenow', String(pct));
     }
 
-    // フェーズ別の進捗メッセージ切り替え（uploading → converting）。
-    // converting は変換完了まで時間がかかるため、進捗バーは100%縞アニメで「処理中」を示す。
+    // 全体進捗の context（N / M / filename）。setPhase で文言に組み込むため、
+    // フェーズが変わっても引き継げるようスコープ変数で保持する。
+    let currentProgressContext = { idx: 0, total: 0, filename: '' };
+
+    // フェーズ別の進捗メッセージとバー表現を切り替える。
+    //   uploading: % 付きバー（XHR progress で setProgress が 0→100 を動かす）
+    //   converting / thumbnail: バー満幅 + % テキスト空。progress-bar-striped+animated が
+    //     HTML 側で常時付与されているため、テキストを空にしておくだけで縞だけが流れて
+    //     「処理中・止まっていない」が伝わる（変換の実進捗% はフロントから取得できないため、
+    //     正確な % を出すには変換の非同期化＋ポーリングが必要で大掛かりすぎる。将来課題）。
     function setPhase(phase) {
+        const ctx = currentProgressContext;
+        const prefix = (ctx.idx + 1) + ' / ' + ctx.total + ' 個目: ' + ctx.filename;
+        let suffix;
         if (phase === 'converting') {
-            progressMessage.textContent = '変換中… 画面を閉じないでください。';
-            setProgress(100);
+            suffix = ' を変換中…';
+        } else if (phase === 'thumbnail') {
+            suffix = ' のサムネイル生成中…';
         } else {
-            progressMessage.textContent = 'アップロード中… 画面を閉じないでください。';
+            suffix = ' をアップロード中…';
+        }
+        progressMessage.textContent = prefix + suffix + ' 画面を閉じないでください。';
+
+        if (phase === 'uploading') {
+            setProgress(0);
+        } else {
+            progressBar.style.width = '100%';
+            progressBar.textContent = '';
+            progressBar.setAttribute('aria-valuenow', '100');
         }
     }
 
@@ -413,7 +434,7 @@ $(document).ready(function() {
 
         // ⑤サムネイル生成（写真は heic/jpeg/png 原本から、動画は mov/mp4 原本から 1 秒目フレーム）
         if (media.thumbnail_status === 'pending' && (media.type === 'photo' || media.type === 'video')) {
-            setPhase('converting');
+            setPhase('thumbnail');
             const thumbRes = await fetch('/api/media-records/' + encodeURIComponent(media.id) + '/generate-thumbnail', {
                 method: 'POST',
                 headers: {
@@ -427,11 +448,11 @@ $(document).ready(function() {
         }
     }
 
-    // 全体進捗（N 個中 M 個目）と現在処理中のファイル名を進捗エリアに表示し、個別 % をリセット
+    // 全体進捗（N 個中 M 個目）と現在処理中のファイル名を context にセットし、
+    // アップロードフェーズで進捗エリアを初期化する（setPhase 内で setProgress(0) も実行）。
     function setOverallProgress(currentIdx, total, filename) {
-        progressMessage.textContent =
-            (currentIdx + 1) + ' / ' + total + ' 個目を処理中: ' + filename + ' （画面を閉じないでください。）';
-        setProgress(0);
+        currentProgressContext = { idx: currentIdx, total: total, filename: filename };
+        setPhase('uploading');
     }
 
     // 全件処理後、失敗があった場合の結果サマリを描画。成功分は登録済みのまま残し、
