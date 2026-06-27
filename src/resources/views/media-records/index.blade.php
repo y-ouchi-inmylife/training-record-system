@@ -59,47 +59,57 @@
 
 {{-- 詳細モーダル（S-1302-M01） --}}
 <div class="modal fade" id="mediaDetailModal" tabindex="-1" aria-labelledby="mediaDetailModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="mediaDetailModalLabel">メディア詳細</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
             </div>
             <div class="modal-body">
-                {{-- メディア表示エリア（JSで img / video / 非対応メッセージを差し込む） --}}
-                <div id="mediaDisplayArea" class="text-center mb-3" style="min-height: 200px;"></div>
+                {{-- 左右2カラム（md 未満では Bootstrap の挙動で自動的に縦積み） --}}
+                <div class="row g-3">
+                    {{-- 左カラム：メディア表示エリア（JSで img / video / 非対応メッセージを差し込む） --}}
+                    <div class="col-md-7">
+                        <div id="mediaDisplayArea" class="text-center" style="min-height: 200px;"></div>
+                    </div>
 
-                {{-- メタ情報（表示のみ / 編集可能の混在）--}}
-                <dl class="row mb-0 small">
-                    <dt class="col-sm-3">登録日時</dt>
-                    <dd class="col-sm-9" id="mediaMetaCreatedAt"></dd>
+                    {{-- 右カラム：メタ情報 + ボタン群（flex 下部にボタンを押し込む） --}}
+                    <div class="col-md-5 d-flex flex-column">
+                        {{-- メタ情報（表示のみ / 編集可能の混在）--}}
+                        <dl class="row mb-3 small">
+                            <dt class="col-sm-3">登録日時</dt>
+                            <dd class="col-sm-9" id="mediaMetaCreatedAt"></dd>
 
-                    <dt class="col-sm-3">クライアント <span class="text-danger">*</span></dt>
-                    <dd class="col-sm-9">
-                        <select id="mediaEditClientId" class="form-select form-select-sm select2-client-modal" style="width: 100%;">
-                            <option value="">クライアントを検索...</option>
-                        </select>
-                    </dd>
+                            <dt class="col-sm-3">クライアント <span class="text-danger">*</span></dt>
+                            <dd class="col-sm-9">
+                                <select id="mediaEditClientId" class="form-select form-select-sm select2-client-modal" style="width: 100%;">
+                                    <option value="">クライアントを検索...</option>
+                                </select>
+                            </dd>
 
-                    <dt class="col-sm-3">種別</dt>
-                    <dd class="col-sm-9" id="mediaMetaType"></dd>
+                            <dt class="col-sm-3">種別</dt>
+                            <dd class="col-sm-9" id="mediaMetaType"></dd>
 
-                    <dt class="col-sm-3">表示名</dt>
-                    <dd class="col-sm-9">
-                        <input type="text" id="mediaEditTitle" class="form-control form-control-sm" maxlength="255" placeholder="未入力時は元ファイル名を表示">
-                    </dd>
+                            <dt class="col-sm-3">表示名</dt>
+                            <dd class="col-sm-9">
+                                <input type="text" id="mediaEditTitle" class="form-control form-control-sm" maxlength="255" placeholder="未入力時は元ファイル名を表示">
+                            </dd>
 
-                    <dt class="col-sm-3">元ファイル名</dt>
-                    <dd class="col-sm-9" id="mediaMetaOriginalFilename"></dd>
+                            <dt class="col-sm-3">元ファイル名</dt>
+                            <dd class="col-sm-9" id="mediaMetaOriginalFilename"></dd>
 
-                    <dt class="col-sm-3">登録者</dt>
-                    <dd class="col-sm-9" id="mediaMetaTrainer"></dd>
-                </dl>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-success" id="mediaUpdateBtn">更新</button>
-                <button type="button" class="btn btn-danger" id="mediaDeleteBtn">削除</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                            <dt class="col-sm-3">登録者</dt>
+                            <dd class="col-sm-9" id="mediaMetaTrainer"></dd>
+                        </dl>
+
+                        {{-- ボタン群（mt-auto で右カラム下部に配置） --}}
+                        <div class="mt-auto d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-success" id="mediaUpdateBtn">更新</button>
+                            <button type="button" class="btn btn-danger" id="mediaDeleteBtn">削除</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -109,6 +119,15 @@
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+<style>
+    /* 詳細モーダルの画像/動画の高さを制限。
+       縦長メディアでも右カラムの情報・ボタンが画面外に追い出されないようにする。 */
+    #mediaDisplayArea img,
+    #mediaDisplayArea video {
+        max-height: 70vh;
+        object-fit: contain;
+    }
+</style>
 @endpush
 
 @push('scripts')
