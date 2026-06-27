@@ -133,10 +133,13 @@
         max-height: 70vh;
         object-fit: contain;
     }
-    /* 写真と動画プレビューは「クリックで拡大」を示唆 */
-    #mediaDisplayArea img,
-    #mediaDisplayArea .video-preview-wrapper {
+    /* 写真は「クリックで拡大」を示唆 */
+    #mediaDisplayArea img {
         cursor: zoom-in;
+    }
+    /* 動画プレビューは「クリックで再生（ライトボックスを開く）」を示唆 */
+    #mediaDisplayArea .video-preview-wrapper {
+        cursor: pointer;
     }
 
     /* 動画プレビュー（詳細モーダル内）：ファーストフレーム + 中央に再生アイコン */
