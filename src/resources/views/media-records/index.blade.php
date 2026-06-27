@@ -484,12 +484,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const lightboxContent = document.getElementById('mediaLightboxContent');
     const lightboxCloseBtn = document.getElementById('mediaLightboxClose');
 
-    // src 末尾のフラグメント（詳細モーダル video に付けた #t=0.1 等）を取り除く
-    function stripFragment(src) {
-        const i = src.indexOf('#');
-        return i >= 0 ? src.substring(0, i) : src;
-    }
-
     function openLightbox(tagName, srcUrl, altText) {
         lightboxContent.innerHTML = '';
         lightboxEl.classList.remove('is-actual-size'); // 必ず全体表示から始める
@@ -499,10 +493,14 @@ document.addEventListener('DOMContentLoaded', function() {
             img.alt = altText || '';
             lightboxContent.appendChild(img);
         } else {
+            // ライトボックスを開いた直後は再生せず、停止状態（ファーストフレーム表示）で待機。
+            // srcUrl には詳細モーダル側で付けた #t=0.1 が含まれているのでそのまま使う。
+            // これにより preload="metadata" でも Safari 等で黒画面にならずファーストフレームが描画される。
+            // ユーザーが controls の再生ボタンを押すと 0.1 秒地点から再生開始。
             const video = document.createElement('video');
-            video.src = stripFragment(srcUrl); // 原寸では先頭から再生したい
+            video.src = srcUrl;
             video.controls = true;
-            video.autoplay = true; // 起動はユーザークリック直後 → autoplay 制限を満たす
+            video.preload = 'metadata';
             video.playsInline = true;
             lightboxContent.appendChild(video);
         }
