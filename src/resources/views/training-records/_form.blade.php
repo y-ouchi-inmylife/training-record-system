@@ -357,6 +357,9 @@ document.addEventListener('DOMContentLoaded', function() {
 @endpush
 
 @push('scripts')
+{{-- Sortable.js: メディアセクションのドラッグ&ドロップ並べ替え用。
+     登録・編集の両画面で使うため、_form 側に集約して読み込む。 --}}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.7/Sortable.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const summaryModal = new bootstrap.Modal(document.getElementById('summaryModal'));
@@ -607,6 +610,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const mediaSelection = {
         items: [],
+        // D&D 用 Sortable インスタンス。グリッドが可視になった初回 render で生成して保持する
+        sortable: null,
 
         init(initial) {
             this.items = Array.isArray(initial) ? initial.slice() : [];
@@ -646,6 +651,27 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             // 空のときはグリッドも非表示にして .row の負マージンが空メッセージに食い込まないようにする
             gridRoot.classList.toggle('d-none', this.items.length === 0);
+
+            // Sortable はカード1枚の状態で bind すると degraded モードで初期化され、
+            // その後カードが増えてもネイティブ HTML5 drag にフォールバックして
+            // 並び替えが効かなくなる（create で発生）。並び替えが意味を持つ2枚以上に
+            // なってから bind することで、正規モードでの初期化を保証する。
+            // 一度 bind すれば以降は container bind が維持され、innerHTML 再構築でも有効。
+            // CDN 障害時の握り潰しのため typeof でガード。
+            if (!this.sortable && this.items.length >= 2 && typeof Sortable !== 'undefined') {
+                this.sortable = new Sortable(gridRoot, {
+                    animation: 150,
+                    ghostClass: 'media-card-ghost',
+                    // × ボタン自身とその子（btn-close 内 SVG 等）をドラッグ対象から除外
+                    filter: '.media-remove-btn, .media-remove-btn *',
+                    // × の click（解除）に干渉しないよう preventDefault を抑止
+                    preventOnFilter: false,
+                    onEnd: function (evt) {
+                        if (evt.oldIndex === evt.newIndex) return;
+                        mediaSelection.move(evt.oldIndex, evt.newIndex);
+                    },
+                });
+            }
         },
     };
 
@@ -685,26 +711,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // メディアセクションのドラッグ&ドロップ並べ替え（Step4並べ替え）。
-    // Sortable は gridRoot にバインド。× ボタンは filter で除外して Step4解除と干渉させない。
-    // CDN 障害時の握り潰しのため typeof でガード。
-    if (typeof Sortable !== 'undefined') {
-        new Sortable(gridRoot, {
-            animation: 150,
-            ghostClass: 'media-card-ghost',
-            // × ボタン自身とその子（btn-close 内 SVG 等）をドラッグ対象から除外
-            filter: '.media-remove-btn, .media-remove-btn *',
-            // × の click（解除）に干渉しないよう preventDefault を抑止
-            preventOnFilter: false,
-            onEnd: function (evt) {
-                if (evt.oldIndex === evt.newIndex) return;
-                // Sortable は DOM を既に動かしているが、items 順の更新と render を行う。
-                // render が grid を再構築するが、Sortable は container に bind されているため
-                // 次回ドラッグも DOM の差し替え後の要素に対して有効。
-                mediaSelection.move(evt.oldIndex, evt.newIndex);
-            },
-        });
-    }
 });
 </script>
 
