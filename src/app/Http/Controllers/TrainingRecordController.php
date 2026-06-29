@@ -159,13 +159,30 @@ class TrainingRecordController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $validated = $request->validate($this->validationRules());
+        // 既存ルールに media_record_ids（多対多紐づけ）を追加。配列順を sort_order として保存する
+        $validated = $request->validate(array_merge($this->validationRules(), [
+            'media_record_ids'   => 'nullable|array',
+            'media_record_ids.*' => 'integer|distinct|exists:media_records,id',
+        ]));
+
+        $mediaIds = $validated['media_record_ids'] ?? [];
+        unset($validated['media_record_ids']);
 
         $validated['updated_by'] = auth()->id();
 
         try {
-            $created = DB::transaction(function () use ($validated) {
-                return TrainingRecord::create($validated);
+            $created = DB::transaction(function () use ($validated, $mediaIds) {
+                $record = TrainingRecord::create($validated);
+
+                // 登録と同時にメディア紐づけを作成。配列順を sort_order（0始まり連番）として保存
+                if (!empty($mediaIds)) {
+                    $pivotData = collect($mediaIds)
+                        ->mapWithKeys(fn ($id, $idx) => [(int) $id => ['sort_order' => $idx]])
+                        ->all();
+                    $record->mediaRecords()->sync($pivotData);
+                }
+
+                return $record;
             });
         } catch (\Exception $e) {
             \Log::error('トレーニング記録登録エラー', [
