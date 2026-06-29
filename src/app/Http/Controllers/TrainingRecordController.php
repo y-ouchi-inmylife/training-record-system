@@ -203,15 +203,35 @@ class TrainingRecordController extends Controller
     public function edit(TrainingRecord $trainingRecord): View
     {
         // mediaRecords は belongsToMany 側で orderByPivot('sort_order') 済みのため、
-        // sort_order 昇順で取得される（5c の編集画面メディアセクション表示用）
+        // sort_order 昇順で取得される（編集画面メディアセクションの初期表示用）
         $trainingRecord->load(['client', 'mediaRecords']);
+
+        // メディアセクションの初期データ（presigned サムネイル URL を含む）。
+        // 5c-2 でモーダルから add 追加されるアイテムと同じ形を返す。
+        // ※ availableMedia() / MediaRecordController::index() と同様のサムネ URL 生成を行うため
+        //   重複しているが、5c-1 では DRY 抽出を行わない（別 refactor で対応）。
+        $thumbnailExpiresAt = now()->addMinutes(MediaRecordController::PLAY_URL_EXPIRES_MINUTES);
+        $mediaInitial = $trainingRecord->mediaRecords->map(function ($m) use ($thumbnailExpiresAt) {
+            $thumbnailUrl = null;
+            if ($m->thumbnail_status === MediaRecord::THUMBNAIL_DONE && $m->thumbnail_path) {
+                $thumbnailUrl = Storage::disk(MediaRecordController::STORAGE_DISK)
+                    ->temporaryUrl($m->thumbnail_path, $thumbnailExpiresAt);
+            }
+            return [
+                'id' => $m->id,
+                'type' => $m->type,
+                'displayTitle' => $m->display_title,
+                'thumbnailUrl' => $thumbnailUrl,
+                'conversionStatus' => $m->conversion_status,
+            ];
+        })->values()->all();
 
         $trainingTypes = TrainingType::orderBy('sort_order')->get();
         $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
         $phases = Phase::orderBy('sort_order')->get();
 
         return view('training-records.edit', compact(
-            'trainingRecord', 'trainingTypes', 'trainers', 'phases'
+            'trainingRecord', 'trainingTypes', 'trainers', 'phases', 'mediaInitial'
         ));
     }
 

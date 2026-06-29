@@ -86,6 +86,25 @@
         </div>
     </div>
 
+    {{-- メディア（編集時のみ。基本情報の直下に配置：設計書 S-0404） --}}
+    @if($record)
+    <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">メディア</h6>
+            {{-- 5c-2 で活性化。5c-1 では disabled で配置のみ --}}
+            <button type="button" class="btn btn-sm btn-outline-primary" id="mediaAddBtn" disabled>追加</button>
+        </div>
+        <div class="card-body">
+            <div id="mediaSelectionEmpty" class="text-muted small d-none">
+                紐づけられているメディアはありません。
+            </div>
+            <div id="mediaSelectionGrid" class="row row-cols-2 row-cols-md-4 row-cols-xl-6 g-3"></div>
+            {{-- hidden input は JS が items 順に再生成（フォーム送信で media_record_ids[] として PUT される） --}}
+            <div id="mediaSelectionHiddenInputs"></div>
+        </div>
+    </div>
+    @endif
+
     {{-- トレーニング内容 --}}
     <div class="card mb-3">
         <div class="card-header">
@@ -469,4 +488,101 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 </script>
+@if($record)
+{{-- メディアセクションの状態管理（編集時のみ）。
+     5c-1 では init のみ実行。add は 5c-2、remove/move は Step4 で呼び出す。 --}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const gridRoot = document.getElementById('mediaSelectionGrid');
+    const hiddenRoot = document.getElementById('mediaSelectionHiddenInputs');
+    const emptyMessage = document.getElementById('mediaSelectionEmpty');
+    if (!gridRoot || !hiddenRoot) return;
+
+    // 既存メディア一覧（index.blade.php）と同型のカード DOM を組み立てる。
+    // ×ボタン・D&D ハンドル・再生は 5c-1 では付けない（後段で追加）。
+    function buildCard(item) {
+        const col = document.createElement('div');
+        col.className = 'col';
+
+        const card = document.createElement('div');
+        card.className = 'card h-100 media-card';
+        card.dataset.mediaId = String(item.id);
+
+        const ratio = document.createElement('div');
+        ratio.className = 'ratio ratio-1x1 bg-light d-flex align-items-center justify-content-center';
+        if (item.thumbnailUrl) {
+            const img = document.createElement('img');
+            img.src = item.thumbnailUrl;
+            img.alt = item.displayTitle || '';
+            img.className = 'img-fluid';
+            ratio.appendChild(img);
+        } else {
+            const span = document.createElement('span');
+            span.className = 'text-muted';
+            span.textContent = item.type === 'photo' ? '写真' : (item.type === 'video' ? '動画' : '');
+            ratio.appendChild(span);
+        }
+        card.appendChild(ratio);
+
+        const body = document.createElement('div');
+        body.className = 'card-body p-2 small';
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'text-truncate';
+        titleDiv.title = item.displayTitle || '';
+        titleDiv.textContent = item.displayTitle || '';
+        body.appendChild(titleDiv);
+        card.appendChild(body);
+
+        col.appendChild(card);
+        return col;
+    }
+
+    const mediaSelection = {
+        items: [],
+
+        init(initial) {
+            this.items = Array.isArray(initial) ? initial.slice() : [];
+            this.render();
+        },
+        add(media) {                     // 5c-2 で呼ぶ
+            if (this.items.some(i => i.id === media.id)) return;
+            this.items.push(media);
+            this.render();
+        },
+        remove(id) {                     // Step4 解除で呼ぶ
+            this.items = this.items.filter(i => i.id !== id);
+            this.render();
+        },
+        move(from, to) {                 // Step4 並べ替えで呼ぶ
+            const [it] = this.items.splice(from, 1);
+            this.items.splice(to, 0, it);
+            this.render();
+        },
+        render() {
+            // グリッド再構築
+            gridRoot.innerHTML = '';
+            this.items.forEach(item => gridRoot.appendChild(buildCard(item)));
+
+            // hidden input 再構築（items 順 → PUT で配列順 → 5a が sort_order=index で採番）
+            hiddenRoot.innerHTML = '';
+            this.items.forEach(item => {
+                const inp = document.createElement('input');
+                inp.type = 'hidden';
+                inp.name = 'media_record_ids[]';
+                inp.value = String(item.id);
+                hiddenRoot.appendChild(inp);
+            });
+
+            if (emptyMessage) {
+                emptyMessage.classList.toggle('d-none', this.items.length > 0);
+            }
+        },
+    };
+
+    // 5c-2 のモーダル callback / Step4 が触れるよう公開
+    window.mediaSelection = mediaSelection;
+    mediaSelection.init(@json($mediaInitial ?? []));
+});
+</script>
+@endif
 @endpush
