@@ -815,12 +815,13 @@ document.addEventListener('DOMContentLoaded', function () {
         pagination.classList.add('d-none');
 
         const params = new URLSearchParams({
+            training_record_id: String(trainingRecordId),
             trainer_id: trainerFilter.value,
             page: String(page),
         });
         try {
             const res = await fetch(
-                '/api/training-records/' + trainingRecordId + '/available-media?' + params.toString(),
+                '/api/training-records/available-media?' + params.toString(),
                 { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } }
             );
             if (!res.ok) throw new Error('候補の取得に失敗しました');

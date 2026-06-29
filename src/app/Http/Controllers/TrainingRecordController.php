@@ -348,25 +348,34 @@ class TrainingRecordController extends Controller
     }
 
     /**
-     * 紐づけ候補メディア一覧（GET /api/training-records/{id}/available-media）
+     * 紐づけ候補メディア一覧（GET /api/training-records/available-media）
      *
-     * S-0404-M01 メディア追加モーダルが、対象トレーニング記録に「まだ紐づいていない」
-     * メディアの候補を取得するための内部API。
+     * S-0404-M01（編集）および S-0401-M02（登録）メディア追加モーダルが、メディア候補を
+     * 取得するための内部API。training_record_id 指定時はその記録に「まだ紐づいていない」
+     * メディアのみを候補とし、未指定時（登録画面）は全件を候補とする。
      * 登録者フィルタと24件ページネーションは MediaRecordController::index() と同方針。
      */
-    public function availableMedia(Request $request, TrainingRecord $trainingRecord): JsonResponse
+    public function availableMedia(Request $request): JsonResponse
     {
         $user = Auth::user();
 
-        // 紐づけ済み除外（中間テーブルへのサブクエリ。
-        // joiningTable 規約により belongsToMany が media_record_training_record を解決済み）
+        // 登録画面では training_record_id 未指定。指定時は実在チェック（無ければ 404）
+        $trainingRecordId = $request->query('training_record_id');
+        $trainingRecord = $trainingRecordId
+            ? TrainingRecord::findOrFail($trainingRecordId)
+            : null;
+
         $query = MediaRecord::with(['trainer'])
-            ->orderBy('created_at', 'desc')
-            ->whereNotIn('id', function ($q) use ($trainingRecord) {
+            ->orderBy('created_at', 'desc');
+
+        // 紐づけ済み除外は trainingRecord 指定時のみ。未指定（登録画面）は全件が候補
+        if ($trainingRecord) {
+            $query->whereNotIn('id', function ($q) use ($trainingRecord) {
                 $q->select('media_record_id')
                   ->from('media_record_training_record')
                   ->where('training_record_id', $trainingRecord->id);
             });
+        }
 
         // 登録者フィルタ（既存メディア一覧と同型: 'all'=全件、id指定、未指定=自分）
         $trainerId = $request->query('trainer_id');
