@@ -102,7 +102,7 @@
             <div id="mediaSelectionEmpty" class="text-muted d-none">
                 この記録のメディアはありません。
             </div>
-            <div id="mediaSelectionGrid" class="row row-cols-2 row-cols-md-4 row-cols-xl-6 g-3"></div>
+            <div id="mediaSelectionGrid" class="row row-cols-2 row-cols-md-4 row-cols-xl-6 g-3 d-none"></div>
             {{-- hidden input は JS が items 順に再生成（フォーム送信で media_record_ids[] として PUT される） --}}
             <div id="mediaSelectionHiddenInputs"></div>
         </div>
@@ -652,6 +652,8 @@ document.addEventListener('DOMContentLoaded', function () {
             if (emptyMessage) {
                 emptyMessage.classList.toggle('d-none', this.items.length > 0);
             }
+            // 空のときはグリッドも非表示にして .row の負マージンが空メッセージに食い込まないようにする
+            gridRoot.classList.toggle('d-none', this.items.length === 0);
         },
     };
 
