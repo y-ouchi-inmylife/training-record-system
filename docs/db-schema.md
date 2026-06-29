@@ -115,7 +115,14 @@ erDiagram
         string type
         string title
     }
-    
+
+    media_record_training_record {
+        bigint id PK
+        bigint media_record_id FK
+        bigint training_record_id FK
+        int sort_order
+    }
+
     audio_records {
         bigint id PK
         bigint trainer_id FK
@@ -144,7 +151,10 @@ erDiagram
 
     clients ||--o{ media_records : "持ち主"
     trainers ||--o{ media_records : "登録する"
-    
+
+    media_records ||--o{ media_record_training_record : "紐づく"
+    training_records ||--o{ media_record_training_record : "紐づく"
+
     trainers ||--o{ audio_records : "録音・アップロード・テキスト入力する"
 
     clients ||--o{ audio_records : "対象となる"
@@ -357,7 +367,46 @@ erDiagram
 
 ##### 設計ポリシー
 
-- **ライブラリ型**: メディアはトレーニング記録に直接従属せず、独立した資産としてライブラリで管理する。トレーニング記録との紐付け（多対多の中間テーブル）は次フェーズで追加する。本テーブル単体では記録への参照を持たない。
+- **ライブラリ型**: メディアはトレーニング記録に直接従属せず、独立した資産としてライブラリで管理する。トレーニング記録との紐付けは多対多の中間テーブル（D-0600 media_record_training_record）で表現し、本テーブル単体では記録への参照を持たない。
+
+
+---
+
+#### D-0600 media_record_training_record（トレーニング記録のメディア）
+
+##### カラム定義
+
+| カラム名 | 型 | NULL | デフォルト | 説明 |
+|---------|-----|------|----------|------|
+| id | BIGINT UNSIGNED | NO | auto_increment | 主キー |
+| media_record_id | BIGINT UNSIGNED | NO | — | メディアのID（外部キー） |
+| training_record_id | BIGINT UNSIGNED | NO | — | トレーニング記録のID（外部キー） |
+| sort_order | INT UNSIGNED | NO | 0 | 同一トレーニング記録内でのメディアの表示順（0始まりの連番、昇順） |
+
+##### インデックス
+
+| インデックス名 | カラム | 種類 | 目的 |
+|---------------|--------|------|------|
+| PRIMARY | id | PRIMARY KEY | 主キー |
+| mrtr_media_training_unique | media_record_id, training_record_id | UNIQUE（複合） | 同一メディアと同一記録の重複紐づけを防止 |
+| mrtr_training_record_id_idx | training_record_id, sort_order | INDEX（複合） | トレーニング記録から紐づくメディアを表示順で取得（詳細・編集画面で使用）。※Laravelマイグレーションの制約によりソート方向指定なし |
+
+##### 制約
+
+| 制約名 | 種類 | 条件 | ON DELETE | 説明 |
+|--------|------|------|-----------|------|
+| mrtr_media_record_id_foreign | FOREIGN KEY | media_record_id → media_records(id) | CASCADE | メディア削除時に紐づけ行も削除 |
+| mrtr_training_record_id_foreign | FOREIGN KEY | training_record_id → training_records(id) | CASCADE | トレーニング記録削除時に紐づけ行も削除 |
+
+##### 注記
+
+- **タイムスタンプを持たない**: 本テーブルは created_at / updated_at を持たない。Laravel の belongsToMany で `withTimestamps()` を付けない。紐づけの追加・解除・並べ替えに伴う日時・更新者は、親であるトレーニング記録（training_records）の updated_at / updated_by に反映する（処理の詳細は api-design.md を参照）。
+- **sort_order は記録ごとに独立**: sort_order は中間テーブルの行が持つため、同一メディアが複数のトレーニング記録に紐づく場合でも、記録ごとに異なる表示順を持てる。値は同一 training_record 内で 0 始まりの連番とし、並べ替え時はその記録に紐づく全行を振り直す。新規追加したメディアは末尾に付ける（処理の詳細は api-design.md を参照）。
+
+##### 設計ポリシー
+
+- **関連の有無と表示順を保持**: 紐づけの追加・解除・並べ替えはトレーニング記録の編集（要件定義 6-4-5）の一部であり、紐づけが変わった事実は親トレーニング記録の更新として扱う。本テーブルは独自のタイムスタンプ・更新者を持たず、メディアと記録の関連の有無、および記録内での表示順（sort_order）を保持する。
+- **CASCADE の意味**: メディアまたはトレーニング記録の実体が削除されたとき、その関連行も削除する。これは「紐づけ解除」（中間行のみを削除する編集操作）とは別であり、エンティティ実体の削除に伴う関連の消滅を指す。紐づけ解除はメディア・記録の実体に影響しない。
 
 
 ---
@@ -845,11 +894,12 @@ erDiagram
 | 6 | support_statuses | なし |
 | 7 | training_records | clients, trainers, training_types, phases |
 | 8 | media_records | clients, trainers |
-| 9 | audio_records | clients, trainers |
-| 10 | access_logs | trainers |
-| 11 | system_settings | なし |
-| 12 | ip_whitelist | なし |
-| 13 | client_intake_tokens | clients |
+| 9 | media_record_training_record | media_records, training_records |
+| 10 | audio_records | clients, trainers |
+| 11 | access_logs | trainers |
+| 12 | system_settings | なし |
+| 13 | ip_whitelist | なし |
+| 14 | client_intake_tokens | clients |
 
 ---
 
