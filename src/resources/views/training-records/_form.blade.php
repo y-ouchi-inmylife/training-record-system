@@ -86,15 +86,14 @@
         </div>
     </div>
 
-    {{-- メディア（編集時のみ。基本情報の直下に配置：設計書 S-0404） --}}
-    @if($record)
+    {{-- メディア（基本情報の直下に配置：設計書 S-0401 / S-0404） --}}
     <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h6 class="mb-0">メディア</h6>
             <div class="d-flex gap-2">
-                {{-- 新規登録して追加（S-1302-M02 メディア登録モーダルを開く・段2） --}}
+                {{-- 新規登録して追加（S-1302-M02 メディア登録モーダルを開く） --}}
                 <button type="button" class="btn btn-primary" id="mediaUploadOpenBtn">新規登録して追加</button>
-                {{-- 追加（既存メディアを紐づける S-0404-M01 を開く） --}}
+                {{-- 追加（既存メディアを紐づける S-0401-M02 / S-0404-M01 を開く） --}}
                 <button type="button" class="btn btn-primary" id="mediaAddBtn" disabled>追加</button>
             </div>
         </div>
@@ -103,11 +102,10 @@
                 この記録のメディアはありません。
             </div>
             <div id="mediaSelectionGrid" class="row row-cols-2 row-cols-md-4 row-cols-xl-6 g-3 d-none"></div>
-            {{-- hidden input は JS が items 順に再生成（フォーム送信で media_record_ids[] として PUT される） --}}
+            {{-- hidden input は JS が items 順に再生成（フォーム送信で media_record_ids[] として送信される） --}}
             <div id="mediaSelectionHiddenInputs"></div>
         </div>
     </div>
-    @endif
 
     {{-- トレーニング内容 --}}
     <div class="card mb-3">
@@ -276,13 +274,10 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-{{-- メディア登録モーダル（S-1302-M02）。段1 で作った再利用部品。段2 で記録編集から呼ぶ。 --}}
-@if($record)
+{{-- メディア登録モーダル（S-1302-M02）。登録・編集の両画面から呼ぶ。 --}}
 @include('media-records._upload-modal')
-@endif
 
-{{-- メディア追加モーダル（S-0404-M01）。編集時のみ表示・操作 --}}
-@if($record)
+{{-- メディア追加モーダル（S-0401-M02 / S-0404-M01） --}}
 <div class="modal fade" id="mediaAddModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
@@ -320,7 +315,6 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 </div>
-@endif
 
 {{-- 要約選択モーダル --}}
 <div class="modal fade" id="summaryModal" tabindex="-1">
@@ -353,7 +347,6 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 
-@if($record)
 @push('styles')
 <style>
     /* メディアセクションの D&D 並べ替え（Step4並べ替え） */
@@ -362,7 +355,6 @@ document.addEventListener('DOMContentLoaded', function() {
     .media-card-ghost { opacity: 0.4; }
 </style>
 @endpush
-@endif
 
 @push('scripts')
 <script>
@@ -549,9 +541,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 </script>
-@if($record)
-{{-- メディアセクションの状態管理（編集時のみ）。
-     5c-1 では init のみ実行。add は 5c-2、remove/move は Step4 で呼び出す。 --}}
+{{-- メディアセクションの状態管理。
+     init で初期メディアを反映（edit）または空配列で初期化（create）。
+     add は登録/追加モーダル、remove/move はサムネ × と D&D で呼び出す。 --}}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const gridRoot = document.getElementById('mediaSelectionGrid');
@@ -721,7 +713,8 @@ document.addEventListener('DOMContentLoaded', function () {
      編集画面グリッドへ反映する。 --}}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const trainingRecordId = @json($record->id);
+    // edit では作成済み記録の id、create では null（登録画面ではクエリに含めない）
+    const trainingRecordId = @json($record?->id);
     const defaultTrainerId = @json(auth()->id());
     const addBtn = document.getElementById('mediaAddBtn');
     const modalEl = document.getElementById('mediaAddModal');
@@ -815,10 +808,13 @@ document.addEventListener('DOMContentLoaded', function () {
         pagination.classList.add('d-none');
 
         const params = new URLSearchParams({
-            training_record_id: String(trainingRecordId),
             trainer_id: trainerFilter.value,
             page: String(page),
         });
+        // create では trainingRecordId が null。クエリに含めず候補全件取得（除外なし）
+        if (trainingRecordId !== null) {
+            params.set('training_record_id', String(trainingRecordId));
+        }
         try {
             const res = await fetch(
                 '/api/training-records/available-media?' + params.toString(),
@@ -923,5 +919,4 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
-@endif
 @endpush
