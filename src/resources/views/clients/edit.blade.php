@@ -49,7 +49,7 @@
                         @error('initial_consultation_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
-                    <div class="w-100"></div>
+                    <div class="w-100 mt-0"></div>
 
                     <div class="col-md-3">
                         <label for="last_name" class="form-label">姓 <span class="text-danger">*</span></label>
