@@ -54,7 +54,7 @@
         <div class="collapse show" id="section-media">
         <div class="card-body">
             @if(count($mediaItems) === 0)
-                <div class="text-muted small">紐づけられているメディアはありません。</div>
+                <div class="text-muted">この記録のメディアはありません。</div>
             @else
                 <div class="row row-cols-2 row-cols-md-4 row-cols-xl-6 g-3" id="mediaViewGrid">
                     @foreach($mediaItems as $m)
