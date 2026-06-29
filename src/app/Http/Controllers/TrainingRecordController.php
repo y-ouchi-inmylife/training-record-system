@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\MediaRecordController;
 use App\Models\AudioRecord;
 use App\Models\Client;
+use App\Models\MediaRecord;
 use App\Models\TrainingType;
 use App\Models\Trainer;
 use App\Models\TrainingRecord;
@@ -11,7 +13,9 @@ use App\Models\Phase;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class TrainingRecordController extends Controller
@@ -315,6 +319,76 @@ class TrainingRecordController extends Controller
                 'message' => 'トレーニング記録の作成に失敗しました: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * 紐づけ候補メディア一覧（GET /api/training-records/{id}/available-media）
+     *
+     * S-0404-M01 メディア追加モーダルが、対象トレーニング記録に「まだ紐づいていない」
+     * メディアの候補を取得するための内部API。
+     * 登録者フィルタと24件ページネーションは MediaRecordController::index() と同方針。
+     */
+    public function availableMedia(Request $request, TrainingRecord $trainingRecord): JsonResponse
+    {
+        $user = Auth::user();
+
+        // 紐づけ済み除外（中間テーブルへのサブクエリ。
+        // joiningTable 規約により belongsToMany が media_record_training_record を解決済み）
+        $query = MediaRecord::with(['client', 'trainer'])
+            ->orderBy('created_at', 'desc')
+            ->whereNotIn('id', function ($q) use ($trainingRecord) {
+                $q->select('media_record_id')
+                  ->from('media_record_training_record')
+                  ->where('training_record_id', $trainingRecord->id);
+            });
+
+        // 登録者フィルタ（既存メディア一覧と同型: 'all'=全件、id指定、未指定=自分）
+        $trainerId = $request->query('trainer_id');
+        if ($trainerId === 'all') {
+            // フィルタなし
+        } elseif ($trainerId) {
+            $query->where('trainer_id', $trainerId);
+        } else {
+            $query->where('trainer_id', $user->id);
+        }
+
+        $paginator = $query->paginate(MediaRecordController::INDEX_PER_PAGE);
+
+        // 各要素のメタ情報（mediaModalData と同形・5c フロントが lookup 不要で直接使える形）
+        $thumbnailExpiresAt = now()->addMinutes(MediaRecordController::PLAY_URL_EXPIRES_MINUTES);
+        $items = $paginator->getCollection()->map(function ($m) use ($thumbnailExpiresAt) {
+            $thumbnailUrl = null;
+            if ($m->thumbnail_status === MediaRecord::THUMBNAIL_DONE && $m->thumbnail_path) {
+                $thumbnailUrl = Storage::disk(MediaRecordController::STORAGE_DISK)
+                    ->temporaryUrl($m->thumbnail_path, $thumbnailExpiresAt);
+            }
+
+            return [
+                'id' => $m->id,
+                'type' => $m->type,
+                'mime_type' => $m->mime_type,
+                'conversion_status' => $m->conversion_status,
+                'thumbnail_status' => $m->thumbnail_status,
+                'thumbnail_url' => $thumbnailUrl,
+                'display_title' => $m->display_title,
+                'original_filename' => $m->original_filename,
+                'created_at' => $m->created_at->format('Y/m/d H:i'),
+                'client_name' => $m->client
+                    ? trim(($m->client->internal_id ?? '') . ' ' . $m->client->display_name)
+                    : null,
+                'trainer_name' => $m->trainer?->name,
+            ];
+        })->values();
+
+        return response()->json([
+            'data' => $items,
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page'    => $paginator->lastPage(),
+                'per_page'     => $paginator->perPage(),
+                'total'        => $paginator->total(),
+            ],
+        ]);
     }
 
     /**
