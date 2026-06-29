@@ -52,7 +52,7 @@
                     <div class="w-100"></div>
 
                     <div class="col-md-3">
-                        <label for="last_name" class="form-label">姓</label>
+                        <label for="last_name" class="form-label">姓 <span class="text-danger">*</span></label>
                         <input type="text" class="form-control @error('last_name') is-invalid @enderror"
                                id="last_name" name="last_name" inputmode="text" value="{{ old('last_name', $client->last_name) }}">
                         @error('last_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
