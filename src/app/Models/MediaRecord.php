@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * メディア記録モデル
@@ -191,6 +192,18 @@ class MediaRecord extends Model
     public function trainer(): BelongsTo
     {
         return $this->belongsTo(Trainer::class, 'trainer_id');
+    }
+
+    /**
+     * このメディアが紐づくトレーニング記録（多対多・逆方向）
+     *
+     * 中間テーブル: media_record_training_record（D-0600）
+     * 逆方向では sort_order に意味がない（記録ごとの順序のため）ので
+     * withPivot / 並び替えは行わない。
+     */
+    public function trainingRecords(): BelongsToMany
+    {
+        return $this->belongsToMany(TrainingRecord::class);
     }
 
     // --- アクセサ ---
