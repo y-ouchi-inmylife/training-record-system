@@ -189,12 +189,33 @@ class TrainingRecordController extends Controller
      */
     public function show(TrainingRecord $trainingRecord): View
     {
+        // mediaRecords は belongsToMany 側で orderByPivot('sort_order') 済みのため、
+        // sort_order 昇順で取得される（詳細画面メディアセクションの閲覧用）
         $trainingRecord->load([
             'client', 'trainingType', 'trainer1', 'trainer2',
-            'phase',
+            'phase', 'mediaRecords',
         ]);
 
-        return view('training-records.show', compact('trainingRecord'));
+        // 詳細画面メディアセクション用の表示データ（presigned サムネイル URL を含む）。
+        // ※ サムネイル URL 生成は edit() / availableMedia() / MediaRecordController::index() と
+        //   同型のインライン処理（4箇所目）。DRY 抽出は別 refactor タスクで対応。
+        $thumbnailExpiresAt = now()->addMinutes(MediaRecordController::PLAY_URL_EXPIRES_MINUTES);
+        $mediaItems = $trainingRecord->mediaRecords->map(function ($m) use ($thumbnailExpiresAt) {
+            $thumbnailUrl = null;
+            if ($m->thumbnail_status === MediaRecord::THUMBNAIL_DONE && $m->thumbnail_path) {
+                $thumbnailUrl = Storage::disk(MediaRecordController::STORAGE_DISK)
+                    ->temporaryUrl($m->thumbnail_path, $thumbnailExpiresAt);
+            }
+            return [
+                'id'               => $m->id,
+                'type'             => $m->type,
+                'displayTitle'     => $m->display_title,
+                'thumbnailUrl'     => $thumbnailUrl,
+                'conversionStatus' => $m->conversion_status,
+            ];
+        })->values()->all();
+
+        return view('training-records.show', compact('trainingRecord', 'mediaItems'));
     }
 
     /**

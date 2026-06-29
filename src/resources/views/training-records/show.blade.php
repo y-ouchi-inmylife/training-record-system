@@ -46,6 +46,44 @@
         </div>
     </div>
 
+    {{-- メディア（基本情報の直下：設計書 S-0403） --}}
+    <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#section-media" style="cursor: pointer;">
+            <h6 class="mb-0">メディア</h6>
+        </div>
+        <div class="collapse show" id="section-media">
+        <div class="card-body">
+            @if(count($mediaItems) === 0)
+                <div class="text-muted small">紐づけられているメディアはありません。</div>
+            @else
+                <div class="row row-cols-2 row-cols-md-4 row-cols-xl-6 g-3" id="mediaViewGrid">
+                    @foreach($mediaItems as $m)
+                        <div class="col">
+                            <div class="card h-100 media-card"
+                                 data-media-id="{{ $m['id'] }}"
+                                 data-media-type="{{ $m['type'] }}"
+                                 data-conversion-status="{{ $m['conversionStatus'] }}"
+                                 data-display-title="{{ $m['displayTitle'] }}"
+                                 style="cursor: pointer;" role="button" tabindex="0">
+                                <div class="ratio ratio-1x1 bg-light d-flex align-items-center justify-content-center">
+                                    @if($m['thumbnailUrl'])
+                                        <img src="{{ $m['thumbnailUrl'] }}" alt="{{ $m['displayTitle'] }}" class="img-fluid">
+                                    @else
+                                        <span class="text-muted">{{ $m['type'] === 'photo' ? '写真' : '動画' }}</span>
+                                    @endif
+                                </div>
+                                <div class="card-body p-2 small">
+                                    <div class="text-truncate" title="{{ $m['displayTitle'] }}">{{ $m['displayTitle'] }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+        </div>
+    </div>
+
     {{-- トレーニング内容 --}}
     <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#section-content" style="cursor: pointer;">
@@ -103,4 +141,48 @@
         最終更新: {{ $trainingRecord->updated_at->format('Y/m/d H:i') }} {{ $trainingRecord->updatedBy?->name ?? '—' }}
     </div>
 </div>
+
+{{-- 原寸ライトボックス（写真拡大・動画再生） --}}
+@include('media-records._lightbox')
 @endsection
+
+@push('scripts')
+<script>
+// メディアサムネイルをクリック → play で presigned URL を取得 → ライトボックス表示
+document.addEventListener('DOMContentLoaded', function () {
+    const grid = document.getElementById('mediaViewGrid');
+    if (!grid) return;
+
+    grid.addEventListener('click', async function (e) {
+        const card = e.target.closest('.media-card');
+        if (!card) return;
+        const id = card.dataset.mediaId;
+        const type = card.dataset.mediaType;
+        const status = card.dataset.conversionStatus;
+        const title = card.dataset.displayTitle || '';
+
+        // 変換未完（pending/processing/error）は先取りで弾く
+        if (status !== 'not_required' && status !== 'done') {
+            alert('現在このメディアは表示できません（変換状態: ' + status + '）。');
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/media-records/' + encodeURIComponent(id) + '/play', {
+                headers: { 'Accept': 'application/json' },
+            });
+            if (!res.ok) throw new Error('再生 URL の取得に失敗しました');
+            const body = await res.json();
+            const url = body.data && body.data.url;
+            if (!url) throw new Error('URL が取得できませんでした');
+            if (typeof window.openLightbox !== 'function') {
+                throw new Error('ライトボックスが初期化されていません');
+            }
+            window.openLightbox(type === 'photo' ? 'IMG' : 'VIDEO', url, title);
+        } catch (err) {
+            alert(err.message || '再生に失敗しました');
+        }
+    });
+});
+</script>
+@endpush
