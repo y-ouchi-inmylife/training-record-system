@@ -164,8 +164,8 @@ class TrainingRecordController extends Controller
         $validated['updated_by'] = auth()->id();
 
         try {
-            DB::transaction(function () use ($validated) {
-                TrainingRecord::create($validated);
+            $created = DB::transaction(function () use ($validated) {
+                return TrainingRecord::create($validated);
             });
         } catch (\Exception $e) {
             \Log::error('トレーニング記録登録エラー', [
@@ -179,7 +179,7 @@ class TrainingRecordController extends Controller
         }
 
         return redirect()
-            ->route('clients.show', $validated['client_id'])
+            ->route('training-records.show', $created)
             ->with('success', 'トレーニング記録を登録しました。');
     }
 
