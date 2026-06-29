@@ -53,7 +53,7 @@
                     <div class="w-100"></div>
 
                     <div class="col-md-3">
-                        <label for="last_name" class="form-label">姓（本人）</label>
+                        <label for="last_name" class="form-label">姓</label>
                         <input type="text" class="form-control @error('last_name') is-invalid @enderror"
                                id="last_name" name="last_name" inputmode="text" value="{{ old('last_name') }}">
                         @error('last_name')
@@ -61,7 +61,7 @@
                         @enderror
                     </div>
                     <div class="col-md-3">
-                        <label for="first_name" class="form-label">名（本人）</label>
+                        <label for="first_name" class="form-label">名</label>
                         <input type="text" class="form-control @error('first_name') is-invalid @enderror"
                                id="first_name" name="first_name" inputmode="text" value="{{ old('first_name') }}">
                         @error('first_name')
@@ -69,7 +69,7 @@
                         @enderror
                     </div>
                     <div class="col-md-3">
-                        <label for="last_name_kana" class="form-label">せい（本人）</label>
+                        <label for="last_name_kana" class="form-label">せい</label>
                         <input type="text" class="form-control @error('last_name_kana') is-invalid @enderror"
                                id="last_name_kana" name="last_name_kana" inputmode="hiragana" value="{{ old('last_name_kana') }}"
                                placeholder="例: やまだ">
@@ -78,7 +78,7 @@
                         @enderror
                     </div>
                     <div class="col-md-3">
-                        <label for="first_name_kana" class="form-label">めい（本人）</label>
+                        <label for="first_name_kana" class="form-label">めい</label>
                         <input type="text" class="form-control @error('first_name_kana') is-invalid @enderror"
                                id="first_name_kana" name="first_name_kana" inputmode="hiragana" value="{{ old('first_name_kana') }}"
                                placeholder="例: たろう">
@@ -88,13 +88,13 @@
                     </div>
 
                     <div class="col-md-3">
-                        <label for="birth_date" class="form-label">生年月日（本人）</label>
+                        <label for="birth_date" class="form-label">生年月日</label>
                         <input type="text" class="form-control datepicker" id="birth_date" name="birth_date"
                                value="{{ old('birth_date') }}"
                                placeholder="例: 2000-01-15" pattern="\d{4}-\d{2}-\d{2}" maxlength="10">
                     </div>
                     <div class="col-md-3">
-                        <label for="gender" class="form-label">性別（本人）</label>
+                        <label for="gender" class="form-label">性別</label>
                         <select class="form-select" id="gender" name="gender">
                             <option value="">選択してください</option>
                             @foreach(['男', '女', 'その他'] as $g)
@@ -255,18 +255,18 @@
                 }
             });
 
-            // 本人姓の必須チェック
+            // 姓の必須チェック
             clearNameError();
             if (!document.getElementById('last_name').value.trim()) {
-                showNameError('last_name', '姓（本人）は必須です。');
+                showNameError('last_name', '姓は必須です。');
                 valid = false;
             }
 
             // ひらがなバリデーション
             const hiraganaRegex = /^[\u3041-\u3093\u30FC\s\u3000]*$/;
             const kanaFields = [
-                { id: 'last_name_kana', label: 'せい（本人）' },
-                { id: 'first_name_kana', label: 'めい（本人）' },
+                { id: 'last_name_kana', label: 'せい' },
+                { id: 'first_name_kana', label: 'めい' },
             ];
             kanaFields.forEach(function(f) {
                 clearFieldError(f.id);

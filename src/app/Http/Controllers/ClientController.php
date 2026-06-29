@@ -52,7 +52,7 @@ class ClientController extends Controller
             $query->where('internal_id', 'like', '%' . $request->input('internal_id') . '%');
         }
 
-        // 名前検索（姓名・かな・家族名の部分一致）
+        // 名前検索（姓名・かなの部分一致）
         if ($request->filled('keyword')) {
             $keyword = $request->input('keyword');
             $query->where(function ($q) use ($keyword) {

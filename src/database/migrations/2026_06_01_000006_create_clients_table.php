@@ -15,11 +15,11 @@ return new class extends Migration
             $table->date('initial_consultation_date');
 
             // カテゴリー1: 基本情報
-            $table->string('last_name', 50)->nullable()->comment('姓（本人）');
-            $table->string('first_name', 50)->nullable()->comment('名（本人）');
-            $table->string('last_name_kana', 50)->nullable()->comment('姓かな（本人）');
-            $table->string('first_name_kana', 50)->nullable()->comment('名かな（本人）');
-            $table->date('birth_date')->nullable()->comment('生年月日（本人）');
+            $table->string('last_name', 50)->nullable()->comment('姓');
+            $table->string('first_name', 50)->nullable()->comment('名');
+            $table->string('last_name_kana', 50)->nullable()->comment('姓かな');
+            $table->string('first_name_kana', 50)->nullable()->comment('名かな');
+            $table->date('birth_date')->nullable()->comment('生年月日');
             $table->string('gender', 10)->nullable()->comment('性別');
 
             // カテゴリー2: 連絡先

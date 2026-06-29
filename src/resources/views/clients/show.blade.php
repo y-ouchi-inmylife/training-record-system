@@ -78,7 +78,7 @@
                         <table class="table table-borderless table-sm">
                             <tr><th class="text-muted" style="width:40%">内部ID</th><td>{{ $client->internal_id }}</td></tr>
                             <tr>
-                                <th class="text-muted">名前（本人）</th>
+                                <th class="text-muted">名前</th>
                                 <td>{{ $client->full_name }} <span class="text-muted">{{ $client->full_name_kana ? '（' . $client->full_name_kana . '）' : '' }}</span></td>
                             </tr>
                         </table>
@@ -86,8 +86,8 @@
                     <div class="col-md-6">
                         <table class="table table-borderless table-sm">
                             <tr><th class="text-muted" style="width:40%">初回日</th><td>{{ $client->initial_consultation_date?->format('Y/m/d') ?: '—' }}</td></tr>
-                            <tr><th class="text-muted">生年月日（本人）</th><td>{{ $client->birth_date?->format('Y/m/d') ?: '—' }}</td></tr>
-                            <tr><th class="text-muted">性別（本人）</th><td>{{ $client->gender ?: '—' }}</td></tr>
+                            <tr><th class="text-muted">生年月日</th><td>{{ $client->birth_date?->format('Y/m/d') ?: '—' }}</td></tr>
+                            <tr><th class="text-muted">性別</th><td>{{ $client->gender ?: '—' }}</td></tr>
                         </table>
                     </div>
                 </div>

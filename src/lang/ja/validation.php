@@ -177,10 +177,10 @@ return [
 
     'custom' => [
         'last_name_kana' => [
-            'regex' => 'せい（本人）はひらがなで入力してください。',
+            'regex' => 'せいはひらがなで入力してください。',
         ],
         'first_name_kana' => [
-            'regex' => 'めい（本人）はひらがなで入力してください。',
+            'regex' => 'めいはひらがなで入力してください。',
         ],
         'trainer2_id' => [
             'different' => '担当2は担当1と異なるトレーナーを選択してください。',
@@ -199,10 +199,10 @@ return [
     */
 
     'attributes' => [
-        'last_name' => 'せい（本人）',
-        'first_name' => 'めい（本人）',
-        'last_name_kana' => 'せい（本人）',
-        'first_name_kana' => 'めい（本人）',
+        'last_name' => '姓',
+        'first_name' => '名',
+        'last_name_kana' => 'せい',
+        'first_name_kana' => 'めい',
         'birth_date' => '生年月日',
         'gender' => '性別',
         'initial_consultation_date' => '初回日',

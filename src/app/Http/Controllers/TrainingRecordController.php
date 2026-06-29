@@ -45,7 +45,7 @@ class TrainingRecordController extends Controller
             });
         }
 
-        // 氏名検索（本人・家族の姓名・かな 8カラムを横断的に部分一致）
+        // 氏名検索（姓名・かな 4カラムを横断的に部分一致）
         if ($request->filled('name')) {
             $name = $request->input('name');
             $query->whereHas('client', function ($q) use ($name) {
