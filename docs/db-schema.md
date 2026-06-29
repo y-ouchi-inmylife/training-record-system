@@ -222,11 +222,11 @@ erDiagram
 | id | BIGINT UNSIGNED | NO | auto_increment | 主キー |
 | internal_id | VARCHAR(10) | NO | — | 内部ID（クライアント識別用）。新規登録時にシステムが自動採番。編集画面で手動変更可能。ユニーク制約あり |
 | initial_consultation_date | DATE | NO | — | 初回日 |
-| last_name | VARCHAR(50) | YES | NULL | 姓（本人） |
-| first_name | VARCHAR(50) | YES | NULL | 名（本人） |
-| last_name_kana | VARCHAR(50) | YES | NULL | せい（本人）。ひらがなのみ |
-| first_name_kana | VARCHAR(50) | YES | NULL | めい（本人）。ひらがなのみ |
-| birth_date | DATE | YES | NULL | 生年月日（本人） |
+| last_name | VARCHAR(50) | YES | NULL | 姓 |
+| first_name | VARCHAR(50) | YES | NULL | 名 |
+| last_name_kana | VARCHAR(50) | YES | NULL | せい。ひらがなのみ |
+| first_name_kana | VARCHAR(50) | YES | NULL | めい。ひらがなのみ |
+| birth_date | DATE | YES | NULL | 生年月日 |
 | gender | VARCHAR(10) | YES | NULL | 性別（5-2.参照） |
 | primary_trainer_id | BIGINT UNSIGNED | YES | NULL | 主担当トレーナーのID（外部キー） |
 | support_status_id | BIGINT UNSIGNED | YES | NULL | 支援状態マスタのID（外部キー） |
