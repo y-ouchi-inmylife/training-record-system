@@ -7,7 +7,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0">トレーニング記録編集</h2>
         <div class="d-flex gap-2">
-            <a href="{{ route('clients.show', $trainingRecord->client_id) }}" class="btn btn-secondary js-leave-link">キャンセル</a>
+            <a href="{{ route('training-records.show', $trainingRecord) }}" class="btn btn-secondary js-leave-link">キャンセル</a>
             <button type="submit" form="trainingRecordForm" class="btn btn-success">更新</button>
         </div>
     </div>

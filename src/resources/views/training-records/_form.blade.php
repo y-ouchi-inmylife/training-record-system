@@ -201,7 +201,7 @@
     {{-- 送信ボタン --}}
     <div class="d-flex justify-content-end gap-2 mb-4">
         @if($record)
-            <a href="{{ route('clients.show', $record->client_id) }}" class="btn btn-secondary js-leave-link">キャンセル</a>
+            <a href="{{ route('training-records.show', $record) }}" class="btn btn-secondary js-leave-link">キャンセル</a>
         @else
             <a href="{{ $selectedClientId ? route('clients.show', $selectedClientId) : route('training-records.index') }}" class="btn btn-secondary js-leave-link">キャンセル</a>
         @endif

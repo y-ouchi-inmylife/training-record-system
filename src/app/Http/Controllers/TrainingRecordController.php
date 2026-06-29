@@ -284,7 +284,7 @@ class TrainingRecordController extends Controller
         }
 
         return redirect()
-            ->route('clients.show', $trainingRecord->client_id)
+            ->route('training-records.show', $trainingRecord)
             ->with('success', 'トレーニング記録を更新しました。');
     }
 
