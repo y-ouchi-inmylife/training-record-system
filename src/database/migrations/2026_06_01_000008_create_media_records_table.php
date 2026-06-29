@@ -11,7 +11,6 @@ return new class extends Migration
     {
         Schema::create('media_records', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('client_id')->nullable()->comment('メディアの持ち主クライアント。登録時はアプリ側で必須。持ち主クライアント削除時にNULL（メディアはライブラリに残る）');
             $table->unsignedBigInteger('trainer_id')->nullable()->comment('アップロードしたトレーナー（登録者）。登録者削除時にNULL（メディアはライブラリに残る）');
             $table->string('type', 20)->comment("メディア種別: 'photo', 'video'");
             $table->string('title', 255)->nullable()->comment('表示名。未入力時は表示の際に original_filename をフォールバック表示');
@@ -26,15 +25,11 @@ return new class extends Migration
             $table->timestamps();
 
             // インデックス
-            $table->index('client_id', 'media_records_client_id_foreign');
             $table->index('trainer_id', 'media_records_trainer_id_foreign');
             $table->index('type', 'media_records_type_idx');
             $table->index('created_at', 'media_records_created_at_idx');
 
-            // 外部キー（client_id → trainer_id の順）
-            $table->foreign('client_id', 'media_records_client_id_foreign')
-                ->references('id')->on('clients')
-                ->cascadeOnUpdate()->nullOnDelete();
+            // 外部キー（trainer_id）
             $table->foreign('trainer_id', 'media_records_trainer_id_foreign')
                 ->references('id')->on('trainers')
                 ->cascadeOnUpdate()->nullOnDelete();

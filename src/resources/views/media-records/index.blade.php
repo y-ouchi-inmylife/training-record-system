@@ -86,7 +86,7 @@
                     {{-- 右カラム：メタ情報 --}}
                     <div class="col-md-5">
                         {{-- メタ情報（表示のみ / 編集可能の混在）--}}
-                        {{-- align-items-center で、入力欄のある行（表示名・クライアント）の dt を dd の縦中央に揃える --}}
+                        {{-- align-items-center で、入力欄のある行（表示名）の dt を dd の縦中央に揃える --}}
                         <dl class="row mb-0 small align-items-center">
                             <dt class="col-sm-3">登録日時</dt>
                             <dd class="col-sm-9" id="mediaMetaCreatedAt"></dd>
@@ -101,13 +101,6 @@
 
                             <dt class="col-sm-3">種別</dt>
                             <dd class="col-sm-9" id="mediaMetaType"></dd>
-
-                            <dt class="col-sm-3">クライアント <span class="text-danger">*</span></dt>
-                            <dd class="col-sm-9">
-                                <select id="mediaEditClientId" class="form-select form-select-sm select2-client-modal" style="width: 100%;">
-                                    <option value="">クライアントを検索...</option>
-                                </select>
-                            </dd>
 
                             <dt class="col-sm-3">登録者</dt>
                             <dd class="col-sm-9" id="mediaMetaTrainer"></dd>
@@ -233,7 +226,7 @@
     }
 
     /* 詳細モーダル右カラムの dl 各行の高さを揃える。
-       入力欄の行（表示名 input、クライアント Select2 ≒ 31px）と
+       入力欄の行（表示名 input ≒ 31px）と
        テキストのみの行（≒ 21px）で高さがバラついていたのを統一し、
        既存の align-items-center と組み合わせてラベル(dt)が縦に等間隔に並ぶようにする。
        sm 以上で適用（縦積み時は dt/dd が独立行になり、min-height を効かせると
@@ -276,55 +269,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const metaOriginalFilename = document.getElementById('mediaMetaOriginalFilename');
     const metaTrainer = document.getElementById('mediaMetaTrainer');
     const editTitle = document.getElementById('mediaEditTitle');
-    const editClientSelect = document.getElementById('mediaEditClientId');
     const updateBtn = document.getElementById('mediaUpdateBtn');
     const deleteBtn = document.getElementById('mediaDeleteBtn');
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
     // 編集中のメディアID（モーダル close 時にクリア）
     let currentMediaId = null;
-
-    // モーダル内クライアント Select2 初期化（既存 audio upload-create と同型）
-    $(editClientSelect).select2({
-        theme: 'bootstrap-5',
-        placeholder: 'クライアントを検索（内部ID、名前、かな）',
-        allowClear: false,
-        width: '100%',
-        dropdownParent: $('#mediaDetailModal'),  // モーダル内z-index対策
-        ajax: {
-            url: '/api/clients/search',
-            dataType: 'json',
-            delay: 250,
-            data: function (params) { return { q: params.term }; },
-            processResults: function (data) { return { results: data.results }; },
-            cache: true
-        },
-        minimumInputLength: 1,
-        language: {
-            inputTooShort: function () { return '1文字以上入力してください'; },
-            noResults: function () { return '該当するクライアントが見つかりません'; },
-            searching: function () { return '検索中...'; }
-        }
-    });
-
-    // 対象メディアの client_id を Select2 の初期値としてセット（id 指定で /api/clients/search を叩く）
-    function loadInitialClient(clientId) {
-        if (!clientId) {
-            $(editClientSelect).val(null).trigger('change');
-            return;
-        }
-        $.ajax({
-            url: '/api/clients/search',
-            data: { id: clientId },
-            dataType: 'json'
-        }).then(function(data) {
-            if (data.results && data.results.length > 0) {
-                const c = data.results[0];
-                const option = new Option(c.text, c.id, true, true);
-                $(editClientSelect).append(option).trigger('change');
-            }
-        });
-    }
 
     // メディア表示エリアに alert メッセージを差し込む
     function setDisplayAlert(text, level) {
@@ -350,9 +300,8 @@ document.addEventListener('DOMContentLoaded', function() {
             metaOriginalFilename.textContent = meta.original_filename || '';
             metaTrainer.textContent = meta.trainer_name || '（削除済み）';
 
-            // 編集可能項目（input/select の値をセット）
+            // 編集可能項目（input の値をセット）
             editTitle.value = meta.title_raw || '';
-            loadInitialClient(meta.client_id);
 
             // 一旦「読み込み中」を出してからモーダルを開く
             setDisplayAlert('読み込み中…', 'secondary');
@@ -449,7 +398,6 @@ document.addEventListener('DOMContentLoaded', function() {
         displayArea.innerHTML = '';
         currentMediaId = null;
         editTitle.value = '';
-        $(editClientSelect).val(null).trigger('change');
     });
 
     // 422等のエラーレスポンスからユーザー向けメッセージを組み立てる
@@ -464,13 +412,10 @@ document.addEventListener('DOMContentLoaded', function() {
         return fallback;
     }
 
-    // 更新ボタン: title・client_id を PUT
+    // 更新ボタン: title を PUT
     updateBtn.addEventListener('click', async function() {
         if (!currentMediaId) return;
-        const clientId = $(editClientSelect).val();
         const title = editTitle.value.trim();
-
-        if (!clientId) { alert('クライアントを選択してください。'); return; }
 
         updateBtn.disabled = true;
         try {
@@ -482,7 +427,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    client_id: clientId,
                     title: title || null,
                 }),
             });

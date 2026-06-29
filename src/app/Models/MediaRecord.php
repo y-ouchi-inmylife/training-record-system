@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\Storage;
 /**
  * メディア記録モデル
  *
- * クライアントに紐付く写真・動画ファイルをライブラリ型で管理する。
+ * 写真・動画ファイルをライブラリ型で管理する。特定クライアントに従属せず、
+ * トレーニング記録との紐付けは中間テーブル（D-0600）を介した多対多で行う。
  * ファイル実体はオブジェクトストレージに保存し、本モデルはそのメタデータを保持する。
  */
 class MediaRecord extends Model
@@ -154,7 +155,6 @@ class MediaRecord extends Model
     }
 
     protected $fillable = [
-        'client_id',
         'trainer_id',
         'type',
         'title',
@@ -178,16 +178,6 @@ class MediaRecord extends Model
     }
 
     // --- リレーション ---
-
-    /**
-     * 持ち主クライアント
-     *
-     * クライアント削除時は SET NULL になるため、null を返しうる。
-     */
-    public function client(): BelongsTo
-    {
-        return $this->belongsTo(Client::class);
-    }
 
     /**
      * アップロードしたトレーナー（登録者）

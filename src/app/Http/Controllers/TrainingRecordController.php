@@ -360,7 +360,7 @@ class TrainingRecordController extends Controller
 
         // 紐づけ済み除外（中間テーブルへのサブクエリ。
         // joiningTable 規約により belongsToMany が media_record_training_record を解決済み）
-        $query = MediaRecord::with(['client', 'trainer'])
+        $query = MediaRecord::with(['trainer'])
             ->orderBy('created_at', 'desc')
             ->whereNotIn('id', function ($q) use ($trainingRecord) {
                 $q->select('media_record_id')
@@ -393,9 +393,6 @@ class TrainingRecordController extends Controller
                 'display_title' => $m->display_title,
                 'original_filename' => $m->original_filename,
                 'created_at' => $m->created_at->format('Y/m/d H:i'),
-                'client_name' => $m->client
-                    ? trim(($m->client->internal_id ?? '') . ' ' . $m->client->display_name)
-                    : null,
                 'trainer_name' => $m->trainer?->name,
             ];
         })->values();

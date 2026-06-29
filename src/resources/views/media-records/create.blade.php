@@ -27,16 +27,6 @@
     </div>
 
     <form id="mediaUploadForm" onsubmit="return false;">
-        {{-- クライアント --}}
-        <div class="mb-3">
-            <label for="media_client_id" class="form-label">
-                クライアント <span class="text-danger">*</span>
-            </label>
-            <select name="client_id" id="media_client_id" class="form-select select2-client-media">
-                <option value="">クライアントを検索...</option>
-            </select>
-        </div>
-
         {{-- ファイル（複数選択可） --}}
         <div class="mb-3">
             <label for="file" class="form-label">ファイル <span class="text-danger">*</span></label>
@@ -79,28 +69,6 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 $(document).ready(function() {
-    // クライアント検索Select2（既存の音声記録アップロード画面と同じ作法）
-    $('.select2-client-media').select2({
-        theme: 'bootstrap-5',
-        placeholder: 'クライアントを検索（内部ID、名前、かな）',
-        allowClear: true,
-        width: '100%',
-        ajax: {
-            url: '/api/clients/search',
-            dataType: 'json',
-            delay: 250,
-            data: function (params) { return { q: params.term }; },
-            processResults: function (data) { return { results: data.results }; },
-            cache: true
-        },
-        minimumInputLength: 1,
-        language: {
-            inputTooShort: function () { return '1文字以上入力してください'; },
-            noResults: function () { return '該当するクライアントが見つかりません'; },
-            searching: function () { return '検索中...'; }
-        }
-    });
-
     // サーバ側定数を Single Source of Truth として渡す（クライアント側に値を二重に持たない）
     const PHOTO_MIMES = @json(\App\Models\MediaRecord::PHOTO_MIME_TYPES);
     const VIDEO_MIMES = @json(\App\Models\MediaRecord::VIDEO_MIME_TYPES);
@@ -113,7 +81,6 @@ $(document).ready(function() {
     const submitBtn = document.getElementById('submitBtn');
     const cancelBtn = document.getElementById('cancelBtn');
     const fileInput = document.getElementById('file');
-    const clientSelect = document.getElementById('media_client_id');
     const fileErrorEl = document.getElementById('fileError');
     const inProgressEl = document.getElementById('uploadInProgress');
     const progressMessage = document.getElementById('progressMessage');
@@ -279,7 +246,6 @@ $(document).ready(function() {
         cancelBtn.classList.toggle('disabled', busy);
         cancelBtn.setAttribute('aria-disabled', busy ? 'true' : 'false');
         fileInput.disabled = busy;
-        $(clientSelect).prop('disabled', busy);
         inProgressEl.classList.toggle('d-none', !busy);
         if (!busy) setProgress(0);
     }
@@ -366,7 +332,7 @@ $(document).ready(function() {
     // 1 ファイル分の処理（upload-url → 直PUT → store → convert? → generate-thumbnail?）。
     // 既存の単一登録ロジックをそのまま 1 ファイル単位の関数に切り出したもの。
     // 例外を throw すれば呼び出し側のループで catch して「失敗」扱いとし、続行する。
-    async function processOneFile(file, clientId) {
+    async function processOneFile(file) {
         // ①署名付きURL発行（自アプリ宛 → CSRF必要）
         const uploadUrlRes = await fetch('/api/media-records/upload-url', {
             method: 'POST',
@@ -400,7 +366,6 @@ $(document).ready(function() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                client_id: clientId,
                 storage_key: storageKey,
                 original_filename: file.name,
                 mime_type: file.type,
@@ -475,11 +440,9 @@ $(document).ready(function() {
     }
 
     submitBtn.addEventListener('click', async function() {
-        const clientId = clientSelect.value;
         const files = selectedFiles;
 
         // 押下時の素朴なガード（disable はしない方針。再チェック + alert で弾く）
-        if (!clientId) { alert('クライアントを選択してください。'); return; }
         if (files.length === 0) { alert('ファイルを選択してください。'); return; }
         const v = validateAllFiles(files);
         if (!v.ok) { alert(v.message); return; }
@@ -498,7 +461,7 @@ $(document).ready(function() {
             setOverallProgress(i, files.length, file.name);
             setRowStatus(file, 'processing');
             try {
-                await processOneFile(file, clientId);
+                await processOneFile(file);
                 setRowStatus(file, 'done');
                 results.push({ file: file, ok: true });
             } catch (e) {

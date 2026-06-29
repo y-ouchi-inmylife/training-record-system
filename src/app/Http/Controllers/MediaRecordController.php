@@ -49,8 +49,8 @@ class MediaRecordController extends Controller
     {
         $user = Auth::user();
 
-        // 詳細モーダルでクライアント名・登録者名を表示するため、N+1回避の eager load を入れる
-        $query = MediaRecord::with(['client', 'trainer'])
+        // 詳細モーダルで登録者名を表示するため、N+1回避の eager load を入れる
+        $query = MediaRecord::with(['trainer'])
             ->orderBy('created_at', 'desc');
 
         // 登録者フィルタ（既存の音声記録一覧と同型）
@@ -91,14 +91,10 @@ class MediaRecordController extends Controller
                 'thumbnail_status' => $m->thumbnail_status,
                 'thumbnail_url' => $thumbnailUrl,
                 'display_title' => $m->display_title,
-                // 編集フォーム用に「raw な title（NULL あり得る）」と「client_id」を別途持つ
+                // 編集フォーム用に「raw な title（NULL あり得る）」を別途持つ
                 'title_raw' => $m->title,
-                'client_id' => $m->client_id,
                 'original_filename' => $m->original_filename,
                 'created_at' => $m->created_at->format('Y/m/d H:i'),
-                'client_name' => $m->client
-                    ? trim(($m->client->internal_id ?? '') . ' ' . $m->client->display_name)
-                    : null,
                 'trainer_name' => $m->trainer?->name,
             ]];
         });
@@ -109,8 +105,7 @@ class MediaRecordController extends Controller
     /**
      * メディア登録画面（GET /media-records/create）
      *
-     * クライアント選択は Select2 + 内部API `/api/clients/search` を使用するため、
-     * コントローラから渡すデータは無い。
+     * コントローラから渡すデータは無い（フォームの状態は blade 側で完結）。
      */
     public function create(): View
     {
@@ -185,7 +180,6 @@ class MediaRecordController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'client_id' => 'required|exists:clients,id',
             'storage_key' => 'required|string',
             'original_filename' => 'required|string|max:255',
             // mime_type は受け取るが採用しない（uploadUrl と同じ理由。詳細はそちらのコメント参照）
@@ -193,8 +187,6 @@ class MediaRecordController extends Controller
             'file_size' => 'required|integer|min:1',
             'title' => 'nullable|string|max:255',
         ], [
-            'client_id.required' => 'クライアントを指定してください。',
-            'client_id.exists' => '選択されたクライアントが存在しません。',
             'storage_key.required' => '保存キーを指定してください。',
             'original_filename.required' => '元ファイル名を指定してください。',
             'original_filename.max' => '元ファイル名は255文字以内で指定してください。',
@@ -236,7 +228,6 @@ class MediaRecordController extends Controller
         // DB default も 'pending' だが、CONVERSION_* と同じく意図を明示するため定数でセットする。
         // サムネイル生成ロジックは3b以降のフェーズ。
         $mediaRecord = MediaRecord::create([
-            'client_id' => $validated['client_id'],
             'trainer_id' => Auth::id(),
             'type' => $type,
             'title' => $validated['title'] ?? null,
@@ -255,22 +246,18 @@ class MediaRecordController extends Controller
     /**
      * メディア更新（PUT /media-records/{id}）
      *
-     * 表示名（title）と持ち主クライアント（client_id）のみ変更可能。
+     * 表示名（title）のみ変更可能。
      * 種別・ファイル・元ファイル名・mime_type は変更しない（ファイル差し替えは別フロー）。
      */
     public function update(Request $request, MediaRecord $mediaRecord): JsonResponse
     {
         $validated = $request->validate([
-            'client_id' => 'required|exists:clients,id',
             'title' => 'nullable|string|max:255',
         ], [
-            'client_id.required' => 'クライアントを選択してください。',
-            'client_id.exists' => '選択されたクライアントが存在しません。',
             'title.max' => '表示名は255文字以内で入力してください。',
         ]);
 
         $mediaRecord->update([
-            'client_id' => $validated['client_id'],
             'title' => $validated['title'] ?? null,
         ]);
 
