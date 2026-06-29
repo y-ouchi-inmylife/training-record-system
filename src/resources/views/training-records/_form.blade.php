@@ -272,6 +272,47 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+{{-- メディア追加モーダル（S-0404-M01）。編集時のみ表示・操作 --}}
+@if($record)
+<div class="modal fade" id="mediaAddModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">メディアを追加</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <label for="mediaAddTrainerFilter" class="form-label mb-0 text-nowrap">登録者:</label>
+                    <select id="mediaAddTrainerFilter" class="form-select" style="width: auto;">
+                        <option value="all">全員</option>
+                        @foreach($trainers as $t)
+                            <option value="{{ $t->id }}" {{ $t->id === auth()->id() ? 'selected' : '' }}>
+                                {{ $t->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <span class="text-muted small ms-auto">選択中: <span id="mediaAddSelectedCount">0</span> 件</span>
+                </div>
+                <div id="mediaAddLoading" class="text-center d-none">
+                    <div class="spinner-border" role="status"><span class="visually-hidden">読み込み中...</span></div>
+                </div>
+                <div id="mediaAddError" class="alert alert-danger d-none"></div>
+                <div id="mediaAddEmpty" class="text-muted small d-none">追加できるメディアがありません</div>
+                <div id="mediaAddGrid" class="row row-cols-2 row-cols-md-4 row-cols-xl-6 g-3"></div>
+                <nav id="mediaAddPagination" class="mt-3 d-none">
+                    <ul class="pagination pagination-sm justify-content-center mb-0"></ul>
+                </nav>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                <button type="button" class="btn btn-primary" id="mediaAddConfirmBtn" disabled>追加</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
 {{-- 要約選択モーダル --}}
 <div class="modal fade" id="summaryModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -582,6 +623,213 @@ document.addEventListener('DOMContentLoaded', function () {
     // 5c-2 のモーダル callback / Step4 が触れるよう公開
     window.mediaSelection = mediaSelection;
     mediaSelection.init(@json($mediaInitial ?? []));
+});
+</script>
+
+{{-- メディア追加モーダル制御（S-0404-M01）。
+     available-media（5b）を fetch して候補を表示、チェック選択して mediaSelection.add で
+     編集画面グリッドへ反映する。 --}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const trainingRecordId = @json($record->id);
+    const defaultTrainerId = @json(auth()->id());
+    const addBtn = document.getElementById('mediaAddBtn');
+    const modalEl = document.getElementById('mediaAddModal');
+    if (!addBtn || !modalEl) return;
+
+    const modal = new bootstrap.Modal(modalEl);
+    const trainerFilter = document.getElementById('mediaAddTrainerFilter');
+    const loading = document.getElementById('mediaAddLoading');
+    const errorEl = document.getElementById('mediaAddError');
+    const empty = document.getElementById('mediaAddEmpty');
+    const grid = document.getElementById('mediaAddGrid');
+    const pagination = document.getElementById('mediaAddPagination');
+    const confirmBtn = document.getElementById('mediaAddConfirmBtn');
+    const selectedCountEl = document.getElementById('mediaAddSelectedCount');
+
+    // モーダル内ローカルな選択状態（mediaSelection.items とは別物）。
+    // ページ送り時はリセットされる（同一ページ内で選んで [追加] する運用）。
+    const selectedIds = new Set();
+    // 直近 fetch の data[]（確定時に id で拾って camelCase 変換するために保持）
+    let currentPageData = [];
+
+    // 5c-1 で disabled だった [追加] ボタンを活性化
+    addBtn.disabled = false;
+
+    // モーダルを開く: 選択リセット → フィルタを既定（ログイン中）に戻す → 1ページ目を読み込み
+    addBtn.addEventListener('click', function () {
+        selectedIds.clear();
+        updateSelectedCount();
+        trainerFilter.value = String(defaultTrainerId);
+        loadPage(1);
+        modal.show();
+    });
+
+    // フィルタ変更: 1ページ目に戻る（選択は loadPage 内でリセット）
+    trainerFilter.addEventListener('change', function () {
+        loadPage(1);
+    });
+
+    // ページ送り: 「«前」「次»」ボタンの data-page でジャンプ
+    pagination.addEventListener('click', function (e) {
+        const btn = e.target.closest('button[data-page]');
+        if (btn) loadPage(parseInt(btn.dataset.page, 10));
+    });
+
+    // カードまたはチェックボックスクリックで選択トグル
+    grid.addEventListener('click', function (e) {
+        const card = e.target.closest('.media-card');
+        if (!card) return;
+        const id = parseInt(card.dataset.mediaId, 10);
+        const cb = card.querySelector('input[type="checkbox"]');
+        // チェックボックスを直接クリックしたときの二重トグルを避ける
+        if (e.target !== cb) cb.checked = !cb.checked;
+        if (cb.checked) selectedIds.add(id); else selectedIds.delete(id);
+        card.classList.toggle('border-primary', cb.checked);
+        updateSelectedCount();
+    });
+
+    // 確定 [追加]: 選択中メディアを mediaSelection.add に流す。
+    // ※ available-media JSON は snake_case (thumbnail_url / display_title / conversion_status)、
+    //    mediaSelection.items は camelCase (thumbnailUrl / displayTitle / conversionStatus) のため、
+    //    API のキー名が異なる。意図的にここで変換する。
+    confirmBtn.addEventListener('click', function () {
+        currentPageData
+            .filter(function (m) { return selectedIds.has(m.id); })
+            .forEach(function (m) {
+                window.mediaSelection.add({
+                    id: m.id,
+                    type: m.type,
+                    displayTitle: m.display_title,
+                    thumbnailUrl: m.thumbnail_url,
+                    conversionStatus: m.conversion_status,
+                });
+            });
+        modal.hide();
+    });
+
+    function updateSelectedCount() {
+        selectedCountEl.textContent = String(selectedIds.size);
+        confirmBtn.disabled = selectedIds.size === 0;
+    }
+
+    async function loadPage(page) {
+        // ページ送り・フィルタ変更で選択はリセット（仕様）
+        selectedIds.clear();
+        updateSelectedCount();
+
+        loading.classList.remove('d-none');
+        errorEl.classList.add('d-none');
+        empty.classList.add('d-none');
+        grid.innerHTML = '';
+        pagination.classList.add('d-none');
+
+        const params = new URLSearchParams({
+            trainer_id: trainerFilter.value,
+            page: String(page),
+        });
+        try {
+            const res = await fetch(
+                '/api/training-records/' + trainingRecordId + '/available-media?' + params.toString(),
+                { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } }
+            );
+            if (!res.ok) throw new Error('候補の取得に失敗しました');
+            const body = await res.json();
+            currentPageData = body.data || [];
+            renderGrid(currentPageData);
+            renderPagination(body.meta);
+            if (currentPageData.length === 0 && body.meta && body.meta.current_page === 1) {
+                empty.classList.remove('d-none');
+            }
+        } catch (e) {
+            errorEl.textContent = e.message || '候補の取得に失敗しました';
+            errorEl.classList.remove('d-none');
+        } finally {
+            loading.classList.add('d-none');
+        }
+    }
+
+    function renderGrid(items) {
+        grid.innerHTML = '';
+        items.forEach(function (m) { grid.appendChild(buildModalCard(m)); });
+    }
+
+    // 5c-1 buildCard と同じカード構造に、右上のチェックボックスを重ねる。
+    // ×・D&D・再生は付けない（モーダルでは候補選択だけが目的）。
+    function buildModalCard(m) {
+        const col = document.createElement('div');
+        col.className = 'col';
+
+        const card = document.createElement('div');
+        card.className = 'card h-100 media-card position-relative';
+        card.dataset.mediaId = String(m.id);
+        card.style.cursor = 'pointer';
+
+        // チェックボックス（右上、白背景で視認性確保。クリックでカードと同じトグル）
+        const checkWrap = document.createElement('div');
+        checkWrap.className = 'form-check position-absolute top-0 end-0 m-1 bg-white rounded p-1';
+        checkWrap.style.zIndex = '2';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.className = 'form-check-input m-0';
+        cb.value = String(m.id);
+        cb.setAttribute('aria-label', '選択');
+        checkWrap.appendChild(cb);
+        card.appendChild(checkWrap);
+
+        // サムネイル or フォールバック
+        const ratio = document.createElement('div');
+        ratio.className = 'ratio ratio-1x1 bg-light d-flex align-items-center justify-content-center';
+        if (m.thumbnail_url) {
+            const img = document.createElement('img');
+            img.src = m.thumbnail_url;
+            img.alt = m.display_title || '';
+            img.className = 'img-fluid';
+            ratio.appendChild(img);
+        } else {
+            const span = document.createElement('span');
+            span.className = 'text-muted';
+            span.textContent = m.type === 'photo' ? '写真' : (m.type === 'video' ? '動画' : '');
+            ratio.appendChild(span);
+        }
+        card.appendChild(ratio);
+
+        // 表示名
+        const body = document.createElement('div');
+        body.className = 'card-body p-2 small';
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'text-truncate';
+        titleDiv.title = m.display_title || '';
+        titleDiv.textContent = m.display_title || '';
+        body.appendChild(titleDiv);
+        card.appendChild(body);
+
+        col.appendChild(card);
+        return col;
+    }
+
+    function renderPagination(meta) {
+        const ul = pagination.querySelector('ul');
+        ul.innerHTML = '';
+        if (!meta || meta.last_page <= 1) return;
+
+        function mk(label, page, disabled, active) {
+            const li = document.createElement('li');
+            li.className = 'page-item' + (disabled ? ' disabled' : '') + (active ? ' active' : '');
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'page-link';
+            btn.textContent = label;
+            if (page != null && !disabled && !active) btn.dataset.page = String(page);
+            li.appendChild(btn);
+            return li;
+        }
+
+        ul.appendChild(mk('«前', meta.current_page - 1, meta.current_page <= 1, false));
+        ul.appendChild(mk(meta.current_page + ' / ' + meta.last_page, null, false, true));
+        ul.appendChild(mk('次»', meta.current_page + 1, meta.current_page >= meta.last_page, false));
+        pagination.classList.remove('d-none');
+    }
 });
 </script>
 @endif
