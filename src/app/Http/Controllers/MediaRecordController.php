@@ -384,7 +384,18 @@ class MediaRecordController extends Controller
 
             $mediaRecord->refresh();
 
-            return response()->json(['data' => $mediaRecord]);
+            // 段2 のため、登録モーダルの呼び出し側が再フェッチ不要で
+            // 仮紐づけ表示に使えるよう、thumbnail_url と display_title を含めて返す。
+            // QUEUE_CONNECTION=sync のため、ここで thumbnail_status=done が確定済み。
+            $thumbnailUrl = $mediaRecord->temporaryThumbnailUrl(
+                now()->addMinutes(self::PLAY_URL_EXPIRES_MINUTES)
+            );
+            return response()->json([
+                'data' => array_merge($mediaRecord->toArray(), [
+                    'thumbnail_url' => $thumbnailUrl,
+                    'display_title' => $mediaRecord->display_title,
+                ]),
+            ]);
         } catch (\Throwable $e) {
             Log::error('サムネイル生成エラー', [
                 'media_record_id' => $mediaRecord->id,

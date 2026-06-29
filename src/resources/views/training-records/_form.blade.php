@@ -91,8 +91,12 @@
     <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h6 class="mb-0">メディア</h6>
-            {{-- 5c-2 で活性化。5c-1 では disabled で配置のみ --}}
-            <button type="button" class="btn btn-sm btn-outline-primary" id="mediaAddBtn" disabled>追加</button>
+            <div class="d-flex gap-2">
+                {{-- 新規登録して追加（S-1302-M02 メディア登録モーダルを開く・段2） --}}
+                <button type="button" class="btn btn-sm btn-primary" id="mediaUploadOpenBtn">新規登録して追加</button>
+                {{-- 追加（既存メディアを紐づける S-0404-M01 を開く） --}}
+                <button type="button" class="btn btn-sm btn-outline-primary" id="mediaAddBtn" disabled>追加</button>
+            </div>
         </div>
         <div class="card-body">
             <div id="mediaSelectionEmpty" class="text-muted small d-none">
@@ -271,6 +275,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+{{-- メディア登録モーダル（S-1302-M02）。段1 で作った再利用部品。段2 で記録編集から呼ぶ。 --}}
+@if($record)
+@include('media-records._upload-modal')
+@endif
 
 {{-- メディア追加モーダル（S-0404-M01）。編集時のみ表示・操作 --}}
 @if($record)
@@ -661,6 +670,26 @@ document.addEventListener('DOMContentLoaded', function () {
     // 5c-2 のモーダル callback / Step4 が触れるよう公開
     window.mediaSelection = mediaSelection;
     mediaSelection.init(@json($mediaInitial ?? []));
+
+    // 段2 新規登録して追加 → メディア登録モーダル（S-1302-M02）を開く。
+    // 完了後、登録メディアを mediaSelection.add で仮状態紐づけ（[更新]で確定）。
+    // ※ partial の API は snake_case (thumbnail_url/display_title/conversion_status)、
+    //   mediaSelection.items は camelCase。意図的にここで変換する。
+    document.getElementById('mediaUploadOpenBtn')?.addEventListener('click', function () {
+        window.mediaUploadModal.open({
+            onComplete: function (registeredMedia) {
+                registeredMedia.forEach(function (m) {
+                    window.mediaSelection.add({
+                        id: m.id,
+                        type: m.type,
+                        displayTitle: m.display_title,
+                        thumbnailUrl: m.thumbnail_url,
+                        conversionStatus: m.conversion_status,
+                    });
+                });
+            },
+        });
+    });
 
     // メディアセクションのドラッグ&ドロップ並べ替え（Step4並べ替え）。
     // Sortable は gridRoot にバインド。× ボタンは filter で除外して Step4解除と干渉させない。

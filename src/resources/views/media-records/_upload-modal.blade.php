@@ -356,6 +356,11 @@
             if (!thumbRes.ok) {
                 throw new Error(await readErrorMessage(thumbRes, 'サムネイル生成に失敗しました。'));
             }
+            // generate-thumbnail のレスポンスを media にマージ。
+            // thumbnail_url / display_title / 最新の thumbnail_status などが入る。
+            // onComplete 受信側（段2 の記録編集）が mediaSelection.add で必要なフィールドを得るため。
+            const thumbBody = await thumbRes.json();
+            Object.assign(media, thumbBody.data || {});
         }
 
         return media;
