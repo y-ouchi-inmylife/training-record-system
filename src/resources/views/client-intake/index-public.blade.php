@@ -1,11 +1,11 @@
 @extends('layouts.client-intake')
 
 @section('content')
-<h2 class="mb-4" style="font-size: 2rem;">新規登録</h2>
+<h2 class="mb-4">新規登録</h2>
 
 {{-- プログレスバー --}}
 <div class="mb-4">
-    <div class="d-flex justify-content-between mb-2 step-badges">
+    <div class="d-flex justify-content-between mb-2">
         <span class="badge bg-primary step-badge" data-step="1">1. 基本情報</span>
         <span class="badge bg-secondary step-badge" data-step="2">2. 連絡先</span>
     </div>
@@ -36,13 +36,8 @@
             <h5 class="mb-0">ステップ 1/2: 基本情報</h5>
         </div>
         <div class="card-body">
+            <input type="hidden" name="initial_consultation_date" value="{{ $tokenRecord->initial_consultation_date->format('Y-m-d') }}">
             <div class="row g-3">
-                <div class="col-md-3">
-                    <input type="hidden" name="initial_consultation_date" value="{{ $tokenRecord->initial_consultation_date->format('Y-m-d') }}">
-                </div>
-
-                <div class="w-100"></div>
-
                 <div class="col-md-3">
                     <label for="last_name" class="form-label">姓 <span class="text-danger">*</span></label>
                     <input type="text" class="form-control @error('last_name') is-invalid @enderror"
@@ -86,7 +81,7 @@
             </div>
         </div>
         <div class="card-footer d-flex justify-content-end">
-            <button type="button" class="btn btn-primary btn-lg" onclick="showStep(2)">次へ</button>
+            <button type="button" class="btn btn-primary" onclick="showStep(2)">次へ</button>
         </div>
     </div>
 
@@ -154,8 +149,8 @@
             </div>
         </div>
         <div class="card-footer d-flex justify-content-between">
-            <button type="button" class="btn btn-secondary btn-lg" onclick="showStep(1)">戻る</button>
-            <button type="submit" class="btn btn-success btn-lg">登録</button>
+            <button type="button" class="btn btn-secondary" onclick="showStep(1)">戻る</button>
+            <button type="submit" class="btn btn-success">登録</button>
         </div>
     </div>
 
