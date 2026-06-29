@@ -344,6 +344,17 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 
+@if($record)
+@push('styles')
+<style>
+    /* メディアセクションの D&D 並べ替え（Step4並べ替え） */
+    #mediaSelectionGrid .col { cursor: grab; }
+    #mediaSelectionGrid .col:active { cursor: grabbing; }
+    .media-card-ghost { opacity: 0.4; }
+</style>
+@endpush
+@endif
+
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -650,6 +661,27 @@ document.addEventListener('DOMContentLoaded', function () {
     // 5c-2 のモーダル callback / Step4 が触れるよう公開
     window.mediaSelection = mediaSelection;
     mediaSelection.init(@json($mediaInitial ?? []));
+
+    // メディアセクションのドラッグ&ドロップ並べ替え（Step4並べ替え）。
+    // Sortable は gridRoot にバインド。× ボタンは filter で除外して Step4解除と干渉させない。
+    // CDN 障害時の握り潰しのため typeof でガード。
+    if (typeof Sortable !== 'undefined') {
+        new Sortable(gridRoot, {
+            animation: 150,
+            ghostClass: 'media-card-ghost',
+            // × ボタン自身とその子（btn-close 内 SVG 等）をドラッグ対象から除外
+            filter: '.media-remove-btn, .media-remove-btn *',
+            // × の click（解除）に干渉しないよう preventDefault を抑止
+            preventOnFilter: false,
+            onEnd: function (evt) {
+                if (evt.oldIndex === evt.newIndex) return;
+                // Sortable は DOM を既に動かしているが、items 順の更新と render を行う。
+                // render が grid を再構築するが、Sortable は container に bind されているため
+                // 次回ドラッグも DOM の差し替え後の要素に対して有効。
+                mediaSelection.move(evt.oldIndex, evt.newIndex);
+            },
+        });
+    }
 });
 </script>
 

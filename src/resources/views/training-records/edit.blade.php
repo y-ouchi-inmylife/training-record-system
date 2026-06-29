@@ -27,6 +27,8 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
+{{-- Sortable.js: メディアセクションのドラッグ&ドロップ並べ替え用（Step4並べ替え） --}}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.7/Sortable.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         flatpickr('.datepicker', {
