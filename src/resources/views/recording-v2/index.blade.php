@@ -37,7 +37,7 @@
 
                         <!-- 録音開始ボタン -->
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg">
+                            <button type="submit" class="btn btn-primary">
                                 <i class="bi bi-mic-fill"></i> 録音実行へ進む
                             </button>
                         </div>

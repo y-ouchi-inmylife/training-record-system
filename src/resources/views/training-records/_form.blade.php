@@ -93,9 +93,9 @@
             <h6 class="mb-0">メディア</h6>
             <div class="d-flex gap-2">
                 {{-- 新規登録して追加（S-1302-M02 メディア登録モーダルを開く・段2） --}}
-                <button type="button" class="btn btn-sm btn-primary" id="mediaUploadOpenBtn">新規登録して追加</button>
+                <button type="button" class="btn btn-primary" id="mediaUploadOpenBtn">新規登録して追加</button>
                 {{-- 追加（既存メディアを紐づける S-0404-M01 を開く） --}}
-                <button type="button" class="btn btn-sm btn-primary" id="mediaAddBtn" disabled>追加</button>
+                <button type="button" class="btn btn-primary" id="mediaAddBtn" disabled>追加</button>
             </div>
         </div>
         <div class="card-body">
@@ -169,7 +169,7 @@
     <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h6 class="mb-0">トレーニング記録 <span class="text-muted">（事実を客観的に記録）</span></h6>
-            <button type="button" class="btn btn-sm btn-outline-primary" id="insertSummaryBtn">
+            <button type="button" class="btn btn-outline-primary" id="insertSummaryBtn">
                 音声記録の要約から入力
             </button>
         </div>
