@@ -198,7 +198,9 @@ class TrainingRecordController extends Controller
      */
     public function edit(TrainingRecord $trainingRecord): View
     {
-        $trainingRecord->load(['client']);
+        // mediaRecords は belongsToMany 側で orderByPivot('sort_order') 済みのため、
+        // sort_order 昇順で取得される（5c の編集画面メディアセクション表示用）
+        $trainingRecord->load(['client', 'mediaRecords']);
 
         $trainingTypes = TrainingType::orderBy('sort_order')->get();
         $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
@@ -214,13 +216,31 @@ class TrainingRecordController extends Controller
      */
     public function update(Request $request, TrainingRecord $trainingRecord): RedirectResponse
     {
-        $validated = $request->validate($this->validationRules());
+        // 既存ルールに media_record_ids（多対多紐づけ）を追加。store には足さない（編集時のみ受け付け）
+        $validated = $request->validate(array_merge($this->validationRules(), [
+            'media_record_ids'   => 'nullable|array',
+            'media_record_ids.*' => 'integer|distinct|exists:media_records,id',
+        ]));
+
+        $mediaIds = $validated['media_record_ids'] ?? [];
+        unset($validated['media_record_ids']);
 
         $validated['updated_by'] = auth()->id();
 
         try {
-            DB::transaction(function () use ($validated, $trainingRecord) {
+            DB::transaction(function () use ($validated, $trainingRecord, $mediaIds) {
                 $trainingRecord->update($validated);
+
+                // 配列順を sort_order（0始まり連番）にマッピングして総入れ替え。
+                // sync は detach/attach/update を1セットで行うため、複合UNIQUE と衝突しない。
+                $pivotData = collect($mediaIds)
+                    ->mapWithKeys(fn ($id, $idx) => [(int) $id => ['sort_order' => $idx]])
+                    ->all();
+                $trainingRecord->mediaRecords()->sync($pivotData);
+
+                // メディアだけ変更（本体無変更）でも親 updated_at を更新する
+                // （D-0600 注記：紐づけ変更は親 training_records の更新に寄せる方針）
+                $trainingRecord->touch();
             });
         } catch (\Exception $e) {
             \Log::error('トレーニング記録更新エラー', [
