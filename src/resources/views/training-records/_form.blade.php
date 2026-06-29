@@ -540,14 +540,29 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!gridRoot || !hiddenRoot) return;
 
     // 既存メディア一覧（index.blade.php）と同型のカード DOM を組み立てる。
-    // ×ボタン・D&D ハンドル・再生は 5c-1 では付けない（後段で追加）。
+    // 右上に × ボタンを重ねて紐づけを仮解除できるようにする（Step4解除）。
+    // D&D ハンドル・再生は付けない（次段で追加）。
     function buildCard(item) {
         const col = document.createElement('div');
         col.className = 'col';
 
         const card = document.createElement('div');
-        card.className = 'card h-100 media-card';
+        card.className = 'card h-100 media-card position-relative';
         card.dataset.mediaId = String(item.id);
+
+        // 右上に × ボタン（紐づけ解除・仮状態）。
+        // 設計書 S-0404「各サムネイル右上の×で紐づけを解除」。
+        // type="button" は必須（指定しないと submit になりフォーム送信される）。
+        const removeWrap = document.createElement('div');
+        removeWrap.className = 'position-absolute top-0 end-0 m-1 bg-white rounded p-1';
+        removeWrap.style.zIndex = '2';
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'btn-close media-remove-btn';
+        removeBtn.setAttribute('aria-label', '紐づけ解除');
+        removeBtn.dataset.mediaId = String(item.id);
+        removeWrap.appendChild(removeBtn);
+        card.appendChild(removeWrap);
 
         const ratio = document.createElement('div');
         ratio.className = 'ratio ratio-1x1 bg-light d-flex align-items-center justify-content-center';
@@ -619,6 +634,18 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         },
     };
+
+    // 編集画面グリッドへのイベント委譲：× クリックで紐づけ解除（仮状態）。
+    // render() で DOM が毎回作り直されても、リスナは gridRoot に1つ張るだけで全カードに有効。
+    // 解除確定は [更新] 時（5a の総入れ替えで中間テーブルから消える）。
+    gridRoot.addEventListener('click', function (e) {
+        const btn = e.target.closest('.media-remove-btn');
+        if (!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const id = parseInt(btn.dataset.mediaId, 10);
+        mediaSelection.remove(id);
+    });
 
     // 5c-2 のモーダル callback / Step4 が触れるよう公開
     window.mediaSelection = mediaSelection;
