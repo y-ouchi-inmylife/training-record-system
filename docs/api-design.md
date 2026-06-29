@@ -131,7 +131,7 @@ IPアドレス制限が有効で、許可リストが登録されている場合
 | メディア管理 | S-1301 メディア登録（ファイルのアップロード）画面 | GET | `/media-records/create` | メディア登録画面を表示する | auth | 管理者、一般 |
 | メディア管理 | S-1302 メディア一覧画面 | GET | `/media-records` | メディア一覧画面を表示する | auth | 管理者、一般 |
 | メディア管理 | S-1302 メディア一覧画面 | GET | `/media-records/{id}` | メディアの詳細を取得する | auth | 管理者、一般 |
-| メディア管理 | S-1302 メディア一覧画面 | PUT | `/media-records/{id}` | メディアの表示名・クライアントを更新する | auth | 管理者、一般 |
+| メディア管理 | S-1302 メディア一覧画面 | PUT | `/media-records/{id}` | メディアの表示名を更新する | auth | 管理者、一般 |
 | メディア管理 | S-1302 メディア一覧画面 | DELETE | `/media-records/{id}` | メディアを削除する（レコード・ファイル実体） | auth | 管理者、一般 |
 | 共通 | ログアウト | POST | `/logout` | ログアウトする | auth | 全員 |
 | 内部API | - | GET | `/api/clients/search` | クライアントを検索する | auth | 管理者、一般 |
@@ -1464,7 +1464,7 @@ POST /training-records に以下を追加する。
 **概要**: メディア登録画面を表示する。
 
 **レスポンス**:
-- view `media-records.create`（クライアント選択はSelect2で内部API `/api/clients/search` を使用）
+- view `media-records.create`
 
 ---
 
@@ -1504,17 +1504,16 @@ POST /training-records に以下を追加する。
 
 ###### PUT /media-records/{id}
 
-**概要**: メディアの表示名・クライアントを更新する。
+**概要**: メディアの表示名を更新する。
 
 **リクエスト**:
 
 | パラメータ | 型 | 必須 | バリデーション | 説明 |
 |-----------|-----|------|---------------|------|
-| client_id | integer | ● | required, exists:clients,id | 持ち主クライアント |
 | title | string | | nullable, string, max:255 | 表示名。未入力時は元ファイル名を表示 |
 
 **処理**:
-- 表示名・持ち主クライアントを更新する
+- 表示名を更新する
 
 **レスポンス**（JSON）:
 - 成功：`{ "data": <メディア> }`
@@ -1777,7 +1776,6 @@ POST /training-records に以下を追加する。
 
 | パラメータ | 型 | 必須 | バリデーション | 説明 |
 |-----------|-----|------|---------------|------|
-| client_id | integer | ● | required, exists:clients,id | 持ち主クライアント |
 | storage_key | string | ● | required, string | 署名付きURL発行時に採番された保存キー |
 | original_filename | string | ● | required, string, max:255 | 元ファイル名 |
 | mime_type | string |  | nullable, string | MIMEタイプ。クライアントから受け取るが採用しない（upload-url と同じ理由。サーバは original_filename の拡張子から決定する） |

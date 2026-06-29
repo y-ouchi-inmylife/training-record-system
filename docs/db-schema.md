@@ -110,7 +110,6 @@ erDiagram
 
     media_records {
         bigint id PK
-        bigint client_id FK
         bigint trainer_id FK
         string type
         string title
@@ -149,7 +148,6 @@ erDiagram
     trainers ||--|| training_records : "担当2"
     clients ||--o{ training_records : "トレーニングを受ける"
 
-    clients ||--o{ media_records : "持ち主"
     trainers ||--o{ media_records : "登録する"
 
     media_records ||--o{ media_record_training_record : "紐づく"
@@ -324,7 +322,6 @@ erDiagram
 | カラム名 | 型 | NULL | デフォルト | 説明 |
 |---------|-----|------|----------|------|
 | id | BIGINT UNSIGNED | NO | auto_increment | 主キー |
-| client_id | BIGINT UNSIGNED | YES | NULL | メディアの持ち主クライアントのID（外部キー）。登録時はアプリ側で必須。持ち主クライアント削除時にNULLになり、メディアはライブラリに残る |
 | trainer_id | BIGINT UNSIGNED | YES | NULL | アップロードしたトレーナーのID（外部キー）。登録者削除時はNULLになり、メディアはライブラリに残る |
 | type | VARCHAR(20) | NO | — | メディア種別（5-17.参照） |
 | title | VARCHAR(255) | YES | NULL | 表示名。未入力時は表示の際に元ファイル名（original_filename）をフォールバック表示する |
@@ -344,7 +341,6 @@ erDiagram
 | インデックス名 | カラム | 種類 | 目的 |
 |---------------|--------|------|------|
 | PRIMARY | id | PRIMARY KEY | 主キー |
-| media_records_client_id_foreign | client_id | INDEX | クライアント別のメディア取得（外部キー制約と兼用） |
 | media_records_trainer_id_foreign | trainer_id | INDEX | 登録者別のメディア取得。一覧画面の登録者フィルタで使用（外部キー制約と兼用） |
 | media_records_type_idx | type | INDEX | 種別（写真／動画）によるフィルタリング |
 | media_records_created_at_idx | created_at | INDEX | 一覧画面で最新を先頭に表示するためのソート用（クエリ側で `ORDER BY created_at DESC`）。Laravelマイグレーションの制約によりインデックス方向指定なし |
@@ -353,7 +349,6 @@ erDiagram
 
 | 制約名 | 種類 | 条件 | ON DELETE | 説明 |
 |--------|------|------|-----------|------|
-| media_records_client_id_foreign | FOREIGN KEY | client_id → clients(id) | SET NULL | クライアント削除時は持ち主をNULLにする（メディアはライブラリに残す） |
 | media_records_trainer_id_foreign | FOREIGN KEY | trainer_id → trainers(id) | SET NULL | 登録者トレーナー削除時はNULLにする（メディアはライブラリに残す） |
 | media_records_type_check | CHECK | type IN ('photo', 'video') | — | 定義済みのメディア種別のみ許可（5-17.参照） |
 | media_records_file_size_check | CHECK | file_size IS NULL OR file_size >= 0 | — | ファイルサイズは0以上 |
@@ -362,12 +357,12 @@ erDiagram
 
 ##### 注記
 
-- **client_id / trainer_id の NULL 許容**: メディアはライブラリ型の独立資産であり、持ち主クライアント・登録者トレーナーが削除されても実体（ファイル・レコード）は保持する。このため両カラムは ON DELETE SET NULL とし、DB上は NULL を許容する。一方、新規登録時は持ち主クライアントを必須とするため、アプリ側バリデーションで client_id を required とする（3-3. の二層構成）。
+- **trainer_id の NULL 許容**: メディアはライブラリ型の独立資産であり、登録者トレーナーが削除されても実体（ファイル・レコード）は保持する。このため trainer_id は ON DELETE SET NULL とし、DB上は NULL を許容する。
 - **ファイル実体との関係**: original_path / display_path / thumbnail_path はオブジェクトストレージ上のファイルへの参照であり、レコード削除時のファイル実体削除はアプリ側で行う（DBの外部キー制約はレコードのみを対象とし、ストレージ上のファイルには作用しない）。削除時は原本・表示用・サムネイルの全ファイルを対象とする。
 
 ##### 設計ポリシー
 
-- **ライブラリ型**: メディアはトレーニング記録に直接従属せず、独立した資産としてライブラリで管理する。トレーニング記録との紐付けは多対多の中間テーブル（D-0600 media_record_training_record）で表現し、本テーブル単体では記録への参照を持たない。
+- **ライブラリ型**: メディアはトレーニング記録にも特定のクライアントにも従属せず、独立した素材ライブラリとして管理する。クライアント所有の概念を持たず（client_id を持たない）、1つのメディアを複数のクライアントのトレーニング記録に紐づけられる。トレーニング記録との紐付けは多対多の中間テーブル（D-0600 media_record_training_record）で表現し、本テーブル単体では記録への参照を持たない。
 
 
 ---
@@ -893,7 +888,7 @@ erDiagram
 | 5 | phases | なし |
 | 6 | support_statuses | なし |
 | 7 | training_records | clients, trainers, training_types, phases |
-| 8 | media_records | clients, trainers |
+| 8 | media_records | trainers |
 | 9 | media_record_training_record | media_records, training_records |
 | 10 | audio_records | clients, trainers |
 | 11 | access_logs | trainers |
