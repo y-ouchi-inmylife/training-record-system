@@ -80,10 +80,7 @@ class MediaRecordController extends Controller
         $thumbnailExpiresAt = now()->addMinutes(self::PLAY_URL_EXPIRES_MINUTES);
         $mediaModalData = $mediaRecords->getCollection()->mapWithKeys(function ($m) use ($thumbnailExpiresAt) {
             // サムネイル presigned URL は thumbnail_status=done のものだけ発行（24件分、SDK 内 HMAC のみで高速）
-            $thumbnailUrl = null;
-            if ($m->thumbnail_status === MediaRecord::THUMBNAIL_DONE && $m->thumbnail_path) {
-                $thumbnailUrl = Storage::disk(self::STORAGE_DISK)->temporaryUrl($m->thumbnail_path, $thumbnailExpiresAt);
-            }
+            $thumbnailUrl = $m->temporaryThumbnailUrl($thumbnailExpiresAt);
 
             return [$m->id => [
                 'type' => $m->type,

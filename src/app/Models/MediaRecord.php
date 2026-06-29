@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * メディア記録モデル
@@ -20,6 +21,10 @@ class MediaRecord extends Model
     // テーブル名（規約では MediaRecord → media_records と解決されるため省略可能だが、
     // 既存モデル（AudioRecord）に揃えて明示する）
     protected $table = 'media_records';
+
+    // オブジェクトストレージのディスク名（MediaRecordController::STORAGE_DISK と同値）。
+    // ※ 'sakura' の重複統合（Controller / 2 Services との一本化）は別 refactor タスクで対応。
+    const STORAGE_DISK = 'sakura';
 
     // メディア種別定数（DBのCHECK制約 type IN ('photo','video') と対応）
     const TYPE_PHOTO = 'photo';
@@ -204,6 +209,22 @@ class MediaRecord extends Model
     public function trainingRecords(): BelongsToMany
     {
         return $this->belongsToMany(TrainingRecord::class);
+    }
+
+    /**
+     * サムネイルの presigned 表示 URL を返す。
+     *
+     * thumbnail_status=done かつ thumbnail_path がセット済みのときのみ生成。
+     * それ以外（pending/processing/error / path NULL）は null。
+     * 期限は呼び出し側が決める（map ループで同一インスタンスを再利用する既存パターンに整合）。
+     */
+    public function temporaryThumbnailUrl(\DateTimeInterface $expiresAt): ?string
+    {
+        if ($this->thumbnail_status !== self::THUMBNAIL_DONE || !$this->thumbnail_path) {
+            return null;
+        }
+        return Storage::disk(self::STORAGE_DISK)
+            ->temporaryUrl($this->thumbnail_path, $expiresAt);
     }
 
     // --- アクセサ ---

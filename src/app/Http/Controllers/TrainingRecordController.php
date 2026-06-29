@@ -15,7 +15,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class TrainingRecordController extends Controller
@@ -197,20 +196,13 @@ class TrainingRecordController extends Controller
         ]);
 
         // 詳細画面メディアセクション用の表示データ（presigned サムネイル URL を含む）。
-        // ※ サムネイル URL 生成は edit() / availableMedia() / MediaRecordController::index() と
-        //   同型のインライン処理（4箇所目）。DRY 抽出は別 refactor タスクで対応。
         $thumbnailExpiresAt = now()->addMinutes(MediaRecordController::PLAY_URL_EXPIRES_MINUTES);
         $mediaItems = $trainingRecord->mediaRecords->map(function ($m) use ($thumbnailExpiresAt) {
-            $thumbnailUrl = null;
-            if ($m->thumbnail_status === MediaRecord::THUMBNAIL_DONE && $m->thumbnail_path) {
-                $thumbnailUrl = Storage::disk(MediaRecordController::STORAGE_DISK)
-                    ->temporaryUrl($m->thumbnail_path, $thumbnailExpiresAt);
-            }
             return [
                 'id'               => $m->id,
                 'type'             => $m->type,
                 'displayTitle'     => $m->display_title,
-                'thumbnailUrl'     => $thumbnailUrl,
+                'thumbnailUrl'     => $m->temporaryThumbnailUrl($thumbnailExpiresAt),
                 'conversionStatus' => $m->conversion_status,
             ];
         })->values()->all();
@@ -229,20 +221,13 @@ class TrainingRecordController extends Controller
 
         // メディアセクションの初期データ（presigned サムネイル URL を含む）。
         // 5c-2 でモーダルから add 追加されるアイテムと同じ形を返す。
-        // ※ availableMedia() / MediaRecordController::index() と同様のサムネ URL 生成を行うため
-        //   重複しているが、5c-1 では DRY 抽出を行わない（別 refactor で対応）。
         $thumbnailExpiresAt = now()->addMinutes(MediaRecordController::PLAY_URL_EXPIRES_MINUTES);
         $mediaInitial = $trainingRecord->mediaRecords->map(function ($m) use ($thumbnailExpiresAt) {
-            $thumbnailUrl = null;
-            if ($m->thumbnail_status === MediaRecord::THUMBNAIL_DONE && $m->thumbnail_path) {
-                $thumbnailUrl = Storage::disk(MediaRecordController::STORAGE_DISK)
-                    ->temporaryUrl($m->thumbnail_path, $thumbnailExpiresAt);
-            }
             return [
                 'id' => $m->id,
                 'type' => $m->type,
                 'displayTitle' => $m->display_title,
-                'thumbnailUrl' => $thumbnailUrl,
+                'thumbnailUrl' => $m->temporaryThumbnailUrl($thumbnailExpiresAt),
                 'conversionStatus' => $m->conversion_status,
             ];
         })->values()->all();
@@ -398,19 +383,13 @@ class TrainingRecordController extends Controller
         // 各要素のメタ情報（mediaModalData と同形・5c フロントが lookup 不要で直接使える形）
         $thumbnailExpiresAt = now()->addMinutes(MediaRecordController::PLAY_URL_EXPIRES_MINUTES);
         $items = $paginator->getCollection()->map(function ($m) use ($thumbnailExpiresAt) {
-            $thumbnailUrl = null;
-            if ($m->thumbnail_status === MediaRecord::THUMBNAIL_DONE && $m->thumbnail_path) {
-                $thumbnailUrl = Storage::disk(MediaRecordController::STORAGE_DISK)
-                    ->temporaryUrl($m->thumbnail_path, $thumbnailExpiresAt);
-            }
-
             return [
                 'id' => $m->id,
                 'type' => $m->type,
                 'mime_type' => $m->mime_type,
                 'conversion_status' => $m->conversion_status,
                 'thumbnail_status' => $m->thumbnail_status,
-                'thumbnail_url' => $thumbnailUrl,
+                'thumbnail_url' => $m->temporaryThumbnailUrl($thumbnailExpiresAt),
                 'display_title' => $m->display_title,
                 'original_filename' => $m->original_filename,
                 'created_at' => $m->created_at->format('Y/m/d H:i'),
