@@ -103,16 +103,6 @@ class MediaRecordController extends Controller
     }
 
     /**
-     * メディア登録画面（GET /media-records/create）
-     *
-     * コントローラから渡すデータは無い（フォームの状態は blade 側で完結）。
-     */
-    public function create(): View
-    {
-        return view('media-records.create');
-    }
-
-    /**
      * 署名付きURL発行（POST /api/media-records/upload-url）
      *
      * 申請値（mime_type / file_size）で形式・サイズを事前検証し、不適合は 422 で拒否。

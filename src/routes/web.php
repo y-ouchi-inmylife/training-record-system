@@ -92,7 +92,6 @@ Route::middleware('auth')->group(function () {
         // メディア管理（全トレーナーがアクセス可能）
         // 一覧・登録・詳細モーダル経由の更新/削除。再生(play)は api.php 側。
         Route::get('media-records', [MediaRecordController::class, 'index'])->name('media-records.index');
-        Route::get('media-records/create', [MediaRecordController::class, 'create'])->name('media-records.create');
         Route::put('media-records/{mediaRecord}', [MediaRecordController::class, 'update'])->name('media-records.update');
         Route::delete('media-records/{mediaRecord}', [MediaRecordController::class, 'destroy'])->name('media-records.destroy');
 

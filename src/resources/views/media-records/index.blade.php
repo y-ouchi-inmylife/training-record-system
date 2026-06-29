@@ -6,7 +6,7 @@
 <div class="container">
     <h2 class="mb-3">メディア一覧</h2>
 
-    {{-- 登録者フィルタ --}}
+    {{-- 登録者フィルタ＋新規登録ボタン --}}
     <div class="d-flex align-items-center gap-2 mb-4">
         <label for="trainer-filter" class="form-label mb-0 text-nowrap">登録者:</label>
         <select id="trainer-filter" class="form-select" style="width: auto;">
@@ -17,6 +17,7 @@
                 </option>
             @endforeach
         </select>
+        <button type="button" class="btn btn-primary ms-auto" id="mediaUploadOpenBtn">新規登録</button>
     </div>
 
     {{-- メディアグリッド --}}
@@ -117,6 +118,9 @@
     <button type="button" class="media-lightbox-close" id="mediaLightboxClose" aria-label="閉じる">&times;</button>
     <div class="media-lightbox-content" id="mediaLightboxContent"></div>
 </div>
+
+{{-- メディア登録モーダル（S-1302-M02）。再利用部品。 --}}
+@include('media-records._upload-modal')
 @endsection
 
 @push('styles')
@@ -256,6 +260,14 @@ document.addEventListener('DOMContentLoaded', function() {
             window.location.href = url.toString();
         });
     }
+
+    // 新規登録ボタン → メディア登録モーダル（S-1302-M02）を開く。
+    // 完了後は location.reload で一覧を更新する（段1）。
+    document.getElementById('mediaUploadOpenBtn')?.addEventListener('click', function () {
+        window.mediaUploadModal.open({
+            onComplete: () => window.location.reload(),
+        });
+    });
 
     // 詳細モーダル用データ（id → メタ情報辞書）
     const mediaModalData = @json($mediaModalData ?? new \stdClass());

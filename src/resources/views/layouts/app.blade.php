@@ -63,16 +63,10 @@
                                 トレーニング記録
                             </a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle {{ request()->is('media-records*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->is('media-records*') ? 'active' : '' }}" href="{{ route('media-records.index') }}">
                                 メディア
                             </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{{ route('media-records.index') }}">メディア一覧</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><h6 class="dropdown-header">メディア登録</h6></li>
-                                <li><a class="dropdown-item" href="{{ route('media-records.create') }}">ファイル</a></li>
-                            </ul>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle {{ request()->is('audio-records*') || request()->is('recording*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
