@@ -95,7 +95,7 @@
                 {{-- 新規登録して追加（S-1302-M02 メディア登録モーダルを開く・段2） --}}
                 <button type="button" class="btn btn-sm btn-primary" id="mediaUploadOpenBtn">新規登録して追加</button>
                 {{-- 追加（既存メディアを紐づける S-0404-M01 を開く） --}}
-                <button type="button" class="btn btn-sm btn-outline-primary" id="mediaAddBtn" disabled>追加</button>
+                <button type="button" class="btn btn-sm btn-primary" id="mediaAddBtn" disabled>追加</button>
             </div>
         </div>
         <div class="card-body">
