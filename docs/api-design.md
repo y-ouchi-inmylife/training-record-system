@@ -137,6 +137,7 @@ IPアドレス制限が有効で、許可リストが登録されている場合
 | クライアント閲覧 | S-1401 クライアントログイン画面 | GET | `/client/login` | クライアントログイン画面を表示する | guest:client | - |
 | クライアント閲覧 | S-1401 クライアントログイン画面 | POST | `/client/login` | クライアントとしてログインする | guest:client | - |
 | クライアント閲覧 | - | POST | `/client/logout` | クライアントとしてログアウトする | auth:client | クライアント |
+| クライアント閲覧 | S-1402 クライアントダッシュボード画面 | GET | `/client/dashboard` | クライアントダッシュボード画面を表示する | auth:client | クライアント |
 | 内部API | - | GET | `/api/clients/search` | クライアントを検索する | auth | 管理者、一般 |
 | 内部API | - | POST | `/api/training-records/auto-create` | 音声記録の要約からトレーニング記録を作成する | auth | 管理者、一般 |
 | 内部API | - | GET | `/api/training-records/available-media` | トレーニング記録に紐づけ可能なメディア一覧を取得する | auth | 管理者、一般 |
@@ -1580,6 +1581,17 @@ POST /training-records に以下を追加する。
 **レスポンス**:
 - 成功：クライアントダッシュボード画面へリダイレクト
 - 認証失敗、または閲覧が解放されていない場合：エラーを表示（「メールアドレスまたはパスワードが正しくありません。」）
+
+---
+
+##### S-1402 クライアントダッシュボード画面
+
+###### GET /client/dashboard
+
+**概要**: クライアントダッシュボード画面を表示する。
+
+**レスポンス**:
+- view `client.dashboard`
 
 ---
 
