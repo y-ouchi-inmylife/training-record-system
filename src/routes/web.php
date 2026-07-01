@@ -46,6 +46,13 @@ Route::middleware('guest')->group(function () {
 Route::get('client-intake/token/{token}', [ClientIntakeController::class, 'showByToken'])->name('client-intake.show-by-token');
 Route::post('client-intake/token/{token}', [ClientIntakeController::class, 'storeByToken'])->name('client-intake.store-by-token');
 
+// クライアントパスワード設定（柱2 塊D 段2、公開URL、認証不要）。
+// /client/* の auth:client グループには入れず、client-intake と同じ公開領域に置く。
+Route::get('client/password-setup/{token}', [\App\Http\Controllers\Client\PasswordSetupController::class, 'showByToken'])
+    ->name('client-portal.password-setup.show');
+Route::post('client/password-setup/{token}', [\App\Http\Controllers\Client\PasswordSetupController::class, 'storeByToken'])
+    ->name('client-portal.password-setup.store');
+
 /*
 |--------------------------------------------------------------------------
 | 認証が必要なルート
