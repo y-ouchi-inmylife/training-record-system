@@ -73,6 +73,15 @@ return [
             'replace_placeholders' => true,
         ],
 
+        // メール本文の視認用チャンネル。log ドライバのメール送信は debug レベルで書かれるため、
+        // アプリ全体の LOG_LEVEL に引きずられないよう level は 'debug' を固定する。
+        'mail' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/mail.log'),
+            'level' => 'debug',
+            'replace_placeholders' => true,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),
