@@ -6,6 +6,8 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\AutoLogoutController;
 use App\Http\Controllers\Client\DashboardController as ClientDashboardController;
+use App\Http\Controllers\Client\LoginController as ClientLoginController;
+use App\Http\Controllers\Client\LogoutController as ClientLogoutController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\TrainingTypeController;
 use App\Http\Controllers\TrainingRecordController;
@@ -192,8 +194,16 @@ Route::middleware('auth')->group(function () {
 | practitioners 等トレーナー専用ミドルウェアは絶対に付けない（隔離）。
 */
 Route::prefix('client')->name('client-portal.')->group(function () {
-    // 認証必須（client guard）。未認証は redirectGuestsTo により /client/login へ振り分けられる。
+    // 未認証向け（guest:client）：ログイン画面・ログイン処理
+    // ログイン済みは redirectUsersTo により /client/dashboard へ振り分けられる（段2の宿題で対応）。
+    Route::middleware('guest:client')->group(function () {
+        Route::get('/login', [ClientLoginController::class, 'showLoginForm'])->name('login');
+        Route::post('/login', [ClientLoginController::class, 'login']);
+    });
+
+    // 認証必須（auth:client）。未認証は redirectGuestsTo により /client/login へ振り分けられる。
     Route::middleware('auth:client')->group(function () {
+        Route::post('/logout', [ClientLogoutController::class, 'logout'])->name('logout');
         Route::get('/dashboard', [ClientDashboardController::class, 'index'])->name('dashboard');
     });
 });
