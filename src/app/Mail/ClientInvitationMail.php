@@ -31,12 +31,10 @@ class ClientInvitationMail extends Mailable
 
     public function content(): Content
     {
-        // 段2 でパスワード設定画面のルート（例: client-portal.password-setup.show）を追加したら、
-        // ビュー側の url() 手組みを route() に差し替える。
         return new Content(
             text: 'mail.client-invitation',
             with: [
-                'setupUrl' => url('/client/password-setup/' . $this->token->token),
+                'setupUrl' => route('client-portal.password-setup.show', ['token' => $this->token->token]),
                 'expiresAt' => $this->token->expires_at,
             ],
         );
