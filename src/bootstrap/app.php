@@ -13,8 +13,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // 未認証時のリダイレクト先
-        $middleware->redirectGuestsTo('/login');
+        // 未認証時のリダイレクト先。/client/* 配下はクライアント用ログインへ振り分ける。
+        // ※ redirectUsersTo のクライアント分岐と CheckIpRestriction の /client/* 除外は塊E骨で対応。
+        $middleware->redirectGuestsTo(function ($request) {
+            return $request->is('client/*') ? '/client/login' : '/login';
+        });
         // 認証済みユーザーがguestルートにアクセスした場合のリダイレクト先
         // システム管理者は音声ファイル一覧（S-0701）、それ以外はダッシュボード（S-0101）へ
         $middleware->redirectUsersTo(fn ($request) => $request->user()?->isSystemAdmin() ? '/usage-stats' : '/dashboard');

@@ -42,6 +42,13 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        // クライアント閲覧機能（柱2）用の guard。既存 web（Trainer）とは完全独立。
+        // defaults.guard は 'web' のままなので、明示指定（Auth::guard('client')）でのみ使う。
+        'client' => [
+            'driver' => 'session',
+            'provider' => 'clients',
+        ],
     ],
 
     /*
@@ -65,6 +72,12 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', Trainer::class),
+        ],
+
+        // クライアント閲覧機能（柱2）用の provider。上記 'client' guard から参照される。
+        'clients' => [
+            'driver' => 'eloquent',
+            'model' => \App\Models\Client::class,
         ],
 
         // 'users' => [
