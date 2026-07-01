@@ -19,8 +19,8 @@ return new class extends Migration
             $table->index('user_id', 'sessions_user_id_index');
             $table->index('last_activity', 'sessions_last_activity_index');
 
-            $table->foreign('user_id', 'sessions_user_id_foreign')
-                ->references('id')->on('trainers')->cascadeOnDelete();
+            // user_id への外部キーは張らない（trainers/clients のマルチguardで単一テーブルFKが破綻するため。
+            // トレーナー削除時のセッション掃除が必要になればアプリ側で担保する）。
         });
     }
 
