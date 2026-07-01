@@ -82,6 +82,14 @@ erDiagram
         bigint created_by FK
     }
 
+    client_password_setup_tokens {
+        bigint id PK
+        string token UK
+        boolean is_used
+        bigint client_id FK
+        bigint created_by FK
+    }
+
     training_records {
         bigint id PK
         bigint client_id FK
@@ -158,6 +166,8 @@ erDiagram
     clients ||--o{ audio_records : "対象となる"
     clients ||--o{ client_intake_tokens : "トークンで登録"
     trainers ||--o{ client_intake_tokens : "発行"
+    clients ||--o{ client_password_setup_tokens : "パスワード設定"
+    trainers ||--o{ client_password_setup_tokens : "発行"
 ```
 
 ※ER図はテーブル間の関連と主要カラム（主キー・ユニークキー・外部キー・主な業務識別/区分カラム）のみを示す。`created_at`/`updated_at`/`updated_by` 等の共通カラムおよび非識別カラムは省略しているため、全カラムは4章のテーブル定義を参照。clientsテーブルは7カテゴリー50業務項目＋共通カラムで構成され、ER図には代表カラムのみ掲載している。
@@ -775,6 +785,46 @@ erDiagram
 
 ---
 
+#### DS-0600 client_password_setup_tokens（クライアントパスワード設定トークン）
+
+**概要**: 閲覧を解放されたクライアントが招待メールから初回パスワードを設定するためのワンタイムURLのトークンを管理する
+
+**対応する要件**: 
+- クライアント閲覧解放（招待メール送信）
+
+##### カラム定義
+
+| カラム名 | 型 | NULL | デフォルト | 説明 |
+|---------|-----|------|----------|------|
+| id | BIGINT UNSIGNED | NO | auto_increment | 主キー |
+| token | VARCHAR(64) | NO | — | `Str::random(32)` で生成された 32 文字のランダム英数字（URLに埋め込む）。カラム型 VARCHAR(64) は将来の長さ拡張に備えた余裕。重複不可 |
+| client_id | BIGINT UNSIGNED | NO | — | パスワードを設定する対象クライアントのID（外部キー）。発行時から特定のクライアントに紐づく |
+| expires_at | TIMESTAMP | NO | — | 有効期限。発行から72時間後に設定される |
+| is_used | BOOLEAN | NO | false | 使用状態。false: 未使用 / true: 使用済み。パスワード設定完了時に true に更新 |
+| created_at | TIMESTAMP | YES | NULL | 発行日時 |
+| updated_at | TIMESTAMP | YES | NULL | 更新日時 |
+| created_by | BIGINT UNSIGNED | YES | NULL | トークンを発行した（閲覧を解放した）トレーナーのID（外部キー） |
+
+##### インデックス
+
+| インデックス名 | カラム | 種類 | 目的 |
+|---------------|--------|------|------|
+| PRIMARY | id | PRIMARY KEY | 主キー |
+| client_password_setup_tokens_token_unique | token | UNIQUE | トークン文字列の重複を防ぐ。URLアクセス時の検索にも使用 |
+| client_password_setup_tokens_expires_at_idx | expires_at | INDEX | 有効期限による検索・期限切れ抽出 |
+| client_password_setup_tokens_is_used_idx | is_used | INDEX | 使用状態による絞り込み |
+| client_password_setup_tokens_client_id_idx | client_id | INDEX | クライアントによる検索・逆引き |
+| client_password_setup_tokens_created_by_idx | created_by | INDEX | 発行者による検索・絞り込み |
+
+##### 制約
+
+| 制約名 | 種類 | 条件 | ON DELETE | 説明 |
+|--------|------|------|-----------|------|
+| client_password_setup_tokens_client_id_foreign | FOREIGN KEY | client_id → clients(id) | CASCADE | クライアント削除時はトークンも削除する（特定クライアント専用のトークンのため） |
+| client_password_setup_tokens_created_by_foreign | FOREIGN KEY | created_by → trainers(id) | SET NULL | 発行者トレーナー削除時は NULL にする |
+
+---
+
 
 ## 5. ENUMおよび定数
 
@@ -898,6 +948,7 @@ erDiagram
 | 12 | system_settings | なし |
 | 13 | ip_whitelist | なし |
 | 14 | client_intake_tokens | clients |
+| 15 | client_password_setup_tokens | clients |
 
 ---
 
