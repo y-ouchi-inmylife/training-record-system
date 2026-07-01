@@ -8,17 +8,36 @@
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 </head>
 <body class="bg-light">
-    {{-- 段2の暫定：ログイン中のクライアントに最小のログアウトボタンを表示。段3で正式なナビに置き換える。 --}}
     @auth('client')
-    <div class="container mt-3 d-flex justify-content-end">
-        <form method="POST" action="{{ route('client-portal.logout') }}" class="m-0">
-            @csrf
-            <button type="submit" class="btn btn-sm btn-outline-secondary">ログアウト</button>
-        </form>
-    </div>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <span class="navbar-brand">トレーニング記録閲覧</span>
+            <div class="d-flex align-items-center">
+                <span class="navbar-text text-white me-3">{{ auth('client')->user()->full_name }} さん</span>
+                <form method="POST" action="{{ route('client-portal.logout') }}" class="m-0">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-outline-light">ログアウト</button>
+                </form>
+            </div>
+        </div>
+    </nav>
     @endauth
 
-    <main>
+    <main class="py-4">
+        <div class="container">
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+        </div>
         @yield('content')
     </main>
 </body>
