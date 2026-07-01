@@ -8,13 +8,14 @@ use Illuminate\Contracts\View\View;
 /**
  * クライアント閲覧機能（柱2）— ダッシュボードコントローラ
  *
- * 段1では auth:client の骨格確認用プレースホルダを返す。
- * ダッシュボードの中身（一覧・メディア導線）は段3で実装する。
+ * 段3では氏名を表示する挨拶画面を返す。
+ * 記録・メディアへの導線は塊F・E詳細で追加する。
+ * ログイン中のクライアントはビュー側で auth('client')->user() で取得する（トレーナー側と同流儀）。
  */
 class DashboardController extends Controller
 {
     public function index(): View
     {
-        return view('client.dashboard-placeholder');
+        return view('client.dashboard');
     }
 }
