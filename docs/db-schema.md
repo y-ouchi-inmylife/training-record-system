@@ -233,12 +233,14 @@ erDiagram
 | phone1 | VARCHAR(20) | YES | NULL | 電話番号1。ハイフンあり/なし両対応 |
 | phone2 | VARCHAR(20) | YES | NULL | 電話番号2。ハイフンあり/なし両対応 |
 | phone3 | VARCHAR(20) | YES | NULL | 電話番号3（緊急連絡先）。ハイフンあり/なし両対応 |
-| email | VARCHAR(255) | YES | NULL | メールアドレス |
+| email | VARCHAR(255) | YES | NULL | メールアドレス。クライアント閲覧機能のログインIDを兼ねる。UNIQUE制約あり（未登録=NULLは複数許容） |
 | postal_code | VARCHAR(10) | YES | NULL | 郵便番号。ハイフンあり/なし両対応 |
 | address1 | VARCHAR(50) | YES | NULL | 住所1（都道府県） |
 | address2 | VARCHAR(50) | YES | NULL | 住所2（市区町村） |
 | address3 | VARCHAR(100) | YES | NULL | 住所3（町名・番地） |
 | address4 | VARCHAR(100) | YES | NULL | 住所4（建物名・部屋番号） |
+| password | VARCHAR(255) | YES | NULL | クライアント閲覧機能のパスワードのハッシュ値（bcryptで暗号化）。閲覧解放後、クライアント本人が設定するまでは NULL |
+| is_viewable | BOOLEAN | NO | false | クライアント閲覧解放フラグ。true でクライアントが自分のトレーニング記録・メディアを閲覧可能になる。閲覧解放操作でトレーナーが true にする |
 | created_at | TIMESTAMP | YES | NULL | 作成日時 |
 | updated_at | TIMESTAMP | YES | NULL | 更新日時 |
 | updated_by | BIGINT UNSIGNED | YES | NULL | 最終更新者のトレーナーのID（外部キー） |
@@ -254,6 +256,7 @@ erDiagram
 | clients_support_status_idx | support_status_id | INDEX | 支援状態によるフィルタリング |
 | clients_created_at_idx | created_at | INDEX | 登録日時によるソート。一覧画面のデフォルトソートで使用 |
 | clients_updated_by_foreign | updated_by | INDEX | 最終更新者による検索。外部キー制約に伴い自動付与 |
+| clients_email_unique | email | UNIQUE | メールアドレスの重複を防ぐ。クライアント閲覧機能のログインIDとして使用。未登録（NULL）は複数許容 |
 
 ##### 制約
 
