@@ -18,9 +18,16 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectGuestsTo(function ($request) {
             return $request->is('client/*') ? '/client/login' : '/login';
         });
-        // 認証済みユーザーがguestルートにアクセスした場合のリダイレクト先
-        // システム管理者は音声ファイル一覧（S-0701）、それ以外はダッシュボード（S-0101）へ
-        $middleware->redirectUsersTo(fn ($request) => $request->user()?->isSystemAdmin() ? '/usage-stats' : '/dashboard');
+        // 認証済みユーザーがguestルートにアクセスした場合のリダイレクト先。
+        // URL 判定を先頭に置くことで、$request->user()（デフォルトweb guard=Trainer 前提）を
+        // クライアント認証済みリクエストで呼ばずに済ませる（?-> で null 経由で誤った先へ飛ぶ回避）。
+        // トレーナー側: システム管理者は音声ファイル一覧（S-0701）、それ以外はダッシュボード（S-0101）へ。
+        $middleware->redirectUsersTo(function ($request) {
+            if ($request->is('client/*')) {
+                return '/client/dashboard';
+            }
+            return $request->user()?->isSystemAdmin() ? '/usage-stats' : '/dashboard';
+        });
         // webミドルウェアグループにパスワード変更チェックを追加
         $middleware->web(append: [
             \App\Http\Middleware\CheckIpRestriction::class,
