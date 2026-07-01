@@ -33,6 +33,10 @@ return new class extends Migration
             $table->string('address3', 100)->nullable()->comment('住所3（町名・番地）');
             $table->string('address4', 100)->nullable()->comment('住所4（建物名・部屋番号）');
 
+            // クライアント閲覧機能（柱2）用の認証カラム
+            $table->string('password', 255)->nullable()->comment('クライアント閲覧機能のパスワードのハッシュ値（bcrypt）。閲覧解放後、本人が設定するまでNULL');
+            $table->boolean('is_viewable')->default(false)->comment('クライアント閲覧解放フラグ');
+
             // カテゴリー7: 支援管理
             $table->unsignedBigInteger('primary_trainer_id')->nullable();
             $table->unsignedBigInteger('support_status_id')->nullable();
@@ -47,6 +51,7 @@ return new class extends Migration
             $table->index('created_at', 'clients_created_at_idx');
             $table->index('support_status_id', 'clients_support_status_idx');
             $table->index('updated_by', 'clients_updated_by_foreign');
+            $table->unique('email', 'clients_email_unique');
 
             // 外部キー（作成順）
             $table->foreign('primary_trainer_id', 'clients_primary_trainer_id_foreign')

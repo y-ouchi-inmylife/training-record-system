@@ -3,14 +3,18 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 /**
  * クライアントモデル
+ *
+ * 柱2（クライアント閲覧機能）向けに Authenticatable を継承。
+ * トレーナー用の web guard とは別 guard で認証する前提のため、
+ * config/auth.php での guard/provider 定義は塊C で行う。
  */
-class Client extends Model
+class Client extends Authenticatable
 {
     use HasFactory;
 
@@ -24,10 +28,16 @@ class Client extends Model
         // カテゴリー2: 連絡先
         'phone1', 'phone2', 'phone3', 'email',
         'postal_code', 'address1', 'address2', 'address3', 'address4',
+        // クライアント閲覧機能（柱2）
+        'password', 'is_viewable',
         // カテゴリー7: 支援管理
         'primary_trainer_id', 'support_status_id',
         // 最終更新者
         'updated_by',
+    ];
+
+    protected $hidden = [
+        'password',
     ];
 
     protected function casts(): array
@@ -35,7 +45,21 @@ class Client extends Model
         return [
             'initial_consultation_date' => 'date',
             'birth_date' => 'date',
+            'password' => 'hashed',
+            'is_viewable' => 'boolean',
         ];
+    }
+
+    /**
+     * email の空文字を NULL に正規化する。
+     *
+     * clients.email には UNIQUE 制約があり、MySQL は NULL を重複扱いしないが
+     * '' は普通の値として重複扱いする。フォーム未入力を '' で保存すると2件目で
+     * UNIQUE 違反になるため、モデル層で '' → NULL に統一する。
+     */
+    public function setEmailAttribute($value): void
+    {
+        $this->attributes['email'] = ($value === '' || $value === null) ? null : $value;
     }
 
     /**
