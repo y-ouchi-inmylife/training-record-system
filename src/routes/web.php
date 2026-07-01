@@ -9,6 +9,7 @@ use App\Http\Controllers\Client\DashboardController as ClientDashboardController
 use App\Http\Controllers\Client\LoginController as ClientLoginController;
 use App\Http\Controllers\Client\LogoutController as ClientLogoutController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ClientViewReleaseController;
 use App\Http\Controllers\TrainingTypeController;
 use App\Http\Controllers\TrainingRecordController;
 use App\Http\Controllers\TrainerController;
@@ -73,6 +74,9 @@ Route::middleware('auth')->group(function () {
     Route::middleware('practitioners')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::resource('clients', ClientController::class);
+        // クライアント閲覧解放（柱2）— Route::resource の外に個別追加
+        Route::post('clients/{client}/release-view', [ClientViewReleaseController::class, 'store'])
+            ->name('client-view-release.store');
         Route::resource('training-records', TrainingRecordController::class);
 
         // 旧録音画面 → 録音【改良版】にリダイレクト
