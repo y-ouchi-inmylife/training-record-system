@@ -95,6 +95,58 @@
         </div>
     </div>
 
+    {{-- 閲覧管理（柱2） --}}
+    <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#section-view-release" style="cursor: pointer;">
+            <h6 class="mb-0">閲覧管理</h6>
+            @if(!$client->is_viewable)
+                <span class="badge bg-secondary">未解放</span>
+            @elseif(empty($client->password))
+                <span class="badge bg-warning text-dark">解放（パスワード未設定）</span>
+            @else
+                <span class="badge bg-success">解放</span>
+            @endif
+        </div>
+        <div class="collapse show" id="section-view-release">
+            <div class="card-body">
+                <table class="table table-borderless table-sm mb-0">
+                    <tr>
+                        <th class="text-muted" style="width:40%">閲覧状態</th>
+                        <td>
+                            @if(!$client->is_viewable)
+                                未解放
+                            @elseif(empty($client->password))
+                                解放（パスワード未設定） — クライアントの初回パスワード設定を待っている状態
+                            @else
+                                解放 — クライアントがログインして閲覧できる状態
+                            @endif
+                        </td>
+                    </tr>
+                </table>
+                @if(!$client->is_viewable)
+                    @if($client->email)
+                        <div class="mt-2">
+                            <form method="POST" action="{{ route('client-view-release.store', $client) }}"
+                                  onsubmit="return confirmReleaseView()" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-primary btn-sm">閲覧を解放する</button>
+                            </form>
+                            <script>
+                            function confirmReleaseView() {
+                                return confirm('{{ $client->email }} に招待メールを送信し、閲覧を解放します。よろしいですか？');
+                            }
+                            </script>
+                        </div>
+                    @else
+                        <div class="alert alert-warning mt-2 mb-0 py-2 small">
+                            メールアドレスが未登録のため解放できません。先に連絡先のメールアドレスを登録してください。
+                        </div>
+                    @endif
+                @endif
+            </div>
+        </div>
+    </div>
+
     {{-- トレーニング記録一覧 --}}
     <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
