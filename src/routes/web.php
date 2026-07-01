@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\ChangePasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\AutoLogoutController;
+use App\Http\Controllers\Client\DashboardController as ClientDashboardController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\TrainingTypeController;
 use App\Http\Controllers\TrainingRecordController;
@@ -178,5 +179,21 @@ Route::middleware('auth')->group(function () {
         // IPアドレス制限設定
         Route::get('settings/ip-restriction', [IpRestrictionController::class, 'edit'])->name('settings.ip-restriction.edit');
         Route::put('settings/ip-restriction', [IpRestrictionController::class, 'update'])->name('settings.ip-restriction.update');
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
+| クライアント閲覧機能（柱2）
+|--------------------------------------------------------------------------
+| トレーナー向け（web guard）とは独立し、client guard で認証する。
+| ログイン画面・redirectUsersTo分岐・IP制限除外は段2、
+| ダッシュボード中身は段3で実装。
+| practitioners 等トレーナー専用ミドルウェアは絶対に付けない（隔離）。
+*/
+Route::prefix('client')->name('client-portal.')->group(function () {
+    // 認証必須（client guard）。未認証は redirectGuestsTo により /client/login へ振り分けられる。
+    Route::middleware('auth:client')->group(function () {
+        Route::get('/dashboard', [ClientDashboardController::class, 'index'])->name('dashboard');
     });
 });
