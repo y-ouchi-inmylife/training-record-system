@@ -23,6 +23,11 @@ class CheckIpRestriction
             return $next($request);
         }
 
+        // 柱2: クライアント閲覧機能もIP制限対象外（クライアント本人が自宅・スマホから利用するため）
+        if ($request->routeIs('client-portal.*')) {
+            return $next($request);
+        }
+
         // ログイン・ログアウトルートは除外（誰でもアクセス可能）
         // POST /login にはルート名がないため、パスでも判定する
         if ($request->routeIs('login') || $request->routeIs('logout') || $request->is('login')) {
