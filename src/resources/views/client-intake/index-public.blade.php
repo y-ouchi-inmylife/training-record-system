@@ -78,6 +78,12 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="col-md-3">
+                    <label for="email" class="form-label">メールアドレス</label>
+                    <input type="email" class="form-control @error('email') is-invalid @enderror"
+                           id="email" name="email" value="{{ old('email') }}">
+                    @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
             </div>
         </div>
         <div class="card-footer d-flex justify-content-end">
@@ -109,12 +115,6 @@
                     <input type="tel" class="form-control @error('phone3') is-invalid @enderror"
                            id="phone3" name="phone3" value="{{ old('phone3') }}" placeholder="例: 090-1234-5678">
                     @error('phone3') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-                <div class="col-md-3">
-                    <label for="email" class="form-label">メールアドレス</label>
-                    <input type="email" class="form-control @error('email') is-invalid @enderror"
-                           id="email" name="email" value="{{ old('email') }}">
-                    @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-2">
                     <label for="postal_code" class="form-label">郵便番号</label>

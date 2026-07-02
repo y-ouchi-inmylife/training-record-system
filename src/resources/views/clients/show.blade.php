@@ -88,6 +88,7 @@
                             <tr><th class="text-muted" style="width:40%">初回日</th><td>{{ $client->initial_consultation_date?->format('Y/m/d') ?: '—' }}</td></tr>
                             <tr><th class="text-muted">生年月日</th><td>{{ $client->birth_date?->format('Y/m/d') ?: '—' }}</td></tr>
                             <tr><th class="text-muted">性別</th><td>{{ $client->gender ?: '—' }}</td></tr>
+                            <tr><th class="text-muted">メールアドレス</th><td>{{ $client->email ?: '—' }}</td></tr>
                         </table>
                     </div>
                 </div>
@@ -233,7 +234,7 @@
     <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#section-contact" style="cursor: pointer;">
             <h6 class="mb-0">連絡先</h6>
-            @if($client->phone1 || $client->email || $client->address1)
+            @if($client->phone1 || $client->address1)
                 <span class="badge bg-success">入力あり</span>
             @else
                 <span class="badge bg-light text-muted">入力なし</span>
@@ -247,7 +248,6 @@
                             <tr><th class="text-muted" style="width:40%">電話番号1</th><td>{{ $client->phone1 ?: '—' }}</td></tr>
                             <tr><th class="text-muted">電話番号2</th><td>{{ $client->phone2 ?: '—' }}</td></tr>
                             <tr><th class="text-muted">電話番号3（緊急連絡先）</th><td>{{ $client->phone3 ?: '—' }}</td></tr>
-                            <tr><th class="text-muted">メールアドレス</th><td>{{ $client->email ?: '—' }}</td></tr>
                         </table>
                     </div>
                     <div class="col-md-6">
