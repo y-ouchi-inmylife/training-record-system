@@ -10,7 +10,7 @@
 </head>
 <body class="bg-light">
     @auth('client')
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-client-nav">
         <div class="container">
             <span class="navbar-brand">トレーニング記録閲覧</span>
             <div class="d-flex align-items-center">

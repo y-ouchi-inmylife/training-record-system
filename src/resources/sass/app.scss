@@ -1,2 +1,7 @@
 // Bootstrap
 @import 'bootstrap/scss/bootstrap';
+
+// クライアント閲覧ポータル用ナビバー背景（トレーナー側 bg-primary と区別するためのオレンジ）
+.bg-client-nav {
+    background-color: #fd7e14 !important;
+}
