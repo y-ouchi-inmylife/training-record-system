@@ -139,7 +139,7 @@
                                 @if($client->is_viewable)
                                     <script>
                                     function confirmRevokeView() {
-                                        return confirm('解放を取り消すと、パスワードと未使用の招待URLが破棄され、解放前の状態に戻ります。再び閲覧してもらうには、改めて招待が必要です。よろしいですか？');
+                                        return confirm('解放を取り消すと、このクライアントは記録を閲覧できなくなり、解放前の状態に戻ります。再び閲覧してもらうには、閲覧の解放とパスワードの再設定が必要です。よろしいですか？');
                                     }
                                     </script>
                                 @endif
