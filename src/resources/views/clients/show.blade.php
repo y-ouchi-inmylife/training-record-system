@@ -107,22 +107,20 @@
                         <th class="text-muted" style="width:40%">閲覧状態</th>
                         <td>
                             <div class="d-flex align-items-center gap-2 flex-wrap">
-                                @if(!$client->is_viewable)
+                                @if(!$client->is_viewable && empty($client->email))
+                                    <span class="badge bg-secondary">メールアドレス未登録</span>
+                                @elseif(!$client->is_viewable)
                                     <span class="badge bg-secondary">未解放</span>
-                                    @if($client->email)
-                                        <form method="POST" action="{{ route('client-view-release.store', $client) }}"
-                                              onsubmit="return confirmReleaseView()" class="d-inline m-0">
-                                            @csrf
-                                            <button type="submit" class="btn btn-primary btn-sm">閲覧を解放する</button>
-                                        </form>
-                                        <script>
-                                        function confirmReleaseView() {
-                                            return confirm('{{ $client->email }} に招待メールを送信し、閲覧を解放します。よろしいですか？');
-                                        }
-                                        </script>
-                                    @else
-                                        <span class="text-warning small">メールアドレス未登録のため解放できません</span>
-                                    @endif
+                                    <form method="POST" action="{{ route('client-view-release.store', $client) }}"
+                                          onsubmit="return confirmReleaseView()" class="d-inline m-0">
+                                        @csrf
+                                        <button type="submit" class="btn btn-primary btn-sm">閲覧を解放する</button>
+                                    </form>
+                                    <script>
+                                    function confirmReleaseView() {
+                                        return confirm('{{ $client->email }} に招待メールを送信し、閲覧を解放します。よろしいですか？');
+                                    }
+                                    </script>
                                 @elseif(empty($client->password))
                                     <span class="badge bg-warning text-dark">解放（パスワード未設定）</span>
                                 @else
