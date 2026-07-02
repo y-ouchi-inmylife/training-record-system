@@ -242,7 +242,6 @@ erDiagram
 | support_status_id | BIGINT UNSIGNED | YES | NULL | 支援状態マスタのID（外部キー） |
 | phone1 | VARCHAR(20) | YES | NULL | 電話番号1。ハイフンあり/なし両対応 |
 | phone2 | VARCHAR(20) | YES | NULL | 電話番号2。ハイフンあり/なし両対応 |
-| phone3 | VARCHAR(20) | YES | NULL | 電話番号3（緊急連絡先）。ハイフンあり/なし両対応 |
 | email | VARCHAR(255) | YES | NULL | メールアドレス。クライアント閲覧機能のログインIDを兼ねる。UNIQUE制約あり（未登録=NULLは複数許容） |
 | postal_code | VARCHAR(10) | YES | NULL | 郵便番号。ハイフンあり/なし両対応 |
 | address1 | VARCHAR(50) | YES | NULL | 住所1（都道府県） |
