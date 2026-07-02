@@ -108,9 +108,9 @@
                         <td>
                             <div class="d-flex align-items-center gap-2 flex-wrap">
                                 @if(!$client->is_viewable && empty($client->email))
-                                    <span class="badge bg-secondary">メールアドレス未登録</span>
+                                    <span class="badge bg-secondary fs-6">メールアドレス未登録</span>
                                 @elseif(!$client->is_viewable)
-                                    <span class="badge bg-secondary">未解放</span>
+                                    <span class="badge bg-secondary fs-6">未解放</span>
                                     <form method="POST" action="{{ route('client-view-release.store', $client) }}"
                                           onsubmit="return confirmReleaseView()" class="d-inline m-0">
                                         @csrf
@@ -122,9 +122,9 @@
                                     }
                                     </script>
                                 @elseif(empty($client->password))
-                                    <span class="badge bg-warning text-dark">解放（パスワード未設定）</span>
+                                    <span class="badge bg-warning text-dark fs-6">解放（パスワード未設定）</span>
                                 @else
-                                    <span class="badge bg-success">解放</span>
+                                    <span class="badge bg-success fs-6">解放</span>
                                 @endif
                             </div>
                         </td>
