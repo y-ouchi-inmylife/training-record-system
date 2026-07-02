@@ -8,6 +8,12 @@
         <div class="col-md-5 col-lg-4">
             <div class="card shadow">
                 <div class="card-body p-4">
+                    <div class="text-center mb-3">
+                        <img src="{{ asset('images/client-portal-logo.png') }}"
+                             alt="トレーニング記録閲覧"
+                             class="img-fluid"
+                             style="max-height: 96px;">
+                    </div>
                     <h4 class="card-title text-center mb-4">トレーニング記録閲覧</h4>
 
                     @if ($errors->any())
