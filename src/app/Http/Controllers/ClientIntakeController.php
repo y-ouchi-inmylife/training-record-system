@@ -77,7 +77,6 @@ class ClientIntakeController extends Controller
             // 連絡先
             'phone1' => ['nullable', 'string', 'max:20', 'regex:/^[0-9\-]+$/'],
             'phone2' => ['nullable', 'string', 'max:20', 'regex:/^[0-9\-]+$/'],
-            'phone3' => ['nullable', 'string', 'max:20', 'regex:/^[0-9\-]+$/'],
             'email' => 'nullable|email|max:255',
             'postal_code' => ['nullable', 'string', 'max:10', 'regex:/^[0-9\-]+$/'],
             'address1' => 'nullable|string|max:50',

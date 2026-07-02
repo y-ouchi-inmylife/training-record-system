@@ -26,7 +26,7 @@ class Client extends Authenticatable
         'last_name_kana', 'first_name_kana',
         'birth_date', 'gender',
         // カテゴリー2: 連絡先
-        'phone1', 'phone2', 'phone3', 'email',
+        'phone1', 'phone2', 'email',
         'postal_code', 'address1', 'address2', 'address3', 'address4',
         // クライアント閲覧機能（柱2）
         'password', 'is_viewable',

@@ -178,14 +178,6 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="col-md-3">
-                        <label for="phone3" class="form-label">電話番号3（緊急連絡先）</label>
-                        <input type="tel" class="form-control @error('phone3') is-invalid @enderror"
-                               id="phone3" name="phone3" value="{{ old('phone3') }}" placeholder="例: 090-1234-5678">
-                        @error('phone3')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
                     {{-- 行2: 郵便番号 + 住所検索 + 都道府県 + 市区町村 --}}
                     <div class="col-md-2">
                         <label for="postal_code" class="form-label">郵便番号</label>

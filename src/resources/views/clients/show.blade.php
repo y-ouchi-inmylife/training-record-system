@@ -240,7 +240,6 @@
                         <table class="table table-borderless table-sm">
                             <tr><th class="text-muted" style="width:40%">電話番号1</th><td>{{ $client->phone1 ?: '—' }}</td></tr>
                             <tr><th class="text-muted">電話番号2</th><td>{{ $client->phone2 ?: '—' }}</td></tr>
-                            <tr><th class="text-muted">電話番号3（緊急連絡先）</th><td>{{ $client->phone3 ?: '—' }}</td></tr>
                         </table>
                     </div>
                     <div class="col-md-6">
