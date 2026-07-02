@@ -66,91 +66,80 @@
         </div>
     </div>
 
-    {{-- カテゴリー1: 基本情報 --}}
+    {{-- カテゴリー1: 基本情報（閲覧管理を統合） --}}
     <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h6 class="mb-0">基本情報</h6>
+            <div>
+                @if(!$client->is_viewable && $client->email)
+                    {{-- B: 未解放・メール有 --}}
+                    <form method="POST" action="{{ route('client-view-release.store', $client) }}"
+                          onsubmit="return confirmReleaseView()" class="d-inline m-0">
+                        @csrf
+                        <button type="submit" class="btn btn-primary btn-sm">閲覧を解放する</button>
+                    </form>
+                @elseif($client->is_viewable)
+                    {{-- C・D: 解放済み --}}
+                    <form method="POST" action="{{ route('client-view-revoke.store', $client) }}"
+                          onsubmit="return confirmRevokeView()" class="d-inline m-0">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">解放を取り消す</button>
+                    </form>
+                @endif
+                {{-- A: メール未登録は何も出さない --}}
+            </div>
         </div>
-        <div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <table class="table table-borderless table-sm">
-                            <tr><th class="text-muted" style="width:40%">内部ID</th><td>{{ $client->internal_id }}</td></tr>
-                            <tr>
-                                <th class="text-muted">名前</th>
-                                <td>{{ $client->full_name }} <span class="text-muted">{{ $client->full_name_kana ? '（' . $client->full_name_kana . '）' : '' }}</span></td>
-                            </tr>
-                            <tr><th class="text-muted">メールアドレス</th><td>{{ $client->email ?: '—' }}</td></tr>
-                        </table>
-                    </div>
-                    <div class="col-md-6">
-                        <table class="table table-borderless table-sm">
-                            <tr><th class="text-muted" style="width:40%">初回日</th><td>{{ $client->initial_consultation_date?->format('Y/m/d') ?: '—' }}</td></tr>
-                            <tr><th class="text-muted">生年月日</th><td>{{ $client->birth_date?->format('Y/m/d') ?: '—' }}</td></tr>
-                            <tr><th class="text-muted">性別</th><td>{{ $client->gender ?: '—' }}</td></tr>
-                        </table>
-                    </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table table-borderless table-sm">
+                        <tr><th class="text-muted" style="width:40%">内部ID</th><td>{{ $client->internal_id }}</td></tr>
+                        <tr>
+                            <th class="text-muted">名前</th>
+                            <td>{{ $client->full_name }} <span class="text-muted">{{ $client->full_name_kana ? '（' . $client->full_name_kana . '）' : '' }}</span></td>
+                        </tr>
+                        <tr><th class="text-muted">メールアドレス</th><td>{{ $client->email ?: '—' }}</td></tr>
+                    </table>
                 </div>
+                <div class="col-md-6">
+                    <table class="table table-borderless table-sm">
+                        <tr><th class="text-muted" style="width:40%">初回日</th><td>{{ $client->initial_consultation_date?->format('Y/m/d') ?: '—' }}</td></tr>
+                        <tr><th class="text-muted">生年月日</th><td>{{ $client->birth_date?->format('Y/m/d') ?: '—' }}</td></tr>
+                        <tr><th class="text-muted">性別</th><td>{{ $client->gender ?: '—' }}</td></tr>
+                    </table>
+                </div>
+            </div>
+            <div class="mt-2">
+                <span class="text-muted me-2">閲覧状態</span>
+                @if(!$client->is_viewable && empty($client->email))
+                    <span class="badge bg-secondary fs-6">メールアドレス未登録</span>
+                @elseif(!$client->is_viewable)
+                    <span class="badge bg-secondary fs-6">未解放</span>
+                @elseif(empty($client->password))
+                    <span class="badge bg-warning text-dark fs-6">解放（パスワード未設定）</span>
+                @else
+                    <span class="badge bg-success fs-6">解放</span>
+                @endif
             </div>
         </div>
     </div>
 
-    {{-- 閲覧管理（柱2） --}}
-    <div class="card mb-3">
-        <div class="card-header" data-bs-toggle="collapse" data-bs-target="#section-view-release" style="cursor: pointer;">
-            <h6 class="mb-0">閲覧管理</h6>
-        </div>
-        <div class="collapse show" id="section-view-release">
-            <div class="card-body">
-                <table class="table table-borderless table-sm mb-0">
-                    <tr>
-                        <th class="text-muted" style="width:40%">閲覧状態</th>
-                        <td>
-                            <div class="d-flex align-items-center gap-2 flex-wrap">
-                                @if(!$client->is_viewable && empty($client->email))
-                                    <span class="badge bg-secondary fs-6">メールアドレス未登録</span>
-                                @elseif(!$client->is_viewable)
-                                    <span class="badge bg-secondary fs-6">未解放</span>
-                                    <form method="POST" action="{{ route('client-view-release.store', $client) }}"
-                                          onsubmit="return confirmReleaseView()" class="d-inline m-0">
-                                        @csrf
-                                        <button type="submit" class="btn btn-primary btn-sm">閲覧を解放する</button>
-                                    </form>
-                                    <script>
-                                    function confirmReleaseView() {
-                                        return confirm('{{ $client->email }} に招待メールを送信し、閲覧を解放します。よろしいですか？');
-                                    }
-                                    </script>
-                                @elseif(empty($client->password))
-                                    <span class="badge bg-warning text-dark fs-6">解放（パスワード未設定）</span>
-                                    <form method="POST" action="{{ route('client-view-revoke.store', $client) }}"
-                                          onsubmit="return confirmRevokeView()" class="d-inline m-0">
-                                        @csrf
-                                        <button type="submit" class="btn btn-outline-secondary btn-sm">解放を取り消す</button>
-                                    </form>
-                                @else
-                                    <span class="badge bg-success fs-6">解放</span>
-                                    <form method="POST" action="{{ route('client-view-revoke.store', $client) }}"
-                                          onsubmit="return confirmRevokeView()" class="d-inline m-0">
-                                        @csrf
-                                        <button type="submit" class="btn btn-outline-secondary btn-sm">解放を取り消す</button>
-                                    </form>
-                                @endif
-                                @if($client->is_viewable)
-                                    <script>
-                                    function confirmRevokeView() {
-                                        return confirm('解放を取り消すと、このクライアントは記録を閲覧できなくなり、解放前の状態に戻ります。再び閲覧してもらうには、閲覧の解放とパスワードの再設定が必要です。よろしいですか？');
-                                    }
-                                    </script>
-                                @endif
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-    </div>
+    @push('scripts')
+        @if(!$client->is_viewable && $client->email)
+        <script>
+        function confirmReleaseView() {
+            return confirm('{{ $client->email }} に招待メールを送信し、閲覧を解放します。よろしいですか？');
+        }
+        </script>
+        @endif
+        @if($client->is_viewable)
+        <script>
+        function confirmRevokeView() {
+            return confirm('解放を取り消すと、このクライアントは記録を閲覧できなくなり、解放前の状態に戻ります。再び閲覧してもらうには、閲覧の解放とパスワードの再設定が必要です。よろしいですか？');
+        }
+        </script>
+        @endif
+    @endpush
 
     {{-- トレーニング記録一覧 --}}
     <div class="card mb-3">
