@@ -81,6 +81,7 @@
                                 <th class="text-muted">名前</th>
                                 <td>{{ $client->full_name }} <span class="text-muted">{{ $client->full_name_kana ? '（' . $client->full_name_kana . '）' : '' }}</span></td>
                             </tr>
+                            <tr><th class="text-muted">メールアドレス</th><td>{{ $client->email ?: '—' }}</td></tr>
                         </table>
                     </div>
                     <div class="col-md-6">
@@ -88,7 +89,6 @@
                             <tr><th class="text-muted" style="width:40%">初回日</th><td>{{ $client->initial_consultation_date?->format('Y/m/d') ?: '—' }}</td></tr>
                             <tr><th class="text-muted">生年月日</th><td>{{ $client->birth_date?->format('Y/m/d') ?: '—' }}</td></tr>
                             <tr><th class="text-muted">性別</th><td>{{ $client->gender ?: '—' }}</td></tr>
-                            <tr><th class="text-muted">メールアドレス</th><td>{{ $client->email ?: '—' }}</td></tr>
                         </table>
                     </div>
                 </div>
