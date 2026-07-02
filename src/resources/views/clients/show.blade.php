@@ -109,18 +109,22 @@
                     </table>
                 </div>
             </div>
-            <div class="mt-2">
-                <span class="text-muted me-2">閲覧状態</span>
-                @if(!$client->is_viewable && empty($client->email))
-                    <span class="badge bg-secondary fs-6">メールアドレス未登録</span>
-                @elseif(!$client->is_viewable)
-                    <span class="badge bg-secondary fs-6">未解放</span>
-                @elseif(empty($client->password))
-                    <span class="badge bg-warning text-dark fs-6">解放（パスワード未設定）</span>
-                @else
-                    <span class="badge bg-success fs-6">解放</span>
-                @endif
-            </div>
+            <table class="table table-borderless table-sm mb-0">
+                <tr>
+                    <th class="text-muted" style="width:20%">閲覧状態</th>
+                    <td>
+                        @if(!$client->is_viewable && empty($client->email))
+                            <span class="badge bg-secondary fs-6">メールアドレス未登録</span>
+                        @elseif(!$client->is_viewable)
+                            <span class="badge bg-secondary fs-6">未解放</span>
+                        @elseif(empty($client->password))
+                            <span class="badge bg-warning text-dark fs-6">解放（パスワード未設定）</span>
+                        @else
+                            <span class="badge bg-success fs-6">解放</span>
+                        @endif
+                    </td>
+                </tr>
+            </table>
         </div>
     </div>
 
