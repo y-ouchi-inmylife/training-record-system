@@ -83,7 +83,7 @@
                     <form method="POST" action="{{ route('client-view-revoke.store', $client) }}"
                           onsubmit="return confirmRevokeView()" class="d-inline m-0">
                         @csrf
-                        <button type="submit" class="btn btn-outline-secondary btn-sm">閲覧の解放を解除</button>
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">閲覧の解放を取り消す</button>
                     </form>
                 @endif
                 {{-- A: メール未登録は何も出さない --}}
@@ -139,7 +139,7 @@
         @if($client->is_viewable)
         <script>
         function confirmRevokeView() {
-            return confirm('閲覧の解放を解除すると、このクライアントは記録を閲覧できなくなり、解放前の状態に戻ります。再び閲覧してもらうには、閲覧の解放とパスワードの再設定が必要です。よろしいですか？');
+            return confirm('閲覧の解放を取り消すと、このクライアントは記録を閲覧できなくなり、解放前の状態に戻ります。再び閲覧してもらうには、閲覧の解放とパスワードの再設定が必要です。よろしいですか？');
         }
         </script>
         @endif
