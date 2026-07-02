@@ -218,5 +218,7 @@ Route::prefix('client')->name('client-portal.')->group(function () {
         Route::get('/dashboard', [ClientDashboardController::class, 'index'])->name('dashboard');
         Route::get('/training-records/{trainingRecord}', [\App\Http\Controllers\Client\TrainingRecordController::class, 'show'])
             ->name('training-records.show');
+        Route::get('/media/{mediaRecord}/play', [\App\Http\Controllers\Client\MediaRecordController::class, 'play'])
+            ->name('media.play');
     });
 });
