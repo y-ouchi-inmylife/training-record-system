@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\MediaRecordController as TrainerMediaRecordController;
 use App\Models\TrainingRecord;
 use Illuminate\Contracts\View\View;
 
@@ -14,7 +15,9 @@ use Illuminate\Contracts\View\View;
  * - 本人認可（client_id 照合）で他人の記録は 403
  * - 所感（impression）・フェーズ・最終更新者などクライアント非開示情報は
  *   ロード・受け渡ししない（漏れを構造的に防ぐ）
- * - メディアは段2で追加するため、ここではロードしない
+ * - 紐づくメディアはサムネイル URL とともに view に渡す。記録レベル本人認可を
+ *   通った時点で「本人の記録に紐づくメディア」であることが保証されるため、
+ *   サムネイル発行に個別のメディア認可は挟まない（再生 API 側で個別認可）
  */
 class TrainingRecordController extends Controller
 {
@@ -26,9 +29,23 @@ class TrainingRecordController extends Controller
         }
 
         // 表示に必要なリレーションのみロードする。
-        // phase / updatedBy / mediaRecords は意図的にロードしない（非開示・段2の切り分け）。
-        $trainingRecord->load(['client', 'trainingType', 'trainer1', 'trainer2']);
+        // phase / updatedBy は意図的にロードしない（非開示）。mediaRecords は
+        // belongsToMany 側で orderByPivot('sort_order') 済み＝sort_order 昇順で並ぶ。
+        $trainingRecord->load(['client', 'trainingType', 'trainer1', 'trainer2', 'mediaRecords']);
 
-        return view('client.training-records.show', compact('trainingRecord'));
+        // メディアグリッド用の表示データ（presigned サムネイル URL を含む）。
+        // 再生は /client/media/{id}/play を叩く（そちらでメディア単位の本人認可）。
+        $thumbnailExpiresAt = now()->addMinutes(TrainerMediaRecordController::PLAY_URL_EXPIRES_MINUTES);
+        $mediaItems = $trainingRecord->mediaRecords->map(function ($m) use ($thumbnailExpiresAt) {
+            return [
+                'id'               => $m->id,
+                'type'             => $m->type,
+                'displayTitle'     => $m->display_title,
+                'thumbnailUrl'     => $m->temporaryThumbnailUrl($thumbnailExpiresAt),
+                'conversionStatus' => $m->conversion_status,
+            ];
+        })->values()->all();
+
+        return view('client.training-records.show', compact('trainingRecord', 'mediaItems'));
     }
 }

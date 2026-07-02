@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'クライアント閲覧 - トレーニング記録管理システム')</title>
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    @stack('styles')
 </head>
 <body class="bg-light">
     @auth('client')
@@ -40,5 +41,6 @@
         </div>
         @yield('content')
     </main>
+    @stack('scripts')
 </body>
 </html>
