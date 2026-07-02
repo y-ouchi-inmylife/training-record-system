@@ -123,8 +123,25 @@
                                     </script>
                                 @elseif(empty($client->password))
                                     <span class="badge bg-warning text-dark fs-6">解放（パスワード未設定）</span>
+                                    <form method="POST" action="{{ route('client-view-revoke.store', $client) }}"
+                                          onsubmit="return confirmRevokeView()" class="d-inline m-0">
+                                        @csrf
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm">解放を取り消す</button>
+                                    </form>
                                 @else
                                     <span class="badge bg-success fs-6">解放</span>
+                                    <form method="POST" action="{{ route('client-view-revoke.store', $client) }}"
+                                          onsubmit="return confirmRevokeView()" class="d-inline m-0">
+                                        @csrf
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm">解放を取り消す</button>
+                                    </form>
+                                @endif
+                                @if($client->is_viewable)
+                                    <script>
+                                    function confirmRevokeView() {
+                                        return confirm('解放を取り消すと、パスワードと未使用の招待URLが破棄され、解放前の状態に戻ります。再び閲覧してもらうには、改めて招待が必要です。よろしいですか？');
+                                    }
+                                    </script>
                                 @endif
                             </div>
                         </td>
