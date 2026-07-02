@@ -63,6 +63,7 @@ IPアドレス制限が有効で、許可リストが登録されている場合
 | クライアント管理 | S-0304 クライアント一覧画面 | GET | `/clients` | クライアント一覧画面を表示する | auth | 管理者、一般 |
 | クライアント管理 | S-0305 クライアント詳細画面 | GET | `/clients/{id}` | クライアント詳細画面を表示する | auth | 管理者、一般 |
 | クライアント管理 | S-0305 クライアント詳細画面 | POST | `/clients/{client}/release-view` | クライアントの閲覧を解放し招待メールを送信する | auth | 管理者、一般 |
+| クライアント管理 | S-0305 クライアント詳細画面 | POST | `/clients/{client}/revoke-view` | クライアントの閲覧解放を取り消し、解放前の状態に戻す | auth | 管理者、一般 |
 | クライアント管理 | S-0305 クライアント詳細画面 | DELETE | `/clients/{id}` | クライアントを削除する | auth | 管理者、一般 |
 | クライアント管理 | S-0306 クライアント編集画面 | GET | `/clients/{id}/edit` | クライアント編集画面を表示する | auth | 管理者、一般 |
 | クライアント管理 | S-0306 クライアント編集画面 | PUT | `/clients/{id}` | クライアント情報を更新する | auth | 管理者、一般 |
@@ -464,6 +465,25 @@ Laravelのセッション認証（Cookie + CSRF）で保護する。
   - is_viewable が false：「未解放」
   - is_viewable が true かつ password が未設定：「解放（パスワード未設定）」
   - is_viewable が true かつ password が設定済み：「解放」
+
+
+###### POST /clients/{client}/revoke-view
+
+**概要**: クライアントの閲覧解放を取り消し、解放前の状態に戻す。
+
+**処理**:
+- 以下を1つのトランザクションで実行する：
+  - クライアントの is_viewable を false にする
+  - クライアントの password を NULL にする（既に設定済みのパスワードを破棄する）
+  - 対象クライアントの未使用の招待トークン（`client_password_setup_tokens` のうち is_used=false のレコード）をすべて物理削除する
+- メール送信は行わない（send のような外部副作用は取り消し時には対称に持たせない）
+- 既存のログイン中セッションは強制的には無効化しない。次回以降の新規ログインは is_viewable=false により attempt が失敗するため弾かれる（既存セッションは SESSION_LIFETIME で自然失効する）
+
+**レスポンス**:
+- 成功：`redirect('/clients/{id}')` ＋「閲覧を取り消しました」
+
+**取り消し後の閲覧状態**:
+- 取り消し後は is_viewable=false かつ password=NULL となるため、上記「閲覧状態の判定」ロジックにより自然に「未解放」へ戻る。再解放が必要な場合は既存の release-view を叩けばよい（password が NULL のため特別扱いは不要）。
 
 
 ###### DELETE /clients/{id}
