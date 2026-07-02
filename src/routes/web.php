@@ -216,5 +216,7 @@ Route::prefix('client')->name('client-portal.')->group(function () {
     Route::middleware('auth:client')->group(function () {
         Route::post('/logout', [ClientLogoutController::class, 'logout'])->name('logout');
         Route::get('/dashboard', [ClientDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/training-records/{trainingRecord}', [\App\Http\Controllers\Client\TrainingRecordController::class, 'show'])
+            ->name('training-records.show');
     });
 });
