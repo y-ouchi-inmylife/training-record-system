@@ -1,5 +1,4 @@
-{{-- クライアント認証中は layouts.client、それ以外は layouts.app に載せる（403 と同方針）。 --}}
-@extends(auth('client')->check() ? 'layouts.client' : 'layouts.app')
+@extends('layouts.error')
 
 @section('title', 'セッションの有効期限が切れました')
 

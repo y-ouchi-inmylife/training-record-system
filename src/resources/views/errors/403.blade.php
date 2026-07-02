@@ -1,7 +1,4 @@
-{{-- クライアント認証中は layouts.client、それ以外（トレーナー・未認証）は layouts.app に載せる。
-     layouts.app はナビで Auth::user()->isSystemAdmin() 等を呼ぶため、クライアント guard の
-     ユーザーが 403 に到達すると BadMethodCallException で 500 化する。ガードで分岐して防ぐ。 --}}
-@extends(auth('client')->check() ? 'layouts.client' : 'layouts.app')
+@extends('layouts.error')
 
 @section('title', 'アクセス拒否')
 
