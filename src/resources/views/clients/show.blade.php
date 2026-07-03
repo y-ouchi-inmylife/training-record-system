@@ -109,9 +109,9 @@
                                 @elseif(!$client->is_viewable)
                                     <span class="badge bg-secondary fs-6">未解放</span>
                                 @elseif(empty($client->password))
-                                    <span class="badge bg-warning text-dark fs-6">解放（パスワード未設定）</span>
+                                    <span class="badge bg-warning text-dark fs-6">解放中（パスワード未設定）</span>
                                 @else
-                                    <span class="badge bg-success fs-6">解放</span>
+                                    <span class="badge bg-success fs-6">解放中</span>
                                 @endif
                             </td>
                         </tr>
