@@ -24,7 +24,7 @@ class DashboardController extends Controller
         // 総件数を取得
         $myClientsTotal = $baseQuery->count();
 
-        // 主担当クライアント一覧を取得（最終トレーニング日が新しい順、NULLは最後、10件まで）
+        // 主担当クライアント一覧を取得（最終記録日が新しい順、NULLは最後、10件まで）
         $myClients = (clone $baseQuery)
             ->select('clients.*')
             ->selectSub(

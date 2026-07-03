@@ -28,7 +28,7 @@
                                placeholder="姓名・かなで検索（部分一致）">
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">トレーニング日（開始）</label>
+                        <label class="form-label">日付（開始）</label>
                         <input type="text" name="date_from" class="form-control datepicker"
                                value="{{ old('date_from', request('date_from')) }}"
                                placeholder="例: 2026-04-01"
@@ -36,7 +36,7 @@
                                maxlength="10">
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">トレーニング日（終了）</label>
+                        <label class="form-label">日付（終了）</label>
                         <input type="text" name="date_to" class="form-control datepicker"
                                value="{{ old('date_to', request('date_to')) }}"
                                placeholder="例: 2026-04-01"
@@ -96,7 +96,7 @@
                     </th>
                     <th>
                         <a href="{{ route('training-records.index', array_merge(request()->query(), ['sort' => 'training_date', 'direction' => request('sort') === 'training_date' && request('direction', 'desc') === 'desc' ? 'asc' : 'desc'])) }}" class="text-decoration-none text-dark">
-                            トレーニング日
+                            日付
                             @if(request('sort', 'training_date') === 'training_date')
                                 {{ request('direction', 'desc') === 'desc' ? '▼' : '▲' }}
                             @endif

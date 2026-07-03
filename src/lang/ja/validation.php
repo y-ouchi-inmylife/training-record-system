@@ -222,7 +222,7 @@ return [
         'support_status_id' => '支援状態',
         'trainer1_id' => '担当1',
         'trainer2_id' => '担当2',
-        'training_date' => 'トレーニング日',
+        'training_date' => '日付',
         'training_type_id' => 'トレーニング内容',
         'phase_id' => 'フェーズ',
         'internal_id' => '内部ID',

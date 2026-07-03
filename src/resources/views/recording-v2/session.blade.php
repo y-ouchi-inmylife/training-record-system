@@ -215,7 +215,7 @@
 
                     <div class="row">
                         <div class="col-md-8 mb-3">
-                            <label class="form-label">トレーニング日</label>
+                            <label class="form-label">日付</label>
                             <input type="text" class="form-control bg-light" value="{{ date('Y年m月d日') }}（今日）" readonly>
                         </div>
                         <div class="col-md-4 mb-3">

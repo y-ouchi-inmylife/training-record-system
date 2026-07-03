@@ -15,7 +15,7 @@ class DashboardController extends Controller
 {
     public function index(): View
     {
-        // 自分の記録をトレーニング日の新しい順（降順）で取得。
+        // 自分の記録を日付の新しい順（降順）で取得。
         // 一覧表示に使うリレーション（担当1・担当2・トレーニング内容）のみ eager load。
         // phase / updatedBy はクライアント非表示のため意図的にロードしない。
         $trainingRecords = auth('client')->user()

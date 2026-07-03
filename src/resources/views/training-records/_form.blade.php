@@ -23,9 +23,9 @@
                     <input type="hidden" name="client_id" value="{{ $fixedClient->id }}">
                 </div>
 
-                {{-- トレーニング日 --}}
+                {{-- 日付 --}}
                 <div class="col-md-3">
-                    <label for="training_date" class="form-label">トレーニング日 <span class="text-danger">*</span></label>
+                    <label for="training_date" class="form-label">日付 <span class="text-danger">*</span></label>
                     <input type="text" name="training_date" id="training_date"
                         class="form-control datepicker @error('training_date') is-invalid @enderror"
                         value="{{ old('training_date', $record?->training_date?->format('Y-m-d') ?? date('Y-m-d')) }}"
@@ -247,8 +247,8 @@ document.addEventListener('DOMContentLoaded', function() {
             errors.push('クライアントを選択してください。');
         }
 
-        // 2. トレーニング日
-        checkRequired('training_date', 'トレーニング日を入力してください。');
+        // 2. 日付
+        checkRequired('training_date', '日付を入力してください。');
 
         // 4. 担当1
         checkRequired('trainer1_id', '担当1を選択してください。');
@@ -521,7 +521,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(function() { /* 要約取得失敗は無視 */ });
     }
 
-    // training_date がある場合、トレーニング日を設定
+    // training_date がある場合、日付を設定
     var trainingDate = params.get('training_date');
     if (trainingDate) {
         var dateInput = document.getElementById('training_date');

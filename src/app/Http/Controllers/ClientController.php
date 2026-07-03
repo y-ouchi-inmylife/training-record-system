@@ -73,7 +73,7 @@ class ClientController extends Controller
             $query->where('primary_trainer_id', $request->input('primary_trainer_id'));
         }
 
-        // 最終トレーニング日の期間指定（最新のトレーニング記録日付で絞り込み）
+        // 最終記録日の期間指定（最新のトレーニング記録日付で絞り込み）
         if ($request->filled('date_from')) {
             $query->whereRaw(
                 '(SELECT MAX(cr.training_date) FROM training_records cr WHERE cr.client_id = clients.id) >= ?',

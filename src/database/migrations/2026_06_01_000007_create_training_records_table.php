@@ -12,7 +12,7 @@ return new class extends Migration
         Schema::create('training_records', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('client_id');
-            $table->date('training_date')->comment('相談日');
+            $table->date('training_date')->comment('日付');
             $table->time('training_time')->nullable()->comment('相談時間');
             $table->unsignedBigInteger('training_type_id')->nullable();
             $table->string('training_detail', 255)->nullable()->comment('相談内容の詳細');

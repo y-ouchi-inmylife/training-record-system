@@ -158,7 +158,7 @@
                 <table class="table table-hover table-sm mb-0 training-records-table">
                     <thead class="table-light">
                         <tr>
-                            <th>トレーニング日</th>
+                            <th>日付</th>
                             <th>担当1</th>
                             <th>担当2</th>
                             <th>トレーニング内容</th>

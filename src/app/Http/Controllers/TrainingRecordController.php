@@ -58,7 +58,7 @@ class TrainingRecordController extends Controller
             });
         }
 
-        // トレーニング日（期間指定）
+        // 日付（期間指定）
         if ($request->filled('date_from')) {
             $query->where('training_date', '>=', $request->input('date_from'));
         }
@@ -108,7 +108,7 @@ class TrainingRecordController extends Controller
             $query->orderBy($sortBy, $sortDir);
         }
 
-        // 2次ソート: トレーニング日が同じレコードはトレーニング時刻で並び替える（NULLはMySQLのDESCで最後、ASCで最初）
+        // 2次ソート: 日付が同じレコードはトレーニング時刻で並び替える（NULLはMySQLのDESCで最後、ASCで最初）
         if ($sortBy !== 'training_date') {
             $query->orderBy('training_date', 'desc');
         }
