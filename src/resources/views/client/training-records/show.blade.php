@@ -4,11 +4,10 @@
 
 @section('content')
 <div class="container">
-    <div class="mb-3">
-        <a href="{{ route('client-portal.dashboard') }}" class="btn btn-outline-secondary btn-sm">&laquo; ダッシュボード</a>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">トレーニング記録詳細</h2>
+        <a href="{{ route('client-portal.dashboard') }}" class="btn btn-outline-secondary">&laquo; 戻る</a>
     </div>
-
-    <h2 class="mb-4">トレーニング記録詳細</h2>
 
     {{-- 基本情報 --}}
     <div class="card mb-3">
