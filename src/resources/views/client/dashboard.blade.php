@@ -8,7 +8,9 @@
 
     {{-- メディアギャラリー（S-1402） --}}
     <div class="card mb-3">
-        <div class="card-header">
+        {{-- クライアントナビと同じオレンジ（.bg-client-nav = #fd7e14）＋白文字。 --}}
+        {{-- 「トレーニング記録」ヘッダー側は白のまま変えない。 --}}
+        <div class="card-header bg-client-nav text-white">
             <h6 class="mb-0">メディア（{{ count($mediaItems) }}件）</h6>
         </div>
         <div class="card-body">
