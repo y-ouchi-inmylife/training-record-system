@@ -288,7 +288,7 @@ erDiagram
 | id | BIGINT UNSIGNED | NO | auto_increment | 主キー |
 | client_id | BIGINT UNSIGNED | NO | — | クライアントのID（外部キー） |
 | training_date | DATE | NO | — | 日付（トレーニング記録の実施日） |
-| training_time | TIME | YES | NULL | トレーニング時刻（HH:MM形式） |
+| training_time | TIME | YES | NULL | 時刻（トレーニング記録の実施時刻。HH:MM形式） |
 | trainer1_id | BIGINT UNSIGNED | NO | — | 担当1のトレーナーのID（外部キー） |
 | trainer2_id | BIGINT UNSIGNED | YES | NULL | 担当2のトレーナーのID（外部キー） |
 | training_type_id | BIGINT UNSIGNED | YES | NULL | トレーニング内容マスタのID（外部キー） |
