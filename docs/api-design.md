@@ -463,8 +463,8 @@ Laravelのセッション認証（Cookie + CSRF）で保護する。
 **閲覧状態の判定**:
 - クライアント詳細画面（S-0305）に表示する閲覧状態は、専用のカラムを持たず is_viewable と password から導出する：
   - is_viewable が false：「未解放」
-  - is_viewable が true かつ password が未設定：「解放（パスワード未設定）」
-  - is_viewable が true かつ password が設定済み：「解放」
+  - is_viewable が true かつ password が未設定：「解放中（パスワード未設定）」
+  - is_viewable が true かつ password が設定済み：「解放中」
 
 
 ###### POST /clients/{client}/revoke-view
