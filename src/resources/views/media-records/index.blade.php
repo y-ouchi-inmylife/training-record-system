@@ -37,6 +37,10 @@
                         <div class="ratio ratio-1x1 bg-light d-flex align-items-center justify-content-center">
                             @if($thumbnailUrl)
                                 <img src="{{ $thumbnailUrl }}" alt="{{ $media->display_title }}" class="img-fluid">
+                                {{-- 動画のときだけ中央に▶をオーバーレイ（写真・プレースホルダには出さない） --}}
+                                @if($media->type === \App\Models\MediaRecord::TYPE_VIDEO)
+                                    @include('media-records._video-play-overlay')
+                                @endif
                             @else
                                 <span class="text-muted">
                                     {{ $media->type === \App\Models\MediaRecord::TYPE_PHOTO ? '写真' : '動画' }}

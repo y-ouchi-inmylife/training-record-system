@@ -31,6 +31,10 @@
                                 <div class="ratio ratio-1x1 bg-light d-flex align-items-center justify-content-center">
                                     @if($m['thumbnailUrl'])
                                         <img src="{{ $m['thumbnailUrl'] }}" alt="{{ $m['displayTitle'] }}" class="img-fluid">
+                                        {{-- 動画のときだけ中央に▶をオーバーレイ（写真・プレースホルダには出さない） --}}
+                                        @if($m['type'] === 'video')
+                                            @include('media-records._video-play-overlay')
+                                        @endif
                                     @else
                                         <span class="text-muted">{{ $m['type'] === 'photo' ? '写真' : '動画' }}</span>
                                     @endif

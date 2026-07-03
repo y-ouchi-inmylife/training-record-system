@@ -1,4 +1,8 @@
 {{-- トレーニング記録登録・編集共通フォーム（クライアントは常に固定モード） --}}
+{{-- 動画サムネイル用▶オーバーレイ CSS を読み込む（本フォームはメディアカードを
+     JS で動的生成するため、SVG マークアップは JS 側で組み立てる。CSS だけ先に
+     styles スタックへ載せておく。@once のため二重定義にはならない） --}}
+@include('media-records._video-play-overlay-styles')
 <form method="POST" action="{{ $action }}" id="trainingRecordForm" novalidate>
     @csrf
     @if($method === 'PUT')
@@ -554,6 +558,30 @@ document.addEventListener('DOMContentLoaded', function () {
     const emptyMessage = document.getElementById('mediaSelectionEmpty');
     if (!gridRoot || !hiddenRoot) return;
 
+    // 動画サムネイルの中央にオーバーレイする▶（半透明の黒丸 + 白い三角）を返す。
+    // CSS(.video-play-overlay-sm)は _video-play-overlay-styles.blade.php が
+    // @once @push('styles') でページに載せる。Blade 側の
+    // _video-play-overlay.blade.php と同じ意匠を JS DOM で組み立てたもの。
+    function buildVideoPlayOverlaySvg() {
+        const svgNs = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(svgNs, 'svg');
+        svg.setAttribute('class', 'video-play-overlay-sm');
+        svg.setAttribute('viewBox', '0 0 80 80');
+        svg.setAttribute('aria-hidden', 'true');
+        svg.setAttribute('focusable', 'false');
+        const circle = document.createElementNS(svgNs, 'circle');
+        circle.setAttribute('cx', '40');
+        circle.setAttribute('cy', '40');
+        circle.setAttribute('r', '38');
+        circle.setAttribute('fill', 'rgba(0,0,0,0.55)');
+        const triangle = document.createElementNS(svgNs, 'polygon');
+        triangle.setAttribute('points', '33,25 33,55 58,40');
+        triangle.setAttribute('fill', '#fff');
+        svg.appendChild(circle);
+        svg.appendChild(triangle);
+        return svg;
+    }
+
     // 既存メディア一覧（index.blade.php）と同型のカード DOM を組み立てる。
     // 右上に × ボタンを重ねて紐づけを仮解除できるようにする（Step4解除）。
     // D&D ハンドル・再生は付けない（次段で追加）。
@@ -587,6 +615,10 @@ document.addEventListener('DOMContentLoaded', function () {
             img.alt = item.displayTitle || '';
             img.className = 'img-fluid';
             ratio.appendChild(img);
+            // 動画のときだけ中央に▶オーバーレイ（写真・プレースホルダには付けない）
+            if (item.type === 'video') {
+                ratio.appendChild(buildVideoPlayOverlaySvg());
+            }
         } else {
             const span = document.createElement('span');
             span.className = 'text-muted';
@@ -847,6 +879,30 @@ document.addEventListener('DOMContentLoaded', function () {
         items.forEach(function (m) { grid.appendChild(buildModalCard(m)); });
     }
 
+    // 動画サムネイルの中央にオーバーレイする▶（半透明の黒丸 + 白い三角）を返す。
+    // 上段の buildCard 側（別 DOMContentLoaded スコープ）と同じヘルパの複製。
+    // CSS(.video-play-overlay-sm)は _video-play-overlay-styles.blade.php が
+    // @once @push('styles') でページに載せる。
+    function buildVideoPlayOverlaySvg() {
+        const svgNs = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(svgNs, 'svg');
+        svg.setAttribute('class', 'video-play-overlay-sm');
+        svg.setAttribute('viewBox', '0 0 80 80');
+        svg.setAttribute('aria-hidden', 'true');
+        svg.setAttribute('focusable', 'false');
+        const circle = document.createElementNS(svgNs, 'circle');
+        circle.setAttribute('cx', '40');
+        circle.setAttribute('cy', '40');
+        circle.setAttribute('r', '38');
+        circle.setAttribute('fill', 'rgba(0,0,0,0.55)');
+        const triangle = document.createElementNS(svgNs, 'polygon');
+        triangle.setAttribute('points', '33,25 33,55 58,40');
+        triangle.setAttribute('fill', '#fff');
+        svg.appendChild(circle);
+        svg.appendChild(triangle);
+        return svg;
+    }
+
     // 5c-1 buildCard と同じカード構造に、右上のチェックボックスを重ねる。
     // ×・D&D・再生は付けない（モーダルでは候補選択だけが目的）。
     function buildModalCard(m) {
@@ -879,6 +935,10 @@ document.addEventListener('DOMContentLoaded', function () {
             img.alt = m.display_title || '';
             img.className = 'img-fluid';
             ratio.appendChild(img);
+            // 動画のときだけ中央に▶オーバーレイ（写真・プレースホルダには付けない）
+            if (m.type === 'video') {
+                ratio.appendChild(buildVideoPlayOverlaySvg());
+            }
         } else {
             const span = document.createElement('span');
             span.className = 'text-muted';
