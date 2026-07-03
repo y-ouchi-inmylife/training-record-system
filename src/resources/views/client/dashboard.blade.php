@@ -90,6 +90,7 @@
     /* 値は実機で覗き具合を見て微調整すること。 */
     .media-gallery-scroll {
         max-height: 340px;
+        overflow-x: hidden;
         overflow-y: auto;
         /* スクロールバー分、右側に少し余白を確保してカードが詰まって見えないようにする */
         padding-right: 4px;
