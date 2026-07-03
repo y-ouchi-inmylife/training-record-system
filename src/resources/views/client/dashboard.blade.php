@@ -15,6 +15,8 @@
             @if(count($mediaItems) === 0)
                 <div class="text-muted">メディアはありません。</div>
             @else
+                {{-- メディアが多い場合の縦スクロール（training-records-scroll と同じ流儀） --}}
+                <div class="media-gallery-scroll">
                 <div class="row row-cols-2 row-cols-md-4 row-cols-xl-6 g-3" id="mediaGalleryGrid">
                     @foreach($mediaItems as $m)
                         <div class="col">
@@ -37,6 +39,7 @@
                             </div>
                         </div>
                     @endforeach
+                </div>
                 </div>
             @endif
         </div>
@@ -83,6 +86,28 @@
 
 {{-- 記録表のスクロール＋ヘッダー固定スタイル（layouts.client に @stack が無いためインラインで定義） --}}
 <style>
+    /* メディアギャラリーの縦スクロール（1.5行分くらい＝2行目が少し覗く高さ）。 */
+    /* 値は実機で覗き具合を見て微調整すること。 */
+    .media-gallery-scroll {
+        max-height: 340px;
+        overflow-y: auto;
+        /* スクロールバー分、右側に少し余白を確保してカードが詰まって見えないようにする */
+        padding-right: 4px;
+    }
+    .media-gallery-scroll::-webkit-scrollbar {
+        width: 8px;
+    }
+    .media-gallery-scroll::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    .media-gallery-scroll::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+    .media-gallery-scroll::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
     .training-records-scroll {
         max-height: 200px;
         overflow-y: auto;
