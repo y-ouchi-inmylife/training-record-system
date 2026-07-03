@@ -6,6 +6,42 @@
 <div class="container py-4">
     <h1 class="h4 mb-4">{{ auth('client')->user()->full_name }} さん、ようこそ</h1>
 
+    {{-- メディアギャラリー（S-1402） --}}
+    <div class="card mb-3">
+        <div class="card-header">
+            <h6 class="mb-0">メディア（{{ count($mediaItems) }}件）</h6>
+        </div>
+        <div class="card-body">
+            @if(count($mediaItems) === 0)
+                <div class="text-muted">メディアはありません。</div>
+            @else
+                <div class="row row-cols-2 row-cols-md-4 row-cols-xl-6 g-3" id="mediaGalleryGrid">
+                    @foreach($mediaItems as $m)
+                        <div class="col">
+                            <div class="card h-100 media-card"
+                                 data-media-id="{{ $m['id'] }}"
+                                 data-media-type="{{ $m['type'] }}"
+                                 data-conversion-status="{{ $m['conversionStatus'] }}"
+                                 data-display-title="{{ $m['displayTitle'] }}"
+                                 style="cursor: pointer;" role="button" tabindex="0">
+                                <div class="ratio ratio-1x1 bg-light d-flex align-items-center justify-content-center">
+                                    @if($m['thumbnailUrl'])
+                                        <img src="{{ $m['thumbnailUrl'] }}" alt="{{ $m['displayTitle'] }}" class="img-fluid">
+                                    @else
+                                        <span class="text-muted">{{ $m['type'] === 'photo' ? '写真' : '動画' }}</span>
+                                    @endif
+                                </div>
+                                <div class="card-body p-2 small text-center">
+                                    <div class="text-muted">{{ $m['trainingDate'] }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+    </div>
+
     {{-- トレーニング記録一覧（S-1402 記録表） --}}
     <div class="card mb-3">
         <div class="card-header">
@@ -78,4 +114,50 @@
         padding-bottom: 0.65rem;
     }
 </style>
+
+{{-- 原寸ライトボックス（写真拡大・動画再生）— S-1404 と共用の汎用 partial --}}
+@include('media-records._lightbox')
 @endsection
+
+@push('scripts')
+<script>
+// メディアサムネイルをクリック → /client/media/{id}/play で presigned URL を取得 → ライトボックス表示。
+// S-1404（client/training-records/show.blade.php）と同じロジックを、
+// ダッシュボード側のグリッド ID（mediaGalleryGrid）に対して適用する。
+document.addEventListener('DOMContentLoaded', function () {
+    const grid = document.getElementById('mediaGalleryGrid');
+    if (!grid) return;
+
+    grid.addEventListener('click', async function (e) {
+        const card = e.target.closest('.media-card');
+        if (!card) return;
+        const id = card.dataset.mediaId;
+        const type = card.dataset.mediaType;
+        const status = card.dataset.conversionStatus;
+        const title = card.dataset.displayTitle || '';
+
+        // 変換未完（pending/processing/error）は先取りで弾く
+        if (status !== 'not_required' && status !== 'done') {
+            alert('現在このメディアは表示できません（変換状態: ' + status + '）。');
+            return;
+        }
+
+        try {
+            const res = await fetch('/client/media/' + encodeURIComponent(id) + '/play', {
+                headers: { 'Accept': 'application/json' },
+            });
+            if (!res.ok) throw new Error('再生 URL の取得に失敗しました');
+            const body = await res.json();
+            const url = body.data && body.data.url;
+            if (!url) throw new Error('URL が取得できませんでした');
+            if (typeof window.openLightbox !== 'function') {
+                throw new Error('ライトボックスが初期化されていません');
+            }
+            window.openLightbox(type === 'photo' ? 'IMG' : 'VIDEO', url, title);
+        } catch (err) {
+            alert(err.message || '再生に失敗しました');
+        }
+    });
+});
+</script>
+@endpush
