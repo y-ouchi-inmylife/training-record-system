@@ -35,9 +35,9 @@
                     @enderror
                 </div>
 
-                {{-- トレーニング時刻 --}}
+                {{-- 時刻 --}}
                 <div class="col-md-3">
-                    <label for="training_time" class="form-label">トレーニング時刻</label>
+                    <label for="training_time" class="form-label">時刻</label>
                     <input type="time" name="training_time" id="training_time"
                         class="form-control @error('training_time') is-invalid @enderror"
                         value="{{ old('training_time', $record?->training_time ? substr($record->training_time, 0, 5) : '') }}">

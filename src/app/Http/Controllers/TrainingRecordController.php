@@ -108,7 +108,7 @@ class TrainingRecordController extends Controller
             $query->orderBy($sortBy, $sortDir);
         }
 
-        // 2次ソート: 日付が同じレコードはトレーニング時刻で並び替える（NULLはMySQLのDESCで最後、ASCで最初）
+        // 2次ソート: 日付が同じレコードは時刻で並び替える（NULLはMySQLのDESCで最後、ASCで最初）
         if ($sortBy !== 'training_date') {
             $query->orderBy('training_date', 'desc');
         }

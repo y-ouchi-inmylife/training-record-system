@@ -219,7 +219,7 @@
                             <input type="text" class="form-control bg-light" value="{{ date('Y年m月d日') }}（今日）" readonly>
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label class="form-label">トレーニング時刻</label>
+                            <label class="form-label">時刻</label>
                             <input type="text" class="form-control bg-light" id="record-training-time" readonly>
                         </div>
                     </div>

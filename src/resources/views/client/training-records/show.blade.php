@@ -21,7 +21,7 @@
                     <table class="table table-borderless table-sm">
                         <tr><th class="text-muted" style="width:40%">クライアント</th><td>{{ $trainingRecord->client->display_name }}</td></tr>
                         <tr><th class="text-muted">日付</th><td>{{ $trainingRecord->training_date->format('Y/m/d') }}</td></tr>
-                        <tr><th class="text-muted">トレーニング時刻</th><td>{{ $trainingRecord->training_time ?: '—' }}</td></tr>
+                        <tr><th class="text-muted">時刻</th><td>{{ $trainingRecord->training_time ?: '—' }}</td></tr>
                     </table>
                 </div>
                 <div class="col-md-6">
