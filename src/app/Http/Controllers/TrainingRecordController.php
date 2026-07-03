@@ -35,7 +35,8 @@ class TrainingRecordController extends Controller
             ]
         );
 
-        $query = TrainingRecord::with(['client', 'trainingType', 'trainer1', 'trainer2', 'phase']);
+        $query = TrainingRecord::with(['client', 'trainingType', 'trainer1', 'trainer2', 'phase'])
+            ->withCount('mediaRecords');
 
         // 内部ID（部分一致）
         if ($request->filled('internal_id')) {

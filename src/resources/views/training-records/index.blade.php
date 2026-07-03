@@ -106,6 +106,7 @@
                     <th>担当2</th>
                     <th>トレーニング内容</th>
                     <th>フェーズ</th>
+                    <th>メディア</th>
                 </tr>
             </thead>
             <tbody>
@@ -118,10 +119,11 @@
                         <td>{{ $record->trainer2->name ?? '—' }}</td>
                         <td>{{ $record->trainingType->name ?? '—' }}</td>
                         <td>{{ $record->phase->name ?? '—' }}</td>
+                        <td>{{ $record->media_records_count > 0 ? $record->media_records_count : '—' }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-4">該当するトレーニング記録がありません。</td>
+                        <td colspan="8" class="text-center text-muted py-4">該当するトレーニング記録がありません。</td>
                     </tr>
                 @endforelse
             </tbody>

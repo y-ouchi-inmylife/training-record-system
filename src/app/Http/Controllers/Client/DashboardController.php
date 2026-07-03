@@ -21,6 +21,7 @@ class DashboardController extends Controller
         $trainingRecords = auth('client')->user()
             ->trainingRecords()
             ->with(['trainer1', 'trainer2', 'trainingType'])
+            ->withCount('mediaRecords')
             ->orderByDesc('training_date')
             ->get();
 

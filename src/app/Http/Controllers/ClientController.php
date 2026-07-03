@@ -159,6 +159,7 @@ class ClientController extends Controller
     {
         $client->load(['primaryTrainer', 'supportStatus', 'trainingRecords' => function ($query) {
             $query->with(['trainingType', 'trainer1', 'trainer2', 'phase'])
+                  ->withCount('mediaRecords')
                   ->orderBy('training_date', 'desc')
                   ->orderBy('training_time', 'desc');
         }]);
