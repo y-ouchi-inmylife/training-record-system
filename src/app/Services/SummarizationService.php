@@ -49,7 +49,7 @@ class SummarizationService
                     'content' => $promptTemplate . "\n\n" . $text,
                 ],
             ],
-            model: 'claude-sonnet-4-20250514',
+            model: config('services.anthropic.model'),
         );
 
         return $response->content[0]->text;
