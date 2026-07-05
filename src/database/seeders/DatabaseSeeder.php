@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             PhaseSeeder::class,
             SupportStatusSeeder::class,
             SystemSettingSeeder::class,
+            ClientSeeder::class,
         ]);
     }
 }
