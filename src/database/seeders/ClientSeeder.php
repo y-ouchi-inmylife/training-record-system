@@ -24,14 +24,14 @@ class ClientSeeder extends Seeder
     public function run(): void
     {
         Client::firstOrCreate(
-            ['internal_id' => 'DEMO01'],
+            ['internal_id' => '1'],
             [
                 'initial_consultation_date' => '2026-07-01',
-                'last_name' => 'デモ',
+                'last_name' => '佐藤',
                 'first_name' => '太郎',
-                'last_name_kana' => 'デモ',
-                'first_name_kana' => 'タロウ',
-                'email' => 'demo-client@example.com',
+                'last_name_kana' => 'さとう',
+                'first_name_kana' => 'たろう',
+                'email' => 'client@example.com',
                 // プレーン文字列で渡す。Client モデルの casts の 'password' => 'hashed' で
                 // 自動的に bcrypt ハッシュ化されるため、ここで Hash::make しない。
                 'password' => 'InMyLife1965!',
