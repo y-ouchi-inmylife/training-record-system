@@ -119,8 +119,8 @@
             </thead>
             <tbody>
                 @forelse($clients as $client)
-                    <tr class="position-relative" style="cursor: pointer;">
-                        <td><a href="{{ route('clients.show', $client) }}" class="stretched-link text-decoration-none text-reset">{{ $client->internal_id }}</a></td>
+                    <tr style="cursor: pointer;" onclick="location.href='{{ route('clients.show', $client) }}'">
+                        <td>{{ $client->internal_id }}</td>
                         <td>{{ $client->display_name }}</td>
                         <td class="text-muted">{{ $client->display_name_kana }}</td>
                         <td>{{ $client->estimated_age }}</td>

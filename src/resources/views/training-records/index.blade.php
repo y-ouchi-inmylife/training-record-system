@@ -111,8 +111,8 @@
             </thead>
             <tbody>
                 @forelse($records as $record)
-                    <tr class="position-relative" style="cursor: pointer;">
-                        <td><a href="{{ route('training-records.show', $record) }}" class="stretched-link text-decoration-none text-reset">{{ $record->client->internal_id ?? '—' }}</a></td>
+                    <tr style="cursor: pointer;" onclick="location.href='{{ route('training-records.show', $record) }}'">
+                        <td>{{ $record->client->internal_id ?? '—' }}</td>
                         <td>{{ $record->client->display_name ?? '—' }}</td>
                         <td>{{ $record->training_date->format('Y/m/d') }}</td>
                         <td>{{ $record->trainer1->name ?? '—' }}</td>
