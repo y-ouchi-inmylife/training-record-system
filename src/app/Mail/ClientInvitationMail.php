@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use App\Models\ClientPasswordSetupToken;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -26,6 +27,9 @@ class ClientInvitationMail extends Mailable
     {
         return new Envelope(
             subject: 'トレーニング記録閲覧のご案内',
+            replyTo: [
+                new Address('info@inmylife1965.com', 'インマイライフ'),
+            ],
         );
     }
 
