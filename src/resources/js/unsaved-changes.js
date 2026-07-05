@@ -63,4 +63,11 @@ export default class UnsavedChangesGuard {
             });
         });
     }
+
+    // 外部から未保存フラグを立てるための公開API。
+    // input/change イベントを発火しない状態変更（例: メディアの追加/削除/並び替え）
+    // で呼び出す。
+    markDirty() {
+        this.hasChanges = true;
+    }
 }

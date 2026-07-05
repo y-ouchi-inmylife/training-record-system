@@ -37,10 +37,11 @@
         });
 
         // 未保存変更警告
-        new window.UnsavedChangesGuard({
+        window.unsavedChangesGuard = new window.UnsavedChangesGuard({
             formSelector: '#trainingRecordForm',
             leaveLinkSelector: '.js-leave-link'
-        }).init();
+        });
+        window.unsavedChangesGuard.init();
     });
 </script>
 @endpush

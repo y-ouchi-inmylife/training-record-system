@@ -652,15 +652,18 @@ document.addEventListener('DOMContentLoaded', function () {
         add(media) {                     // 5c-2 で呼ぶ
             if (this.items.some(i => i.id === media.id)) return;
             this.items.push(media);
+            window.unsavedChangesGuard?.markDirty();
             this.render();
         },
         remove(id) {                     // Step4 解除で呼ぶ
             this.items = this.items.filter(i => i.id !== id);
+            window.unsavedChangesGuard?.markDirty();
             this.render();
         },
         move(from, to) {                 // Step4 並べ替えで呼ぶ
             const [it] = this.items.splice(from, 1);
             this.items.splice(to, 0, it);
+            window.unsavedChangesGuard?.markDirty();
             this.render();
         },
         render() {
