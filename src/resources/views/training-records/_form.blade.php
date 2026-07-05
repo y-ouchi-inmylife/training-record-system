@@ -560,7 +560,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 動画サムネイルの中央にオーバーレイする▶（半透明の黒丸 + 白い三角）を返す。
     // CSS(.video-play-overlay-sm)は _video-play-overlay-styles.blade.php が
-    // @once @push('styles') でページに載せる。Blade 側の
+    // @@once @@push('styles') でページに載せる。Blade 側の
     // _video-play-overlay.blade.php と同じ意匠を JS DOM で組み立てたもの。
     function buildVideoPlayOverlaySvg() {
         const svgNs = 'http://www.w3.org/2000/svg';
@@ -882,7 +882,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // 動画サムネイルの中央にオーバーレイする▶（半透明の黒丸 + 白い三角）を返す。
     // 上段の buildCard 側（別 DOMContentLoaded スコープ）と同じヘルパの複製。
     // CSS(.video-play-overlay-sm)は _video-play-overlay-styles.blade.php が
-    // @once @push('styles') でページに載せる。
+    // @@once @@push('styles') でページに載せる。
     function buildVideoPlayOverlaySvg() {
         const svgNs = 'http://www.w3.org/2000/svg';
         const svg = document.createElementNS(svgNs, 'svg');
