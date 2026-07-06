@@ -13,7 +13,9 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['web', 'auth', 'practitioners'])->group(function () {
+Route::domain(config('subdomain.trainer_host'))
+    ->middleware(['web', 'auth', 'practitioners'])
+    ->group(function () {
     Route::get('/clients/search', [ClientController::class, 'apiSearch'])->name('api.clients.search');
     Route::get('/audio-records/summaries', [AudioRecordController::class, 'summaries'])->name('api.audio-records.summaries');
     Route::get('/audio-records/{audioRecord}/summary', [AudioRecordController::class, 'getSummary'])->name('api.audio-records.summary');
