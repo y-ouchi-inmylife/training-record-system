@@ -28,6 +28,10 @@ return Application::configure(basePath: dirname(__DIR__))
             }
             return $request->user()?->isSystemAdmin() ? '/usage-stats' : '/dashboard';
         });
+        // セッションを役割別に分離するため、StartSession より前に config 上書き。
+        $middleware->web(prepend: [
+            \App\Http\Middleware\ConfigureSessionByRole::class,
+        ]);
         // webミドルウェアグループにパスワード変更チェックを追加
         $middleware->web(append: [
             \App\Http\Middleware\CheckIpRestriction::class,
