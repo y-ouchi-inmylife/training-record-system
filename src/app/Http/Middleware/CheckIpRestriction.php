@@ -17,16 +17,9 @@ class CheckIpRestriction
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // 公開クライアント登録ルートはIP制限対象外（No.193）
-        // クライアント本人が機関の許可IP外（自宅・スマホ等）からアクセスするため
-        if ($request->routeIs('client-intake.*')) {
-            return $next($request);
-        }
-
-        // 柱2: クライアント閲覧機能もIP制限対象外（クライアント本人が自宅・スマホから利用するため）
-        if ($request->routeIs('client-portal.*')) {
-            return $next($request);
-        }
+        // 本ミドルウェアはトレーナー用サブドメインのルートグループにのみ付与される。
+        // クライアント側（client-portal.* / client-intake.*）は構造的に対象外のため、
+        // ここでのルート名バイパスは持たない。
 
         // ログイン・ログアウトルートは除外（誰でもアクセス可能）
         // POST /login にはルート名がないため、パスでも判定する

@@ -33,8 +33,9 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\ConfigureSessionByRole::class,
         ]);
         // webミドルウェアグループにパスワード変更チェックを追加
+        // IP制限（CheckIpRestriction）はトレーナー用サブドメインのルートにのみ適用するため、
+        // web append からは外し、ミドルウェアエイリアス経由でトレーナー用グループに付与する。
         $middleware->web(append: [
-            \App\Http\Middleware\CheckIpRestriction::class,
             \App\Http\Middleware\CheckPasswordChange::class,
             \App\Http\Middleware\LogAccess::class,
         ]);
@@ -44,6 +45,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin-only' => \App\Http\Middleware\AdminOnlyMiddleware::class,
             'system-admin-only' => \App\Http\Middleware\SystemAdminOnlyMiddleware::class,
             'practitioners' => \App\Http\Middleware\PractitionersMiddleware::class,
+            'check-ip' => \App\Http\Middleware\CheckIpRestriction::class,
         ]);
     })
     ->withSchedule(function (Schedule $schedule): void {

@@ -36,7 +36,7 @@ use Illuminate\Support\Facades\Route;
 | トレーナー側の全ルートを Route::domain で囲む。ローカルは両ホストが localhost
 | に解決されるため、既存の動作は変わらない。
 */
-Route::domain(config('subdomain.trainer_host'))->group(function () {
+Route::domain(config('subdomain.trainer_host'))->middleware('check-ip')->group(function () {
 
     // ルートURLはログイン画面にリダイレクト
     Route::redirect('/', '/login');
