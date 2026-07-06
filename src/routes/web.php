@@ -199,47 +199,55 @@ Route::domain(config('subdomain.trainer_host'))->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| クライアント側 公開ルート（認証不要）
+| クライアント用サブドメイン（外部）
 |--------------------------------------------------------------------------
-| 1a では現状のまま（domain 非依存）で残す。1b でクライアント用サブドメインへの
-| 帰属を決めて Route::domain を張る。
+| クライアント側の全ルートを Route::domain で囲む。ローカルは両ホストが localhost
+| に解決されるため、既存の動作は変わらない。
+| ルート名は変えないため、route() 呼び出しや CheckIpRestriction のバイパス判定
+| （routeIs('client-intake.*') / routeIs('client-portal.*')）は無改修で動く。
 */
+Route::domain(config('subdomain.client_host'))->group(function () {
 
-// クライアント事前入力（公開URL、認証不要）
-Route::get('client-intake/token/{token}', [ClientIntakeController::class, 'showByToken'])->name('client-intake.show-by-token');
-Route::post('client-intake/token/{token}', [ClientIntakeController::class, 'storeByToken'])->name('client-intake.store-by-token');
+    // クライアント用ドメインの / → クライアントログインへ（トレーナー側と対称）
+    Route::redirect('/', '/client-portal/login');
 
-// クライアントパスワード設定（柱2 塊D 段2、公開URL、認証不要）。
-// /client-portal/* の auth:client グループには入れず、client-intake と同じ公開領域に置く。
-Route::get('client-portal/password-setup/{token}', [\App\Http\Controllers\Client\PasswordSetupController::class, 'showByToken'])
-    ->name('client-portal.password-setup.show');
-Route::post('client-portal/password-setup/{token}', [\App\Http\Controllers\Client\PasswordSetupController::class, 'storeByToken'])
-    ->name('client-portal.password-setup.store');
+    // --- 公開（認証不要） ---
 
-/*
-|--------------------------------------------------------------------------
-| クライアント閲覧機能（柱2）
-|--------------------------------------------------------------------------
-| トレーナー向け（web guard）とは独立し、client guard で認証する。
-| ログイン画面・redirectUsersTo分岐・IP制限除外は段2、
-| ダッシュボード中身は段3で実装。
-| practitioners 等トレーナー専用ミドルウェアは絶対に付けない（隔離）。
-*/
-Route::prefix('client-portal')->name('client-portal.')->group(function () {
-    // 未認証向け（guest:client）：ログイン画面・ログイン処理
-    // ログイン済みは redirectUsersTo により /client-portal/dashboard へ振り分けられる（段2の宿題で対応）。
-    Route::middleware('guest:client')->group(function () {
-        Route::get('/login', [ClientLoginController::class, 'showLoginForm'])->name('login');
-        Route::post('/login', [ClientLoginController::class, 'login']);
+    // クライアント事前入力（公開URL、認証不要）
+    Route::get('client-intake/token/{token}', [ClientIntakeController::class, 'showByToken'])->name('client-intake.show-by-token');
+    Route::post('client-intake/token/{token}', [ClientIntakeController::class, 'storeByToken'])->name('client-intake.store-by-token');
+
+    // クライアントパスワード設定(柱2 塊D 段2、公開URL、認証不要)。
+    // /client-portal/* の auth:client グループには入れず、client-intake と同じ公開領域に置く。
+    Route::get('client-portal/password-setup/{token}', [\App\Http\Controllers\Client\PasswordSetupController::class, 'showByToken'])
+        ->name('client-portal.password-setup.show');
+    Route::post('client-portal/password-setup/{token}', [\App\Http\Controllers\Client\PasswordSetupController::class, 'storeByToken'])
+        ->name('client-portal.password-setup.store');
+
+    /*
+    |--------------------------------------------------------------------------
+    | クライアント閲覧機能（柱2）
+    |--------------------------------------------------------------------------
+    | トレーナー向け（web guard）とは独立し、client guard で認証する。
+    | practitioners 等トレーナー専用ミドルウェアは絶対に付けない（隔離）。
+    */
+    Route::prefix('client-portal')->name('client-portal.')->group(function () {
+        // 未認証向け（guest:client）：ログイン画面・ログイン処理
+        // ログイン済みは redirectUsersTo により /client-portal/dashboard へ振り分けられる。
+        Route::middleware('guest:client')->group(function () {
+            Route::get('/login', [ClientLoginController::class, 'showLoginForm'])->name('login');
+            Route::post('/login', [ClientLoginController::class, 'login']);
+        });
+
+        // 認証必須（auth:client）。未認証は redirectGuestsTo により /client-portal/login へ振り分けられる。
+        Route::middleware('auth:client')->group(function () {
+            Route::post('/logout', [ClientLogoutController::class, 'logout'])->name('logout');
+            Route::get('/dashboard', [ClientDashboardController::class, 'index'])->name('dashboard');
+            Route::get('/training-records/{trainingRecord}', [\App\Http\Controllers\Client\TrainingRecordController::class, 'show'])
+                ->name('training-records.show');
+            Route::get('/media/{mediaRecord}/play', [\App\Http\Controllers\Client\MediaRecordController::class, 'play'])
+                ->name('media.play');
+        });
     });
 
-    // 認証必須（auth:client）。未認証は redirectGuestsTo により /client-portal/login へ振り分けられる。
-    Route::middleware('auth:client')->group(function () {
-        Route::post('/logout', [ClientLogoutController::class, 'logout'])->name('logout');
-        Route::get('/dashboard', [ClientDashboardController::class, 'index'])->name('dashboard');
-        Route::get('/training-records/{trainingRecord}', [\App\Http\Controllers\Client\TrainingRecordController::class, 'show'])
-            ->name('training-records.show');
-        Route::get('/media/{mediaRecord}/play', [\App\Http\Controllers\Client\MediaRecordController::class, 'play'])
-            ->name('media.play');
-    });
 });
