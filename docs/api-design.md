@@ -136,14 +136,14 @@ IPアドレス制限が有効で、許可リストが登録されている場合
 | メディア管理 | S-1302 メディア一覧画面 | PUT | `/media-records/{id}` | メディアの表示名を更新する | auth | 管理者、一般 |
 | メディア管理 | S-1302 メディア一覧画面 | DELETE | `/media-records/{id}` | メディアを削除する（レコード・ファイル実体） | auth | 管理者、一般 |
 | 共通 | ログアウト | POST | `/logout` | ログアウトする | auth | 全員 |
-| クライアント閲覧 | S-1401 クライアントログイン画面 | GET | `/client/login` | クライアントログイン画面を表示する | guest:client | - |
-| クライアント閲覧 | S-1401 クライアントログイン画面 | POST | `/client/login` | クライアントとしてログインする | guest:client | - |
-| クライアント閲覧 | - | POST | `/client/logout` | クライアントとしてログアウトする | auth:client | クライアント |
-| クライアント閲覧 | S-1402 クライアントダッシュボード画面 | GET | `/client/dashboard` | クライアントダッシュボード画面を表示する | auth:client | クライアント |
-| クライアント閲覧 | S-1403 クライアントパスワード設定画面 | GET | `/client/password-setup/{token}` | パスワード設定画面を表示する（トークン検証） | public | - |
-| クライアント閲覧 | S-1403 クライアントパスワード設定画面 | POST | `/client/password-setup/{token}` | パスワードを設定する | public | - |
-| クライアント閲覧 | S-1404 クライアントトレーニング記録詳細画面 | GET | `/client/training-records/{id}` | クライアントが自分のトレーニング記録の詳細を表示する | auth:client | クライアント |
-| クライアント閲覧 | S-1404 クライアントトレーニング記録詳細画面 | GET | `/client/media/{id}/play` | クライアントが自分の記録に紐づくメディアを表示・再生する | auth:client | クライアント |
+| クライアント閲覧 | S-1401 クライアントログイン画面 | GET | `/client-portal/login` | クライアントログイン画面を表示する | guest:client | - |
+| クライアント閲覧 | S-1401 クライアントログイン画面 | POST | `/client-portal/login` | クライアントとしてログインする | guest:client | - |
+| クライアント閲覧 | - | POST | `/client-portal/logout` | クライアントとしてログアウトする | auth:client | クライアント |
+| クライアント閲覧 | S-1402 クライアントダッシュボード画面 | GET | `/client-portal/dashboard` | クライアントダッシュボード画面を表示する | auth:client | クライアント |
+| クライアント閲覧 | S-1403 クライアントパスワード設定画面 | GET | `/client-portal/password-setup/{token}` | パスワード設定画面を表示する（トークン検証） | public | - |
+| クライアント閲覧 | S-1403 クライアントパスワード設定画面 | POST | `/client-portal/password-setup/{token}` | パスワードを設定する | public | - |
+| クライアント閲覧 | S-1404 クライアントトレーニング記録詳細画面 | GET | `/client-portal/training-records/{id}` | クライアントが自分のトレーニング記録の詳細を表示する | auth:client | クライアント |
+| クライアント閲覧 | S-1404 クライアントトレーニング記録詳細画面 | GET | `/client-portal/media/{id}/play` | クライアントが自分の記録に紐づくメディアを表示・再生する | auth:client | クライアント |
 | 内部API | - | GET | `/api/clients/search` | クライアントを検索する | auth | 管理者、一般 |
 | 内部API | - | POST | `/api/training-records/auto-create` | 音声記録の要約からトレーニング記録を作成する | auth | 管理者、一般 |
 | 内部API | - | GET | `/api/training-records/available-media` | トレーニング記録に紐づけ可能なメディア一覧を取得する | auth | 管理者、一般 |
@@ -1601,7 +1601,7 @@ POST /training-records に以下を追加する。
 
 ##### S-1401 クライアントログイン画面
 
-###### GET /client/login
+###### GET /client-portal/login
 
 **概要**: クライアントログイン画面を表示する。
 
@@ -1610,7 +1610,7 @@ POST /training-records に以下を追加する。
 - ログイン済みの場合：クライアントダッシュボード画面へリダイレクト
 
 
-###### POST /client/login
+###### POST /client-portal/login
 
 **概要**: クライアントとしてログインする。
 
@@ -1633,7 +1633,7 @@ POST /training-records に以下を追加する。
 
 ##### S-1402 クライアントダッシュボード画面
 
-###### GET /client/dashboard
+###### GET /client-portal/dashboard
 
 **概要**: クライアントダッシュボード画面を表示する。
 
@@ -1649,7 +1649,7 @@ POST /training-records に以下を追加する。
 
 クライアントが招待メールで受け取ったURLからアクセスする、認証不要の公開画面。ログイン後にかかるクライアント用ミドルウェア（auth:client）は適用されない。
 
-###### GET /client/password-setup/{token}
+###### GET /client-portal/password-setup/{token}
 
 **概要**: トークンを検証し、パスワード設定画面を表示する。
 
@@ -1662,7 +1662,7 @@ POST /training-records に以下を追加する。
 - 無効：view（トークンエラー画面）
 
 
-###### POST /client/password-setup/{token}
+###### POST /client-portal/password-setup/{token}
 
 **概要**: パスワードを設定する。
 
@@ -1688,14 +1688,14 @@ POST /training-records に以下を追加する。
 
 ##### S-1404 クライアントトレーニング記録詳細画面
 
-###### GET /client/training-records/{id}
+###### GET /client-portal/training-records/{id}
 
 **概要**: クライアントが自分のトレーニング記録の詳細を表示する。
 
 **処理**:
 - 対象トレーニング記録が、ログイン中のクライアント自身のもの（記録の client_id がログイン中クライアントと一致）であることを確認する。本人のものでない場合は403
 - 記録の詳細（基本情報・トレーニング内容・トレーニング記録）を view に渡す。所感などクライアント非開示の情報は渡さない
-- この記録に紐づくメディアを sort_order 順（昇順）で取得し、各メディアのサムネイルの署名付きURLを発行して view に渡す（閲覧用。再生は `GET /client/media/{id}/play` を利用する）。本人の記録に紐づくメディアであることは記録レベルの本人認可により保証されるため、サムネイル発行に個別の認可は要しない
+- この記録に紐づくメディアを sort_order 順（昇順）で取得し、各メディアのサムネイルの署名付きURLを発行して view に渡す（閲覧用。再生は `GET /client-portal/media/{id}/play` を利用する）。本人の記録に紐づくメディアであることは記録レベルの本人認可により保証されるため、サムネイル発行に個別の認可は要しない
 
 **レスポンス**:
 - view `client.training-records.show`
@@ -1703,7 +1703,7 @@ POST /training-records に以下を追加する。
 
 ---
 
-##### GET /client/media/{id}/play
+##### GET /client-portal/media/{id}/play
 
 **概要**: クライアントが、自分のトレーニング記録に紐づくメディアを表示・再生する。メディアIDを直接受け取るため、記録レベルの認可では守れない。このエンドポイント自身でメディア単位の本人認可を行う。
 
@@ -1722,7 +1722,7 @@ POST /training-records に以下を追加する。
 
 ##### ログアウト
 
-###### POST /client/logout
+###### POST /client-portal/logout
 
 **概要**: クライアントとしてログアウトする。
 
