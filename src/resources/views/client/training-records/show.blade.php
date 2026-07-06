@@ -107,7 +107,7 @@
 
 @push('scripts')
 <script>
-// メディアサムネイルをクリック → /client/media/{id}/play で presigned URL を取得 → ライトボックス表示
+// メディアサムネイルをクリック → /client-portal/media/{id}/play で presigned URL を取得 → ライトボックス表示
 document.addEventListener('DOMContentLoaded', function () {
     const grid = document.getElementById('mediaViewGrid');
     if (!grid) return;
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         try {
-            const res = await fetch('/client/media/' + encodeURIComponent(id) + '/play', {
+            const res = await fetch('/client-portal/media/' + encodeURIComponent(id) + '/play', {
                 headers: { 'Accept': 'application/json' },
             });
             if (!res.ok) throw new Error('再生 URL の取得に失敗しました');

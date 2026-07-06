@@ -153,7 +153,7 @@
 
 @push('scripts')
 <script>
-// メディアサムネイルをクリック → /client/media/{id}/play で presigned URL を取得 → ライトボックス表示。
+// メディアサムネイルをクリック → /client-portal/media/{id}/play で presigned URL を取得 → ライトボックス表示。
 // S-1404（client/training-records/show.blade.php）と同じロジックを、
 // ダッシュボード側のグリッド ID（mediaGalleryGrid）に対して適用する。
 document.addEventListener('DOMContentLoaded', function () {
@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         try {
-            const res = await fetch('/client/media/' + encodeURIComponent(id) + '/play', {
+            const res = await fetch('/client-portal/media/' + encodeURIComponent(id) + '/play', {
                 headers: { 'Accept': 'application/json' },
             });
             if (!res.ok) throw new Error('再生 URL の取得に失敗しました');

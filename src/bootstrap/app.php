@@ -13,18 +13,18 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // 未認証時のリダイレクト先。/client/* 配下はクライアント用ログインへ振り分ける。
-        // ※ redirectUsersTo のクライアント分岐と CheckIpRestriction の /client/* 除外は塊E骨で対応。
+        // 未認証時のリダイレクト先。/client-portal/* 配下はクライアント用ログインへ振り分ける。
+        // ※ redirectUsersTo のクライアント分岐と CheckIpRestriction の /client-portal/* 除外は塊E骨で対応。
         $middleware->redirectGuestsTo(function ($request) {
-            return $request->is('client/*') ? '/client/login' : '/login';
+            return $request->is('client-portal/*') ? '/client-portal/login' : '/login';
         });
         // 認証済みユーザーがguestルートにアクセスした場合のリダイレクト先。
         // URL 判定を先頭に置くことで、$request->user()（デフォルトweb guard=Trainer 前提）を
         // クライアント認証済みリクエストで呼ばずに済ませる（?-> で null 経由で誤った先へ飛ぶ回避）。
         // トレーナー側: システム管理者は音声ファイル一覧（S-0701）、それ以外はダッシュボード（S-0101）へ。
         $middleware->redirectUsersTo(function ($request) {
-            if ($request->is('client/*')) {
-                return '/client/dashboard';
+            if ($request->is('client-portal/*')) {
+                return '/client-portal/dashboard';
             }
             return $request->user()?->isSystemAdmin() ? '/usage-stats' : '/dashboard';
         });

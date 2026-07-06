@@ -48,10 +48,10 @@ Route::get('client-intake/token/{token}', [ClientIntakeController::class, 'showB
 Route::post('client-intake/token/{token}', [ClientIntakeController::class, 'storeByToken'])->name('client-intake.store-by-token');
 
 // クライアントパスワード設定（柱2 塊D 段2、公開URL、認証不要）。
-// /client/* の auth:client グループには入れず、client-intake と同じ公開領域に置く。
-Route::get('client/password-setup/{token}', [\App\Http\Controllers\Client\PasswordSetupController::class, 'showByToken'])
+// /client-portal/* の auth:client グループには入れず、client-intake と同じ公開領域に置く。
+Route::get('client-portal/password-setup/{token}', [\App\Http\Controllers\Client\PasswordSetupController::class, 'showByToken'])
     ->name('client-portal.password-setup.show');
-Route::post('client/password-setup/{token}', [\App\Http\Controllers\Client\PasswordSetupController::class, 'storeByToken'])
+Route::post('client-portal/password-setup/{token}', [\App\Http\Controllers\Client\PasswordSetupController::class, 'storeByToken'])
     ->name('client-portal.password-setup.store');
 
 /*
@@ -207,15 +207,15 @@ Route::middleware('auth')->group(function () {
 | ダッシュボード中身は段3で実装。
 | practitioners 等トレーナー専用ミドルウェアは絶対に付けない（隔離）。
 */
-Route::prefix('client')->name('client-portal.')->group(function () {
+Route::prefix('client-portal')->name('client-portal.')->group(function () {
     // 未認証向け（guest:client）：ログイン画面・ログイン処理
-    // ログイン済みは redirectUsersTo により /client/dashboard へ振り分けられる（段2の宿題で対応）。
+    // ログイン済みは redirectUsersTo により /client-portal/dashboard へ振り分けられる（段2の宿題で対応）。
     Route::middleware('guest:client')->group(function () {
         Route::get('/login', [ClientLoginController::class, 'showLoginForm'])->name('login');
         Route::post('/login', [ClientLoginController::class, 'login']);
     });
 
-    // 認証必須（auth:client）。未認証は redirectGuestsTo により /client/login へ振り分けられる。
+    // 認証必須（auth:client）。未認証は redirectGuestsTo により /client-portal/login へ振り分けられる。
     Route::middleware('auth:client')->group(function () {
         Route::post('/logout', [ClientLogoutController::class, 'logout'])->name('logout');
         Route::get('/dashboard', [ClientDashboardController::class, 'index'])->name('dashboard');
