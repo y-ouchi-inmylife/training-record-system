@@ -11,10 +11,6 @@
                 <div class="card-body">
                     <h4>403 Forbidden</h4>
                     <p>{{ $exception->getMessage() ?: 'このページへのアクセスは許可されていません。' }}</p>
-                    <hr>
-                    <div class="d-flex gap-2">
-                        <a href="{{ url('/login') }}" class="btn btn-primary">ログイン画面に戻る</a>
-                    </div>
                 </div>
             </div>
         </div>
