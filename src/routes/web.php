@@ -4,7 +4,6 @@ use App\Http\Controllers\AccessLogController;
 use App\Http\Controllers\Auth\ChangePasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
-use App\Http\Controllers\AutoLogoutController;
 use App\Http\Controllers\Client\DashboardController as ClientDashboardController;
 use App\Http\Controllers\Client\LoginController as ClientLoginController;
 use App\Http\Controllers\Client\LogoutController as ClientLogoutController;
@@ -132,10 +131,6 @@ Route::domain(config('subdomain.trainer_host'))->middleware('check-ip')->group(f
         |--------------------------------------------------------------------------
         */
         Route::middleware('admin-only')->group(function () {
-            // 自動ログアウト設定
-            Route::get('settings/auto-logout', [AutoLogoutController::class, 'edit'])->name('settings.auto-logout.edit');
-            Route::put('settings/auto-logout', [AutoLogoutController::class, 'update'])->name('settings.auto-logout.update');
-
             // 要約プロンプト設定
             Route::get('settings/summary-prompts', [SummaryPromptController::class, 'edit'])->name('settings.summary-prompts.edit');
             Route::put('settings/summary-prompts', [SummaryPromptController::class, 'update'])->name('settings.summary-prompts.update');

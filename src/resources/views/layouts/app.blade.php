@@ -109,8 +109,6 @@
                                 <li><a class="dropdown-item" href="{{ route('master.support-statuses.index') }}">支援状態</a></li>
                                 <li><a class="dropdown-item" href="{{ route('master.training-types.index') }}">トレーニング内容</a></li>
                                 <li><a class="dropdown-item" href="{{ route('master.phases.index') }}">フェーズ</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{{ route('settings.auto-logout.edit') }}">自動ログアウト</a></li>
                             </ul>
                         </li>
                     @endif
@@ -199,50 +197,5 @@
         });
     </script>
     @stack('scripts')
-
-    {{-- 自動ログアウトタイマー --}}
-    @auth
-    @php
-        $autoLogoutMinutes = (int) \App\Models\SystemSetting::where('key', 'auto_logout_minutes')->value('value');
-    @endphp
-
-    @if($autoLogoutMinutes > 0)
-    <script>
-        (function() {
-            let autoLogoutTimer;
-            const autoLogoutMinutes = {{ $autoLogoutMinutes }};
-            const autoLogoutMs = autoLogoutMinutes * 60 * 1000;
-
-            function startAutoLogoutTimer() {
-                clearTimeout(autoLogoutTimer);
-                autoLogoutTimer = setTimeout(function() {
-                    // fetchでログアウトを試み、失敗時（419等）はログイン画面にリダイレクト
-                    fetch('{{ route("logout") }}', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json',
-                        },
-                    }).then(function() {
-                        window.location.href = '/login';
-                    }).catch(function() {
-                        window.location.href = '/login';
-                    });
-                }, autoLogoutMs);
-            }
-
-            // ページ読み込み時にタイマーを開始
-            startAutoLogoutTimer();
-
-            // ユーザー操作でタイマーをリセット
-            ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart', 'click'].forEach(function(event) {
-                document.addEventListener(event, function() {
-                    startAutoLogoutTimer();
-                }, { passive: true });
-            });
-        })();
-    </script>
-    @endif
-    @endauth
 </body>
 </html>
