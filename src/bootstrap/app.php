@@ -29,7 +29,9 @@ return Application::configure(basePath: dirname(__DIR__))
             return $request->user()?->isSystemAdmin() ? '/usage-stats' : '/dashboard';
         });
         // セッションを役割別に分離するため、StartSession より前に config 上書き。
-        $middleware->web(prepend: [
+        // web/api 両経路で効かせるため、グローバル prepend で登録する
+        // （web グループ限定の prepend だと、api.php の ->middleware(['web',...]) 経路に効かないため）。
+        $middleware->prepend([
             \App\Http\Middleware\ConfigureSessionByRole::class,
         ]);
         // webミドルウェアグループにパスワード変更チェックを追加
