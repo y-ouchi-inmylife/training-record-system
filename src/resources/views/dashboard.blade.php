@@ -120,7 +120,6 @@
                     <tr>
                         <th>内部ID</th>
                         <th>名前</th>
-                        <th>支援状態</th>
                         <th>最終記録日</th>
                         <th>担当1</th>
                         <th>担当2</th>
@@ -138,13 +137,6 @@
                                 </a>
                             </td>
                             <td>{{ $client->display_name }}</td>
-                            @if($client->supportStatus)
-                                <td>
-                                    <span class="badge bg-secondary fs-6">{{ $client->supportStatus->name }}</span>
-                                </td>
-                            @else
-                                <td><span class="text-muted small" style="opacity: 0.5;">未設定</span></td>
-                            @endif
                             <td>
                                 @if($client->last_training_date && $lastRecord)
                                     <a href="{{ route('training-records.show', $lastRecord->id) }}" class="text-decoration-none">
