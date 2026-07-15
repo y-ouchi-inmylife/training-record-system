@@ -12,3 +12,9 @@
     padding-top: 0.25rem;
     padding-bottom: 0.25rem;
 }
+
+// テーブル行高の調整（セルの上下 padding を Bootstrap デフォルト .5rem から縮小）
+.table > :not(caption) > * > * {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+}
