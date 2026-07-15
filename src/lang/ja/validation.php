@@ -219,7 +219,6 @@ return [
         'password' => 'パスワード',
         'role' => '権限',
         'primary_trainer_id' => '主担当',
-        'support_status_id' => '支援状態',
         'trainer1_id' => '担当1',
         'trainer2_id' => '担当2',
         'training_date' => '日付',

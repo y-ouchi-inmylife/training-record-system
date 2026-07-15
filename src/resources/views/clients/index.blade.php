@@ -43,17 +43,6 @@
                                maxlength="10">
                     </div>
                     <div class="col-md-2">
-                        <label for="support_status_id" class="form-label">支援状態</label>
-                        <select class="form-select" id="support_status_id" name="support_status_id">
-                            <option value="">すべて</option>
-                            @foreach($supportStatuses as $status)
-                                <option value="{{ $status->id }}" {{ request('support_status_id') == $status->id ? 'selected' : '' }}>
-                                    {{ $status->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-2">
                         <label for="primary_trainer_id" class="form-label">主担当</label>
                         <select class="form-select" id="primary_trainer_id" name="primary_trainer_id">
                             <option value="">すべて</option>
@@ -112,7 +101,6 @@
                     <th>年齢</th>
                     <th>性別</th>
                     <th>主担当</th>
-                    <th>支援状態</th>
                     <th>最終記録日</th>
                     <th>フェーズ</th>
                 </tr>
@@ -126,19 +114,12 @@
                         <td>{{ $client->estimated_age }}</td>
                         <td>{{ $client->gender }}</td>
                         <td>{{ $client->primaryTrainer?->name }}</td>
-                        @if($client->supportStatus)
-                            <td>
-                                <span class="badge bg-secondary fs-6">{{ $client->supportStatus->name }}</span>
-                            </td>
-                        @else
-                            <td><span class="text-muted small" style="opacity: 0.5;">未設定</span></td>
-                        @endif
                         <td>{{ $client->last_training_date ? \Carbon\Carbon::parse($client->last_training_date)->format('Y/m/d') : '' }}</td>
                         <td>{{ $client->latest_phase_id ? ($phases[$client->latest_phase_id] ?? '') : '' }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="9" class="text-center text-muted py-4">該当するクライアントがありません。</td>
+                        <td colspan="8" class="text-center text-muted py-4">該当するクライアントがありません。</td>
                     </tr>
                 @endforelse
             </tbody>

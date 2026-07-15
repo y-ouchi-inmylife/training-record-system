@@ -201,20 +201,6 @@
                             <tr><th class="text-muted" style="width:40%">主担当</th><td>{{ $client->primaryTrainer?->name ?: '—' }}</td></tr>
                         </table>
                     </div>
-                    <div class="col-md-6">
-                        <table class="table table-borderless table-sm">
-                            <tr>
-                                <th class="text-muted" style="width:40%">支援状態</th>
-                                @if($client->supportStatus)
-                                    <td>
-                                        <span class="badge bg-secondary fs-6">{{ $client->supportStatus->name }}</span>
-                                    </td>
-                                @else
-                                    <td><span class="text-muted small" style="opacity: 0.5;">未設定</span></td>
-                                @endif
-                            </tr>
-                        </table>
-                    </div>
                 </div>
             </div>
         </div>

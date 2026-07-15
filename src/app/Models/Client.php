@@ -31,7 +31,7 @@ class Client extends Authenticatable
         // クライアント閲覧機能（柱2）
         'password', 'is_viewable',
         // カテゴリー7: 支援管理
-        'primary_trainer_id', 'support_status_id',
+        'primary_trainer_id',
         // 最終更新者
         'updated_by',
     ];
@@ -113,14 +113,6 @@ class Client extends Authenticatable
     public function primaryTrainer(): BelongsTo
     {
         return $this->belongsTo(Trainer::class, 'primary_trainer_id');
-    }
-
-    /**
-     * 支援状態
-     */
-    public function supportStatus(): BelongsTo
-    {
-        return $this->belongsTo(SupportStatus::class);
     }
 
     /**

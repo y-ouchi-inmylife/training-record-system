@@ -6,7 +6,6 @@ use App\Models\Client;
 use App\Models\TrainingRecord;
 use App\Models\Trainer;
 use App\Models\Phase;
-use App\Models\SupportStatus;
 use App\Services\ClientInternalIdService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -32,7 +31,7 @@ class ClientController extends Controller
             ]
         );
 
-        $query = Client::with(['primaryTrainer', 'supportStatus'])
+        $query = Client::with(['primaryTrainer'])
             ->addSelect([
                 'last_training_date' => TrainingRecord::select('training_date')
                     ->whereColumn('client_id', 'clients.id')
@@ -61,11 +60,6 @@ class ClientController extends Controller
                   ->orWhere('last_name_kana', 'like', "%{$keyword}%")
                   ->orWhere('first_name_kana', 'like', "%{$keyword}%");
             });
-        }
-
-        // 支援状態フィルター
-        if ($request->filled('support_status_id')) {
-            $query->where('support_status_id', $request->input('support_status_id'));
         }
 
         // 主担当トレーナーフィルター
@@ -111,9 +105,8 @@ class ClientController extends Controller
         $clients = $query->paginate(20)->withQueryString();
         $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
         $phases = Phase::pluck('name', 'id');
-        $supportStatuses = SupportStatus::orderBy('sort_order')->get();
 
-        return view('clients.index', compact('clients', 'trainers', 'phases', 'supportStatuses'));
+        return view('clients.index', compact('clients', 'trainers', 'phases'));
     }
 
     /**
@@ -122,13 +115,12 @@ class ClientController extends Controller
     public function create(): View
     {
         $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
-        $supportStatuses = SupportStatus::orderBy('sort_order')->get();
 
         // 次の内部IDを計算
         $maxId = DB::selectOne('SELECT MAX(CAST(internal_id AS UNSIGNED)) as max_id FROM clients')->max_id;
         $nextInternalId = ($maxId ?? 0) + 1;
 
-        return view('clients.create', compact('trainers', 'supportStatuses', 'nextInternalId'));
+        return view('clients.create', compact('trainers', 'nextInternalId'));
     }
 
     /**
@@ -157,7 +149,7 @@ class ClientController extends Controller
      */
     public function show(Client $client): View
     {
-        $client->load(['primaryTrainer', 'supportStatus', 'trainingRecords' => function ($query) {
+        $client->load(['primaryTrainer', 'trainingRecords' => function ($query) {
             $query->with(['trainingType', 'trainer1', 'trainer2', 'phase'])
                   ->withCount('mediaRecords')
                   ->orderBy('training_date', 'desc')
@@ -175,8 +167,7 @@ class ClientController extends Controller
     public function edit(Client $client): View
     {
         $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
-        $supportStatuses = SupportStatus::orderBy('sort_order')->get();
-        return view('clients.edit', compact('client', 'trainers', 'supportStatuses'));
+        return view('clients.edit', compact('client', 'trainers'));
     }
 
     /**
@@ -302,7 +293,6 @@ class ClientController extends Controller
 
             // カテゴリー7: 支援管理
             'primary_trainer_id' => 'nullable|exists:trainers,id',
-            'support_status_id' => 'nullable|exists:support_statuses,id',
         ];
     }
 }

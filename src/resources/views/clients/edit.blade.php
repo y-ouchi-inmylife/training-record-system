@@ -120,15 +120,6 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-4">
-                        <label for="support_status_id" class="form-label">支援状態</label>
-                        <select class="form-select" id="support_status_id" name="support_status_id">
-                            <option value="">選択してください</option>
-                            @foreach($supportStatuses as $status)
-                                <option value="{{ $status->id }}" {{ old('support_status_id', $client->support_status_id) == $status->id ? 'selected' : '' }}>{{ $status->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
                 </div>
             </div>
         </div>
