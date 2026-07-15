@@ -5,3 +5,10 @@
 .bg-client-nav {
     background-color: #fd7e14 !important;
 }
+
+// フォーム入力欄の高さ調整（上下 padding を Bootstrap デフォルト .375rem から縮小）
+.form-control,
+.form-select {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+}
