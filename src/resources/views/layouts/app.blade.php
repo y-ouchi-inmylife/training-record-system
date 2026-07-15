@@ -106,7 +106,6 @@
                                 <li><a class="dropdown-item" href="{{ route('settings.summary-prompts.edit') }}">要約プロンプト</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><h6 class="dropdown-header">マスタ管理</h6></li>
-                                <li><a class="dropdown-item" href="{{ route('master.support-statuses.index') }}">支援状態</a></li>
                                 <li><a class="dropdown-item" href="{{ route('master.training-types.index') }}">トレーニング内容</a></li>
                                 <li><a class="dropdown-item" href="{{ route('master.phases.index') }}">フェーズ</a></li>
                             </ul>

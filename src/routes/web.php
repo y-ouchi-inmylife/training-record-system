@@ -18,7 +18,6 @@ use App\Http\Controllers\IpRestrictionController;
 use App\Http\Controllers\MediaRecordController;
 use App\Http\Controllers\PhaseController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\SupportStatusController;
 use App\Http\Controllers\AudioRecordController;
 use App\Http\Controllers\ClientIntakeController;
 use App\Http\Controllers\ClientIntakeTokenController;
@@ -165,13 +164,6 @@ Route::domain(config('subdomain.trainer_host'))->middleware('check-ip')->group(f
                 Route::patch('phases/{phase}/move-up', [PhaseController::class, 'moveUp'])->name('phases.move-up');
                 Route::patch('phases/{phase}/move-down', [PhaseController::class, 'moveDown'])->name('phases.move-down');
 
-                // 支援状態マスタ
-                Route::get('support-statuses', [SupportStatusController::class, 'index'])->name('support-statuses.index');
-                Route::post('support-statuses', [SupportStatusController::class, 'store'])->name('support-statuses.store');
-                Route::put('support-statuses/{supportStatus}', [SupportStatusController::class, 'update'])->name('support-statuses.update');
-                Route::delete('support-statuses/{supportStatus}', [SupportStatusController::class, 'destroy'])->name('support-statuses.destroy');
-                Route::patch('support-statuses/{supportStatus}/move-up', [SupportStatusController::class, 'moveUp'])->name('support-statuses.move-up');
-                Route::patch('support-statuses/{supportStatus}/move-down', [SupportStatusController::class, 'moveDown'])->name('support-statuses.move-down');
             });
         });
 

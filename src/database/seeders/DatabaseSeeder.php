@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder
             TrainerSeeder::class,
             TrainingTypeSeeder::class,
             PhaseSeeder::class,
-            SupportStatusSeeder::class,
             SystemSettingSeeder::class,
             ClientSeeder::class,
         ]);
