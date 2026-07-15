@@ -60,19 +60,8 @@ erDiagram
         string last_name
         string first_name
         date initial_consultation_date
-        bigint support_status_id FK
         bigint primary_trainer_id FK
     }
-
-    support_statuses {
-        bigint id PK
-        string name
-        integer sort_order
-        boolean show_in_dashboard
-    }
-
-    support_statuses ||--|| clients : "状態を示す"
-
 
     client_intake_tokens {
         bigint id PK
@@ -239,7 +228,6 @@ erDiagram
 | birth_date | DATE | YES | NULL | 生年月日 |
 | gender | VARCHAR(10) | YES | NULL | 性別（5-2.参照） |
 | primary_trainer_id | BIGINT UNSIGNED | YES | NULL | 主担当トレーナーのID（外部キー） |
-| support_status_id | BIGINT UNSIGNED | YES | NULL | 支援状態マスタのID（外部キー） |
 | phone1 | VARCHAR(20) | YES | NULL | 電話番号1。ハイフンあり/なし両対応 |
 | phone2 | VARCHAR(20) | YES | NULL | 電話番号2。ハイフンあり/なし両対応 |
 | email | VARCHAR(255) | YES | NULL | メールアドレス。クライアント閲覧機能のログインIDを兼ねる。UNIQUE制約あり（未登録=NULLは複数許容） |
@@ -262,7 +250,6 @@ erDiagram
 | clients_internal_id_unique | internal_id | UNIQUE | 内部IDの重複を防ぐ。内部IDによる検索にも使用 |
 | clients_initial_date_idx | initial_consultation_date | INDEX | 初回日によるソート・検索 |
 | clients_primary_trainer_idx | primary_trainer_id | INDEX | 主担当による検索 |
-| clients_support_status_idx | support_status_id | INDEX | 支援状態によるフィルタリング |
 | clients_created_at_idx | created_at | INDEX | 登録日時によるソート。一覧画面のデフォルトソートで使用 |
 | clients_updated_by_foreign | updated_by | INDEX | 最終更新者による検索。外部キー制約に伴い自動付与 |
 | clients_email_unique | email | UNIQUE | メールアドレスの重複を防ぐ。クライアント閲覧機能のログインIDとして使用。未登録（NULL）は複数許容 |
@@ -273,7 +260,6 @@ erDiagram
 |--------|------|------|-----------|------|
 | clients_gender_check | CHECK | gender IS NULL OR gender IN ('男', '女', 'その他') | — | 定義済みの性別のみ許可（5-2.参照） |
 | clients_primary_trainer_id_foreign | FOREIGN KEY | primary_trainer_id → trainers(id) | SET NULL | トレーナー削除時は主担当をNULLにする |
-| clients_support_status_id_foreign | FOREIGN KEY | support_status_id → support_statuses(id) | SET NULL | 支援状態マスタ削除時はNULLにする |
 | clients_updated_by_foreign | FOREIGN KEY | updated_by → trainers(id) | SET NULL | トレーナー削除時は最終更新者をNULLにする |
 
 
@@ -497,36 +483,6 @@ erDiagram
 |--------|------|------|------|
 | trainers_role_check | CHECK | role IN ('system_admin', 'admin', 'staff') | 定義済みの権限のみ許可（5-15.参照） |
 | trainers_login_id_check | CHECK | login_id REGEXP '^[a-zA-Z0-9_]+$' | 半角英数字とアンダースコアのみ |
-
-
----
-
-#### DM-0100 support_statuses（支援状態）
-
-##### カラム定義
-
-| カラム名 | 型 | NULL | デフォルト | 説明 |
-|---------|-----|------|----------|------|
-| id | BIGINT UNSIGNED | NO | auto_increment | 主キー |
-| name | VARCHAR(50) | NO | — | 支援状態の名称。重複不可 |
-| sort_order | INTEGER | NO | 0 | 表示順序。小さい値が先に表示される |
-| show_in_dashboard | BOOLEAN | NO | true | ダッシュボードに表示するか。TRUEの場合、この支援状態のクライアントがダッシュボードの主担当クライアント一覧に表示される |
-| created_at | TIMESTAMP | YES | NULL | 作成日時 |
-| updated_at | TIMESTAMP | YES | NULL | 更新日時 |
-
-##### インデックス
-
-| インデックス名 | カラム | 種類 | 目的 |
-|---------------|--------|------|------|
-| PRIMARY | id | PRIMARY KEY | 主キー |
-| support_statuses_name_unique | name | UNIQUE | 名称の重複を防ぐ |
-| support_statuses_order_idx | sort_order | INDEX | 表示順でのソート |
-
-##### 制約
-
-| 制約名 | 種類 | 条件 | 説明 |
-|--------|------|------|------|
-| support_statuses_sort_check | CHECK | sort_order >= 0 | 表示順序は0以上 |
 
 
 ---
@@ -934,19 +890,18 @@ erDiagram
 |:----:|----------|--------|
 | 1 | trainers | なし |
 | 2 | login_attempts | trainers |
-| 3 | clients | trainers, support_statuses |
+| 3 | clients | trainers |
 | 4 | training_types | なし |
 | 5 | phases | なし |
-| 6 | support_statuses | なし |
-| 7 | training_records | clients, trainers, training_types, phases |
-| 8 | media_records | trainers |
-| 9 | media_record_training_record | media_records, training_records |
-| 10 | audio_records | clients, trainers |
-| 11 | access_logs | trainers |
-| 12 | system_settings | なし |
-| 13 | ip_whitelist | なし |
-| 14 | client_intake_tokens | clients |
-| 15 | client_password_setup_tokens | clients |
+| 6 | training_records | clients, trainers, training_types, phases |
+| 7 | media_records | trainers |
+| 8 | media_record_training_record | media_records, training_records |
+| 9 | audio_records | clients, trainers |
+| 10 | access_logs | trainers |
+| 11 | system_settings | なし |
+| 12 | ip_whitelist | なし |
+| 13 | client_intake_tokens | clients |
+| 14 | client_password_setup_tokens | clients |
 
 ---
 
@@ -958,10 +913,9 @@ erDiagram
 |-----------|------|---------------|
 | `DatabaseSeeder.php` | 全シーダーの呼び出し元 | `php artisan db:seed` |
 | `TrainerSeeder.php` | 管理者アカウントの初期データ（7.2.1参照） | 初回セットアップ時 |
-| `SupportStatusSeeder.php` | 支援状態マスタの初期データ（7.2.2参照） | 初回セットアップ時 |
-| `TrainingTypeSeeder.php` | トレーニング内容マスタの初期データ（7.2.3参照） | 初回セットアップ時 |
-| `PhaseSeeder.php` | フェーズマスタの初期データ（7.2.4参照） | 初回セットアップ時 |
-| `SystemSettingSeeder.php` | システム設定の初期データ（7.2.5参照） | 初回セットアップ時 |
+| `TrainingTypeSeeder.php` | トレーニング内容マスタの初期データ（7.2.2参照） | 初回セットアップ時 |
+| `PhaseSeeder.php` | フェーズマスタの初期データ（7.2.3参照） | 初回セットアップ時 |
+| `SystemSettingSeeder.php` | システム設定の初期データ（7.2.4参照） | 初回セットアップ時 |
 
 ### 7-2. シードデータ（初期データ）の詳細
 
@@ -977,17 +931,6 @@ erDiagram
 - 上記 3 アカウントは **開発環境専用のサンプル**。本番導入時は `TrainerSeeder` を実行せず、システム管理者アカウントを 1 つだけ手動で作成する想定
 - パスワード `InMyLife1965!` は **開発環境専用のハードコード値**。本番環境では絶対に使用しないこと
 - 本番では初回ログイン時にパスワード変更を促すため、`must_change_password = true` を設定する運用が望ましい
-
-#### DM-0100 support_statuses（支援状態）
-
-| id | name | sort_order |
-|----|------|--------|
-| 1 | 支援中 | 1 |
-| 2 | 連絡待ち | 2 |
-| 3 | 支援終了 | 3 |
-| 4 | リファー済 | 4 |
-| 5 | 利用中止 | 5 |
-| 6 | 利用せず | 6 |
 
 #### DM-0200 training_types（トレーニング内容）
 

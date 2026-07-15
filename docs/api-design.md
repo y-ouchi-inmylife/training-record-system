@@ -108,12 +108,6 @@ IP アドレス制限は、**トレーナー用サブドメイン（内部）の
 | トレーナー管理 | S-0804 パスワードリセット画面 | GET | `/trainers/{id}/reset-password` | パスワードリセット画面を表示する | auth | 管理者 |
 | トレーナー管理 | S-0804 パスワードリセット画面 | PUT | `/trainers/{id}/reset-password` | パスワードをリセットする | auth | 管理者 |
 | トレーナー管理 | S-0805 トレーナー操作履歴画面 | GET | `/access-logs` | トレーナー操作履歴画面を表示する | auth | 管理者 |
-| マスタ管理 | S-0901 支援状態マスタ画面 | GET | `/master/support-statuses` | 支援状態マスタ管理画面を表示する | auth | 管理者 |
-| マスタ管理 | S-0901 支援状態マスタ画面 | POST | `/master/support-statuses` | 支援状態の選択肢を追加する | auth | 管理者 |
-| マスタ管理 | S-0901 支援状態マスタ画面 | PATCH | `/master/support-statuses/{id}/move-up` | 支援状態の表示順を上に移動する | auth | 管理者 |
-| マスタ管理 | S-0901 支援状態マスタ画面 | PATCH | `/master/support-statuses/{id}/move-down` | 支援状態の表示順を下に移動する | auth | 管理者 |
-| マスタ管理 | S-0901 支援状態マスタ画面 | PUT | `/master/support-statuses/{id}` | 支援状態の選択肢を更新する | auth | 管理者 |
-| マスタ管理 | S-0901 支援状態マスタ画面 | DELETE | `/master/support-statuses/{id}` | 支援状態の選択肢を削除する | auth | 管理者 |
 | マスタ管理 | S-0902 トレーニング内容マスタ画面 | GET | `/master/training-types` | トレーニング内容マスタ管理画面を表示する | auth | 管理者 |
 | マスタ管理 | S-0902 トレーニング内容マスタ画面 | POST | `/master/training-types` | トレーニング内容の選択肢を追加する | auth | 管理者 |
 | マスタ管理 | S-0902 トレーニング内容マスタ画面 | PATCH | `/master/training-types/{id}/move-up` | トレーニング内容の表示順を上に移動する | auth | 管理者 |
@@ -318,7 +312,6 @@ Laravelのセッション認証（Cookie + CSRF）で保護する。
 | phone* | string | | nullable, string, max:20, regex:/^[0-9\-]+$/ | |
 | email | string | | nullable, email, max:255 | |
 | primary_trainer_id | integer | | nullable, exists:trainers,id | |
-| support_status_id | integer | | nullable, exists:support_statuses,id | |
 
 **レスポンス**:
 - 成功：`redirect('/clients/{id}')`
@@ -1138,85 +1131,6 @@ POST /training-records に以下を追加する。
 
 
 #### 4-1-9. マスタ管理
-
-##### S-0901 支援状態マスタ画面
-
-###### GET /master/support-statuses
-
-**概要**: 支援状態マスタ管理画面を表示する。
-
-**処理**:
-- 支援状態の一覧を表示順で表示する（各支援状態を参照しているクライアント数を含む）
-
-**レスポンス**:
-- view `master.support-statuses.index`
-
-
-###### POST /master/support-statuses
-
-**概要**: 支援状態の選択肢を追加する。
-
-**リクエスト**:
-
-| パラメータ | 型 | 必須 | バリデーション | 説明 |
-|-----------|-----|------|---------------|------|
-| name | string | ● | required, string, max:50, unique:support_statuses | 支援状態名 |
-
-**処理**:
-- 表示順は末尾に自動で付番する
-
-**レスポンス**:
-- `redirect('/master/support-statuses')`
-
-
-###### PUT /master/support-statuses/{id}
-
-**概要**: 支援状態の選択肢を更新する。
-
-**リクエスト**:
-
-| パラメータ | 型 | 必須 | バリデーション | 説明 |
-|-----------|-----|------|---------------|------|
-| name | string | ● | required, string, max:50, unique:support_statuses（自身を除く） | 支援状態名 |
-| show_in_dashboard | boolean | | — | ダッシュボードに表示するか |
-
-**レスポンス**:
-- `redirect('/master/support-statuses')`
-
-
-###### DELETE /master/support-statuses/{id}
-
-**概要**: 支援状態の選択肢を削除する。
-
-**処理**:
-- この支援状態を参照しているクライアントがいる場合は削除できない（物理削除）
-
-**レスポンス**:
-- `redirect('/master/support-statuses')`
-
-
-###### PATCH /master/support-statuses/{id}/move-up
-
-**概要**: 支援状態の表示順を上に移動する。
-
-**処理**:
-- 表示順で、ひとつ上の支援状態と表示順を入れ替える
-
-**レスポンス**:
-- `redirect('/master/support-statuses')`
-
-
-###### PATCH /master/support-statuses/{id}/move-down
-
-**概要**: 支援状態の表示順を下に移動する。
-
-**処理**:
-- 表示順で、ひとつ下の支援状態と表示順を入れ替える
-
-**レスポンス**:
-- `redirect('/master/support-statuses')`
-
----
 
 ##### S-0902 トレーニング内容マスタ画面
 
