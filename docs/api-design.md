@@ -276,7 +276,6 @@ Laravelのセッション認証（Cookie + CSRF）で保護する。
 
 **処理**:
 - ログインユーザーが主担当のクライアント一覧を取得
-- 支援状態の show_in_dashboard が true、または support_status_id が NULL のものに絞り込み
 - 最終記録日が新しい順にソート（NULLは最後）
 
 **レスポンス**:
