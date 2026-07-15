@@ -140,11 +140,6 @@
         z-index: 1;
         background-color: #f8f9fa;
     }
-    .training-records-table tbody td,
-    .training-records-table thead th {
-        padding-top: 0.65rem;
-        padding-bottom: 0.65rem;
-    }
 </style>
 
 {{-- 原寸ライトボックス（写真拡大・動画再生）— S-1404 と共用の汎用 partial --}}
