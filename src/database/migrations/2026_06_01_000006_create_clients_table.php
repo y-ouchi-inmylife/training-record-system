@@ -38,7 +38,6 @@ return new class extends Migration
 
             // カテゴリー7: 支援管理
             $table->unsignedBigInteger('primary_trainer_id')->nullable();
-            $table->unsignedBigInteger('support_status_id')->nullable();
 
             $table->timestamps();
             $table->unsignedBigInteger('updated_by')->nullable();
@@ -48,15 +47,12 @@ return new class extends Migration
             $table->index('primary_trainer_id', 'clients_primary_trainer_idx');
             $table->index('initial_consultation_date', 'clients_initial_date_idx');
             $table->index('created_at', 'clients_created_at_idx');
-            $table->index('support_status_id', 'clients_support_status_idx');
             $table->index('updated_by', 'clients_updated_by_foreign');
             $table->unique('email', 'clients_email_unique');
 
             // 外部キー（作成順）
             $table->foreign('primary_trainer_id', 'clients_primary_trainer_id_foreign')
                 ->references('id')->on('trainers')->nullOnDelete();
-            $table->foreign('support_status_id', 'clients_support_status_id_foreign')
-                ->references('id')->on('support_statuses')->nullOnDelete();
             $table->foreign('updated_by', 'clients_updated_by_foreign')
                 ->references('id')->on('trainers')->nullOnDelete();
         });
