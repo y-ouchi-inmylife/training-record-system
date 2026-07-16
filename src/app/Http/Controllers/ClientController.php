@@ -291,7 +291,6 @@ class ClientController extends Controller
             'address3' => 'nullable|string|max:100',
             'address4' => 'nullable|string|max:100',
 
-            // カテゴリー7: 支援管理
             'primary_trainer_id' => 'nullable|exists:trainers,id',
         ];
     }

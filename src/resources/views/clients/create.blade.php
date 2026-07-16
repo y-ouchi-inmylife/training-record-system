@@ -10,11 +10,10 @@
     <div class="mb-4">
         <div class="d-flex justify-content-between mb-2">
             <span class="badge bg-primary step-badge" data-step="1">1. 基本情報</span>
-            <span class="badge bg-secondary step-badge" data-step="2">2. 支援管理</span>
-            <span class="badge bg-secondary step-badge" data-step="3">3. 連絡先</span>
+            <span class="badge bg-secondary step-badge" data-step="2">2. 連絡先</span>
         </div>
         <div class="progress">
-            <div class="progress-bar" role="progressbar" style="width: 16.7%" id="progressBar"></div>
+            <div class="progress-bar" role="progressbar" style="width: 50%" id="progressBar"></div>
         </div>
     </div>
 
@@ -37,7 +36,7 @@
         {{-- ステップ1: 基本情報 --}}
         <div class="card step-card" id="step1">
             <div class="card-header">
-                <h5 class="mb-0">ステップ 1/3: 基本情報</h5>
+                <h5 class="mb-0">ステップ 1/2: 基本情報</h5>
             </div>
             <div class="card-body">
                 <div class="row g-3">
@@ -110,23 +109,7 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-
-                </div>
-            </div>
-            <div class="card-footer d-flex justify-content-between">
-                <a href="{{ route('clients.index') }}" class="btn btn-secondary js-leave-link">キャンセル</a>
-                <button type="button" class="btn btn-primary" onclick="showStep(2)">次へ</button>
-            </div>
-        </div>
-
-        {{-- ステップ2: 支援管理 --}}
-        <div class="card step-card d-none" id="step2">
-            <div class="card-header">
-                <h5 class="mb-0">ステップ 2/3: 支援管理</h5>
-            </div>
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="primary_trainer_id" class="form-label">主担当</label>
                         <select class="form-select" id="primary_trainer_id" name="primary_trainer_id">
                             <option value="">選択してください</option>
@@ -137,18 +120,19 @@
                             @endforeach
                         </select>
                     </div>
+
                 </div>
             </div>
             <div class="card-footer d-flex justify-content-between">
-                <button type="button" class="btn btn-secondary" onclick="showStep(1)">戻る</button>
-                <button type="button" class="btn btn-primary" onclick="showStep(3)">次へ</button>
+                <a href="{{ route('clients.index') }}" class="btn btn-secondary js-leave-link">キャンセル</a>
+                <button type="button" class="btn btn-primary" onclick="showStep(2)">次へ</button>
             </div>
         </div>
 
-        {{-- ステップ3: 連絡先 --}}
-        <div class="card step-card d-none" id="step3">
+        {{-- ステップ2: 連絡先 --}}
+        <div class="card step-card d-none" id="step2">
             <div class="card-header">
-                <h5 class="mb-0">ステップ 3/3: 連絡先</h5>
+                <h5 class="mb-0">ステップ 2/2: 連絡先</h5>
             </div>
             <div class="card-body">
                 <div class="row g-3">
@@ -210,7 +194,7 @@
                 </div>
             </div>
             <div class="card-footer d-flex justify-content-between">
-                <button type="button" class="btn btn-secondary" onclick="showStep(2)">戻る</button>
+                <button type="button" class="btn btn-secondary" onclick="showStep(1)">戻る</button>
                 <button type="submit" class="btn btn-success">登録</button>
             </div>
         </div>
@@ -271,7 +255,7 @@
         document.getElementById('step' + step).classList.remove('d-none');
 
         // プログレスバー更新
-        document.getElementById('progressBar').style.width = (step * 100 / 3) + '%';
+        document.getElementById('progressBar').style.width = (step * 100 / 2) + '%';
 
         // バッジ更新
         document.querySelectorAll('.step-badge').forEach(badge => {

@@ -25,13 +25,12 @@ class Client extends Authenticatable
         'initial_consultation_date', 'last_name', 'first_name',
         'last_name_kana', 'first_name_kana',
         'birth_date', 'gender',
+        'primary_trainer_id',
         // カテゴリー2: 連絡先
         'phone1', 'phone2', 'email',
         'postal_code', 'address1', 'address2', 'address3', 'address4',
         // クライアント閲覧機能（柱2）
         'password', 'is_viewable',
-        // カテゴリー7: 支援管理
-        'primary_trainer_id',
         // 最終更新者
         'updated_by',
     ];

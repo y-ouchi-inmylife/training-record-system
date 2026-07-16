@@ -117,6 +117,7 @@
                         <tr><th class="text-muted" style="width:40%">初回日</th><td>{{ $client->initial_consultation_date?->format('Y/m/d') ?: '—' }}</td></tr>
                         <tr><th class="text-muted">生年月日</th><td>{{ $client->birth_date?->format('Y/m/d') ?: '—' }}</td></tr>
                         <tr><th class="text-muted">性別</th><td>{{ $client->gender ?: '—' }}</td></tr>
+                        <tr><th class="text-muted">主担当</th><td>{{ $client->primaryTrainer?->name ?: '—' }}</td></tr>
                     </table>
                 </div>
             </div>
@@ -186,24 +187,6 @@
                 <p class="text-muted mb-0">トレーニング記録はありません</p>
             </div>
         @endif
-    </div>
-
-    {{-- カテゴリー7: 支援管理 --}}
-    <div class="card mb-3">
-        <div class="card-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#section-support" style="cursor: pointer;">
-            <h6 class="mb-0">支援管理</h6>
-        </div>
-        <div class="collapse show" id="section-support">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <table class="table table-borderless table-sm">
-                            <tr><th class="text-muted" style="width:40%">主担当</th><td>{{ $client->primaryTrainer?->name ?: '—' }}</td></tr>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     {{-- カテゴリー2: 連絡先 --}}

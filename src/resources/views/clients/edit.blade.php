@@ -99,17 +99,7 @@
                                id="email" name="email" value="{{ old('email', $client->email) }}">
                         @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
-
-                </div>
-            </div>
-        </div>
-
-        {{-- カテゴリー7: 支援管理 --}}
-        <div class="card mb-4">
-            <div class="card-header"><h6 class="mb-0">支援管理</h6></div>
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="primary_trainer_id" class="form-label">主担当</label>
                         <select class="form-select" id="primary_trainer_id" name="primary_trainer_id">
                             <option value="">選択してください</option>
@@ -120,6 +110,7 @@
                             @endforeach
                         </select>
                     </div>
+
                 </div>
             </div>
         </div>
