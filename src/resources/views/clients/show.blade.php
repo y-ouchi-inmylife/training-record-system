@@ -39,6 +39,12 @@
         <h2 class="mb-0">クライアント詳細</h2>
         <div class="d-flex gap-2 align-items-center">
             <a href="{{ route('clients.index') }}" class="btn btn-outline-secondary">&laquo; クライアント一覧に戻る</a>
+            @if(!$activeIntakeToken)
+                <button type="button" class="btn btn-outline-primary"
+                        data-bs-toggle="modal" data-bs-target="#issueIntakeTokenModal">
+                    URL発行
+                </button>
+            @endif
             <a href="{{ route('clients.edit', $client) }}" class="btn btn-primary">編集</a>
             @if(auth()->user()->isAdmin())
                 <form method="POST" action="{{ route('clients.destroy', $client) }}" class="d-inline"
@@ -233,12 +239,6 @@
     <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h6 class="mb-0">事前入力URL</h6>
-            @if(!$activeIntakeToken)
-                <button type="button" class="btn btn-primary btn-sm"
-                        data-bs-toggle="modal" data-bs-target="#issueIntakeTokenModal">
-                    URL発行
-                </button>
-            @endif
         </div>
         <div class="card-body">
             @if($activeIntakeToken)
