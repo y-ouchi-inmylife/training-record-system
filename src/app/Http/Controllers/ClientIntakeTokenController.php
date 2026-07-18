@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
 use App\Models\ClientIntakeToken;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -9,7 +10,7 @@ use Carbon\Carbon;
 
 class ClientIntakeTokenController extends Controller
 {
-    // URL管理画面を表示
+    // URL管理画面を表示（塊④で削除予定。塊①以降は依存カラムが失われたため動作しない）
     public function index()
     {
         $tokens = ClientIntakeToken::with(['client', 'creator'])
@@ -19,15 +20,22 @@ class ClientIntakeTokenController extends Controller
         return view('client-intake-tokens.index', compact('tokens'));
     }
 
-    // 新しいトークンを発行
-    public function store(Request $request)
+    // 指定クライアントの新しいトークンを発行
+    public function store(Request $request, Client $client)
     {
         $validated = $request->validate([
-            'initial_consultation_date' => 'required|date',
-            'email' => 'nullable|email|max:255',
             'expires_in_days' => 'required|integer|in:1,7,14,30',
-            'memo' => 'nullable|string|max:500',
         ]);
+
+        // 未使用かつ期限内のトークンが残っている場合は再発行不可
+        $hasActiveToken = $client->intakeTokens()
+            ->where('is_used', false)
+            ->where('expires_at', '>=', Carbon::now())
+            ->exists();
+
+        if ($hasActiveToken) {
+            return back()->with('error', '未使用のURLが残っています');
+        }
 
         // ランダムなトークンを生成（32文字）
         $token = Str::random(32);
@@ -39,32 +47,31 @@ class ClientIntakeTokenController extends Controller
 
         ClientIntakeToken::create([
             'token' => $token,
-            'initial_consultation_date' => $validated['initial_consultation_date'],
-            'email' => $validated['email'] ?? null,
-            'memo' => $validated['memo'] ?? null,
             'expires_at' => $expiresAt,
             'is_used' => false,
+            'client_id' => $client->id,
             'created_by' => auth()->id(),
         ]);
 
-        return redirect()->route('client-intake-tokens.index')
+        return redirect()->route('clients.show', $client)
             ->with('success', 'URLを発行しました');
     }
 
-    // トークンを削除
-    public function destroy($id)
+    // 指定クライアントのトークンを削除
+    public function destroy(Client $client, $tokenId)
     {
-        $token = ClientIntakeToken::findOrFail($id);
+        // 他クライアントのトークンIDが渡された場合を弾くため、client_id で絞る
+        $token = $client->intakeTokens()->where('id', $tokenId)->firstOrFail();
 
         // 使用済みの場合は削除不可
         if ($token->is_used) {
-            return redirect()->route('client-intake-tokens.index')
+            return redirect()->route('clients.show', $client)
                 ->with('error', '使用済みのURLは削除できません');
         }
 
         $token->delete();
 
-        return redirect()->route('client-intake-tokens.index')
+        return redirect()->route('clients.show', $client)
             ->with('success', 'URLを削除しました');
     }
 }

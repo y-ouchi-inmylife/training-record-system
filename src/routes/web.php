@@ -97,9 +97,10 @@ Route::domain(config('subdomain.trainer_host'))->middleware('check-ip')->group(f
             });
 
             // 事前入力URL管理（トレーナー向け）
+            // index は塊④で削除予定。発行/削除は S-0305 クライアント詳細から起動するため、クライアントに紐づく URL に変更。
             Route::get('client-intake-tokens', [ClientIntakeTokenController::class, 'index'])->name('client-intake-tokens.index');
-            Route::post('client-intake-tokens', [ClientIntakeTokenController::class, 'store'])->name('client-intake-tokens.store');
-            Route::delete('client-intake-tokens/{id}', [ClientIntakeTokenController::class, 'destroy'])->name('client-intake-tokens.destroy');
+            Route::post('clients/{client}/intake-tokens', [ClientIntakeTokenController::class, 'store'])->name('client-intake-tokens.store');
+            Route::delete('clients/{client}/intake-tokens/{tokenId}', [ClientIntakeTokenController::class, 'destroy'])->name('client-intake-tokens.destroy');
 
             // メディア管理（全トレーナーがアクセス可能）
             // 一覧・登録・詳細モーダル経由の更新/削除。再生(play)は api.php 側。
@@ -202,7 +203,7 @@ Route::domain(config('subdomain.client_host'))->group(function () {
 
     // クライアント事前入力（公開URL、認証不要）
     Route::get('client-intake/token/{token}', [ClientIntakeController::class, 'showByToken'])->name('client-intake.show-by-token');
-    Route::post('client-intake/token/{token}', [ClientIntakeController::class, 'storeByToken'])->name('client-intake.store-by-token');
+    Route::put('client-intake/token/{token}', [ClientIntakeController::class, 'updateByToken'])->name('client-intake.update-by-token');
 
     // クライアントパスワード設定(柱2 塊D 段2、公開URL、認証不要)。
     // /client-portal/* の auth:client グループには入れず、client-intake と同じ公開領域に置く。
