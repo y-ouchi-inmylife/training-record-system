@@ -9,9 +9,6 @@ class ClientIntakeToken extends Model
 {
     protected $fillable = [
         'token',
-        'email',
-        'memo',
-        'initial_consultation_date',
         'expires_at',
         'is_used',
         'client_id',
@@ -20,7 +17,6 @@ class ClientIntakeToken extends Model
 
     protected $casts = [
         'expires_at' => 'datetime',
-        'initial_consultation_date' => 'date',
         'is_used' => 'boolean',
     ];
 

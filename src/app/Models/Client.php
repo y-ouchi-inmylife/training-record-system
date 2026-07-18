@@ -123,6 +123,14 @@ class Client extends Authenticatable
     }
 
     /**
+     * 事前入力URLトークン
+     */
+    public function intakeTokens(): HasMany
+    {
+        return $this->hasMany(ClientIntakeToken::class);
+    }
+
+    /**
      * 最終更新者（トレーナー）
      */
     public function updatedBy(): BelongsTo
