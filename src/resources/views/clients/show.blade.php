@@ -71,7 +71,7 @@
         {{-- 初回情報入力URL --}}
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="mb-0">初回情報入力URL</h6>
+                <h6 class="mb-0"><i class="bi bi-link-45deg"></i> 初回情報入力URL</h6>
             </div>
             <div class="card-body">
                 @php
