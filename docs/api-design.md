@@ -59,11 +59,10 @@ IP アドレス制限は、**トレーナー用サブドメイン（内部）の
 | ダッシュボード | S-0201 ダッシュボード画面 | GET | `/dashboard` | ダッシュボード画面を表示する | auth | 管理者、一般 |
 | クライアント管理 | S-0301 クライアント登録画面 | GET | `/clients/create` | クライアント登録画面を表示する | auth | 管理者、一般 |
 | クライアント管理 | S-0301 クライアント登録画面 | POST | `/clients` | クライアントを登録する | auth | 管理者、一般 |
-| クライアント管理 | S-0302 クライアント登録（URL発行）管理画面 | GET | `/client-intake-tokens` | クライアント登録（URL発行）管理画面を表示する | auth | 管理者、一般 |
-| クライアント管理 | S-0302 クライアント登録（URL発行）管理画面 | POST | `/client-intake-tokens` | ワンタイムURLを発行する | auth | 管理者、一般 |
-| クライアント管理 | S-0302 クライアント登録（URL発行）管理画面 | DELETE | `/client-intake-tokens/{id}` | 発行済みURLを削除する | auth | 管理者、一般 |
-| クライアント管理 | S-0303 クライアント登録（URL発行）画面 | GET | `/client-intake/token/{token}` | トークンチェックしてクライアント登録（URL発行）画面を表示する | public | - |
-| クライアント管理 | S-0303 クライアント登録（URL発行）画面 | POST | `/client-intake/token/{token}` | クライアントを登録する | public | - |
+| クライアント管理 | S-0305 クライアント詳細画面 | POST | `/clients/{id}/intake-tokens` | ワンタイムURLを発行する | auth | 管理者、一般 |
+| クライアント管理 | S-0305 クライアント詳細画面 | DELETE | `/clients/{id}/intake-tokens/{tokenId}` | 発行済みURLを削除する | auth | 管理者、一般 |
+| クライアント管理 | S-0303 クライアント編集（URL発行）画面 | GET | `/client-intake/token/{token}` | トークンチェックしてクライアント編集（URL発行）画面を表示する | public | - |
+| クライアント管理 | S-0303 クライアント編集（URL発行）画面 | PUT | `/client-intake/token/{token}` | クライアントを更新する | public | - |
 | クライアント管理 | S-0304 クライアント一覧画面 | GET | `/clients` | クライアント一覧画面を表示する | auth | 管理者、一般 |
 | クライアント管理 | S-0305 クライアント詳細画面 | GET | `/clients/{id}` | クライアント詳細画面を表示する | auth | 管理者、一般 |
 | クライアント管理 | S-0305 クライアント詳細画面 | POST | `/clients/{client}/release-view` | クライアントの閲覧を解放し招待メールを送信する | auth | 管理者、一般 |
@@ -319,83 +318,35 @@ Laravelのセッション認証（Cookie + CSRF）で保護する。
 
 ---
 
-##### S-0302 クライアント登録（URL発行）管理画面
+##### S-0303 クライアント編集（URL発行）画面
 
-###### GET /client-intake-tokens
-
-**概要**: クライアント登録（URL発行）管理画面を表示する。
-
-**処理**:
-- 発行済みトークン一覧を取得（並び順は created_at の降順）
-
-**レスポンス**:
-- view `client-intake-tokens.index`
-
-
-###### POST /client-intake-tokens
-
-**概要**: ワンタイムURLを発行する。
-
-**リクエスト**:
-
-| パラメータ | 型 | 必須 | バリデーション | 説明 |
-|-----------|-----|------|---------------|------|
-| initial_consultation_date | date | ● | required, date | 初回日 |
-| email | string | | nullable, email, max:255 | メールアドレス（記録用） |
-| expires_in_days | integer | ● | required, integer, in:1,7,14,30 | 有効期間（日数） |
-| memo | string | | nullable, string, max:500 | メモ |
-
-**処理**:
-- ランダムなトークンを生成
-- 有効期限を「現在日時 + expires_in_days」の当日終わり（23:59:59）に設定
-
-**レスポンス**:
-- 成功：`redirect('/client-intake-tokens')`
-- 失敗：`back()` ＋ バリデーションエラーメッセージ
-
-
-###### DELETE /client-intake-tokens/{id}
-
-**概要**: 発行済みURLを削除する。
-
-**処理**:
-- 使用済みトークンは削除不可
-- 物理削除（論理削除ではない）
-
-**レスポンス**:
-- 成功：`redirect('/client-intake-tokens')`
-- 使用済み：`redirect('/client-intake-tokens')` ＋「使用済みのURLは削除できません」
-
----
-
-##### S-0303 クライアント登録（URL発行）画面
-
-クライアント本人がメールで受け取ったURLからアクセスする、認証不要の公開画面。ログイン後にかかる共通ミドルウェア（4-0）は適用されない。
+クライアント本人がURLからアクセスする、認証不要の公開画面。ログイン後にかかる共通ミドルウェア（4-0）は適用されない。
 
 ###### GET /client-intake/token/{token}
 
-**概要**: トークンチェックしてクライアント登録（URL発行）画面を表示する。
+**概要**: トークンチェックしてクライアント編集（URL発行）画面を表示する。
 
 **処理**:
 - トークンの有効性を「存在する／期限内／未使用」の順にチェック
+- 紐づくクライアントが存在することを確認（存在しない場合は無効扱い）
 - いずれかを満たさない場合はエラー画面を表示（無効・期限切れ・使用済みでメッセージを出し分ける）
 
 **レスポンス**:
-- 有効：view `client-intake.index-public`（登録フォーム）
+- 有効：view `client-intake.index-public`（編集フォーム。クライアントの現在値を初期表示）
 - 無効：view `client-intake.errors.invalid-token`
 
 
-###### POST /client-intake/token/{token}
+###### PUT /client-intake/token/{token}
 
-**概要**: クライアントを登録する。
+**概要**: クライアントを更新する。
 
 **リクエスト**:
-クライアント情報の項目（S-0301 と同じ。ただし主担当トレーナーは受け付けず、登録後にトレーナー側で設定する）。
+クライアント情報の項目（S-0306 と同じ。ただし主担当トレーナーは受け付けない）。
 
 **処理**:
 - トークンの有効性を再チェック（無効ならエラー画面）
-- クライアントを登録（internal_idを採番。主担当トレーナーはNULL）
-- トークンを使用済み（is_used=true）にし、登録したクライアントを紐付け
+- 紐づくクライアントを更新（internal_id・主担当トレーナーは変更しない）
+- トークンを使用済み（is_used=true）にする
 
 **レスポンス**:
 - 成功：view `client-intake.complete-public`（完了画面）
@@ -491,6 +442,40 @@ Laravelのセッション認証（Cookie + CSRF）で保護する。
 - 成功：`redirect('/clients')`
 - トレーニング記録あり：`redirect('/clients/{id}')` ＋「このクライアントにはトレーニング記録が登録されているため削除できません。」
 - 権限なし：403エラー（「管理者のみ削除できます。」）
+
+
+###### POST /clients/{id}/intake-tokens
+
+**概要**: ワンタイムURLを発行する。
+
+**リクエスト**:
+
+| パラメータ | 型 | 必須 | バリデーション | 説明 |
+|-----------|-----|------|---------------|------|
+| expires_in_days | integer | ● | required, integer, in:1,7,14,30 | 有効期間（日数） |
+
+**処理**:
+- 対象クライアントに未使用かつ期限内のトークンが存在する場合は発行しない
+- ランダムなトークンを生成し、対象クライアントに紐付ける
+- 有効期限を「現在日時 + expires_in_days」の当日終わり（23:59:59）に設定
+
+**レスポンス**:
+- 成功：`redirect('/clients/{id}')`
+- 未使用URLが存在：`back()` ＋「未使用のURLが残っています」
+- 失敗：`back()` ＋ バリデーションエラーメッセージ
+
+
+###### DELETE /clients/{id}/intake-tokens/{tokenId}
+
+**概要**: 発行済みURLを削除する。
+
+**処理**:
+- 使用済みトークンは削除不可
+- 物理削除（論理削除ではない）
+
+**レスポンス**:
+- 成功：`redirect('/clients/{id}')`
+- 使用済み：`redirect('/clients/{id}')` ＋「使用済みのURLは削除できません」
 
 ---
 
