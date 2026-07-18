@@ -341,11 +341,12 @@ Laravelのセッション認証（Cookie + CSRF）で保護する。
 **概要**: クライアントを更新する。
 
 **リクエスト**:
-クライアント情報の項目（S-0306 と同じ。ただし internal_id・initial_consultation_date・主担当トレーナーは受け付けない）。
+クライアント情報の項目（S-0306 と同じ。ただし internal_id・initial_consultation_date・email・主担当トレーナーは受け付けない）。
 
 **処理**:
 - トークンの有効性を再チェック（無効ならエラー画面）
-- 紐づくクライアントを更新（internal_id・initial_consultation_date・主担当トレーナーは変更しない）
+- 紐づくクライアントを更新（internal_id・initial_consultation_date・email・主担当トレーナーは変更しない）
+- email はクライアント閲覧機能のログインIDを兼ねる（UNIQUE 制約あり）ため、本画面からは変更しない
 - トークンを使用済み（is_used=true）にする
 
 **レスポンス**:
