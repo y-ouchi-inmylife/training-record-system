@@ -73,9 +73,12 @@
         @endphp
         {{-- 初回情報入力URL --}}
         <div class="card mb-3" style="border-left: 4px solid #0d6efd;">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="mb-0"><i class="bi bi-link-45deg"></i> 初回情報入力URL</h6>
-                <div class="d-flex gap-2 align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center gap-3">
+                <div class="d-flex align-items-center gap-2 text-truncate" style="min-width: 0;">
+                    <h6 class="mb-0 flex-shrink-0"><i class="bi bi-link-45deg"></i> 初回情報入力URL</h6>
+                    <span class="text-muted text-truncate" title="{{ $intakeUrl }}">({{ $intakeUrl }})</span>
+                </div>
+                <div class="d-flex gap-2 align-items-center flex-shrink-0">
                     <button type="button" class="btn btn-outline-primary btn-sm"
                             onclick="copyToClipboard(this, '{{ $intakeUrl }}')">URLをコピー</button>
                     <button type="button" class="btn btn-outline-primary btn-sm"
