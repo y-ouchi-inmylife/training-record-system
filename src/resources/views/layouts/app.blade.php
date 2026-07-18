@@ -48,14 +48,12 @@
                             <a class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">ダッシュボード</a>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle {{ request()->is('clients*') || request()->is('client-intake-tokens*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
+                            <a class="nav-link dropdown-toggle {{ request()->is('clients*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
                                 クライアント
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="{{ route('clients.index') }}">クライアント一覧</a></li>
                                 <li><a class="dropdown-item" href="{{ route('clients.create') }}">クライアント登録</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{{ route('client-intake-tokens.index') }}">クライアント登録（URL発行）管理</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">

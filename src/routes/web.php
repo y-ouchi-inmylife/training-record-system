@@ -96,9 +96,7 @@ Route::domain(config('subdomain.trainer_host'))->middleware('check-ip')->group(f
                 Route::get('/session', [RecordingV2Controller::class, 'session'])->name('session');
             });
 
-            // 事前入力URL管理（トレーナー向け）
-            // index は塊④で削除予定。発行/削除は S-0305 クライアント詳細から起動するため、クライアントに紐づく URL に変更。
-            Route::get('client-intake-tokens', [ClientIntakeTokenController::class, 'index'])->name('client-intake-tokens.index');
+            // 事前入力URL発行/削除（S-0305 クライアント詳細から起動）
             Route::post('clients/{client}/intake-tokens', [ClientIntakeTokenController::class, 'store'])->name('client-intake-tokens.store');
             Route::delete('clients/{client}/intake-tokens/{tokenId}', [ClientIntakeTokenController::class, 'destroy'])->name('client-intake-tokens.destroy');
 

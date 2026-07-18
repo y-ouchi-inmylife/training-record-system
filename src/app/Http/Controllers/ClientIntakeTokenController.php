@@ -10,16 +10,6 @@ use Carbon\Carbon;
 
 class ClientIntakeTokenController extends Controller
 {
-    // URL管理画面を表示（塊④で削除予定。塊①以降は依存カラムが失われたため動作しない）
-    public function index()
-    {
-        $tokens = ClientIntakeToken::with(['client', 'creator'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(5);
-
-        return view('client-intake-tokens.index', compact('tokens'));
-    }
-
     // 指定クライアントの新しいトークンを発行
     public function store(Request $request, Client $client)
     {

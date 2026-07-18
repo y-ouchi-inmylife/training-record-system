@@ -56,17 +56,6 @@
             </a>
         </div>
 
-        {{-- クライアント登録（URL発行）管理 --}}
-        <div class="col-md-4 mb-3">
-            <a href="{{ route('client-intake-tokens.index') }}" class="text-decoration-none text-reset d-block h-100" aria-label="クライアント登録(URL発行)管理画面へ移動">
-                <div class="card h-100 shadow-sm dashboard-link-card">
-                    <div class="card-body">
-                        <h5 class="card-title">クライアント登録（URL発行）管理</h5>
-                        <p class="card-text text-muted mb-0">事前入力URLの発行・管理</p>
-                    </div>
-                </div>
-            </a>
-        </div>
     </div>
 
     <div class="row mb-5">
