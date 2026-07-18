@@ -138,7 +138,7 @@
         </div>
         <div class="card-footer d-flex justify-content-between">
             <button type="button" class="btn btn-secondary" onclick="showStep(1)">戻る</button>
-            <button type="submit" class="btn btn-success">更新</button>
+            <button type="submit" class="btn btn-success">送信</button>
         </div>
     </div>
 
