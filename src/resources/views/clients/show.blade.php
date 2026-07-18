@@ -72,7 +72,7 @@
             $intakeUrl = route('client-intake.show-by-token', $activeIntakeToken->token);
         @endphp
         {{-- 初回情報入力URL --}}
-        <div class="card mb-3">
+        <div class="card mb-3" style="border-left: 4px solid #0d6efd;">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h6 class="mb-0"><i class="bi bi-link-45deg"></i> 初回情報入力URL</h6>
                 <div class="d-flex gap-2 align-items-center">
