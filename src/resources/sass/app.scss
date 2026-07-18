@@ -1,6 +1,9 @@
 // Bootstrap
 @import 'bootstrap/scss/bootstrap';
 
+// Bootstrap Icons（bi bi-* のフォント・グリフ定義）
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
 // クライアント閲覧ポータル用ナビバー背景（トレーナー側 bg-primary と区別するためのオレンジ）
 .bg-client-nav {
     background-color: #fd7e14 !important;
