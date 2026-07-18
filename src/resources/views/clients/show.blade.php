@@ -143,10 +143,20 @@
         {{-- 事前入力URL 関連 --}}
         <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
         <script>
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(function() {
-                alert('URLをクリップボードにコピーしました');
-            }, function() {
+        function copyToClipboard(button, text) {
+            navigator.clipboard.writeText(text).then(function () {
+                // コピー成功: tooltip で「コピーしました」を一瞬表示
+                const tooltip = bootstrap.Tooltip.getOrCreateInstance(button, {
+                    title: 'コピーしました',
+                    trigger: 'manual',
+                    placement: 'top',
+                });
+                tooltip.show();
+                setTimeout(function () {
+                    tooltip.hide();
+                }, 1500);
+            }, function () {
+                // コピー失敗: 従来どおり alert（見逃さないため）
                 alert('コピーに失敗しました');
             });
         }
@@ -251,7 +261,7 @@
                 </table>
                 <div class="d-flex gap-2">
                     <button type="button" class="btn btn-outline-primary btn-sm"
-                            onclick="copyToClipboard('{{ $intakeUrl }}')">URLをコピー</button>
+                            onclick="copyToClipboard(this, '{{ $intakeUrl }}')">URLをコピー</button>
                     <button type="button" class="btn btn-outline-primary btn-sm"
                             onclick="showQrModal('{{ $intakeUrl }}')">QRコード</button>
                     <form method="POST"
