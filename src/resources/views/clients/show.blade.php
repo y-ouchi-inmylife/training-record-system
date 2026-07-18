@@ -337,7 +337,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-                        <button type="submit" class="btn btn-primary">発行</button>
+                        <button type="submit" class="btn btn-success">発行</button>
                     </div>
                 </form>
             </div>
