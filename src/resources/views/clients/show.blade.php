@@ -67,6 +67,50 @@
         </div>
     </div>
 
+    {{-- 事前入力URL --}}
+    <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">事前入力URL</h6>
+        </div>
+        <div class="card-body">
+            @if($activeIntakeToken)
+                @php
+                    $intakeUrl = route('client-intake.show-by-token', $activeIntakeToken->token);
+                @endphp
+                <table class="table table-borderless table-sm mb-3">
+                    <tr>
+                        <th class="text-muted" style="width:20%">発行日時</th>
+                        <td>{{ $activeIntakeToken->created_at->format('Y/m/d H:i') }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">発行者</th>
+                        <td>{{ $activeIntakeToken->creator?->name ?: '—' }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">有効期限</th>
+                        <td>{{ $activeIntakeToken->expires_at->format('Y/m/d H:i') }}</td>
+                    </tr>
+                </table>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-primary btn-sm"
+                            onclick="copyToClipboard(this, '{{ $intakeUrl }}')">URLをコピー</button>
+                    <button type="button" class="btn btn-outline-primary btn-sm"
+                            onclick="showQrModal('{{ $intakeUrl }}')">QRコード</button>
+                    <form method="POST"
+                          action="{{ route('client-intake-tokens.destroy', [$client, $activeIntakeToken]) }}"
+                          class="d-inline m-0"
+                          onsubmit="return confirmDeleteIntakeToken()">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-outline-danger btn-sm">削除</button>
+                    </form>
+                </div>
+            @else
+                <p class="text-muted mb-0">発行済みのURLはありません</p>
+            @endif
+        </div>
+    </div>
+
     {{-- カテゴリー1: 基本情報（閲覧管理を統合） --}}
     <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -233,50 +277,6 @@
                 <p class="text-muted mb-0">トレーニング記録はありません</p>
             </div>
         @endif
-    </div>
-
-    {{-- 事前入力URL --}}
-    <div class="card mb-3">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h6 class="mb-0">事前入力URL</h6>
-        </div>
-        <div class="card-body">
-            @if($activeIntakeToken)
-                @php
-                    $intakeUrl = route('client-intake.show-by-token', $activeIntakeToken->token);
-                @endphp
-                <table class="table table-borderless table-sm mb-3">
-                    <tr>
-                        <th class="text-muted" style="width:20%">発行日時</th>
-                        <td>{{ $activeIntakeToken->created_at->format('Y/m/d H:i') }}</td>
-                    </tr>
-                    <tr>
-                        <th class="text-muted">発行者</th>
-                        <td>{{ $activeIntakeToken->creator?->name ?: '—' }}</td>
-                    </tr>
-                    <tr>
-                        <th class="text-muted">有効期限</th>
-                        <td>{{ $activeIntakeToken->expires_at->format('Y/m/d H:i') }}</td>
-                    </tr>
-                </table>
-                <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-outline-primary btn-sm"
-                            onclick="copyToClipboard(this, '{{ $intakeUrl }}')">URLをコピー</button>
-                    <button type="button" class="btn btn-outline-primary btn-sm"
-                            onclick="showQrModal('{{ $intakeUrl }}')">QRコード</button>
-                    <form method="POST"
-                          action="{{ route('client-intake-tokens.destroy', [$client, $activeIntakeToken]) }}"
-                          class="d-inline m-0"
-                          onsubmit="return confirmDeleteIntakeToken()">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-outline-danger btn-sm">削除</button>
-                    </form>
-                </div>
-            @else
-                <p class="text-muted mb-0">発行済みのURLはありません</p>
-            @endif
-        </div>
     </div>
 
     {{-- カテゴリー2: 連絡先 --}}
