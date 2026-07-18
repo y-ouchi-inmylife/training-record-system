@@ -10,7 +10,7 @@
         <span class="badge bg-secondary step-badge" data-step="2">2. 連絡先</span>
     </div>
     <div class="progress">
-        <div class="progress-bar" role="progressbar" style="width: 20%" id="progressBar"></div>
+        <div class="progress-bar" role="progressbar" style="width: 50%" id="progressBar"></div>
     </div>
 </div>
 
