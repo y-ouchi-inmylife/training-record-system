@@ -67,13 +67,13 @@
         </div>
     </div>
 
-    {{-- 事前入力URL --}}
-    <div class="card mb-3">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h6 class="mb-0">事前入力URL</h6>
-        </div>
-        <div class="card-body">
-            @if($activeIntakeToken)
+    @if($activeIntakeToken)
+        {{-- 事前入力URL --}}
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">事前入力URL</h6>
+            </div>
+            <div class="card-body">
                 @php
                     $intakeUrl = route('client-intake.show-by-token', $activeIntakeToken->token);
                 @endphp
@@ -105,11 +105,9 @@
                         <button type="submit" class="btn btn-outline-danger btn-sm">削除</button>
                     </form>
                 </div>
-            @else
-                <p class="text-muted mb-0">発行済みのURLはありません</p>
-            @endif
+            </div>
         </div>
-    </div>
+    @endif
 
     {{-- カテゴリー1: 基本情報（閲覧管理を統合） --}}
     <div class="card mb-3">
