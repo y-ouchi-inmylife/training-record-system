@@ -95,13 +95,7 @@
                     <tr>
                         <th class="text-muted" style="width:20%">発行日時</th>
                         <td>{{ $activeIntakeToken->created_at->format('Y/m/d H:i') }}</td>
-                    </tr>
-                    <tr>
-                        <th class="text-muted">発行者</th>
-                        <td>{{ $activeIntakeToken->creator?->name ?: '—' }}</td>
-                    </tr>
-                    <tr>
-                        <th class="text-muted">有効期限</th>
+                        <th class="text-muted" style="width:20%">有効期限</th>
                         <td>{{ $activeIntakeToken->expires_at->format('Y/m/d H:i') }}</td>
                     </tr>
                 </table>
