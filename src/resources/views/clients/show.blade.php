@@ -139,6 +139,36 @@
         }
         </script>
         @endif
+
+        {{-- 事前入力URL 関連 --}}
+        <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+        <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                alert('URLをクリップボードにコピーしました');
+            }, function() {
+                alert('コピーに失敗しました');
+            });
+        }
+
+        function showQrModal(url) {
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+            new QRCode(qrContainer, {
+                text: url,
+                width: 256,
+                height: 256,
+                correctLevel: QRCode.CorrectLevel.M,
+            });
+            document.getElementById('qrUrl').textContent = url;
+            const modal = new bootstrap.Modal(document.getElementById('qrModal'));
+            modal.show();
+        }
+
+        function confirmDeleteIntakeToken() {
+            return confirm('この事前入力URLを削除しますか？削除後は再発行できます。');
+        }
+        </script>
     @endpush
 
     {{-- トレーニング記録一覧 --}}
@@ -189,6 +219,56 @@
         @endif
     </div>
 
+    {{-- 事前入力URL --}}
+    <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">事前入力URL</h6>
+            @if(!$activeIntakeToken)
+                <button type="button" class="btn btn-primary btn-sm"
+                        data-bs-toggle="modal" data-bs-target="#issueIntakeTokenModal">
+                    URL発行
+                </button>
+            @endif
+        </div>
+        <div class="card-body">
+            @if($activeIntakeToken)
+                @php
+                    $intakeUrl = route('client-intake.show-by-token', $activeIntakeToken->token);
+                @endphp
+                <table class="table table-borderless table-sm mb-3">
+                    <tr>
+                        <th class="text-muted" style="width:20%">発行日時</th>
+                        <td>{{ $activeIntakeToken->created_at->format('Y/m/d H:i') }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">発行者</th>
+                        <td>{{ $activeIntakeToken->creator?->name ?: '—' }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">有効期限</th>
+                        <td>{{ $activeIntakeToken->expires_at->format('Y/m/d H:i') }}</td>
+                    </tr>
+                </table>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-primary btn-sm"
+                            onclick="copyToClipboard('{{ $intakeUrl }}')">URLをコピー</button>
+                    <button type="button" class="btn btn-outline-primary btn-sm"
+                            onclick="showQrModal('{{ $intakeUrl }}')">QRコード</button>
+                    <form method="POST"
+                          action="{{ route('client-intake-tokens.destroy', [$client, $activeIntakeToken]) }}"
+                          class="d-inline m-0"
+                          onsubmit="return confirmDeleteIntakeToken()">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-outline-danger btn-sm">削除</button>
+                    </form>
+                </div>
+            @else
+                <p class="text-muted mb-0">発行済みのURLはありません</p>
+            @endif
+        </div>
+    </div>
+
     {{-- カテゴリー2: 連絡先 --}}
     <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#section-contact" style="cursor: pointer;">
@@ -230,6 +310,55 @@
     {{-- 最終更新 --}}
     <div class="text-end text-muted small mb-3">
         最終更新: {{ $client->updated_at->format('Y/m/d H:i') }} {{ $client->updatedBy?->name ?: '—' }}
+    </div>
+
+    {{-- URL発行モーダル（S-0305-M01） --}}
+    <div class="modal fade" id="issueIntakeTokenModal" tabindex="-1" aria-labelledby="issueIntakeTokenModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form method="POST" action="{{ route('client-intake-tokens.store', $client) }}">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="issueIntakeTokenModalLabel">事前入力URLの発行</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="expires_in_days" class="form-label">有効期限 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="expires_in_days" name="expires_in_days" required>
+                                <option value="1" {{ old('expires_in_days') == 1 ? 'selected' : '' }}>1日後</option>
+                                <option value="7" {{ old('expires_in_days', 7) == 7 ? 'selected' : '' }}>7日後</option>
+                                <option value="14" {{ old('expires_in_days') == 14 ? 'selected' : '' }}>14日後</option>
+                                <option value="30" {{ old('expires_in_days') == 30 ? 'selected' : '' }}>30日後</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                        <button type="submit" class="btn btn-primary">発行</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- QRコード表示モーダル（S-0305-M02） --}}
+    <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="qrModalLabel">QRコード</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div id="qrcode" class="d-inline-block"></div>
+                    <p class="text-muted small text-break mt-3 mb-0" id="qrUrl"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                </div>
+            </div>
+        </div>
     </div>
 
 </div>
