@@ -11,12 +11,9 @@ return new class extends Migration
         Schema::create('client_intake_tokens', function (Blueprint $table) {
             $table->id();
             $table->string('token', 64)->unique();
-            $table->string('email')->nullable();
-            $table->text('memo')->nullable();
-            $table->date('initial_consultation_date')->nullable();
             $table->timestamp('expires_at');
             $table->boolean('is_used')->default(false);
-            $table->unsignedBigInteger('client_id')->nullable();
+            $table->unsignedBigInteger('client_id');
             $table->timestamps();
             $table->unsignedBigInteger('created_by')->nullable();
 
@@ -28,7 +25,7 @@ return new class extends Migration
 
             // 外部キー
             $table->foreign('client_id', 'client_intake_tokens_client_id_foreign')
-                ->references('id')->on('clients')->nullOnDelete();
+                ->references('id')->on('clients')->cascadeOnDelete();
             $table->foreign('created_by', 'client_intake_tokens_created_by_foreign')
                 ->references('id')->on('trainers')->nullOnDelete();
         });
