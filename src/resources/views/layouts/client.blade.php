@@ -27,7 +27,7 @@
     <main class="py-4">
         <div class="container">
             @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <div class="alert alert-success alert-dismissible fade show" role="alert" data-auto-dismiss>
                     {{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
@@ -41,6 +41,16 @@
         </div>
         @yield('content')
     </main>
+    <script>
+        // successフラッシュメッセージを5秒後に自動消去する（data-auto-dismiss 属性を持つ要素のみ）
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('[data-auto-dismiss]').forEach(function (el) {
+                setTimeout(function () {
+                    bootstrap.Alert.getOrCreateInstance(el).close();
+                }, 5000);
+            });
+        });
+    </script>
     @stack('scripts')
 </body>
 </html>
