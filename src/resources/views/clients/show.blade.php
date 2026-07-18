@@ -68,30 +68,14 @@
     </div>
 
     @if($activeIntakeToken)
+        @php
+            $intakeUrl = route('client-intake.show-by-token', $activeIntakeToken->token);
+        @endphp
         {{-- 初回情報入力URL --}}
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h6 class="mb-0"><i class="bi bi-link-45deg"></i> 初回情報入力URL</h6>
-            </div>
-            <div class="card-body">
-                @php
-                    $intakeUrl = route('client-intake.show-by-token', $activeIntakeToken->token);
-                @endphp
-                <table class="table table-borderless table-sm mb-3">
-                    <tr>
-                        <th class="text-muted" style="width:20%">発行日時</th>
-                        <td>{{ $activeIntakeToken->created_at->format('Y/m/d H:i') }}</td>
-                    </tr>
-                    <tr>
-                        <th class="text-muted">発行者</th>
-                        <td>{{ $activeIntakeToken->creator?->name ?: '—' }}</td>
-                    </tr>
-                    <tr>
-                        <th class="text-muted">有効期限</th>
-                        <td>{{ $activeIntakeToken->expires_at->format('Y/m/d H:i') }}</td>
-                    </tr>
-                </table>
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 align-items-center">
                     <button type="button" class="btn btn-outline-primary btn-sm"
                             onclick="copyToClipboard(this, '{{ $intakeUrl }}')">URLをコピー</button>
                     <button type="button" class="btn btn-outline-primary btn-sm"
@@ -105,6 +89,22 @@
                         <button type="submit" class="btn btn-outline-danger btn-sm">削除</button>
                     </form>
                 </div>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless table-sm mb-0">
+                    <tr>
+                        <th class="text-muted" style="width:20%">発行日時</th>
+                        <td>{{ $activeIntakeToken->created_at->format('Y/m/d H:i') }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">発行者</th>
+                        <td>{{ $activeIntakeToken->creator?->name ?: '—' }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">有効期限</th>
+                        <td>{{ $activeIntakeToken->expires_at->format('Y/m/d H:i') }}</td>
+                    </tr>
+                </table>
             </div>
         </div>
     @endif
