@@ -123,7 +123,7 @@ class Client extends Authenticatable
     }
 
     /**
-     * 事前入力URLトークン
+     * 初回情報入力URLトークン
      */
     public function intakeTokens(): HasMany
     {

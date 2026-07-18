@@ -159,7 +159,7 @@ class ClientController extends Controller
 
         $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
 
-        // 有効な事前入力URL（未使用かつ期限内）を1件のみ取得
+        // 有効な初回情報入力URL（未使用かつ期限内）を1件のみ取得
         $activeIntakeToken = $client->intakeTokens()
             ->with('creator')
             ->where('is_used', false)

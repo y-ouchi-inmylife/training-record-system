@@ -68,10 +68,10 @@
     </div>
 
     @if($activeIntakeToken)
-        {{-- 事前入力URL --}}
+        {{-- 初回情報入力URL --}}
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="mb-0">事前入力URL</h6>
+                <h6 class="mb-0">初回情報入力URL</h6>
             </div>
             <div class="card-body">
                 @php
@@ -188,7 +188,7 @@
         </script>
         @endif
 
-        {{-- 事前入力URL 関連 --}}
+        {{-- 初回情報入力URL 関連 --}}
         <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
         <script>
         function copyToClipboard(button, text) {
@@ -224,7 +224,7 @@
         }
 
         function confirmDeleteIntakeToken() {
-            return confirm('この事前入力URLを削除しますか？削除後は再発行できます。');
+            return confirm('この初回情報入力URLを削除しますか？削除後は再発行できます。');
         }
         </script>
     @endpush
@@ -327,7 +327,7 @@
                 <form method="POST" action="{{ route('client-intake-tokens.store', $client) }}">
                     @csrf
                     <div class="modal-header">
-                        <h5 class="modal-title" id="issueIntakeTokenModalLabel">事前入力URLの発行</h5>
+                        <h5 class="modal-title" id="issueIntakeTokenModalLabel">初回情報入力URLの発行</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
                     </div>
                     <div class="modal-body">
