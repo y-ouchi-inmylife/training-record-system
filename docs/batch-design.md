@@ -130,20 +130,21 @@
 | `MYSQLDUMP_PATH` | ● | mysqldump コマンドのパス |
 | `OPENSSL_PATH` | ● | openssl コマンドのパス |
 
-R2 接続設定：
+バックアップ用オブジェクトストレージ接続設定（S3 互換。現在の既定構成は Cloudflare R2）：
 
 | 項目名 | 必須 | 説明 |
 |--------|------|------|
-| `R2_ENDPOINT` | ● | R2 エンドポイント URL |
-| `R2_BUCKET` | ● | R2 バケット名 |
-| `R2_ACCESS_KEY_ID` | ● | R2 アクセスキー ID |
-| `R2_SECRET_ACCESS_KEY` | ● | R2 シークレットキー |
+| `BACKUP_STORAGE_ENDPOINT` | ● | ストレージのエンドポイント URL |
+| `BACKUP_STORAGE_BUCKET` | ● | バケット名 |
+| `BACKUP_STORAGE_ACCESS_KEY_ID` | ● | アクセスキー ID |
+| `BACKUP_STORAGE_SECRET_ACCESS_KEY` | ● | シークレットキー |
+| `BACKUP_STORAGE_REGION` |  | リージョン（任意、既定 `auto`。R2 では未指定でよい。さくら等に差し替える場合に設定） |
 
 ##### 処理フロー
 
 1. データベースを mysqldump で取得し、パイプで openssl AES-256-CBC + PBKDF2 に渡して暗号化したうえで、`BACKUP_DIRECTORY` 配下に保存する。
   - ファイル名は `{db_name}_YYYYMMDD_HHMMSS.sql.enc` 形式とする。
-2. 1. で作成したバックアップファイルを、Cloudflare R2 のバケット（`R2_BUCKET`）にコピーする。
+2. 1. で作成したバックアップファイルを、バックアップ用オブジェクトストレージのバケット（`BACKUP_STORAGE_BUCKET`）にコピーする。
   - オブジェクトキーはファイル名と同じ：`{db_name}_YYYYMMDD_HHMMSS.sql.enc`
 3. 1. で作成したバックアップファイルを `BACKUP_DIRECTORY` から削除する。
 
@@ -161,7 +162,7 @@ R2 接続設定：
 
 | 引数 | 必須 | 説明 |
 |------|------|------|
-| ファイル名 | ● | R2 上のバックアップファイル名。例：`{db_name}_YYYYMMDD_HHMMSS.sql.enc` |
+| ファイル名 | ● | バックアップ用オブジェクトストレージ上のバックアップファイル名。例：`{db_name}_YYYYMMDD_HHMMSS.sql.enc` |
 
 **設定値（環境変数）**
 
@@ -174,19 +175,20 @@ R2 接続設定：
 | `MYSQL_PATH` | ● | mysql コマンドのパス |
 | `OPENSSL_PATH` | ● | openssl コマンドのパス |
 
-R2 接続設定：
+バックアップ用オブジェクトストレージ接続設定（S3 互換。現在の既定構成は Cloudflare R2）：
 
 | 項目名 | 必須 | 説明 |
 |--------|------|------|
-| `R2_ENDPOINT` | ● | R2 エンドポイント URL |
-| `R2_BUCKET` | ● | R2 バケット名 |
-| `R2_ACCESS_KEY_ID` | ● | R2 アクセスキー ID |
-| `R2_SECRET_ACCESS_KEY` | ● | R2 シークレットキー |
+| `BACKUP_STORAGE_ENDPOINT` | ● | ストレージのエンドポイント URL |
+| `BACKUP_STORAGE_BUCKET` | ● | バケット名 |
+| `BACKUP_STORAGE_ACCESS_KEY_ID` | ● | アクセスキー ID |
+| `BACKUP_STORAGE_SECRET_ACCESS_KEY` | ● | シークレットキー |
+| `BACKUP_STORAGE_REGION` |  | リージョン（任意、既定 `auto`。R2 では未指定でよい。さくら等に差し替える場合に設定） |
 
 ##### 処理フロー
 
 1. リストア対象の「ファイル名」を表示して、Y/N で確認を求める。
-2. R2 のバケット（`R2_BUCKET`）から指定された「ファイル名」のオブジェクトを取得し、`BACKUP_DIRECTORY` 配下に保存する。
+2. バックアップ用オブジェクトストレージのバケット（`BACKUP_STORAGE_BUCKET`）から指定された「ファイル名」のオブジェクトを取得し、`BACKUP_DIRECTORY` 配下に保存する。
 3. 2. でダウンロードしたバックアップファイルを openssl で復号し、パイプで mysql に渡してデータベースを復元する。
 4. 2. でダウンロードしたバックアップファイルを `BACKUP_DIRECTORY` から削除する。
 

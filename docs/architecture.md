@@ -142,7 +142,7 @@ flowchart TD
 | 項目 | 技術 | 説明（選定理由など） |
 |------|------|---------|
 | 音声ファイル | local（サーバーローカル） | storage/app/ 配下に保存。音声録音はブラウザ MediaRecorder API でクライアント側で録音後、サーバーへ送信。文字起こし・要約のための中間生成物であり、外部 API 送信を含めサーバーローカルで完結する |
-| メディア（写真・動画） | さくらのオブジェクトストレージ（S3 互換、`sakura` ディスク） | バケット `trs01-media-prod`（エンドポイント s3.tky01.sakurastorage.jp、jp-east-1、use_path_style_endpoint=true）。league/flysystem-aws-s3-v3 経由。クライアントへの配信・トレーナーの直アップロードは署名付き URL で行う（バケット CORS の AllowedOrigins にトレーナー用サブドメインを許可）|
+| メディア（写真・動画） | S3 互換オブジェクトストレージ（`media` ディスク、現構成はさくらのオブジェクトストレージ） | バケット `trs01-media-prod`（エンドポイント s3.tky01.sakurastorage.jp、jp-east-1、use_path_style_endpoint=true）。league/flysystem-aws-s3-v3 経由。接続情報は `.env` の `MEDIA_STORAGE_*` で管理し、プロバイダ差し替え時は値の書き換えのみで対応可能。クライアントへの配信・トレーナーの直アップロードは署名付き URL で行う（バケット CORS の AllowedOrigins にトレーナー用サブドメインを許可）|
 
 #### 2-2-3. 外部API実行
 

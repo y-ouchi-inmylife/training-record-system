@@ -451,11 +451,12 @@ MYSQLDUMP_PATH="/usr/local/bin/mysqldump"
 MYSQL_PATH="/usr/local/bin/mysql"
 OPENSSL_PATH="/usr/bin/openssl"
 
-# Restore (Cloudflare R2)
-R2_ENDPOINT=https://7e2d676e31f746acd5bcc20fd6333e6c.r2.cloudflarestorage.com
-R2_BUCKET=counseling-record-backup-dev
-R2_ACCESS_KEY_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxx
-R2_SECRET_ACCESS_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+# Backup File Storage (S3 compatible)
+# 現在の構成: Cloudflare R2（BACKUP_STORAGE_REGION は R2 では未指定でよい。既定 auto）
+BACKUP_STORAGE_ENDPOINT=https://7e2d676e31f746acd5bcc20fd6333e6c.r2.cloudflarestorage.com
+BACKUP_STORAGE_BUCKET=counseling-record-backup-dev
+BACKUP_STORAGE_ACCESS_KEY_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+BACKUP_STORAGE_SECRET_ACCESS_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 **セキュリティに関する注意事項**:
