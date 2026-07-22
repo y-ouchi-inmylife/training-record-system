@@ -30,9 +30,6 @@ class MediaRecordController extends Controller
     // 将来のクライアント向け公開ではより短くする可能性があるため、UPLOAD と独立して持つ
     const PLAY_URL_EXPIRES_MINUTES = 15;
 
-    // オブジェクトストレージのディスク名
-    const STORAGE_DISK = 'sakura';
-
     // storage_key の形式 media/YYYYMM/{uuid}.{ext}（store 時の形式検証用）
     const STORAGE_KEY_PATTERN = '#^media/\d{6}/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.[a-z0-9]+$#';
 
@@ -150,7 +147,7 @@ class MediaRecordController extends Controller
 
         // 署名付きPUT URL発行（有効期限はクラス定数で管理）
         $expiresAt = now()->addMinutes(self::UPLOAD_URL_EXPIRES_MINUTES);
-        $signed = Storage::disk(self::STORAGE_DISK)->temporaryUploadUrl($storageKey, $expiresAt);
+        $signed = Storage::disk(MediaRecord::STORAGE_DISK)->temporaryUploadUrl($storageKey, $expiresAt);
 
         return response()->json([
             'data' => [
@@ -275,7 +272,7 @@ class MediaRecordController extends Controller
 
         // original_path は NOT NULL なので通常空にならないが、念のためのガード
         if (!empty($keysToDelete)) {
-            Storage::disk(self::STORAGE_DISK)->delete($keysToDelete);
+            Storage::disk(MediaRecord::STORAGE_DISK)->delete($keysToDelete);
         }
         $mediaRecord->delete();
 
@@ -287,7 +284,7 @@ class MediaRecordController extends Controller
      *
      * 表示用ファイル（display_path）への presigned GET URL を発行して返す。
      * クライアント（ブラウザ）はこのURLへ直接アクセスして再生・表示する。
-     * 存在確認は行わない（store 時の方針Bと整合。孤児レコードは sakura が 403/404 を返す）。
+     * 存在確認は行わない（store 時の方針Bと整合。孤児レコードはオブジェクトストレージが 403/404 を返す）。
      *
      * display_path が NULL（変換待ち・変換中・変換失敗）は表示用ファイルが未生成のため
      * 409 を返す。呼び出し側は conversion_status に応じて「変換中」「変換失敗」を表示する。
@@ -302,7 +299,7 @@ class MediaRecordController extends Controller
         }
 
         $expiresAt = now()->addMinutes(self::PLAY_URL_EXPIRES_MINUTES);
-        $url = Storage::disk(self::STORAGE_DISK)->temporaryUrl($mediaRecord->display_path, $expiresAt);
+        $url = Storage::disk(MediaRecord::STORAGE_DISK)->temporaryUrl($mediaRecord->display_path, $expiresAt);
 
         return response()->json([
             'data' => [

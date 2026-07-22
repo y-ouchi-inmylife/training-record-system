@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\MediaRecord;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\File as FileFacade;
 use Illuminate\Support\Facades\Log;
@@ -23,9 +24,6 @@ class MediaConversionService
 {
     // 表示用 jpeg の品質（画面表示用の標準品質。原本は残すので印刷品質は原本で確保）
     private const JPEG_QUALITY = 85;
-
-    // オブジェクトストレージのディスク名（MediaRecordController と揃える）
-    private const STORAGE_DISK = 'sakura';
 
     // 一時ファイル置き場（storage/app 配下は git 管理外）
     private const TMP_DIR = 'tmp/conversion';
@@ -94,7 +92,7 @@ class MediaConversionService
             $dir = pathinfo($displayPath, PATHINFO_DIRNAME);
             $basename = pathinfo($displayPath, PATHINFO_BASENAME);
 
-            Storage::disk(self::STORAGE_DISK)->putFileAs($dir, new File($tmpOut), $basename);
+            Storage::disk(MediaRecord::STORAGE_DISK)->putFileAs($dir, new File($tmpOut), $basename);
 
             return $displayPath;
         } finally {
@@ -173,7 +171,7 @@ class MediaConversionService
             $dir = pathinfo($displayPath, PATHINFO_DIRNAME);
             $basename = pathinfo($displayPath, PATHINFO_BASENAME);
 
-            Storage::disk(self::STORAGE_DISK)->putFileAs($dir, new File($tmpOut), $basename);
+            Storage::disk(MediaRecord::STORAGE_DISK)->putFileAs($dir, new File($tmpOut), $basename);
 
             return $displayPath;
         } finally {
@@ -209,7 +207,7 @@ class MediaConversionService
      */
     private function downloadOriginalToTempFile(string $originalPath, string $tmpIn): void
     {
-        $readStream = Storage::disk(self::STORAGE_DISK)->readStream($originalPath);
+        $readStream = Storage::disk(MediaRecord::STORAGE_DISK)->readStream($originalPath);
         if ($readStream === null || $readStream === false) {
             throw new \RuntimeException("原本ファイルが取得できません: {$originalPath}");
         }

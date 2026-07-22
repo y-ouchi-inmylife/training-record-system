@@ -9,22 +9,22 @@ use RuntimeException;
 use Throwable;
 
 /**
- * R2 のバックアップファイルからデータベースをリストアするコマンド
+ * バックアップ用ストレージのバックアップファイルからデータベースをリストアするコマンド
  *
  * 設計書 docs/batch-design.md の B-0302 リストアバッチに対応する。
  *
  * 処理:
  *   1. リストア対象ファイルと DB 名を表示して Y/N で確認を求める
- *   2. R2 のバケットから指定されたバックアップファイルをダウンロードし、
+ *   2. バックアップ用ストレージのバケットから指定されたバックアップファイルをダウンロードし、
  *      BACKUP_DIRECTORY 配下に保存する
  *   3. openssl で復号した出力を mysql にパイプして DB を復元する
  *   4. ローカルにダウンロードしたバックアップファイルを削除する
  */
 class RestoreDatabase extends Command
 {
-    protected $signature = 'db:restore {filename : R2 上のバックアップファイル名}';
+    protected $signature = 'db:restore {filename : バックアップ用ストレージ上のバックアップファイル名}';
 
-    protected $description = 'R2 のバックアップファイルからデータベースをリストアする';
+    protected $description = 'バックアップ用ストレージのバックアップファイルからデータベースをリストアする';
 
     public function handle(): int
     {
@@ -64,8 +64,8 @@ class RestoreDatabase extends Command
                 throw new RuntimeException("BACKUP_DIRECTORY が存在しません: {$backupDir}");
             }
 
-            // 2. R2 からダウンロード
-            $this->downloadFromR2($filename, $localPath);
+            // 2. バックアップ用ストレージからダウンロード
+            $this->downloadFromBackupStorage($filename, $localPath);
 
             if (! file_exists($localPath)) {
                 throw new RuntimeException("ダウンロードしたファイルが見つかりません: {$localPath}");
@@ -93,19 +93,19 @@ class RestoreDatabase extends Command
     }
 
     /**
-     * R2 から指定ファイルをストリームでダウンロードしてローカルへ保存する
+     * バックアップ用ストレージから指定ファイルをストリームでダウンロードしてローカルへ保存する
      */
-    private function downloadFromR2(string $filename, string $localPath): void
+    private function downloadFromBackupStorage(string $filename, string $localPath): void
     {
-        $disk = Storage::disk('r2');
+        $disk = Storage::disk('backup');
 
         if (! $disk->exists($filename)) {
-            throw new RuntimeException("R2 にファイルが存在しません: {$filename}");
+            throw new RuntimeException("バックアップ用ストレージにファイルが存在しません: {$filename}");
         }
 
         $remoteStream = $disk->readStream($filename);
         if ($remoteStream === false || $remoteStream === null) {
-            throw new RuntimeException("R2 ファイルのストリームを開けませんでした: {$filename}");
+            throw new RuntimeException("バックアップ用ストレージのファイルのストリームを開けませんでした: {$filename}");
         }
 
         $localStream = fopen($localPath, 'wb');
@@ -118,7 +118,7 @@ class RestoreDatabase extends Command
 
         try {
             if (stream_copy_to_stream($remoteStream, $localStream) === false) {
-                throw new RuntimeException("R2 からのダウンロードに失敗しました: {$filename}");
+                throw new RuntimeException("バックアップ用ストレージからのダウンロードに失敗しました: {$filename}");
             }
         } finally {
             if (is_resource($localStream)) {

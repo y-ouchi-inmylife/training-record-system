@@ -34,7 +34,7 @@ class MediaRecordController extends Controller
         }
 
         $expiresAt = now()->addMinutes(TrainerMediaRecordController::PLAY_URL_EXPIRES_MINUTES);
-        $url = Storage::disk(TrainerMediaRecordController::STORAGE_DISK)
+        $url = Storage::disk(MediaRecord::STORAGE_DISK)
             ->temporaryUrl($mediaRecord->display_path, $expiresAt);
 
         return response()->json([

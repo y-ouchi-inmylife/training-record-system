@@ -23,9 +23,12 @@ class MediaRecord extends Model
     // 既存モデル（AudioRecord）に揃えて明示する）
     protected $table = 'media_records';
 
-    // オブジェクトストレージのディスク名（MediaRecordController::STORAGE_DISK と同値）。
-    // ※ 'sakura' の重複統合（Controller / 2 Services との一本化）は別 refactor タスクで対応。
-    const STORAGE_DISK = 'sakura';
+    /**
+     * メディアファイルの保存先ディスク名。
+     * 実際のストレージプロバイダは config/filesystems.php および .env で決まる。
+     * アプリ内でメディア用ディスクを参照する場合は必ずこの定数を使うこと。
+     */
+    const STORAGE_DISK = 'media';
 
     // メディア種別定数（DBのCHECK制約 type IN ('photo','video') と対応）
     const TYPE_PHOTO = 'photo';

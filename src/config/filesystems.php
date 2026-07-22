@@ -60,25 +60,28 @@ return [
             'report' => false,
         ],
 
-        'r2' => [
+        // メディア（写真・動画）保存用。プロバイダは .env で差し替え可能
+        // （さくらのオブジェクトストレージ / Cloudflare R2 / AWS S3 等の S3 互換）
+        'media' => [
             'driver' => 's3',
-            'key' => env('R2_ACCESS_KEY_ID'),
-            'secret' => env('R2_SECRET_ACCESS_KEY'),
-            'region' => 'auto',
-            'bucket' => env('R2_BUCKET'),
-            'endpoint' => env('R2_ENDPOINT'),
+            'key' => env('MEDIA_STORAGE_ACCESS_KEY_ID'),
+            'secret' => env('MEDIA_STORAGE_SECRET_ACCESS_KEY'),
+            'region' => env('MEDIA_STORAGE_REGION', 'auto'),
+            'bucket' => env('MEDIA_STORAGE_BUCKET'),
+            'endpoint' => env('MEDIA_STORAGE_ENDPOINT'),
             'use_path_style_endpoint' => true,
             'throw' => true,
             'report' => false,
         ],
 
-        'sakura' => [
+        // DB バックアップ保存用。プロバイダは .env で差し替え可能
+        'backup' => [
             'driver' => 's3',
-            'key' => env('SAKURA_ACCESS_KEY_ID'),
-            'secret' => env('SAKURA_SECRET_ACCESS_KEY'),
-            'region' => env('SAKURA_DEFAULT_REGION', 'jp-east-1'),
-            'bucket' => env('SAKURA_BUCKET'),
-            'endpoint' => env('SAKURA_ENDPOINT'),
+            'key' => env('BACKUP_STORAGE_ACCESS_KEY_ID'),
+            'secret' => env('BACKUP_STORAGE_SECRET_ACCESS_KEY'),
+            'region' => env('BACKUP_STORAGE_REGION', 'auto'),
+            'bucket' => env('BACKUP_STORAGE_BUCKET'),
+            'endpoint' => env('BACKUP_STORAGE_ENDPOINT'),
             'use_path_style_endpoint' => true,
             'throw' => true,
             'report' => false,

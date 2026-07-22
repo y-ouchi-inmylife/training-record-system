@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\MediaRecord;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\File as FileFacade;
 use Illuminate\Support\Facades\Log;
@@ -30,9 +31,6 @@ class MediaThumbnailService
 
     // 余白色（写真の外側を白で塗りつぶす。一覧カードに自然に馴染む色）
     private const BACKGROUND_COLOR = '#ffffff';
-
-    // オブジェクトストレージのディスク名（MediaRecordController と揃える）
-    private const STORAGE_DISK = 'sakura';
 
     // 一時ファイル置き場（storage/app 配下は git 管理外）
     private const TMP_DIR = 'tmp/thumbnail';
@@ -108,7 +106,7 @@ class MediaThumbnailService
             $dir = pathinfo($thumbnailPath, PATHINFO_DIRNAME);
             $basename = pathinfo($thumbnailPath, PATHINFO_BASENAME);
 
-            Storage::disk(self::STORAGE_DISK)->putFileAs($dir, new File($tmpOut), $basename);
+            Storage::disk(MediaRecord::STORAGE_DISK)->putFileAs($dir, new File($tmpOut), $basename);
 
             return $thumbnailPath;
         } finally {
@@ -207,7 +205,7 @@ class MediaThumbnailService
             $dir = pathinfo($thumbnailPath, PATHINFO_DIRNAME);
             $basename = pathinfo($thumbnailPath, PATHINFO_BASENAME);
 
-            Storage::disk(self::STORAGE_DISK)->putFileAs($dir, new File($tmpOut), $basename);
+            Storage::disk(MediaRecord::STORAGE_DISK)->putFileAs($dir, new File($tmpOut), $basename);
 
             return $thumbnailPath;
         } finally {
@@ -283,7 +281,7 @@ class MediaThumbnailService
      */
     private function downloadOriginalToTempFile(string $originalPath, string $tmpIn): void
     {
-        $readStream = Storage::disk(self::STORAGE_DISK)->readStream($originalPath);
+        $readStream = Storage::disk(MediaRecord::STORAGE_DISK)->readStream($originalPath);
         if ($readStream === null || $readStream === false) {
             throw new \RuntimeException("原本ファイルが取得できません: {$originalPath}");
         }

@@ -9,21 +9,21 @@ use RuntimeException;
 use Throwable;
 
 /**
- * データベースをバックアップして R2 にアップロードするコマンド
+ * データベースをバックアップしてバックアップ用ストレージにアップロードするコマンド
  *
  * 設計書 docs/batch-design.md の B-0301 バックアップバッチに対応する。
  *
  * 処理:
  *   1. mysqldump の出力を openssl(AES-256-CBC + PBKDF2) にパイプして暗号化し、
  *      BACKUP_DIRECTORY 配下に保存する
- *   2. 作成した暗号化ファイルを Cloudflare R2 にアップロードする
+ *   2. 作成した暗号化ファイルをバックアップ用ストレージ（S3 互換）にアップロードする
  *   3. ローカルのバックアップファイルを削除する
  */
 class BackupDatabase extends Command
 {
     protected $signature = 'db:backup';
 
-    protected $description = 'データベースをバックアップして R2 にアップロードする';
+    protected $description = 'データベースをバックアップしてバックアップ用ストレージにアップロードする';
 
     public function handle(): int
     {
@@ -50,25 +50,25 @@ class BackupDatabase extends Command
 
             $fileSize = filesize($localPath);
 
-            // 2. R2 にアップロード（ストリームで開いてメモリ消費を抑える）
+            // 2. バックアップ用ストレージにアップロード（ストリームで開いてメモリ消費を抑える）
             $stream = fopen($localPath, 'rb');
             if ($stream === false) {
                 throw new RuntimeException("バックアップファイルを開けませんでした: {$localPath}");
             }
 
             try {
-                Storage::disk('r2')->put($filename, $stream);
+                Storage::disk('backup')->put($filename, $stream);
             } finally {
                 if (is_resource($stream)) {
                     fclose($stream);
                 }
             }
 
-            // 3. ローカルファイル削除（R2 アップロード成功後のみ）
+            // 3. ローカルファイル削除（アップロード成功後のみ）
             unlink($localPath);
 
             $sizeMb = round($fileSize / 1024 / 1024, 2);
-            $message = "[BackupDatabase] {$filename} を R2 にアップロードしました（{$sizeMb} MB）";
+            $message = "[BackupDatabase] {$filename} をバックアップ用ストレージにアップロードしました（{$sizeMb} MB）";
             $this->info($message);
             Log::info($message);
 
