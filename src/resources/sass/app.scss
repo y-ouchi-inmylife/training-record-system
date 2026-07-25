@@ -19,6 +19,20 @@
     padding-bottom: 0.25rem;
 }
 
+// 水平フォームの固定幅ラベル（登録・編集画面のラベル左・入力欄右レイアウト用）
+// md以上で幅140px固定。md未満（縦積み時）は幅指定を解除して全幅に戻す。
+.form-label-fixed {
+    @media (min-width: 768px) {
+        width: 140px;
+    }
+}
+
+// 固定幅ラベルに収まらない長いラベル用の縮小クラス（必要な項目にのみ付与）
+// 現時点では未使用。将来140pxに収まらないラベルが出た場合に label へ追加する。
+.form-label-fixed-sm {
+    font-size: 0.875rem;
+}
+
 // テーブル行高の調整（セルの上下 padding を Bootstrap デフォルト .5rem から縮小）
 .table > :not(caption) > * > * {
     padding-top: 0.25rem;
