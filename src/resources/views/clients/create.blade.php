@@ -278,6 +278,17 @@
                 }
             });
 
+            // メールアドレスの形式チェック（任意項目、値がある場合のみ検証）
+            clearFieldError('email');
+            const email = document.getElementById('email').value.trim();
+            if (email !== '') {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    showFieldError('email', 'メールアドレスの形式が正しくありません。');
+                    valid = false;
+                }
+            }
+
             if (!valid) {
                 return;
             }
