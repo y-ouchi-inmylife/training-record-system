@@ -33,7 +33,7 @@
             <div class="card-header"><h6 class="mb-0">基本情報</h6></div>
             <div class="card-body">
                 <div class="row g-3 mb-2">
-                    {{-- 行1: 内部ID + 初回日 --}}
+                    {{-- 行1: 内部ID + 初回日 + メールアドレス --}}
                     <div class="col-md-3">
                         <div class="row g-2 align-items-center">
                             <label for="internal_id" class="col-md-auto col-form-label text-md-end" style="width: 130px;">
@@ -60,6 +60,17 @@
                                        placeholder="例: 2000-01-15" pattern="\d{4}-\d{2}-\d{2}" maxlength="10"
                                        autocomplete="off">
                                 @error('initial_consultation_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="row g-2 align-items-center">
+                            <label for="email" class="col-md-auto col-form-label text-md-end" style="width: 130px;">メールアドレス</label>
+                            <div class="col-12 col-md">
+                                <input type="email" class="form-control @error('email') is-invalid @enderror"
+                                       id="email" name="email" value="{{ old('email', $client->email) }}"
+                                       autocomplete="off">
+                                @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                         </div>
                     </div>
@@ -118,7 +129,7 @@
                 </div>
 
                 <div class="row g-3">
-                    {{-- 行3: 生年月日 + 性別 + メールアドレス + 主担当 --}}
+                    {{-- 行3: 生年月日 + 性別 + 主担当 --}}
                     <div class="col-md-3">
                         <div class="row g-2 align-items-center">
                             <label for="birth_date" class="col-md-auto col-form-label text-md-end" style="width: 130px;">生年月日</label>
@@ -140,17 +151,6 @@
                                         <option value="{{ $g }}" {{ old('gender', $client->gender) === $g ? 'selected' : '' }}>{{ $g }}</option>
                                     @endforeach
                                 </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="row g-2 align-items-center">
-                            <label for="email" class="col-md-auto col-form-label text-md-end" style="width: 130px;">メールアドレス</label>
-                            <div class="col-12 col-md">
-                                <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                       id="email" name="email" value="{{ old('email', $client->email) }}"
-                                       autocomplete="off">
-                                @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                         </div>
                     </div>
