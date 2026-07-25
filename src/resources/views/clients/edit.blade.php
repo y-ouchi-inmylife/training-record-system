@@ -180,7 +180,7 @@
             <div class="card-body">
                 <div class="row g-3 mb-2">
                     {{-- 行1: 電話番号1 + 電話番号2 --}}
-                    <div class="col-md-6">
+                    <div class="col-md-3">
                         <div class="row g-2 align-items-center">
                             <label for="phone1" class="col-md-auto col-form-label text-md-end form-label-fixed">電話番号1</label>
                             <div class="col-12 col-md">
@@ -191,7 +191,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-3">
                         <div class="row g-2 align-items-center">
                             <label for="phone2" class="col-md-auto col-form-label text-md-end form-label-fixed">電話番号2</label>
                             <div class="col-12 col-md">
