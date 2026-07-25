@@ -36,47 +36,76 @@
             <h5 class="mb-0">ステップ 1/2: 基本情報</h5>
         </div>
         <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <label for="last_name" class="form-label">姓 <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control @error('last_name') is-invalid @enderror"
-                           id="last_name" name="last_name" inputmode="text" value="{{ old('last_name', $client->last_name) }}">
-                    @error('last_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            <div class="row g-3 mb-2">
+                {{-- 行1: 名前(姓+名) + ふりがな(せい+めい) --}}
+                <div class="col-md-6">
+                    <div class="row g-2 align-items-center">
+                        <label for="last_name" class="col-md-auto col-form-label text-md-end form-label-fixed">
+                            名前 <span class="text-danger">*</span>
+                        </label>
+                        <div class="col-12 col-md">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="text" class="form-control @error('last_name') is-invalid @enderror"
+                                           id="last_name" name="last_name" inputmode="text"
+                                           value="{{ old('last_name', $client->last_name) }}" placeholder="姓">
+                                    @error('last_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" class="form-control" id="first_name" name="first_name"
+                                           inputmode="text" value="{{ old('first_name', $client->first_name) }}" placeholder="名">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <label for="first_name" class="form-label">名</label>
-                    <input type="text" class="form-control" id="first_name" name="first_name"
-                           inputmode="text" value="{{ old('first_name', $client->first_name) }}">
+                <div class="col-md-6">
+                    <div class="row g-2 align-items-center">
+                        <label for="last_name_kana" class="col-md-auto col-form-label text-md-end form-label-fixed">ふりがな</label>
+                        <div class="col-12 col-md">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="text" class="form-control @error('last_name_kana') is-invalid @enderror"
+                                           id="last_name_kana" name="last_name_kana" inputmode="hiragana"
+                                           value="{{ old('last_name_kana', $client->last_name_kana) }}" placeholder="せい">
+                                    @error('last_name_kana') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" class="form-control @error('first_name_kana') is-invalid @enderror"
+                                           id="first_name_kana" name="first_name_kana" inputmode="hiragana"
+                                           value="{{ old('first_name_kana', $client->first_name_kana) }}" placeholder="めい">
+                                    @error('first_name_kana') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <label for="last_name_kana" class="form-label">せい</label>
-                    <input type="text" class="form-control @error('last_name_kana') is-invalid @enderror"
-                           id="last_name_kana" name="last_name_kana" inputmode="hiragana"
-                           value="{{ old('last_name_kana', $client->last_name_kana) }}" placeholder="例: やまだ">
-                    @error('last_name_kana') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-                <div class="col-md-3">
-                    <label for="first_name_kana" class="form-label">めい</label>
-                    <input type="text" class="form-control @error('first_name_kana') is-invalid @enderror"
-                           id="first_name_kana" name="first_name_kana" inputmode="hiragana"
-                           value="{{ old('first_name_kana', $client->first_name_kana) }}" placeholder="例: たろう">
-                    @error('first_name_kana') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
+            </div>
 
+            <div class="row g-3">
+                {{-- 行2: 生年月日 + 性別 --}}
                 <div class="col-md-3">
-                    <label for="birth_date" class="form-label">生年月日</label>
-                    <input type="text" class="form-control datepicker" id="birth_date" name="birth_date"
-                           value="{{ old('birth_date', $client->birth_date?->format('Y-m-d')) }}"
-                           placeholder="例: 2000-01-15" pattern="\d{4}-\d{2}-\d{2}" maxlength="10">
+                    <div class="row g-2 align-items-center">
+                        <label for="birth_date" class="col-md-auto col-form-label text-md-end form-label-fixed">生年月日</label>
+                        <div class="col-12 col-md">
+                            <input type="text" class="form-control datepicker" id="birth_date" name="birth_date"
+                                   value="{{ old('birth_date', $client->birth_date?->format('Y-m-d')) }}"
+                                   placeholder="例: 2000-01-15" pattern="\d{4}-\d{2}-\d{2}" maxlength="10">
+                        </div>
+                    </div>
                 </div>
                 <div class="col-md-3">
-                    <label for="gender" class="form-label">性別</label>
-                    <select class="form-select" id="gender" name="gender">
-                        <option value="">選択してください</option>
-                        @foreach(['男', '女', 'その他'] as $g)
-                            <option value="{{ $g }}" {{ old('gender', $client->gender) === $g ? 'selected' : '' }}>{{ $g }}</option>
-                        @endforeach
-                    </select>
+                    <div class="row g-2 align-items-center">
+                        <label for="gender" class="col-md-auto col-form-label text-md-end form-label-fixed">性別</label>
+                        <div class="col-12 col-md">
+                            <select class="form-select" id="gender" name="gender">
+                                <option value=""></option>
+                                @foreach(['男', '女', 'その他'] as $g)
+                                    <option value="{{ $g }}" {{ old('gender', $client->gender) === $g ? 'selected' : '' }}>{{ $g }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -91,48 +120,85 @@
             <h5 class="mb-0">ステップ 2/2: 連絡先</h5>
         </div>
         <div class="card-body">
+            <div class="row g-3 mb-2">
+                {{-- 行1: 電話番号1 + 電話番号2 --}}
+                <div class="col-md-3">
+                    <div class="row g-2 align-items-center">
+                        <label for="phone1" class="col-md-auto col-form-label text-md-end form-label-fixed">電話番号1</label>
+                        <div class="col-12 col-md">
+                            <input type="tel" class="form-control @error('phone1') is-invalid @enderror"
+                                   id="phone1" name="phone1" value="{{ old('phone1', $client->phone1) }}" placeholder="例: 090-1234-5678">
+                            @error('phone1') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="row g-2 align-items-center">
+                        <label for="phone2" class="col-md-auto col-form-label text-md-end form-label-fixed">電話番号2</label>
+                        <div class="col-12 col-md">
+                            <input type="tel" class="form-control @error('phone2') is-invalid @enderror"
+                                   id="phone2" name="phone2" value="{{ old('phone2', $client->phone2) }}" placeholder="例: 090-1234-5678">
+                            @error('phone2') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-2">
+                {{-- 行2: 郵便番号+住所検索 + 都道府県 + 市区町村 --}}
+                <div class="col-md-3">
+                    <div class="row g-2 align-items-center">
+                        <label for="postal_code" class="col-md-auto col-form-label text-md-end form-label-fixed">郵便番号</label>
+                        <div class="col-12 col-md">
+                            <div class="input-group">
+                                <input type="text" class="form-control @error('postal_code') is-invalid @enderror"
+                                       id="postal_code" name="postal_code" value="{{ old('postal_code', $client->postal_code) }}" placeholder="例: 123-4567">
+                                <button type="button" class="btn btn-outline-secondary" onclick="searchAddress()">住所検索</button>
+                                @error('postal_code') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="row g-2 align-items-center">
+                        <label for="address1" class="col-md-auto col-form-label text-md-end form-label-fixed">都道府県</label>
+                        <div class="col-12 col-md">
+                            <select class="form-select" id="address1" name="address1">
+                                <option value=""></option>
+                                @foreach(['北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県','茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県','新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県','静岡県','愛知県','三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県','鳥取県','島根県','岡山県','広島県','山口県','徳島県','香川県','愛媛県','高知県','福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県'] as $pref)
+                                    <option value="{{ $pref }}" {{ old('address1', $client->address1) == $pref ? 'selected' : '' }}>{{ $pref }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="row g-2 align-items-center">
+                        <label for="address2" class="col-md-auto col-form-label text-md-end form-label-fixed">市区町村</label>
+                        <div class="col-12 col-md">
+                            <input type="text" class="form-control" id="address2" name="address2" inputmode="text" value="{{ old('address2', $client->address2) }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="row g-3">
-                <div class="col-md-3">
-                    <label for="phone1" class="form-label">電話番号1</label>
-                    <input type="tel" class="form-control @error('phone1') is-invalid @enderror"
-                           id="phone1" name="phone1" value="{{ old('phone1', $client->phone1) }}" placeholder="例: 090-1234-5678">
-                    @error('phone1') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-                <div class="col-md-3">
-                    <label for="phone2" class="form-label">電話番号2</label>
-                    <input type="tel" class="form-control @error('phone2') is-invalid @enderror"
-                           id="phone2" name="phone2" value="{{ old('phone2', $client->phone2) }}" placeholder="例: 090-1234-5678">
-                    @error('phone2') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-                <div class="col-md-2">
-                    <label for="postal_code" class="form-label">郵便番号</label>
-                    <input type="text" class="form-control @error('postal_code') is-invalid @enderror"
-                           id="postal_code" name="postal_code" value="{{ old('postal_code', $client->postal_code) }}" placeholder="例: 123-4567">
-                    @error('postal_code') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-                <div class="col-md-1 d-flex align-items-end">
-                    <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="searchAddress()">住所検索</button>
-                </div>
-                <div class="col-md-3">
-                    <label for="address1" class="form-label">都道府県</label>
-                    <select class="form-select" id="address1" name="address1">
-                        <option value="">選択してください</option>
-                        @foreach(['北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県','茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県','新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県','静岡県','愛知県','三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県','鳥取県','島根県','岡山県','広島県','山口県','徳島県','香川県','愛媛県','高知県','福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県'] as $pref)
-                            <option value="{{ $pref }}" {{ old('address1', $client->address1) == $pref ? 'selected' : '' }}>{{ $pref }}</option>
-                        @endforeach
-                    </select>
+                {{-- 行3: 町名・番地 + 建物名・部屋番号 --}}
+                <div class="col-md-6">
+                    <div class="row g-2 align-items-center">
+                        <label for="address3" class="col-md-auto col-form-label text-md-end form-label-fixed">町名・番地</label>
+                        <div class="col-12 col-md">
+                            <input type="text" class="form-control" id="address3" name="address3" inputmode="text" value="{{ old('address3', $client->address3) }}">
+                        </div>
+                    </div>
                 </div>
                 <div class="col-md-6">
-                    <label for="address2" class="form-label">市区町村</label>
-                    <input type="text" class="form-control" id="address2" name="address2" inputmode="text" value="{{ old('address2', $client->address2) }}">
-                </div>
-                <div class="col-md-4">
-                    <label for="address3" class="form-label">町名・番地</label>
-                    <input type="text" class="form-control" id="address3" name="address3" inputmode="text" value="{{ old('address3', $client->address3) }}">
-                </div>
-                <div class="col-md-4">
-                    <label for="address4" class="form-label">建物名・部屋番号</label>
-                    <input type="text" class="form-control" id="address4" name="address4" inputmode="text" value="{{ old('address4', $client->address4) }}">
+                    <div class="row g-2 align-items-center">
+                        <label for="address4" class="col-md-auto col-form-label text-md-end form-label-fixed">建物名・部屋番号</label>
+                        <div class="col-12 col-md">
+                            <input type="text" class="form-control" id="address4" name="address4" inputmode="text" value="{{ old('address4', $client->address4) }}">
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
