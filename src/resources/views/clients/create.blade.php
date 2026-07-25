@@ -39,88 +39,122 @@
                 <h5 class="mb-0">ステップ 1/2: 基本情報</h5>
             </div>
             <div class="card-body">
+                <div class="row g-3 mb-2">
+                    {{-- 行1: 初回日 + メールアドレス --}}
+                    <div class="col-md-3">
+                        <div class="row g-2 align-items-center">
+                            <label for="initial_consultation_date" class="col-md-auto col-form-label text-md-end form-label-fixed">
+                                初回日 <span class="text-danger">*</span>
+                            </label>
+                            <div class="col-12 col-md">
+                                <input type="text" class="form-control datepicker @error('initial_consultation_date') is-invalid @enderror"
+                                       id="initial_consultation_date" name="initial_consultation_date"
+                                       value="{{ old('initial_consultation_date', date('Y-m-d')) }}" required
+                                       placeholder="例: 2000-01-15" pattern="\d{4}-\d{2}-\d{2}" maxlength="10">
+                                @error('initial_consultation_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="row g-2 align-items-center">
+                            <label for="email" class="col-md-auto col-form-label text-md-end form-label-fixed">メールアドレス</label>
+                            <div class="col-12 col-md">
+                                <input type="email" class="form-control @error('email') is-invalid @enderror"
+                                       id="email" name="email" value="{{ old('email') }}">
+                                @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-2">
+                    {{-- 行2: 名前(姓+名) + ふりがな(せい+めい) --}}
+                    <div class="col-md-6">
+                        <div class="row g-2 align-items-center">
+                            <label for="last_name" class="col-md-auto col-form-label text-md-end form-label-fixed">
+                                名前 <span class="text-danger">*</span>
+                            </label>
+                            <div class="col-12 col-md">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <input type="text" class="form-control @error('last_name') is-invalid @enderror"
+                                               id="last_name" name="last_name" inputmode="text"
+                                               value="{{ old('last_name') }}" placeholder="姓">
+                                        @error('last_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="text" class="form-control @error('first_name') is-invalid @enderror"
+                                               id="first_name" name="first_name" inputmode="text"
+                                               value="{{ old('first_name') }}" placeholder="名">
+                                        @error('first_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row g-2 align-items-center">
+                            <label for="last_name_kana" class="col-md-auto col-form-label text-md-end form-label-fixed">ふりがな</label>
+                            <div class="col-12 col-md">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <input type="text" class="form-control @error('last_name_kana') is-invalid @enderror"
+                                               id="last_name_kana" name="last_name_kana" inputmode="hiragana"
+                                               value="{{ old('last_name_kana') }}" placeholder="せい">
+                                        @error('last_name_kana') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="text" class="form-control @error('first_name_kana') is-invalid @enderror"
+                                               id="first_name_kana" name="first_name_kana" inputmode="hiragana"
+                                               value="{{ old('first_name_kana') }}" placeholder="めい">
+                                        @error('first_name_kana') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="row g-3">
+                    {{-- 行3: 生年月日 + 性別 + 主担当 --}}
                     <div class="col-md-3">
-                        <label for="initial_consultation_date" class="form-label">初回日 <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control datepicker @error('initial_consultation_date') is-invalid @enderror"
-                               id="initial_consultation_date" name="initial_consultation_date"
-                               value="{{ old('initial_consultation_date', date('Y-m-d')) }}" required
-                               placeholder="例: 2000-01-15" pattern="\d{4}-\d{2}-\d{2}" maxlength="10">
-                        @error('initial_consultation_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-
-                    <div class="w-100 mt-0"></div>
-
-                    <div class="col-md-3">
-                        <label for="last_name" class="form-label">姓 <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('last_name') is-invalid @enderror"
-                               id="last_name" name="last_name" inputmode="text" value="{{ old('last_name') }}">
-                        @error('last_name')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <div class="row g-2 align-items-center">
+                            <label for="birth_date" class="col-md-auto col-form-label text-md-end form-label-fixed">生年月日</label>
+                            <div class="col-12 col-md">
+                                <input type="text" class="form-control datepicker" id="birth_date" name="birth_date"
+                                       value="{{ old('birth_date') }}"
+                                       placeholder="例: 2000-01-15" pattern="\d{4}-\d{2}-\d{2}" maxlength="10">
+                            </div>
+                        </div>
                     </div>
                     <div class="col-md-3">
-                        <label for="first_name" class="form-label">名</label>
-                        <input type="text" class="form-control @error('first_name') is-invalid @enderror"
-                               id="first_name" name="first_name" inputmode="text" value="{{ old('first_name') }}">
-                        @error('first_name')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <div class="row g-2 align-items-center">
+                            <label for="gender" class="col-md-auto col-form-label text-md-end form-label-fixed">性別</label>
+                            <div class="col-12 col-md">
+                                <select class="form-select" id="gender" name="gender">
+                                    <option value=""></option>
+                                    @foreach(['男', '女', 'その他'] as $g)
+                                        <option value="{{ $g }}" {{ old('gender') === $g ? 'selected' : '' }}>{{ $g }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-3">
-                        <label for="last_name_kana" class="form-label">せい</label>
-                        <input type="text" class="form-control @error('last_name_kana') is-invalid @enderror"
-                               id="last_name_kana" name="last_name_kana" inputmode="hiragana" value="{{ old('last_name_kana') }}"
-                               placeholder="例: やまだ">
-                        @error('last_name_kana')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                    <div class="col-md-4">
+                        <div class="row g-2 align-items-center">
+                            <label for="primary_trainer_id" class="col-md-auto col-form-label text-md-end form-label-fixed">主担当</label>
+                            <div class="col-12 col-md">
+                                <select class="form-select" id="primary_trainer_id" name="primary_trainer_id">
+                                    <option value=""></option>
+                                    @foreach($trainers as $trainer)
+                                        <option value="{{ $trainer->id }}" {{ old('primary_trainer_id') == $trainer->id ? 'selected' : '' }}>
+                                            {{ $trainer->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-3">
-                        <label for="first_name_kana" class="form-label">めい</label>
-                        <input type="text" class="form-control @error('first_name_kana') is-invalid @enderror"
-                               id="first_name_kana" name="first_name_kana" inputmode="hiragana" value="{{ old('first_name_kana') }}"
-                               placeholder="例: たろう">
-                        @error('first_name_kana')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="col-md-3">
-                        <label for="birth_date" class="form-label">生年月日</label>
-                        <input type="text" class="form-control datepicker" id="birth_date" name="birth_date"
-                               value="{{ old('birth_date') }}"
-                               placeholder="例: 2000-01-15" pattern="\d{4}-\d{2}-\d{2}" maxlength="10">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="gender" class="form-label">性別</label>
-                        <select class="form-select" id="gender" name="gender">
-                            <option value="">選択してください</option>
-                            @foreach(['男', '女', 'その他'] as $g)
-                                <option value="{{ $g }}" {{ old('gender') === $g ? 'selected' : '' }}>{{ $g }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="email" class="form-label">メールアドレス</label>
-                        <input type="email" class="form-control @error('email') is-invalid @enderror"
-                               id="email" name="email" value="{{ old('email') }}">
-                        @error('email')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="col-md-3">
-                        <label for="primary_trainer_id" class="form-label">主担当</label>
-                        <select class="form-select" id="primary_trainer_id" name="primary_trainer_id">
-                            <option value="">選択してください</option>
-                            @foreach($trainers as $trainer)
-                                <option value="{{ $trainer->id }}" {{ old('primary_trainer_id') == $trainer->id ? 'selected' : '' }}>
-                                    {{ $trainer->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
                 </div>
             </div>
             <div class="card-footer d-flex justify-content-between">
