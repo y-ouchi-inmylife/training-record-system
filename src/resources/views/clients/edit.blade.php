@@ -64,48 +64,48 @@
 
                     <div class="w-100"></div>
 
-                    {{-- 行2: 姓 + 名 + せい + めい --}}
-                    <div class="col-md-3">
+                    {{-- 行2: 名前(姓+名) + ふりがな(せい+めい) --}}
+                    <div class="col-md-6">
                         <div class="row g-2 align-items-center">
                             <label for="last_name" class="col-md-auto col-form-label text-md-end" style="width: 130px;">
-                                姓 <span class="text-danger">*</span>
+                                名前 <span class="text-danger">*</span>
                             </label>
                             <div class="col-12 col-md">
-                                <input type="text" class="form-control @error('last_name') is-invalid @enderror"
-                                       id="last_name" name="last_name" inputmode="text" value="{{ old('last_name', $client->last_name) }}">
-                                @error('last_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <input type="text" class="form-control @error('last_name') is-invalid @enderror"
+                                               id="last_name" name="last_name" inputmode="text"
+                                               value="{{ old('last_name', $client->last_name) }}" placeholder="姓">
+                                        @error('last_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="text" class="form-control @error('first_name') is-invalid @enderror"
+                                               id="first_name" name="first_name" inputmode="text"
+                                               value="{{ old('first_name', $client->first_name) }}" placeholder="名">
+                                        @error('first_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-6">
                         <div class="row g-2 align-items-center">
-                            <label for="first_name" class="col-md-auto col-form-label text-md-end" style="width: 130px;">名</label>
+                            <label for="last_name_kana" class="col-md-auto col-form-label text-md-end" style="width: 130px;">ふりがな</label>
                             <div class="col-12 col-md">
-                                <input type="text" class="form-control @error('first_name') is-invalid @enderror"
-                                       id="first_name" name="first_name" inputmode="text" value="{{ old('first_name', $client->first_name) }}">
-                                @error('first_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="row g-2 align-items-center">
-                            <label for="last_name_kana" class="col-md-auto col-form-label text-md-end" style="width: 130px;">せい</label>
-                            <div class="col-12 col-md">
-                                <input type="text" class="form-control @error('last_name_kana') is-invalid @enderror"
-                                       id="last_name_kana" name="last_name_kana" inputmode="hiragana" value="{{ old('last_name_kana', $client->last_name_kana) }}"
-                                       placeholder="例: やまだ">
-                                @error('last_name_kana') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="row g-2 align-items-center">
-                            <label for="first_name_kana" class="col-md-auto col-form-label text-md-end" style="width: 130px;">めい</label>
-                            <div class="col-12 col-md">
-                                <input type="text" class="form-control @error('first_name_kana') is-invalid @enderror"
-                                       id="first_name_kana" name="first_name_kana" inputmode="hiragana" value="{{ old('first_name_kana', $client->first_name_kana) }}"
-                                       placeholder="例: たろう">
-                                @error('first_name_kana') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <input type="text" class="form-control @error('last_name_kana') is-invalid @enderror"
+                                               id="last_name_kana" name="last_name_kana" inputmode="hiragana"
+                                               value="{{ old('last_name_kana', $client->last_name_kana) }}" placeholder="せい">
+                                        @error('last_name_kana') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="text" class="form-control @error('first_name_kana') is-invalid @enderror"
+                                               id="first_name_kana" name="first_name_kana" inputmode="hiragana"
+                                               value="{{ old('first_name_kana', $client->first_name_kana) }}" placeholder="めい">
+                                        @error('first_name_kana') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
