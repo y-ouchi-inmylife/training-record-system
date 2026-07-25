@@ -67,13 +67,15 @@
                                 <div class="col-6">
                                     <input type="text" class="form-control @error('last_name_kana') is-invalid @enderror"
                                            id="last_name_kana" name="last_name_kana" inputmode="hiragana"
-                                           value="{{ old('last_name_kana', $client->last_name_kana) }}" placeholder="せい">
+                                           value="{{ old('last_name_kana', $client->last_name_kana) }}" placeholder="せい"
+                                           autocomplete="off">
                                     @error('last_name_kana') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                                 <div class="col-6">
                                     <input type="text" class="form-control @error('first_name_kana') is-invalid @enderror"
                                            id="first_name_kana" name="first_name_kana" inputmode="hiragana"
-                                           value="{{ old('first_name_kana', $client->first_name_kana) }}" placeholder="めい">
+                                           value="{{ old('first_name_kana', $client->first_name_kana) }}" placeholder="めい"
+                                           autocomplete="off">
                                     @error('first_name_kana') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                             </div>
