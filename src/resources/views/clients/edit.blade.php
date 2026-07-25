@@ -205,8 +205,8 @@
                 </div>
 
                 <div class="row g-3 mb-2">
-                    {{-- 行2: 郵便番号+住所検索 + 都道府県 --}}
-                    <div class="col-md-6">
+                    {{-- 行2: 郵便番号+住所検索 + 都道府県 + 市区町村 --}}
+                    <div class="col-md-4">
                         <div class="row g-2 align-items-center">
                             <label for="postal_code" class="col-md-auto col-form-label text-md-end form-label-fixed">郵便番号</label>
                             <div class="col-12 col-md">
@@ -220,7 +220,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-3">
                         <div class="row g-2 align-items-center">
                             <label for="address1" class="col-md-auto col-form-label text-md-end form-label-fixed">都道府県</label>
                             <div class="col-12 col-md">
@@ -233,11 +233,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="row g-3 mb-2">
-                    {{-- 行3: 市区町村 + 町名・番地 --}}
-                    <div class="col-md-6">
+                    <div class="col-md-3">
                         <div class="row g-2 align-items-center">
                             <label for="address2" class="col-md-auto col-form-label text-md-end form-label-fixed">市区町村</label>
                             <div class="col-12 col-md">
@@ -245,6 +241,10 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div class="row g-3">
+                    {{-- 行3: 町名・番地 + 建物名・部屋番号 --}}
                     <div class="col-md-6">
                         <div class="row g-2 align-items-center">
                             <label for="address3" class="col-md-auto col-form-label text-md-end form-label-fixed">町名・番地</label>
@@ -253,10 +253,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="row g-3">
-                    {{-- 行4: 建物名・部屋番号 --}}
                     <div class="col-md-6">
                         <div class="row g-2 align-items-center">
                             <label for="address4" class="col-md-auto col-form-label text-md-end form-label-fixed">建物名・部屋番号</label>
