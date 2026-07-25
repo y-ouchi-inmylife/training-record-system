@@ -153,7 +153,7 @@
                             <div class="input-group">
                                 <input type="text" class="form-control @error('postal_code') is-invalid @enderror"
                                        id="postal_code" name="postal_code" value="{{ old('postal_code', $client->postal_code) }}" placeholder="例: 123-4567">
-                                <button type="button" class="btn btn-outline-secondary" onclick="searchAddress()">住所検索</button>
+                                <button type="button" class="btn btn-outline-secondary" onclick="searchAddress()">検索</button>
                                 @error('postal_code') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                         </div>
