@@ -185,7 +185,8 @@
                             <label for="phone1" class="col-md-auto col-form-label text-md-end form-label-fixed">電話番号1</label>
                             <div class="col-12 col-md">
                                 <input type="tel" class="form-control @error('phone1') is-invalid @enderror"
-                                       id="phone1" name="phone1" value="{{ old('phone1', $client->phone1) }}" placeholder="例: 090-1234-5678">
+                                       id="phone1" name="phone1" value="{{ old('phone1', $client->phone1) }}" placeholder="例: 090-1234-5678"
+                                       autocomplete="off">
                                 @error('phone1') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                         </div>
@@ -195,7 +196,8 @@
                             <label for="phone2" class="col-md-auto col-form-label text-md-end form-label-fixed">電話番号2</label>
                             <div class="col-12 col-md">
                                 <input type="tel" class="form-control @error('phone2') is-invalid @enderror"
-                                       id="phone2" name="phone2" value="{{ old('phone2', $client->phone2) }}" placeholder="例: 090-1234-5678">
+                                       id="phone2" name="phone2" value="{{ old('phone2', $client->phone2) }}" placeholder="例: 090-1234-5678"
+                                       autocomplete="off">
                                 @error('phone2') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                         </div>
@@ -211,7 +213,7 @@
                                 <div class="input-group">
                                     <input type="text" class="form-control @error('postal_code') is-invalid @enderror"
                                            id="postal_code" name="postal_code" value="{{ old('postal_code', $client->postal_code) }}"
-                                           placeholder="例: 123-4567">
+                                           placeholder="例: 123-4567" autocomplete="off">
                                     <button type="button" class="btn btn-outline-secondary" id="btn-search-address" onclick="searchAddress()">住所検索</button>
                                     @error('postal_code') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
@@ -222,7 +224,7 @@
                         <div class="row g-2 align-items-center">
                             <label for="address1" class="col-md-auto col-form-label text-md-end form-label-fixed">都道府県</label>
                             <div class="col-12 col-md">
-                                <select class="form-select" id="address1" name="address1">
+                                <select class="form-select" id="address1" name="address1" autocomplete="off">
                                     <option value=""></option>
                                     @foreach(['北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県','茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県','新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県','静岡県','愛知県','三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県','鳥取県','島根県','岡山県','広島県','山口県','徳島県','香川県','愛媛県','高知県','福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県'] as $pref)
                                         <option value="{{ $pref }}" {{ old('address1', $client->address1) == $pref ? 'selected' : '' }}>{{ $pref }}</option>
@@ -239,7 +241,7 @@
                         <div class="row g-2 align-items-center">
                             <label for="address2" class="col-md-auto col-form-label text-md-end form-label-fixed">市区町村</label>
                             <div class="col-12 col-md">
-                                <input type="text" class="form-control" id="address2" name="address2" inputmode="text" value="{{ old('address2', $client->address2) }}">
+                                <input type="text" class="form-control" id="address2" name="address2" inputmode="text" value="{{ old('address2', $client->address2) }}" autocomplete="off">
                             </div>
                         </div>
                     </div>
@@ -247,7 +249,7 @@
                         <div class="row g-2 align-items-center">
                             <label for="address3" class="col-md-auto col-form-label text-md-end form-label-fixed">町名・番地</label>
                             <div class="col-12 col-md">
-                                <input type="text" class="form-control" id="address3" name="address3" inputmode="text" value="{{ old('address3', $client->address3) }}">
+                                <input type="text" class="form-control" id="address3" name="address3" inputmode="text" value="{{ old('address3', $client->address3) }}" autocomplete="off">
                             </div>
                         </div>
                     </div>
@@ -259,7 +261,7 @@
                         <div class="row g-2 align-items-center">
                             <label for="address4" class="col-md-auto col-form-label text-md-end form-label-fixed">建物名・部屋番号</label>
                             <div class="col-12 col-md">
-                                <input type="text" class="form-control" id="address4" name="address4" inputmode="text" value="{{ old('address4', $client->address4) }}">
+                                <input type="text" class="form-control" id="address4" name="address4" inputmode="text" value="{{ old('address4', $client->address4) }}" autocomplete="off">
                             </div>
                         </div>
                     </div>
