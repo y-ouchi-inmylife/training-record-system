@@ -50,7 +50,8 @@
                                 <input type="text" class="form-control datepicker @error('initial_consultation_date') is-invalid @enderror"
                                        id="initial_consultation_date" name="initial_consultation_date"
                                        value="{{ old('initial_consultation_date', date('Y-m-d')) }}" required
-                                       placeholder="例: 2000-01-15" pattern="\d{4}-\d{2}-\d{2}" maxlength="10">
+                                       placeholder="例: 2000-01-15" pattern="\d{4}-\d{2}-\d{2}" maxlength="10"
+                                       autocomplete="off">
                                 @error('initial_consultation_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                         </div>
@@ -60,7 +61,7 @@
                             <label for="email" class="col-md-auto col-form-label text-md-end form-label-fixed">メールアドレス</label>
                             <div class="col-12 col-md">
                                 <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                       id="email" name="email" value="{{ old('email') }}">
+                                       id="email" name="email" value="{{ old('email') }}" autocomplete="off">
                                 @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                         </div>
@@ -79,13 +80,13 @@
                                     <div class="col-6">
                                         <input type="text" class="form-control @error('last_name') is-invalid @enderror"
                                                id="last_name" name="last_name" inputmode="text"
-                                               value="{{ old('last_name') }}" placeholder="姓">
+                                               value="{{ old('last_name') }}" placeholder="姓" autocomplete="off">
                                         @error('last_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                     </div>
                                     <div class="col-6">
                                         <input type="text" class="form-control @error('first_name') is-invalid @enderror"
                                                id="first_name" name="first_name" inputmode="text"
-                                               value="{{ old('first_name') }}" placeholder="名">
+                                               value="{{ old('first_name') }}" placeholder="名" autocomplete="off">
                                         @error('first_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                     </div>
                                 </div>
@@ -100,13 +101,13 @@
                                     <div class="col-6">
                                         <input type="text" class="form-control @error('last_name_kana') is-invalid @enderror"
                                                id="last_name_kana" name="last_name_kana" inputmode="hiragana"
-                                               value="{{ old('last_name_kana') }}" placeholder="せい">
+                                               value="{{ old('last_name_kana') }}" placeholder="せい" autocomplete="off">
                                         @error('last_name_kana') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                     </div>
                                     <div class="col-6">
                                         <input type="text" class="form-control @error('first_name_kana') is-invalid @enderror"
                                                id="first_name_kana" name="first_name_kana" inputmode="hiragana"
-                                               value="{{ old('first_name_kana') }}" placeholder="めい">
+                                               value="{{ old('first_name_kana') }}" placeholder="めい" autocomplete="off">
                                         @error('first_name_kana') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                     </div>
                                 </div>
@@ -123,7 +124,8 @@
                             <div class="col-12 col-md">
                                 <input type="text" class="form-control datepicker" id="birth_date" name="birth_date"
                                        value="{{ old('birth_date') }}"
-                                       placeholder="例: 2000-01-15" pattern="\d{4}-\d{2}-\d{2}" maxlength="10">
+                                       placeholder="例: 2000-01-15" pattern="\d{4}-\d{2}-\d{2}" maxlength="10"
+                                       autocomplete="off">
                             </div>
                         </div>
                     </div>
@@ -131,7 +133,7 @@
                         <div class="row g-2 align-items-center">
                             <label for="gender" class="col-md-auto col-form-label text-md-end form-label-fixed">性別</label>
                             <div class="col-12 col-md">
-                                <select class="form-select" id="gender" name="gender">
+                                <select class="form-select" id="gender" name="gender" autocomplete="off">
                                     <option value=""></option>
                                     @foreach(['男', '女', 'その他'] as $g)
                                         <option value="{{ $g }}" {{ old('gender') === $g ? 'selected' : '' }}>{{ $g }}</option>
@@ -144,7 +146,7 @@
                         <div class="row g-2 align-items-center">
                             <label for="primary_trainer_id" class="col-md-auto col-form-label text-md-end form-label-fixed">主担当</label>
                             <div class="col-12 col-md">
-                                <select class="form-select" id="primary_trainer_id" name="primary_trainer_id">
+                                <select class="form-select" id="primary_trainer_id" name="primary_trainer_id" autocomplete="off">
                                     <option value=""></option>
                                     @foreach($trainers as $trainer)
                                         <option value="{{ $trainer->id }}" {{ old('primary_trainer_id') == $trainer->id ? 'selected' : '' }}>
