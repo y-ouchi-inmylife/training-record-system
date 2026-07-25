@@ -146,7 +146,7 @@
                             <label for="gender" class="col-md-auto col-form-label text-md-end" style="width: 140px;">性別</label>
                             <div class="col-12 col-md">
                                 <select class="form-select" id="gender" name="gender" autocomplete="off">
-                                    <option value="">選択してください</option>
+                                    <option value=""></option>
                                     @foreach(['男', '女', 'その他'] as $g)
                                         <option value="{{ $g }}" {{ old('gender', $client->gender) === $g ? 'selected' : '' }}>{{ $g }}</option>
                                     @endforeach
@@ -159,7 +159,7 @@
                             <label for="primary_trainer_id" class="col-md-auto col-form-label text-md-end" style="width: 140px;">主担当</label>
                             <div class="col-12 col-md">
                                 <select class="form-select" id="primary_trainer_id" name="primary_trainer_id" autocomplete="off">
-                                    <option value="">選択してください</option>
+                                    <option value=""></option>
                                     @foreach($trainers as $trainer)
                                         <option value="{{ $trainer->id }}" {{ old('primary_trainer_id', $client->primary_trainer_id) == $trainer->id ? 'selected' : '' }}>
                                             {{ $trainer->name }}
