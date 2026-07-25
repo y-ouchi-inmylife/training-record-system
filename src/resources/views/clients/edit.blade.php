@@ -34,7 +34,7 @@
             <div class="card-body">
                 <div class="row g-3 mb-2">
                     {{-- 行1: 内部ID + 初回日 --}}
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="row g-2 align-items-center">
                             <label for="internal_id" class="col-md-auto col-form-label text-md-end" style="width: 130px;">
                                 内部ID <span class="text-danger">*</span>
@@ -48,7 +48,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="row g-2 align-items-center">
                             <label for="initial_consultation_date" class="col-md-auto col-form-label text-md-end" style="width: 130px;">
                                 初回日 <span class="text-danger">*</span>
