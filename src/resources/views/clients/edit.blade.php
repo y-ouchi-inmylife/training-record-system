@@ -32,7 +32,7 @@
         <div class="card mb-4">
             <div class="card-header"><h6 class="mb-0">基本情報</h6></div>
             <div class="card-body">
-                <div class="row g-3">
+                <div class="row g-3 mb-2">
                     {{-- 行1: 内部ID + 初回日 --}}
                     <div class="col-md-4">
                         <div class="row g-2 align-items-center">
@@ -63,9 +63,9 @@
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="w-100"></div>
-
+                <div class="row g-3 mb-2">
                     {{-- 行2: 名前(姓+名) + ふりがな(せい+めい) --}}
                     <div class="col-md-6">
                         <div class="row g-2 align-items-center">
@@ -115,7 +115,9 @@
                             </div>
                         </div>
                     </div>
+                </div>
 
+                <div class="row g-3">
                     {{-- 行3: 生年月日 + 性別 + メールアドレス + 主担当 --}}
                     <div class="col-md-3">
                         <div class="row g-2 align-items-center">
