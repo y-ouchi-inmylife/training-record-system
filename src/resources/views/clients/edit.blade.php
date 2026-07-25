@@ -36,7 +36,7 @@
                     {{-- 行1: 内部ID + 初回日 + メールアドレス --}}
                     <div class="col-md-3">
                         <div class="row g-2 align-items-center">
-                            <label for="internal_id" class="col-md-auto col-form-label text-md-end" style="width: 130px;">
+                            <label for="internal_id" class="col-md-auto col-form-label text-md-end" style="width: 140px;">
                                 内部ID <span class="text-danger">*</span>
                             </label>
                             <div class="col-12 col-md">
@@ -50,7 +50,7 @@
                     </div>
                     <div class="col-md-3">
                         <div class="row g-2 align-items-center">
-                            <label for="initial_consultation_date" class="col-md-auto col-form-label text-md-end" style="width: 130px;">
+                            <label for="initial_consultation_date" class="col-md-auto col-form-label text-md-end" style="width: 140px;">
                                 初回日 <span class="text-danger">*</span>
                             </label>
                             <div class="col-12 col-md">
@@ -65,7 +65,7 @@
                     </div>
                     <div class="col-md-4">
                         <div class="row g-2 align-items-center">
-                            <label for="email" class="col-md-auto col-form-label text-md-end" style="width: 130px;">メールアドレス</label>
+                            <label for="email" class="col-md-auto col-form-label text-md-end" style="width: 140px;">メールアドレス</label>
                             <div class="col-12 col-md">
                                 <input type="email" class="form-control @error('email') is-invalid @enderror"
                                        id="email" name="email" value="{{ old('email', $client->email) }}"
@@ -80,7 +80,7 @@
                     {{-- 行2: 名前(姓+名) + ふりがな(せい+めい) --}}
                     <div class="col-md-6">
                         <div class="row g-2 align-items-center">
-                            <label for="last_name" class="col-md-auto col-form-label text-md-end" style="width: 130px;">
+                            <label for="last_name" class="col-md-auto col-form-label text-md-end" style="width: 140px;">
                                 名前 <span class="text-danger">*</span>
                             </label>
                             <div class="col-12 col-md">
@@ -105,7 +105,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="row g-2 align-items-center">
-                            <label for="last_name_kana" class="col-md-auto col-form-label text-md-end" style="width: 130px;">ふりがな</label>
+                            <label for="last_name_kana" class="col-md-auto col-form-label text-md-end" style="width: 140px;">ふりがな</label>
                             <div class="col-12 col-md">
                                 <div class="row g-2">
                                     <div class="col-6">
@@ -132,7 +132,7 @@
                     {{-- 行3: 生年月日 + 性別 + 主担当 --}}
                     <div class="col-md-3">
                         <div class="row g-2 align-items-center">
-                            <label for="birth_date" class="col-md-auto col-form-label text-md-end" style="width: 130px;">生年月日</label>
+                            <label for="birth_date" class="col-md-auto col-form-label text-md-end" style="width: 140px;">生年月日</label>
                             <div class="col-12 col-md">
                                 <input type="text" class="form-control datepicker" id="birth_date" name="birth_date"
                                        value="{{ old('birth_date', $client->birth_date?->format('Y-m-d')) }}"
@@ -143,7 +143,7 @@
                     </div>
                     <div class="col-md-3">
                         <div class="row g-2 align-items-center">
-                            <label for="gender" class="col-md-auto col-form-label text-md-end" style="width: 130px;">性別</label>
+                            <label for="gender" class="col-md-auto col-form-label text-md-end" style="width: 140px;">性別</label>
                             <div class="col-12 col-md">
                                 <select class="form-select" id="gender" name="gender" autocomplete="off">
                                     <option value="">選択してください</option>
@@ -156,7 +156,7 @@
                     </div>
                     <div class="col-md-4">
                         <div class="row g-2 align-items-center">
-                            <label for="primary_trainer_id" class="col-md-auto col-form-label text-md-end" style="width: 130px;">主担当</label>
+                            <label for="primary_trainer_id" class="col-md-auto col-form-label text-md-end" style="width: 140px;">主担当</label>
                             <div class="col-12 col-md">
                                 <select class="form-select" id="primary_trainer_id" name="primary_trainer_id" autocomplete="off">
                                     <option value="">選択してください</option>
