@@ -206,7 +206,7 @@
 
                 <div class="row g-3 mb-2">
                     {{-- 行2: 郵便番号+住所検索 + 都道府県 + 市区町村 --}}
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="row g-2 align-items-center">
                             <label for="postal_code" class="col-md-auto col-form-label text-md-end form-label-fixed">郵便番号</label>
                             <div class="col-12 col-md">
@@ -214,7 +214,7 @@
                                     <input type="text" class="form-control @error('postal_code') is-invalid @enderror"
                                            id="postal_code" name="postal_code" value="{{ old('postal_code', $client->postal_code) }}"
                                            placeholder="例: 123-4567" autocomplete="off">
-                                    <button type="button" class="btn btn-outline-secondary" id="btn-search-address" onclick="searchAddress()">住所検索</button>
+                                    <button type="button" class="btn btn-outline-secondary" id="btn-search-address" onclick="searchAddress()">検索</button>
                                     @error('postal_code') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
                             </div>
