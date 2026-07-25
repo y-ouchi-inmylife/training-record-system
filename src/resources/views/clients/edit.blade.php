@@ -154,7 +154,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="row g-2 align-items-center">
                             <label for="primary_trainer_id" class="col-md-auto col-form-label text-md-end" style="width: 130px;">主担当</label>
                             <div class="col-12 col-md">
