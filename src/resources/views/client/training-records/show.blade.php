@@ -73,7 +73,7 @@
         </div>
     </div>
 
-    {{-- トレーニング内容（フェーズはクライアント非表示） --}}
+    {{-- トレーニング内容 --}}
     <div class="card mb-3">
         <div class="card-header">
             <h6 class="mb-0">トレーニング内容</h6>

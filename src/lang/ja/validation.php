@@ -224,7 +224,6 @@ return [
         'training_date' => '日付',
         'training_time' => '時刻',
         'training_type_id' => 'トレーニング内容',
-        'phase_id' => 'フェーズ',
         'internal_id' => '内部ID',
     ],
 

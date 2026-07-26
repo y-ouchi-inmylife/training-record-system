@@ -19,7 +19,6 @@ class TrainingRecord extends Model
         'training_type_id', 'training_detail',
         'trainer1_id', 'trainer2_id',
         'record_content', 'impression',
-        'phase_id',
         // 最終更新者
         'updated_by',
     ];
@@ -49,11 +48,6 @@ class TrainingRecord extends Model
     public function trainer2(): BelongsTo
     {
         return $this->belongsTo(Trainer::class, 'trainer2_id');
-    }
-
-    public function phase(): BelongsTo
-    {
-        return $this->belongsTo(Phase::class);
     }
 
     /**

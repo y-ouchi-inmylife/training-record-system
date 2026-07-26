@@ -21,7 +21,7 @@ class DashboardController extends Controller
         // 自分の記録を日付の新しい順（降順）で取得。
         // 一覧表示に使うリレーション（担当1・担当2・トレーニング内容）に加え、
         // メディアギャラリー展開のため mediaRecords も eager load（N+1回避）。
-        // phase / updatedBy はクライアント非表示のため意図的にロードしない。
+        // updatedBy はクライアント非表示のため意図的にロードしない。
         $trainingRecords = auth('client')->user()
             ->trainingRecords()
             ->with(['trainer1', 'trainer2', 'trainingType', 'mediaRecords'])

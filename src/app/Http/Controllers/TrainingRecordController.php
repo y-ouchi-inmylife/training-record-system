@@ -9,7 +9,6 @@ use App\Models\MediaRecord;
 use App\Models\TrainingType;
 use App\Models\Trainer;
 use App\Models\TrainingRecord;
-use App\Models\Phase;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -35,7 +34,7 @@ class TrainingRecordController extends Controller
             ]
         );
 
-        $query = TrainingRecord::with(['client', 'trainingType', 'trainer1', 'trainer2', 'phase'])
+        $query = TrainingRecord::with(['client', 'trainingType', 'trainer1', 'trainer2'])
             ->withCount('mediaRecords');
 
         // 内部ID（部分一致）
@@ -146,12 +145,11 @@ class TrainingRecordController extends Controller
 
         $trainingTypes = TrainingType::orderBy('sort_order')->get();
         $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
-        $phases = Phase::orderBy('sort_order')->get();
 
         $audioRecordId = $request->input('audio_record_id');
 
         return view('training-records.create', compact(
-            'trainingTypes', 'trainers', 'phases', 'selectedClientId', 'selectedClient', 'audioRecordId'
+            'trainingTypes', 'trainers', 'selectedClientId', 'selectedClient', 'audioRecordId'
         ));
     }
 
@@ -210,7 +208,7 @@ class TrainingRecordController extends Controller
         // sort_order 昇順で取得される（詳細画面メディアセクションの閲覧用）
         $trainingRecord->load([
             'client', 'trainingType', 'trainer1', 'trainer2',
-            'phase', 'mediaRecords',
+            'mediaRecords',
         ]);
 
         // 詳細画面メディアセクション用の表示データ（presigned サムネイル URL を含む）。
@@ -252,10 +250,9 @@ class TrainingRecordController extends Controller
 
         $trainingTypes = TrainingType::orderBy('sort_order')->get();
         $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
-        $phases = Phase::orderBy('sort_order')->get();
 
         return view('training-records.edit', compact(
-            'trainingRecord', 'trainingTypes', 'trainers', 'phases', 'mediaInitial'
+            'trainingRecord', 'trainingTypes', 'trainers', 'mediaInitial'
         ));
     }
 
@@ -450,7 +447,6 @@ class TrainingRecordController extends Controller
             'trainer2_id' => 'nullable|exists:trainers,id|different:trainer1_id',
             'record_content' => 'nullable|string',
             'impression' => 'nullable|string',
-            'phase_id' => 'nullable|exists:phases,id',
         ];
     }
 }

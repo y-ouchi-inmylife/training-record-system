@@ -20,7 +20,6 @@ return new class extends Migration
             $table->unsignedBigInteger('trainer2_id')->nullable();
             $table->text('record_content')->nullable()->comment('相談記録');
             $table->text('impression')->nullable()->comment('所感');
-            $table->unsignedBigInteger('phase_id')->nullable();
             $table->timestamps();
             $table->unsignedBigInteger('updated_by')->nullable();
 
@@ -30,7 +29,6 @@ return new class extends Migration
             $table->index('trainer1_id', 'training_records_trainer1_idx');
             $table->index('trainer2_id', 'training_records_trainer2_idx');
             $table->index('training_type_id', 'training_records_type_idx');
-            $table->index('phase_id', 'training_records_phase_idx');
             $table->index('updated_by', 'training_records_updated_by_foreign');
 
             // 外部キー（作成順）
@@ -42,8 +40,6 @@ return new class extends Migration
                 ->references('id')->on('trainers')->restrictOnDelete();
             $table->foreign('trainer2_id', 'training_records_trainer2_id_foreign')
                 ->references('id')->on('trainers')->nullOnDelete();
-            $table->foreign('phase_id', 'training_records_phase_id_foreign')
-                ->references('id')->on('phases')->nullOnDelete();
             $table->foreign('updated_by', 'training_records_updated_by_foreign')
                 ->references('id')->on('trainers')->nullOnDelete();
         });
