@@ -60,7 +60,8 @@
                 </div>
             </div>
             <p class="text-center text-muted mt-3 small">
-                &copy; {{ date('Y') }} トレーニング記録管理システム
+                {{-- TODO: 運営会社名は仮称。確定後に差し替える --}}
+                &copy; {{ date('Y') }} ○○トレーニングカンパニー
             </p>
         </div>
     </div>
