@@ -126,7 +126,7 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             {{ Auth::user()->name }}
-                            <span class="badge bg-light text-primary ms-1">
+                            <span class="badge bg-light text-trainer-nav ms-1">
                                 {{ Auth::user()->role_display_name }}
                             </span>
                         </a>

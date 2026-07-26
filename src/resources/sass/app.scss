@@ -17,6 +17,11 @@
     background-color: #0a4fa8 !important;
 }
 
+// トレーナー側テーマの文字色（ナビ背景 .bg-trainer-nav と同じ紺）
+.text-trainer-nav {
+    color: #0a4fa8 !important;
+}
+
 // フォーム入力欄の高さ調整（上下 padding を Bootstrap デフォルト .375rem から縮小）
 .form-control,
 .form-select {
