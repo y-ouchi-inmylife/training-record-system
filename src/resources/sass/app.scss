@@ -38,12 +38,6 @@ h2 {
     font-size: 0.875rem;
 }
 
-// テーブル行高の調整（セルの上下 padding を Bootstrap デフォルト .5rem から縮小）
-.table > :not(caption) > * > * {
-    padding-top: 0.25rem;
-    padding-bottom: 0.25rem;
-}
-
 // フラッシュメッセージのフェード速度をゆっくりに（Bootstrap 既定 0.15s → 1s）
 // .alert.fade で限定し、modal（.modal.fade）や tab-pane（.tab-pane.fade）には影響させない
 .alert.fade {
