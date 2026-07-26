@@ -100,7 +100,6 @@
                     <table class="table table-borderless table-sm">
                         <tr><th class="text-muted" style="width:40%">トレーニング内容</th><td>{{ $trainingRecord->trainingType->name ?? '—' }}</td></tr>
                         <tr><th class="text-muted">トレーニング内容（詳細）</th><td>{{ $trainingRecord->training_detail ?: '—' }}</td></tr>
-                        <tr><th class="text-muted">フェーズ</th><td>{{ $trainingRecord->phase->name ?? '—' }}</td></tr>
                     </table>
                 </div>
             </div>

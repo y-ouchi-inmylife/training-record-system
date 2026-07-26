@@ -139,7 +139,7 @@
         </div>
         <div class="card-body">
             {{-- 行1: トレーニング内容 / トレーニング内容（詳細） --}}
-            <div class="row g-3 mb-2">
+            <div class="row g-3">
                 {{-- トレーニング内容 --}}
                 <div class="col-md-3">
                     <div class="row g-2 align-items-center">
@@ -171,30 +171,6 @@
                                 inputmode="text" value="{{ old('training_detail', $record?->training_detail) }}"
                                 maxlength="255">
                             @error('training_detail')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- 行2: フェーズ --}}
-            <div class="row g-3">
-                {{-- フェーズ --}}
-                <div class="col-md-4">
-                    <div class="row g-2 align-items-center">
-                        <label for="phase_id" class="col-md-auto col-form-label text-md-end form-label-fixed">フェーズ</label>
-                        <div class="col-12 col-md">
-                            <select name="phase_id" id="phase_id" class="form-select @error('phase_id') is-invalid @enderror">
-                                <option value=""></option>
-                                @foreach($phases as $phase)
-                                    <option value="{{ $phase->id }}"
-                                        {{ old('phase_id', $record?->phase_id) == $phase->id ? 'selected' : '' }}>
-                                        {{ $phase->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('phase_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
