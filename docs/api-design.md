@@ -113,12 +113,6 @@ IP アドレス制限は、**トレーナー用サブドメイン（内部）の
 | マスタ管理 | S-0902 トレーニング内容マスタ画面 | PATCH | `/master/training-types/{id}/move-down` | トレーニング内容の表示順を下に移動する | auth | 管理者 |
 | マスタ管理 | S-0902 トレーニング内容マスタ画面 | PUT | `/master/training-types/{id}` | トレーニング内容の選択肢を更新する | auth | 管理者 |
 | マスタ管理 | S-0902 トレーニング内容マスタ画面 | DELETE | `/master/training-types/{id}` | トレーニング内容の選択肢を削除する | auth | 管理者 |
-| マスタ管理 | S-0903 フェーズマスタ画面 | GET | `/master/phases` | フェーズマスタ管理画面を表示する | auth | 管理者 |
-| マスタ管理 | S-0903 フェーズマスタ画面 | POST | `/master/phases` | フェーズの選択肢を追加する | auth | 管理者 |
-| マスタ管理 | S-0903 フェーズマスタ画面 | PATCH | `/master/phases/{id}/move-up` | フェーズの表示順を上に移動する | auth | 管理者 |
-| マスタ管理 | S-0903 フェーズマスタ画面 | PATCH | `/master/phases/{id}/move-down` | フェーズの表示順を下に移動する | auth | 管理者 |
-| マスタ管理 | S-0903 フェーズマスタ画面 | PUT | `/master/phases/{id}` | フェーズの選択肢を更新する | auth | 管理者 |
-| マスタ管理 | S-0903 フェーズマスタ画面 | DELETE | `/master/phases/{id}` | フェーズの選択肢を削除する | auth | 管理者 |
 | セキュリティ設定 | S-1002 IPアドレス制限画面 | GET | `/settings/ip-restriction` | IPアドレス制限画面を表示する | auth | システム管理者 |
 | セキュリティ設定 | S-1002 IPアドレス制限画面 | PUT | `/settings/ip-restriction` | IPアドレス制限設定を更新する | auth | システム管理者 |
 | レポート | S-1101 トレーニング記録数推移画面 | GET | `/statistics/clients` | トレーニング記録数推移画面を表示する | auth | 管理者、一般 |
@@ -550,7 +544,6 @@ POST /clients と同じ項目。ただし internal_id は登録時と異なり�
 | trainer2_id | integer | | nullable, exists:trainers,id, different:trainer1_id | 担当2（担当1と異なること） |
 | record_content | text | | nullable, string | トレーニング記録 |
 | impression | text | | nullable, string | 所感 |
-| phase_id | integer | | nullable, exists:phases,id | フェーズID |
 | media_record_ids | array | | nullable, array | この記録に紐づけるメディアのID配列。**配列の順序が表示順**となる。空配列・未送信は紐づけなし |
 | media_record_ids.* | integer | | integer, distinct, exists:media_records,id | 各メディアID（重複不可、実在すること） |
 
@@ -1197,84 +1190,6 @@ POST /training-records に以下を追加する。
 
 **レスポンス**:
 - `redirect('/master/training-types')`
-
----
-
-##### S-0903 フェーズマスタ画面
-
-###### GET /master/phases
-
-**概要**: フェーズマスタ管理画面を表示する。
-
-**処理**:
-- フェーズの一覧を表示順で表示する（各フェーズを参照しているトレーニング記録数を含む）
-
-**レスポンス**:
-- view `master.phases.index`
-
-
-###### POST /master/phases
-
-**概要**: フェーズの選択肢を追加する。
-
-**リクエスト**:
-
-| パラメータ | 型 | 必須 | バリデーション | 説明 |
-|-----------|-----|------|---------------|------|
-| name | string | ● | required, string, max:100, unique:phases | フェーズ名 |
-
-**処理**:
-- 表示順は末尾に自動で付番する
-
-**レスポンス**:
-- `redirect('/master/phases')`
-
-
-###### PUT /master/phases/{id}
-
-**概要**: フェーズの選択肢を更新する。
-
-**リクエスト**:
-
-| パラメータ | 型 | 必須 | バリデーション | 説明 |
-|-----------|-----|------|---------------|------|
-| name | string | ● | required, string, max:100, unique:phases（自身を除く） | フェーズ名 |
-
-**レスポンス**:
-- `redirect('/master/phases')`
-
-
-###### DELETE /master/phases/{id}
-
-**概要**: フェーズの選択肢を削除する。
-
-**処理**:
-- このフェーズを参照しているトレーニング記録がある場合は削除できない（物理削除）
-
-**レスポンス**:
-- `redirect('/master/phases')`
-
-
-###### PATCH /master/phases/{id}/move-up
-
-**概要**: フェーズの表示順を上に移動する。
-
-**処理**:
-- 表示順で、ひとつ上のフェーズと表示順を入れ替える
-
-**レスポンス**:
-- `redirect('/master/phases')`
-
-
-###### PATCH /master/phases/{id}/move-down
-
-**概要**: フェーズの表示順を下に移動する。
-
-**処理**:
-- 表示順で、ひとつ下のフェーズと表示順を入れ替える
-
-**レスポンス**:
-- `redirect('/master/phases')`
 
 ---
 
