@@ -102,7 +102,6 @@
                     <th>性別</th>
                     <th>主担当</th>
                     <th>最終記録日</th>
-                    <th>フェーズ</th>
                 </tr>
             </thead>
             <tbody>
@@ -115,11 +114,10 @@
                         <td>{{ $client->gender }}</td>
                         <td>{{ $client->primaryTrainer?->name }}</td>
                         <td>{{ $client->last_training_date ? \Carbon\Carbon::parse($client->last_training_date)->format('Y/m/d') : '' }}</td>
-                        <td>{{ $client->latest_phase_id ? ($phases[$client->latest_phase_id] ?? '') : '' }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="text-center text-muted py-4">該当するクライアントがありません。</td>
+                        <td colspan="7" class="text-center text-muted py-4">該当するクライアントがありません。</td>
                     </tr>
                 @endforelse
             </tbody>

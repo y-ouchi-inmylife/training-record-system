@@ -243,7 +243,6 @@
                             <th>担当1</th>
                             <th>担当2</th>
                             <th>トレーニング内容</th>
-                            <th>フェーズ</th>
                             <th>メディア</th>
                         </tr>
                     </thead>
@@ -260,7 +259,6 @@
                                 <td>{{ $record->trainer1->name ?? '—' }}</td>
                                 <td>{{ $record->trainer2->name ?? '—' }}</td>
                                 <td>{{ $record->trainingType->name ?? '—' }}</td>
-                                <td>{{ $record->phase->name ?? '—' }}</td>
                                 <td>{{ $record->media_records_count > 0 ? $record->media_records_count : '—' }}</td>
                             </tr>
                         @endforeach

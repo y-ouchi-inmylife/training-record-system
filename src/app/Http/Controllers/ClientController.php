@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\TrainingRecord;
 use App\Models\Trainer;
-use App\Models\Phase;
 use App\Services\ClientInternalIdService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -36,12 +35,6 @@ class ClientController extends Controller
             ->addSelect([
                 'last_training_date' => TrainingRecord::select('training_date')
                     ->whereColumn('client_id', 'clients.id')
-                    ->orderBy('training_date', 'desc')
-                    ->orderBy('training_time', 'desc')
-                    ->limit(1),
-                'latest_phase_id' => TrainingRecord::select('phase_id')
-                    ->whereColumn('client_id', 'clients.id')
-                    ->whereNotNull('phase_id')
                     ->orderBy('training_date', 'desc')
                     ->orderBy('training_time', 'desc')
                     ->limit(1),
@@ -105,9 +98,8 @@ class ClientController extends Controller
 
         $clients = $query->paginate(20)->withQueryString();
         $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
-        $phases = Phase::pluck('name', 'id');
 
-        return view('clients.index', compact('clients', 'trainers', 'phases'));
+        return view('clients.index', compact('clients', 'trainers'));
     }
 
     /**
@@ -151,7 +143,7 @@ class ClientController extends Controller
     public function show(Client $client): View
     {
         $client->load(['primaryTrainer', 'trainingRecords' => function ($query) {
-            $query->with(['trainingType', 'trainer1', 'trainer2', 'phase'])
+            $query->with(['trainingType', 'trainer1', 'trainer2'])
                   ->withCount('mediaRecords')
                   ->orderBy('training_date', 'desc')
                   ->orderBy('training_time', 'desc');
