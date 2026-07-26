@@ -67,7 +67,7 @@
             {{-- 行2: 担当1 / 担当2 --}}
             <div class="row g-3">
                 {{-- 担当1 --}}
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="row g-2 align-items-center">
                         <label for="trainer1_id" class="col-md-auto col-form-label text-md-end form-label-fixed">担当1 <span class="text-danger">*</span></label>
                         <div class="col-12 col-md">
@@ -88,7 +88,7 @@
                 </div>
 
                 {{-- 担当2 --}}
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="row g-2 align-items-center">
                         <label for="trainer2_id" class="col-md-auto col-form-label text-md-end form-label-fixed">担当2</label>
                         <div class="col-12 col-md">
