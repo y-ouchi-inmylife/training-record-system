@@ -206,7 +206,7 @@
                                 <div class="input-group">
                                     <input type="text" class="form-control @error('postal_code') is-invalid @enderror"
                                            id="postal_code" name="postal_code" value="{{ old('postal_code') }}"
-                                           placeholder="例: 123-4567" autocomplete="off">
+                                           autocomplete="off">
                                     <button type="button" class="btn btn-outline-secondary" id="btn-search-address" onclick="searchAddress()">検索</button>
                                     @error('postal_code') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
