@@ -58,7 +58,7 @@
         </div>
         @if($trainingRecords->count() > 0)
             <div class="training-records-scroll">
-                <table class="table table-hover table-sm mb-0 training-records-table">
+                <table class="table table-hover mb-0 training-records-table">
                     <thead class="table-light">
                         <tr>
                             <th>日付</th>
