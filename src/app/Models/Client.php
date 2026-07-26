@@ -62,6 +62,28 @@ class Client extends Authenticatable
     }
 
     /**
+     * 郵便番号を保存時に整形する。
+     * 入力形式にかかわらず、数字7桁が抽出できれば「3桁-4桁」のハイフン区切りに統一する。
+     * 空・null はそのまま null にする。7桁が抽出できない場合は入力値をそのまま保持
+     * （バリデーションで7桁のみ許可しているため、通常ここには7桁の値のみ到達する）。
+     */
+    public function setPostalCodeAttribute($value): void
+    {
+        if ($value === null || $value === '') {
+            $this->attributes['postal_code'] = null;
+            return;
+        }
+        // 数字だけを抽出
+        $digits = preg_replace('/[^0-9]/', '', $value);
+        if (strlen($digits) === 7) {
+            $this->attributes['postal_code'] = substr($digits, 0, 3) . '-' . substr($digits, 3);
+        } else {
+            // 7桁でない場合は入力値をそのまま保持（バリデーション通過後は通常到達しない）
+            $this->attributes['postal_code'] = $value;
+        }
+    }
+
+    /**
      * 氏名（フルネーム）
      */
     public function getFullNameAttribute(): string
