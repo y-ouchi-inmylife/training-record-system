@@ -64,7 +64,47 @@
                 </div>
             </div>
 
-            {{-- 行2: 担当1 / 担当2 --}}
+            {{-- 行2: トレーニング内容 / 詳細 --}}
+            <div class="row g-3 mb-2">
+                {{-- トレーニング内容 --}}
+                <div class="col-md-3">
+                    <div class="row g-2 align-items-center">
+                        <label for="training_type_id" class="col-md-auto col-form-label text-md-end form-label-fixed">トレーニング内容</label>
+                        <div class="col-12 col-md">
+                            <select name="training_type_id" id="training_type_id" class="form-select @error('training_type_id') is-invalid @enderror">
+                                <option value=""></option>
+                                @foreach($trainingTypes as $type)
+                                    <option value="{{ $type->id }}"
+                                        {{ old('training_type_id', $record?->training_type_id) == $type->id ? 'selected' : '' }}>
+                                        {{ $type->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('training_type_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                {{-- トレーニング内容（詳細） --}}
+                <div class="col-md-9">
+                    <div class="row g-2 align-items-center">
+                        <label for="training_detail" class="col-md-auto col-form-label text-md-end form-label-fixed">詳細</label>
+                        <div class="col-12 col-md">
+                            <input type="text" name="training_detail" id="training_detail"
+                                class="form-control @error('training_detail') is-invalid @enderror"
+                                inputmode="text" value="{{ old('training_detail', $record?->training_detail) }}"
+                                maxlength="255">
+                            @error('training_detail')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 行3: 担当1 / 担当2 --}}
             <div class="row g-3">
                 {{-- 担当1 --}}
                 <div class="col-md-4">
@@ -129,54 +169,6 @@
             <div id="mediaSelectionGrid" class="row row-cols-2 row-cols-md-4 row-cols-xl-6 g-3 d-none"></div>
             {{-- hidden input は JS が items 順に再生成（フォーム送信で media_record_ids[] として送信される） --}}
             <div id="mediaSelectionHiddenInputs"></div>
-        </div>
-    </div>
-
-    {{-- トレーニング内容 --}}
-    <div class="card mb-3">
-        <div class="card-header">
-            <h6 class="mb-0">トレーニング内容</h6>
-        </div>
-        <div class="card-body">
-            {{-- 行1: トレーニング内容 / トレーニング内容（詳細） --}}
-            <div class="row g-3">
-                {{-- トレーニング内容 --}}
-                <div class="col-md-3">
-                    <div class="row g-2 align-items-center">
-                        <label for="training_type_id" class="col-md-auto col-form-label text-md-end form-label-fixed">トレーニング内容</label>
-                        <div class="col-12 col-md">
-                            <select name="training_type_id" id="training_type_id" class="form-select @error('training_type_id') is-invalid @enderror">
-                                <option value=""></option>
-                                @foreach($trainingTypes as $type)
-                                    <option value="{{ $type->id }}"
-                                        {{ old('training_type_id', $record?->training_type_id) == $type->id ? 'selected' : '' }}>
-                                        {{ $type->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('training_type_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-
-                {{-- トレーニング内容（詳細） --}}
-                <div class="col-md-9">
-                    <div class="row g-2 align-items-center">
-                        <label for="training_detail" class="col-md-auto col-form-label text-md-end form-label-fixed">詳細</label>
-                        <div class="col-12 col-md">
-                            <input type="text" name="training_detail" id="training_detail"
-                                class="form-control @error('training_detail') is-invalid @enderror"
-                                inputmode="text" value="{{ old('training_detail', $record?->training_detail) }}"
-                                maxlength="255">
-                            @error('training_detail')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
