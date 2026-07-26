@@ -56,32 +56,6 @@
 
     </div>
 
-    <div class="row mb-5">
-        {{-- 録音 --}}
-        <div class="col-md-4 mb-3">
-            <a href="{{ route('recording') }}" class="text-decoration-none text-reset d-block h-100" aria-label="録音準備画面へ移動">
-                <div class="card h-100 shadow-sm dashboard-link-card">
-                    <div class="card-body">
-                        <h5 class="card-title">録音</h5>
-                        <p class="card-text text-muted mb-0">トレーニングの録音</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        {{-- 音声記録一覧 --}}
-        <div class="col-md-4 mb-3">
-            <a href="{{ route('audio-records.index') }}" class="text-decoration-none text-reset d-block h-100" aria-label="音声記録一覧画面へ移動">
-                <div class="card h-100 shadow-sm dashboard-link-card">
-                    <div class="card-body">
-                        <h5 class="card-title">音声記録一覧</h5>
-                        <p class="card-text text-muted mb-0">音声の文字起こし・要約を管理</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-    </div>
-
     {{-- サマリー情報: 主担当クライアント一覧 --}}
     <div class="d-flex justify-content-between align-items-baseline mb-3">
         <h4 class="mb-0">主担当クライアント一覧</h4>
