@@ -105,7 +105,6 @@
                                 <li><hr class="dropdown-divider"></li>
                                 <li><h6 class="dropdown-header">マスタ管理</h6></li>
                                 <li><a class="dropdown-item" href="{{ route('master.training-types.index') }}">トレーニング内容</a></li>
-                                <li><a class="dropdown-item" href="{{ route('master.phases.index') }}">フェーズ</a></li>
                             </ul>
                         </li>
                     @endif

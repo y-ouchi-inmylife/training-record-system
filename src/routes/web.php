@@ -16,7 +16,6 @@ use App\Http\Controllers\TrainerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IpRestrictionController;
 use App\Http\Controllers\MediaRecordController;
-use App\Http\Controllers\PhaseController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AudioRecordController;
 use App\Http\Controllers\ClientIntakeController;
@@ -154,14 +153,6 @@ Route::domain(config('subdomain.trainer_host'))->middleware('check-ip')->group(f
                 Route::delete('training-types/{trainingType}', [TrainingTypeController::class, 'destroy'])->name('training-types.destroy');
                 Route::patch('training-types/{trainingType}/move-up', [TrainingTypeController::class, 'moveUp'])->name('training-types.move-up');
                 Route::patch('training-types/{trainingType}/move-down', [TrainingTypeController::class, 'moveDown'])->name('training-types.move-down');
-
-                // フェーズマスタ
-                Route::get('phases', [PhaseController::class, 'index'])->name('phases.index');
-                Route::post('phases', [PhaseController::class, 'store'])->name('phases.store');
-                Route::put('phases/{phase}', [PhaseController::class, 'update'])->name('phases.update');
-                Route::delete('phases/{phase}', [PhaseController::class, 'destroy'])->name('phases.destroy');
-                Route::patch('phases/{phase}/move-up', [PhaseController::class, 'moveUp'])->name('phases.move-up');
-                Route::patch('phases/{phase}/move-down', [PhaseController::class, 'moveDown'])->name('phases.move-down');
 
             });
         });
