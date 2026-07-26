@@ -27,21 +27,15 @@
         </div>
         <div class="collapse show" id="section-basic">
         <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <table class="table table-borderless table-sm">
-                        <tr><th class="text-muted" style="width:40%">クライアント</th><td>{{ $trainingRecord->client->display_name }}</td></tr>
-                        <tr><th class="text-muted">日付</th><td>{{ $trainingRecord->training_date->format('Y/m/d') }}</td></tr>
-                        <tr><th class="text-muted">時刻</th><td>{{ $trainingRecord->training_time ?: '—' }}</td></tr>
-                    </table>
-                </div>
-                <div class="col-md-6">
-                    <table class="table table-borderless table-sm">
-                        <tr><th class="text-muted" style="width:40%">担当1</th><td>{{ $trainingRecord->trainer1->name ?? '—' }}</td></tr>
-                        <tr><th class="text-muted">担当2</th><td>{{ $trainingRecord->trainer2->name ?? '—' }}</td></tr>
-                    </table>
-                </div>
-            </div>
+            <table class="table table-borderless table-sm">
+                <tr><th class="text-muted" style="width:20%">クライアント</th><td>{{ $trainingRecord->client->display_name }}</td></tr>
+                <tr><th class="text-muted">日付</th><td>{{ $trainingRecord->training_date->format('Y/m/d') }}</td></tr>
+                <tr><th class="text-muted">時刻</th><td>{{ $trainingRecord->training_time ?: '—' }}</td></tr>
+                <tr><th class="text-muted">トレーニング内容</th><td>{{ $trainingRecord->trainingType->name ?? '—' }}</td></tr>
+                <tr><th class="text-muted">トレーニング内容（詳細）</th><td>{{ $trainingRecord->training_detail ?: '—' }}</td></tr>
+                <tr><th class="text-muted">担当1</th><td>{{ $trainingRecord->trainer1->name ?? '—' }}</td></tr>
+                <tr><th class="text-muted">担当2</th><td>{{ $trainingRecord->trainer2->name ?? '—' }}</td></tr>
+            </table>
         </div>
         </div>
     </div>
@@ -84,25 +78,6 @@
                     @endforeach
                 </div>
             @endif
-        </div>
-        </div>
-    </div>
-
-    {{-- トレーニング内容 --}}
-    <div class="card mb-3">
-        <div class="card-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#section-content" style="cursor: pointer;">
-            <h6 class="mb-0">トレーニング内容</h6>
-        </div>
-        <div class="collapse show" id="section-content">
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <table class="table table-borderless table-sm">
-                        <tr><th class="text-muted" style="width:40%">トレーニング内容</th><td>{{ $trainingRecord->trainingType->name ?? '—' }}</td></tr>
-                        <tr><th class="text-muted">トレーニング内容（詳細）</th><td>{{ $trainingRecord->training_detail ?: '—' }}</td></tr>
-                    </table>
-                </div>
-            </div>
         </div>
         </div>
     </div>
