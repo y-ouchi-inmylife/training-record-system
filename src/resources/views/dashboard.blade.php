@@ -23,8 +23,6 @@
 
 @section('content')
 <div class="container">
-    <h2 class="mb-4">ダッシュボード</h2>
-
     {{-- ウェルカムメッセージ --}}
     <div class="alert alert-info mb-4">
         ようこそ、<strong>{{ Auth::user()->name }}</strong> さん。
