@@ -313,7 +313,7 @@ function searchAddress() {
         })
         .finally(() => {
             btn.disabled = false;
-            btn.textContent = '住所検索';
+            btn.textContent = '検索';
         });
 }
 </script>
