@@ -228,13 +228,13 @@
                         <div class="col-md-6 mb-3">
                             <label for="trainer1_select" class="form-label">担当1 <span class="text-danger">*</span></label>
                             <select class="form-select" id="trainer1_select" required>
-                                <option value="">選択してください</option>
+                                <option value=""></option>
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="trainer2_select" class="form-label">担当2</label>
                             <select class="form-select" id="trainer2_select">
-                                <option value="">なし</option>
+                                <option value=""></option>
                             </select>
                         </div>
                     </div>
@@ -668,13 +668,13 @@
             var trainer1Options = trainers.map(function(c) {
                 return '<option value="' + c.id + '"' + (c.id === currentUserId ? ' selected' : '') + '>' + c.name + '</option>';
             }).join('');
-            document.getElementById('trainer1_select').innerHTML = '<option value="">選択してください</option>' + trainer1Options;
+            document.getElementById('trainer1_select').innerHTML = '<option value=""></option>' + trainer1Options;
 
             // 担当2（デフォルト: なし）
             var trainer2Options = trainers.map(function(c) {
                 return '<option value="' + c.id + '">' + c.name + '</option>';
             }).join('');
-            document.getElementById('trainer2_select').innerHTML = '<option value="">なし</option>' + trainer2Options;
+            document.getElementById('trainer2_select').innerHTML = '<option value=""></option>' + trainer2Options;
         }
 
         async function showCreateRecordModal() {
