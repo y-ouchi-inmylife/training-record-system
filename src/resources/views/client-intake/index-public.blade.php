@@ -1,7 +1,7 @@
 @extends('layouts.client-intake')
 
 @section('content')
-<h2 class="mb-4">情報入力</h2>
+<h2 class="mb-4">事前入力情報</h2>
 
 {{-- プログレスバー --}}
 <div class="mb-4">
