@@ -15,77 +15,98 @@
             <h6 class="mb-0">基本情報</h6>
         </div>
         <div class="card-body">
-            <div class="row g-3">
+            {{-- 行1: クライアント / 日付 / 時刻 --}}
+            <div class="row g-3 mb-2">
                 {{-- クライアント（クライアント詳細からの遷移で確定：変更不可） --}}
                 <div class="col-md-6">
-                    <label class="form-label">クライアント <span class="text-danger">*</span></label>
-                    @php $fixedClient = $selectedClient ?? $record->client; @endphp
-                    <input type="text" class="form-control bg-light"
-                           value="{{ $fixedClient->internal_id }} {{ $fixedClient->display_name }}"
-                           data-client-display-name="{{ $fixedClient->display_name }}"
-                           readonly>
-                    <input type="hidden" name="client_id" value="{{ $fixedClient->id }}">
+                    <div class="row g-2 align-items-center">
+                        <label class="col-md-auto col-form-label text-md-end form-label-fixed">クライアント <span class="text-danger">*</span></label>
+                        <div class="col-12 col-md">
+                            @php $fixedClient = $selectedClient ?? $record->client; @endphp
+                            <input type="text" class="form-control bg-light"
+                                   value="{{ $fixedClient->internal_id }} {{ $fixedClient->display_name }}"
+                                   data-client-display-name="{{ $fixedClient->display_name }}"
+                                   readonly>
+                            <input type="hidden" name="client_id" value="{{ $fixedClient->id }}">
+                        </div>
+                    </div>
                 </div>
 
                 {{-- 日付 --}}
                 <div class="col-md-3">
-                    <label for="training_date" class="form-label">日付 <span class="text-danger">*</span></label>
-                    <input type="text" name="training_date" id="training_date"
-                        class="form-control datepicker @error('training_date') is-invalid @enderror"
-                        value="{{ old('training_date', $record?->training_date?->format('Y-m-d') ?? date('Y-m-d')) }}"
-                        placeholder="例: 2026-04-01" pattern="\d{4}-\d{2}-\d{2}" maxlength="10" required>
-                    @error('training_date')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                    <div class="row g-2 align-items-center">
+                        <label for="training_date" class="col-md-auto col-form-label text-md-end form-label-fixed">日付 <span class="text-danger">*</span></label>
+                        <div class="col-12 col-md">
+                            <input type="text" name="training_date" id="training_date"
+                                class="form-control datepicker @error('training_date') is-invalid @enderror"
+                                value="{{ old('training_date', $record?->training_date?->format('Y-m-d') ?? date('Y-m-d')) }}"
+                                placeholder="例: 2026-04-01" pattern="\d{4}-\d{2}-\d{2}" maxlength="10" required>
+                            @error('training_date')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
 
                 {{-- 時刻 --}}
                 <div class="col-md-3">
-                    <label for="training_time" class="form-label">時刻</label>
-                    <input type="time" name="training_time" id="training_time"
-                        class="form-control @error('training_time') is-invalid @enderror"
-                        value="{{ old('training_time', $record?->training_time ? substr($record->training_time, 0, 5) : '') }}">
-                    @error('training_time')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                    <div class="row g-2 align-items-center">
+                        <label for="training_time" class="col-md-auto col-form-label text-md-end form-label-fixed">時刻</label>
+                        <div class="col-12 col-md">
+                            <input type="time" name="training_time" id="training_time"
+                                class="form-control @error('training_time') is-invalid @enderror"
+                                value="{{ old('training_time', $record?->training_time ? substr($record->training_time, 0, 5) : '') }}">
+                            @error('training_time')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
+            </div>
 
-
+            {{-- 行2: 担当1 / 担当2 --}}
+            <div class="row g-3">
                 {{-- 担当1 --}}
-                <div class="col-md-4">
-                    <label for="trainer1_id" class="form-label">担当1 <span class="text-danger">*</span></label>
-                    <select name="trainer1_id" id="trainer1_id" class="form-select @error('trainer1_id') is-invalid @enderror" required>
-                        <option value="">選択してください</option>
-                        @foreach($trainers as $trainer)
-                            <option value="{{ $trainer->id }}"
-                                {{ old('trainer1_id', $record?->trainer1_id ?? auth()->id()) == $trainer->id ? 'selected' : '' }}>
-                                {{ $trainer->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('trainer1_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                <div class="col-md-6">
+                    <div class="row g-2 align-items-center">
+                        <label for="trainer1_id" class="col-md-auto col-form-label text-md-end form-label-fixed">担当1 <span class="text-danger">*</span></label>
+                        <div class="col-12 col-md">
+                            <select name="trainer1_id" id="trainer1_id" class="form-select @error('trainer1_id') is-invalid @enderror" required>
+                                <option value=""></option>
+                                @foreach($trainers as $trainer)
+                                    <option value="{{ $trainer->id }}"
+                                        {{ old('trainer1_id', $record?->trainer1_id ?? auth()->id()) == $trainer->id ? 'selected' : '' }}>
+                                        {{ $trainer->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('trainer1_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
 
                 {{-- 担当2 --}}
-                <div class="col-md-4">
-                    <label for="trainer2_id" class="form-label">担当2</label>
-                    <select name="trainer2_id" id="trainer2_id" class="form-select @error('trainer2_id') is-invalid @enderror">
-                        <option value="">なし</option>
-                        @foreach($trainers as $trainer)
-                            <option value="{{ $trainer->id }}"
-                                {{ old('trainer2_id', $record?->trainer2_id) == $trainer->id ? 'selected' : '' }}>
-                                {{ $trainer->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('trainer2_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                <div class="col-md-6">
+                    <div class="row g-2 align-items-center">
+                        <label for="trainer2_id" class="col-md-auto col-form-label text-md-end form-label-fixed">担当2</label>
+                        <div class="col-12 col-md">
+                            <select name="trainer2_id" id="trainer2_id" class="form-select @error('trainer2_id') is-invalid @enderror">
+                                <option value=""></option>
+                                @foreach($trainers as $trainer)
+                                    <option value="{{ $trainer->id }}"
+                                        {{ old('trainer2_id', $record?->trainer2_id) == $trainer->id ? 'selected' : '' }}>
+                                        {{ $trainer->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('trainer2_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="row g-3 mt-1">
             </div>
         </div>
     </div>
