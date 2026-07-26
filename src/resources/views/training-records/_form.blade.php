@@ -138,51 +138,67 @@
             <h6 class="mb-0">トレーニング内容</h6>
         </div>
         <div class="card-body">
-            <div class="row g-3">
+            {{-- 行1: トレーニング内容 / トレーニング内容（詳細） --}}
+            <div class="row g-3 mb-2">
                 {{-- トレーニング内容 --}}
-                <div class="col-md-4">
-                    <label for="training_type_id" class="form-label">トレーニング内容</label>
-                    <select name="training_type_id" id="training_type_id" class="form-select @error('training_type_id') is-invalid @enderror">
-                        <option value="">選択してください</option>
-                        @foreach($trainingTypes as $type)
-                            <option value="{{ $type->id }}"
-                                {{ old('training_type_id', $record?->training_type_id) == $type->id ? 'selected' : '' }}>
-                                {{ $type->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('training_type_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                <div class="col-md-3">
+                    <div class="row g-2 align-items-center">
+                        <label for="training_type_id" class="col-md-auto col-form-label text-md-end form-label-fixed">トレーニング内容</label>
+                        <div class="col-12 col-md">
+                            <select name="training_type_id" id="training_type_id" class="form-select @error('training_type_id') is-invalid @enderror">
+                                <option value=""></option>
+                                @foreach($trainingTypes as $type)
+                                    <option value="{{ $type->id }}"
+                                        {{ old('training_type_id', $record?->training_type_id) == $type->id ? 'selected' : '' }}>
+                                        {{ $type->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('training_type_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
 
                 {{-- トレーニング内容（詳細） --}}
-                <div class="col-md-8">
-                    <label for="training_detail" class="form-label">トレーニング内容（詳細）</label>
-                    <input type="text" name="training_detail" id="training_detail"
-                        class="form-control @error('training_detail') is-invalid @enderror"
-                        inputmode="text" value="{{ old('training_detail', $record?->training_detail) }}"
-                        maxlength="255" placeholder="主旨">
-                    @error('training_detail')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                <div class="col-md-9">
+                    <div class="row g-2 align-items-center">
+                        <label for="training_detail" class="col-md-auto col-form-label text-md-end form-label-fixed">詳細</label>
+                        <div class="col-12 col-md">
+                            <input type="text" name="training_detail" id="training_detail"
+                                class="form-control @error('training_detail') is-invalid @enderror"
+                                inputmode="text" value="{{ old('training_detail', $record?->training_detail) }}"
+                                maxlength="255" placeholder="主旨">
+                            @error('training_detail')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
+            </div>
 
+            {{-- 行2: フェーズ --}}
+            <div class="row g-3">
                 {{-- フェーズ --}}
                 <div class="col-md-4">
-                    <label for="phase_id" class="form-label">フェーズ</label>
-                    <select name="phase_id" id="phase_id" class="form-select @error('phase_id') is-invalid @enderror">
-                        <option value="">選択してください</option>
-                        @foreach($phases as $phase)
-                            <option value="{{ $phase->id }}"
-                                {{ old('phase_id', $record?->phase_id) == $phase->id ? 'selected' : '' }}>
-                                {{ $phase->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('phase_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                    <div class="row g-2 align-items-center">
+                        <label for="phase_id" class="col-md-auto col-form-label text-md-end form-label-fixed">フェーズ</label>
+                        <div class="col-12 col-md">
+                            <select name="phase_id" id="phase_id" class="form-select @error('phase_id') is-invalid @enderror">
+                                <option value=""></option>
+                                @foreach($phases as $phase)
+                                    <option value="{{ $phase->id }}"
+                                        {{ old('phase_id', $record?->phase_id) == $phase->id ? 'selected' : '' }}>
+                                        {{ $phase->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('phase_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
