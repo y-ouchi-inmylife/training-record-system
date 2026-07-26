@@ -109,11 +109,7 @@ class ClientController extends Controller
     {
         $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
 
-        // 次の内部IDを計算
-        $maxId = DB::selectOne('SELECT MAX(CAST(internal_id AS UNSIGNED)) as max_id FROM clients')->max_id;
-        $nextInternalId = ($maxId ?? 0) + 1;
-
-        return view('clients.create', compact('trainers', 'nextInternalId'));
+        return view('clients.create', compact('trainers'));
     }
 
     /**
