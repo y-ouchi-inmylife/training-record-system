@@ -18,7 +18,7 @@
             {{-- 行1: クライアント / 日付 / 時刻 --}}
             <div class="row g-3 mb-2">
                 {{-- クライアント（クライアント詳細からの遷移で確定：変更不可） --}}
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="row g-2 align-items-center">
                         <label class="col-md-auto col-form-label text-md-end form-label-fixed">クライアント <span class="text-danger">*</span></label>
                         <div class="col-12 col-md">
