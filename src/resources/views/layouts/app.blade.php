@@ -34,7 +34,7 @@
 </head>
 <body>
     @auth
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-trainer-nav">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ url('/dashboard') }}">トレーニング記録管理システム</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
