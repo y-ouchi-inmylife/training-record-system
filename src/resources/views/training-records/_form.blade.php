@@ -169,7 +169,7 @@
                             <input type="text" name="training_detail" id="training_detail"
                                 class="form-control @error('training_detail') is-invalid @enderror"
                                 inputmode="text" value="{{ old('training_detail', $record?->training_detail) }}"
-                                maxlength="255" placeholder="主旨">
+                                maxlength="255">
                             @error('training_detail')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
