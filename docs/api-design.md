@@ -300,7 +300,7 @@ Laravelのセッション認証（Cookie + CSRF）で保護する。
 | initial_consultation_date | date | ● | required, date | |
 | last_name | string | ● | nullable, string, max:50 | |
 | *_kana | string | | nullable, string, max:50, regex:/^[\p{Hiragana}\s　]+$/u | |
-| gender | string | | nullable, in:男,女,その他 | |
+| gender | string | | nullable, in:男,女,無回答 | |
 | birth_date | date | | nullable, date | |
 | phone* | string | | nullable, string, max:20, regex:/^[0-9\-]+$/ | |
 | email | string | | nullable, email, max:255 | |

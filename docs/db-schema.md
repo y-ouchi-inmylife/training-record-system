@@ -250,7 +250,7 @@ erDiagram
 
 | 制約名 | 種類 | 条件 | ON DELETE | 説明 |
 |--------|------|------|-----------|------|
-| clients_gender_check | CHECK | gender IS NULL OR gender IN ('男', '女', 'その他') | — | 定義済みの性別のみ許可（5-2.参照） |
+| clients_gender_check | CHECK | gender IS NULL OR gender IN ('男', '女', '無回答') | — | 定義済みの性別のみ許可（5-2.参照） |
 | clients_primary_trainer_id_foreign | FOREIGN KEY | primary_trainer_id → trainers(id) | SET NULL | トレーナー削除時は主担当をNULLにする |
 | clients_updated_by_foreign | FOREIGN KEY | updated_by → trainers(id) | SET NULL | トレーナー削除時は最終更新者をNULLにする |
 
@@ -744,7 +744,7 @@ erDiagram
 |----|------|
 | 男 | |
 | 女 | |
-| その他 | |
+| 無回答 | |
 
 ### 5-13. 音声ソース種別
 
