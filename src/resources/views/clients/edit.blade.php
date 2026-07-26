@@ -147,7 +147,7 @@
                             <div class="col-12 col-md">
                                 <select class="form-select" id="gender" name="gender" autocomplete="off">
                                     <option value=""></option>
-                                    @foreach(['男', '女', 'その他'] as $g)
+                                    @foreach(['男', '女', '無回答'] as $g)
                                         <option value="{{ $g }}" {{ old('gender', $client->gender) === $g ? 'selected' : '' }}>{{ $g }}</option>
                                     @endforeach
                                 </select>

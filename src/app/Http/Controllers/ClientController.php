@@ -278,7 +278,7 @@ class ClientController extends Controller
             'last_name_kana' => ['nullable', 'string', 'max:50', 'regex:/^[\p{Hiragana}\s　]+$/u'],
             'first_name_kana' => ['nullable', 'string', 'max:50', 'regex:/^[\p{Hiragana}\s　]+$/u'],
             'birth_date' => 'nullable|date',
-            'gender' => 'nullable|in:男,女,その他',
+            'gender' => 'nullable|in:男,女,無回答',
             'email' => 'nullable|email|max:255',
             'initial_consultation_date' => 'required|date',
 

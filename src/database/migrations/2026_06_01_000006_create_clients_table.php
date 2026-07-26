@@ -58,7 +58,7 @@ return new class extends Migration
         });
 
         // CHECK 制約（全角文字を含む文字列値は既存マイグレーションから正確にコピー）
-        DB::statement("ALTER TABLE clients ADD CONSTRAINT clients_gender_check CHECK (gender IS NULL OR gender IN ('男', '女', 'その他'))");
+        DB::statement("ALTER TABLE clients ADD CONSTRAINT clients_gender_check CHECK (gender IS NULL OR gender IN ('男', '女', '無回答'))");
     }
 
     public function down(): void

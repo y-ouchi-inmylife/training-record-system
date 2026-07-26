@@ -255,7 +255,7 @@ class StatisticsController extends Controller
             match ($client->gender) {
                 '男' => $breakdown['gender_male']++,
                 '女' => $breakdown['gender_female']++,
-                'その他' => $breakdown['gender_other']++,
+                '無回答' => $breakdown['gender_other']++,
                 default => $breakdown['gender_unknown']++,
             };
 

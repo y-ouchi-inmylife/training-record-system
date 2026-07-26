@@ -93,7 +93,7 @@
                 <col style="width: 70px;">{{-- クライアント実人数 --}}
                 <col style="width: 55px;">{{-- 男 --}}
                 <col style="width: 55px;">{{-- 女 --}}
-                <col style="width: 55px;">{{-- その他 --}}
+                <col style="width: 55px;">{{-- 無回答 --}}
                 <col style="width: 55px;">{{-- 未入力 --}}
                 <col style="width: 55px;">{{-- ～19 --}}
                 <col style="width: 55px;">{{-- 20～29 --}}
@@ -115,7 +115,7 @@
                 <tr>
                     <th class="text-nowrap text-end col-gender">男</th>
                     <th class="text-nowrap text-end col-gender">女</th>
-                    <th class="text-nowrap text-end col-gender">その他</th>
+                    <th class="text-nowrap text-end col-gender">無回答</th>
                     <th class="text-nowrap text-end col-gender border-group-end">未入力</th>
                     <th class="text-nowrap text-end col-age">～19</th>
                     <th class="text-nowrap text-end col-age">20～29</th>
@@ -185,7 +185,7 @@
                 <col style="width: 70px;">{{-- クライアント実人数 --}}
                 <col style="width: 55px;">{{-- 男 --}}
                 <col style="width: 55px;">{{-- 女 --}}
-                <col style="width: 55px;">{{-- その他 --}}
+                <col style="width: 55px;">{{-- 無回答 --}}
                 <col style="width: 55px;">{{-- 未入力 --}}
                 <col style="width: 55px;">{{-- ～19 --}}
                 <col style="width: 55px;">{{-- 20～29 --}}
@@ -207,7 +207,7 @@
                 <tr>
                     <th class="text-nowrap text-end col-gender">男</th>
                     <th class="text-nowrap text-end col-gender">女</th>
-                    <th class="text-nowrap text-end col-gender">その他</th>
+                    <th class="text-nowrap text-end col-gender">無回答</th>
                     <th class="text-nowrap text-end col-gender border-group-end">未入力</th>
                     <th class="text-nowrap text-end col-age">～19</th>
                     <th class="text-nowrap text-end col-age">20～29</th>

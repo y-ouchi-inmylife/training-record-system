@@ -70,7 +70,7 @@ class ClientIntakeController extends Controller
             'last_name_kana' => ['nullable', 'string', 'max:50', 'regex:/^[\p{Hiragana}\s　]+$/u'],
             'first_name_kana' => ['nullable', 'string', 'max:50', 'regex:/^[\p{Hiragana}\s　]+$/u'],
             'birth_date' => 'nullable|date',
-            'gender' => 'nullable|in:男,女,その他',
+            'gender' => 'nullable|in:男,女,無回答',
 
             // 連絡先
             'phone1' => ['nullable', 'string', 'max:20', 'regex:/^[0-9\-]+$/'],
