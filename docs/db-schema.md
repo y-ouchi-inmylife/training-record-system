@@ -848,15 +848,15 @@ erDiagram
 | 2 | login_attempts | trainers |
 | 3 | clients | trainers |
 | 4 | training_types | なし |
-| 6 | training_records | clients, trainers, training_types |
-| 7 | media_records | trainers |
-| 8 | media_record_training_record | media_records, training_records |
-| 9 | audio_records | clients, trainers |
-| 10 | access_logs | trainers |
-| 11 | system_settings | なし |
-| 12 | ip_whitelist | なし |
-| 13 | client_intake_tokens | clients |
-| 14 | client_password_setup_tokens | clients |
+| 5 | training_records | clients, trainers, training_types |
+| 6 | media_records | trainers |
+| 7 | media_record_training_record | media_records, training_records |
+| 8 | audio_records | clients, trainers |
+| 9 | access_logs | trainers |
+| 10 | system_settings | なし |
+| 11 | ip_whitelist | なし |
+| 12 | client_intake_tokens | clients |
+| 13 | client_password_setup_tokens | clients |
 
 ---
 
