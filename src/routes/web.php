@@ -132,15 +132,6 @@ Route::domain(config('subdomain.trainer_host'))->middleware('check-ip')->group(f
             Route::get('settings/summary-prompts', [SummaryPromptController::class, 'edit'])->name('settings.summary-prompts.edit');
             Route::put('settings/summary-prompts', [SummaryPromptController::class, 'update'])->name('settings.summary-prompts.update');
 
-            // トレーナーアカウント管理
-            Route::resource('trainers', TrainerController::class)->except(['show']);
-            Route::get('trainers/{trainer}/reset-password', [TrainerController::class, 'showResetPassword'])->name('trainers.reset-password');
-            Route::put('trainers/{trainer}/reset-password', [TrainerController::class, 'resetPassword'])->name('trainers.reset-password.update');
-            Route::patch('trainers/{trainer}/unlock', [TrainerController::class, 'unlock'])->name('trainers.unlock');
-            Route::patch('trainers/{trainer}/toggle-active', [TrainerController::class, 'toggleActive'])->name('trainers.toggle-active');
-            Route::patch('trainers/{trainer}/move-up', [TrainerController::class, 'moveUp'])->name('trainers.move-up');
-            Route::patch('trainers/{trainer}/move-down', [TrainerController::class, 'moveDown'])->name('trainers.move-down');
-
             // トレーナー操作履歴
             Route::get('access-logs', [AccessLogController::class, 'index'])->name('access-logs.index');
 
@@ -155,6 +146,22 @@ Route::domain(config('subdomain.trainer_host'))->middleware('check-ip')->group(f
                 Route::patch('training-types/{trainingType}/move-down', [TrainingTypeController::class, 'moveDown'])->name('training-types.move-down');
 
             });
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | 管理者・システム管理者ルート（admin + system_admin、staffはアクセス不可）
+        |--------------------------------------------------------------------------
+        */
+        Route::middleware('admin')->group(function () {
+            // トレーナーアカウント管理
+            Route::resource('trainers', TrainerController::class)->except(['show']);
+            Route::get('trainers/{trainer}/reset-password', [TrainerController::class, 'showResetPassword'])->name('trainers.reset-password');
+            Route::put('trainers/{trainer}/reset-password', [TrainerController::class, 'resetPassword'])->name('trainers.reset-password.update');
+            Route::patch('trainers/{trainer}/unlock', [TrainerController::class, 'unlock'])->name('trainers.unlock');
+            Route::patch('trainers/{trainer}/toggle-active', [TrainerController::class, 'toggleActive'])->name('trainers.toggle-active');
+            Route::patch('trainers/{trainer}/move-up', [TrainerController::class, 'moveUp'])->name('trainers.move-up');
+            Route::patch('trainers/{trainer}/move-down', [TrainerController::class, 'moveDown'])->name('trainers.move-down');
         });
 
         /*
