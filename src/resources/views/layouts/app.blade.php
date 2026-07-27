@@ -48,9 +48,6 @@
                 <ul class="navbar-nav me-auto">
                     @if(!Auth::user()->isSystemAdmin())
                         {{-- 通常のトレーナー（system_admin以外） --}}
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">ダッシュボード</a>
-                        </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle {{ request()->is('clients*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
                                 クライアント
