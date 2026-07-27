@@ -14,44 +14,65 @@
                 @if ($errors->has('date_to') || $errors->has('date_from'))
                     <div class="alert alert-danger">{{ $errors->first('date_to') ?: $errors->first('date_from') }}</div>
                 @endif
+                {{-- 行1: 内部ID + 名前 + 主担当 --}}
                 <div class="row g-3">
-                    <div class="col-md-2">
-                        <label for="internal_id" class="form-label">内部ID</label>
-                        <input type="text" class="form-control" id="internal_id" name="internal_id"
-                               value="{{ request('internal_id') }}" placeholder="部分一致">
-                    </div>
                     <div class="col-md-3">
-                        <label for="keyword" class="form-label">名前</label>
-                        <input type="text" class="form-control" id="keyword" name="keyword"
-                               inputmode="text"
-                               value="{{ request('keyword') }}" placeholder="姓名・かなで検索（部分一致）">
+                        <div class="row g-2 align-items-center">
+                            <label for="internal_id" class="col-md-auto col-form-label text-md-end form-label-fixed">内部ID</label>
+                            <div class="col-12 col-md">
+                                <input type="text" class="form-control" id="internal_id" name="internal_id"
+                                       value="{{ request('internal_id') }}" placeholder="部分一致">
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <label for="date_from" class="form-label">最終記録日（開始）</label>
-                        <input type="text" class="form-control datepicker" id="date_from" name="date_from"
-                               value="{{ old('date_from', request('date_from')) }}"
-                               placeholder="例: 2026-04-01"
-                               pattern="\d{4}-\d{2}-\d{2}"
-                               maxlength="10">
+                    <div class="col-md-5">
+                        <div class="row g-2 align-items-center">
+                            <label for="keyword" class="col-md-auto col-form-label text-md-end form-label-fixed">名前</label>
+                            <div class="col-12 col-md">
+                                <input type="text" class="form-control" id="keyword" name="keyword"
+                                       inputmode="text"
+                                       value="{{ request('keyword') }}" placeholder="姓名・かなで検索（部分一致）">
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <label for="date_to" class="form-label">最終記録日（終了）</label>
-                        <input type="text" class="form-control datepicker" id="date_to" name="date_to"
-                               value="{{ old('date_to', request('date_to')) }}"
-                               placeholder="例: 2026-04-01"
-                               pattern="\d{4}-\d{2}-\d{2}"
-                               maxlength="10">
+                    <div class="col-md-4">
+                        <div class="row g-2 align-items-center">
+                            <label for="primary_trainer_id" class="col-md-auto col-form-label text-md-end form-label-fixed">主担当</label>
+                            <div class="col-12 col-md">
+                                <select class="form-select" id="primary_trainer_id" name="primary_trainer_id">
+                                    <option value="">すべて</option>
+                                    @foreach($trainers as $trainer)
+                                        <option value="{{ $trainer->id }}" {{ request('primary_trainer_id') == $trainer->id ? 'selected' : '' }}>
+                                            {{ $trainer->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <label for="primary_trainer_id" class="form-label">主担当</label>
-                        <select class="form-select" id="primary_trainer_id" name="primary_trainer_id">
-                            <option value="">すべて</option>
-                            @foreach($trainers as $trainer)
-                                <option value="{{ $trainer->id }}" {{ request('primary_trainer_id') == $trainer->id ? 'selected' : '' }}>
-                                    {{ $trainer->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                </div>
+
+                {{-- 行2: 最終記録日（範囲） --}}
+                <div class="row g-3 mt-1">
+                    <div class="col-md-5">
+                        <div class="row g-2 align-items-center">
+                            <label class="col-md-auto col-form-label text-md-end form-label-fixed">最終記録日</label>
+                            <div class="col">
+                                <input type="text" class="form-control datepicker" id="date_from" name="date_from"
+                                       value="{{ old('date_from', request('date_from')) }}"
+                                       placeholder="例: 2026-04-01"
+                                       pattern="\d{4}-\d{2}-\d{2}"
+                                       maxlength="10">
+                            </div>
+                            <div class="col-md-auto px-1">～</div>
+                            <div class="col">
+                                <input type="text" class="form-control datepicker" id="date_to" name="date_to"
+                                       value="{{ old('date_to', request('date_to')) }}"
+                                       placeholder="例: 2026-04-01"
+                                       pattern="\d{4}-\d{2}-\d{2}"
+                                       maxlength="10">
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="mt-3">
