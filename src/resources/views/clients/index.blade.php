@@ -75,11 +75,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="mt-3">
+                <div class="d-flex justify-content-end gap-2 mt-3">
+                    <a href="{{ route('clients.index') }}" class="btn btn-secondary">クリア</a>
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-search"></i> 検索
                     </button>
-                    <a href="{{ route('clients.index') }}" class="btn btn-secondary">クリア</a>
                 </div>
             </form>
         </div>
