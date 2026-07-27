@@ -8,7 +8,12 @@
         <div class="col-md-5 col-lg-4">
             <div class="card shadow">
                 <div class="card-body p-4">
-                    <h4 class="card-title text-center mb-4">トレーニング記録管理システム</h4>
+                    <div class="d-flex align-items-center justify-content-center gap-3 mb-4">
+                        <img src="{{ asset('images/inmylife-logo.png') }}"
+                             alt="株式会社インマイライフ"
+                             style="max-height: 48px; width: auto; flex-shrink: 0;">
+                        <h4 class="mb-0 fs-5">トレーニング記録管理システム</h4>
+                    </div>
 
                     @if ($errors->any())
                     <div class="alert alert-danger">
@@ -52,7 +57,7 @@
                 </div>
             </div>
             <p class="text-center text-muted mt-3 small">
-                &copy; {{ date('Y') }} トレーニング記録管理システム
+                &copy; {{ date('Y') }} 株式会社インマイライフ
             </p>
         </div>
     </div>
