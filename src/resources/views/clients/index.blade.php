@@ -15,7 +15,7 @@
                     <div class="alert alert-danger">{{ $errors->first('date_to') ?: $errors->first('date_from') }}</div>
                 @endif
                 {{-- 行1: 内部ID + 名前 + 主担当 --}}
-                <div class="row g-3">
+                <div class="row g-3 mb-2">
                     <div class="col-md-3">
                         <div class="row g-2 align-items-center">
                             <label for="internal_id" class="col-md-auto col-form-label text-md-end form-label-fixed">内部ID</label>
@@ -53,7 +53,7 @@
                 </div>
 
                 {{-- 行2: 最終記録日（範囲） --}}
-                <div class="row g-3 mt-1">
+                <div class="row g-3">
                     <div class="col-md-5">
                         <div class="row g-2 align-items-center">
                             <label class="col-md-auto col-form-label text-md-end form-label-fixed">最終記録日</label>
