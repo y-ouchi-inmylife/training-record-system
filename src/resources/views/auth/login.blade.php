@@ -8,10 +8,10 @@
         <div class="col-md-5 col-lg-4">
             <div class="card shadow">
                 <div class="card-body p-4">
-                    <div class="d-flex align-items-center justify-content-center gap-3 mb-4">
+                    <div class="d-flex flex-column align-items-center justify-content-center gap-3 mb-4">
                         <img src="{{ asset('images/inmylife-logo.png') }}"
                              alt="株式会社インマイライフ"
-                             style="max-height: 48px; width: auto; flex-shrink: 0;">
+                             style="max-height: 48px; width: auto;">
                         <h4 class="mb-0 fs-5">トレーニング記録管理システム</h4>
                     </div>
 
