@@ -8,7 +8,8 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <title>事前入力情報</title>
-    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    @vite(['resources/sass/client.scss', 'resources/js/app.js'])
+    @stack('styles')
 </head>
 <body>
     <main class="py-3">

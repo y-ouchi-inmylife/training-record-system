@@ -1,0 +1,60 @@
+// クライアントポータル専用スタイル
+// トレーナー側の app.scss とは独立したエントリ。
+// 段階1では app.scss と同一の内容を持たせ、見た目を変えない。
+// デザイントークンは段階2以降で追加する。
+
+// Bootstrap
+@import 'bootstrap/scss/bootstrap';
+
+// Bootstrap Icons（bi bi-* のフォント・グリフ定義）
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+// flatpickr（日付入力）
+@import 'flatpickr/dist/flatpickr.css';
+
+// クライアント閲覧ポータル用ナビバー背景（トレーナー側 bg-primary と区別するためのオレンジ）
+.bg-client-nav {
+    background-color: #fd7e14 !important;
+}
+
+// トレーナー側ナビバー背景（クライアント側 .bg-client-nav のオレンジと区別する紺）
+.bg-trainer-nav {
+    background-color: #0a4fa8 !important;
+}
+
+// トレーナー側テーマの文字色（ナビ背景 .bg-trainer-nav と同じ紺）
+.text-trainer-nav {
+    color: #0a4fa8 !important;
+}
+
+// フォーム入力欄の高さ調整（上下 padding を Bootstrap デフォルト .375rem から縮小）
+.form-control,
+.form-select {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+}
+
+// 画面タイトル（h2）のフォントサイズを Bootstrap デフォルト（2rem）から縮小
+h2 {
+    font-size: 1.75rem;
+}
+
+// 水平フォームの固定幅ラベル（登録・編集画面のラベル左・入力欄右レイアウト用）
+// md以上で幅140px固定。md未満（縦積み時）は幅指定を解除して全幅に戻す。
+.form-label-fixed {
+    @media (min-width: 768px) {
+        width: 140px;
+    }
+}
+
+// 固定幅ラベルに収まらない長いラベル用の縮小クラス（必要な項目にのみ付与）
+// 現時点では未使用。将来140pxに収まらないラベルが出た場合に label へ追加する。
+.form-label-fixed-sm {
+    font-size: 0.875rem;
+}
+
+// フラッシュメッセージのフェード速度をゆっくりに（Bootstrap 既定 0.15s → 1s）
+// .alert.fade で限定し、modal（.modal.fade）や tab-pane（.tab-pane.fade）には影響させない
+.alert.fade {
+    transition: opacity 1s linear;
+}

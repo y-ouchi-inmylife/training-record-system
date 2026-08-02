@@ -9,7 +9,7 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <title>@yield('title', 'クライアント閲覧 - トレーニング記録管理システム')</title>
-    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    @vite(['resources/sass/client.scss', 'resources/js/app.js'])
     @stack('styles')
 </head>
 <body class="bg-light">
