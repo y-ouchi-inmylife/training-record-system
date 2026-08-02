@@ -384,6 +384,12 @@ input[type="tel"] {
     letter-spacing: 0.04em;
 }
 
+// モバイル(<576px)横帯用の1行版。デスクトップでは非表示、モバイルの
+// メディアクエリで display を切り替える(設計書 §5-1 の形態分岐)。
+.c-date-inline {
+    display: none;
+}
+
 // hero variant: 日付ブロックをやや大きくして「最新の 1 件」の存在感を作る
 .c-session--hero .c-date-block {
     width: 5.5rem;
@@ -535,30 +541,64 @@ input[type="tel"] {
     color: $mat;
 }
 
-// モバイル（576px 未満）
-// - 日付ブロックを少し狭く
-// - hero の写真グリッドを 2 列に
+// モバイル(576px 未満、Bootstrap の sm ブレークポイント境界)
+// 設計書 §5-1「表示形態の分岐」に従い、日付ブロックを cobalt 縦帯から
+// カード上部の cobalt 横帯へ切り替える。
+// - モバイル幅では写真が 2 列以上に折り返しカードが縦に伸びる
+// - 縦帯だと date-block も追随して間延びし、「日付が視覚のリズムを作る」
+//   意図が「青い柱が並ぶ装飾」に変質する(§5-2)
+// - カード自体を flex-direction: column に切り替え、date-block を上部の
+//   横帯にする。日本語は「8月 2日(金)」の横 1 行表記(§5-6)
+// - §2-1 の制約は維持: 横帯上の文字は mat のみ、鮮色隣接なし、
+//   カード境界(罫線+影)は不変
 @media (max-width: 575.98px) {
-    .c-date-block {
-        width: 3.75rem;
-        padding: 0.75rem 0.25rem;
+    // カード全体を縦積みに切り替え(date-block を上、body を下)
+    .c-session {
+        flex-direction: column;
     }
-    .c-date-day {
-        font-size: 1.75rem;
-    }
+
+    // date-block を横帯化(幅は 100%、高さは 1 行分、内容は左寄せ横並び)
+    .c-date-block,
     .c-session--hero .c-date-block {
-        width: 4.25rem;
-        padding: 1rem 0.25rem;
+        width: auto;
+        padding: 0.5rem 1rem;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 0;
+        line-height: 1.4;
+        text-align: left;
     }
+
+    // 縦組み用の 3 つの span を非表示
+    .c-date-month,
+    .c-date-day,
+    .c-date-weekday,
     .c-session--hero .c-date-day {
-        font-size: 2.25rem;
+        display: none;
     }
+
+    // モバイル横帯用の 1 行版を表示(設計書 §5-6: 日本語表記維持)
+    .c-date-inline {
+        display: inline;
+        font-weight: 700;
+        font-size: 1.125rem;
+        color: $mat;
+        letter-spacing: 0.02em;
+    }
+    .c-session--hero .c-date-inline {
+        font-size: 1.25rem;
+    }
+
+    // 本体 padding は狭め(既存維持)
     .c-session-body {
         padding: 0.75rem 1rem;
     }
     .c-session--hero .c-session-body {
         padding: 1rem 1.25rem;
     }
+
+    // hero の写真グリッドは 2 列(既存維持)
     .c-session-media--hero {
         grid-template-columns: repeat(2, 1fr);
     }
