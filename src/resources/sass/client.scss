@@ -1,42 +1,294 @@
 // クライアントポータル専用スタイル
 // トレーナー側の app.scss とは独立したエントリ。
-// 段階1では app.scss と同一の内容を持たせ、見た目を変えない。
-// デザイントークンは段階2以降で追加する。
+// 設計書 docs/client-portal-design-plan.md §2・§2-0・§2-1・§3 を実装する。
+// 段階2（改訂版・書体差し戻し後）: アルバム方向・新パレット・Web フォント不採用。
+// Blade は触らない。トークンが Bootstrap と衝突せずに効くかの検証段階。
 
-// Bootstrap
+// -----------------------------------------------------------------------------
+// タイポグラフィ方針（設計書 §3）
+//
+// **Web フォントは一切読み込まない**。前案では Zen Maru Gothic を読み込んで
+// いたが、ブラウザ実測で 90.8KB（CSS 29KB + woff2 5 サブセット 61.9KB）と
+// 判明し撤回。29KB の CSS は動的サブセット `@font-face` 宣言の構造的コストで
+// 使用箇所を絞っても減らない。モバイル読者・週1回訪問という前提と釣り合わない。
+//
+// 見出しと本文の階層は書体差ではなく、ウェイト・サイズ・letter-spacing・色
+// （見出しに cobalt）で作る（設計書 §3 型スケール参照）。
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+// デザイントークン（設計書 §2）
+// Bootstrap の !default 変数より前に定義することで、
+// Bootstrap の各コンポーネント（btn / card / form-control / alert 等）へ
+// 自動的に適用される。個別クラスの上書きを最小化する狙い。
+// -----------------------------------------------------------------------------
+$paper:     #F5F3EC; // ページ背景
+$mat:       #FFFFFF; // カード面・写真の周辺・入力欄の面
+$ink:       #0F1A2E; // 本文・見出しのインク・細線・フォーカスリング外側
+$cobalt:    #1E45B0; // 日付ブロック帯・主要 CTA・リンク・成功トースト・フォーカスリング外側・H1/H2/Display の色
+$persimmon: #F0592B; // タグ・「新着」/「今日」ピル（面 + ink 文字ペア専用）
+$ember:     #B2311C; // エラー・破棄アクション（mat 面上のみ）
+
+// -----------------------------------------------------------------------------
+// Bootstrap 変数の上書き（Bootstrap import の前）
+// -----------------------------------------------------------------------------
+
+// テーマカラー
+$primary: $cobalt;
+$danger:  $ember;
+$success: $cobalt; // 設計書: 成功メッセージは cobalt 面 + mat 文字
+
+// 面
+$body-bg:    $paper;
+$body-color: $ink;
+$light:      $paper; // .bg-light を paper に寄せる（layouts の <body class="bg-light">）
+$dark:       $ink;
+
+// color-contrast() の候補と閾値
+// - dark 候補を ink に（黒ではなく紺）
+// - light 候補を mat に（純白）
+// - min-contrast-ratio 4.5 で AA テキスト基準
+// これにより ember 面（ink 2.77:1 < 4.5）に対しては自動的に mat が選ばれる。
+$color-contrast-dark:  $ink;
+$color-contrast-light: $mat;
+$min-contrast-ratio:   4.5;
+
+// カード・入力欄
+$card-bg:  $mat;
+$input-bg: $mat;
+
+// 罫線（設計書 §2-1「カード境界の作り方」— ink を 8% 不透明度）
+$border-color: rgba(15, 26, 46, 0.08);
+
+// リンク
+$link-color:       $cobalt;
+$link-hover-color: $ink;
+
+// フォーカスリング（設計書 §2-1 の定義そのまま）
+// mat 3px 内リング + ink 2px 外リングの二重輪郭。
+// - 明色地（paper / mat）では外側 ink が 15:1 以上で可視
+// - vivid 面（cobalt / persimmon）では内側 mat が 3.4〜8.3:1 で可視
+// Bootstrap 5.3: input/button の focus は $input-btn-focus-box-shadow を、
+// .focus-ring ユーティリティは $focus-ring-* を使う。両方に反映する。
+$input-btn-focus-box-shadow: 0 0 0 3px $mat, 0 0 0 5px $ink;
+$focus-ring-color:   $ink;
+$focus-ring-width:   2px;
+$focus-ring-blur:    0;
+$focus-ring-opacity: 1;
+
+// タイポグラフィ変数（設計書 §3）
+//
+// フォントスタック（設計書 §3「フォントスタックの定義」）
+// - system-ui を先頭に置くことでモダン環境では OS のシステム UI フォントを取得
+//   Windows なら Latin=Segoe UI、JP はグリフ単位フォールバックで Yu Gothic UI
+//   Regular が当たる（"Yu Gothic" 直指定で起きる Light 問題を回避）
+// - 旧環境の fallback では "Yu Gothic Medium" を明示指定（"Yu Gothic" と違い
+//   独立ファミリ名でウェイト 500 で描画される）
+// - 見出しは本文と同じスタック（書体差はつけず、ウェイト・サイズ・色で階層を作る）
+$font-family-sans-serif: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic Medium", "Meiryo", sans-serif;
+$font-family-base:       $font-family-sans-serif;
+$headings-font-family:   $font-family-sans-serif;
+$headings-font-weight:   700;
+
+// 型スケール（設計書 §3 型スケール表）
+// - H1 = 2rem、H2 = 1.5rem、H3 = 1.125rem
+// - Bootstrap 既定（h1=2.5, h2=2, h3=1.75）を全て下方修正
+// - 見出しの色は $headings-color ではなく、Bootstrap import 後に h1/h2 に対して
+//   直接 cobalt を当てる（H3 は ink のまま残すため。詳細は下記の「見出し色」節）
+$h1-font-size: 2rem;
+$h2-font-size: 1.5rem;
+$h3-font-size: 1.125rem;
+
+// 行間（日本語のため Bootstrap 既定 1.5 から広げる）
+$line-height-base:     1.75;
+$headings-line-height: 1.4;
+
+// -----------------------------------------------------------------------------
+// Bootstrap 本体（変数上書き後にインポート）
+// -----------------------------------------------------------------------------
 @import 'bootstrap/scss/bootstrap';
 
-// Bootstrap Icons（bi bi-* のフォント・グリフ定義）
-@import 'bootstrap-icons/font/bootstrap-icons.css';
-
-// flatpickr（日付入力）
+// -----------------------------------------------------------------------------
+// flatpickr（intake フォームの生年月日入力で使用）
+// -----------------------------------------------------------------------------
 @import 'flatpickr/dist/flatpickr.css';
 
-// クライアント閲覧ポータル用ナビバー背景（トレーナー側 bg-primary と区別するためのオレンジ）
+// -----------------------------------------------------------------------------
+// 削除したもの（履歴）
+// - Bootstrap Icons の @import: クライアント側 Blade に `bi bi-*` の
+//   使用箇所が 1 件も無い（grep 済）ため削除
+// - .bg-trainer-nav / .text-trainer-nav: トレーナー側専用の色クラスで、
+//   クライアント側 Blade から参照されていないため削除
+// - Google Fonts の @import（Zen Maru Gothic）: 実測 90.8KB のコスト理由で撤回
+// - app.scss 由来の `h2 { font-size: 1.75rem; }` 上書き:
+//   設計書 §3 の新しい型スケール（H2 = 1.5rem）と矛盾するため削除。
+//   代わりに $h2-font-size: 1.5rem を Bootstrap 変数として設定
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+// デザイントークンを CSS カスタムプロパティとしても公開する。
+// 段階3以降のセッションカード・日付ブロック等から `var(--c-*)` で参照するため。
+// -----------------------------------------------------------------------------
+:root {
+    --c-paper:     #{$paper};
+    --c-mat:       #{$mat};
+    --c-ink:       #{$ink};
+    --c-cobalt:    #{$cobalt};
+    --c-persimmon: #{$persimmon};
+    --c-ember:     #{$ember};
+}
+
+// -----------------------------------------------------------------------------
+// 見出しの色と letter-spacing（設計書 §3 型スケール表）
+//
+// - H1 / H2 / .display-hero は cobalt（palette 内で「構造の色」として統一）
+// - H3 以下は ink のまま（cobalt にするとカード内で cobalt が濫用され、
+//   §2-1「鮮色同士の隣接禁止」に抵触する）
+// - letter-spacing は日本語でも軽く効かせて存在感を作る（過度は不可）
+// -----------------------------------------------------------------------------
+h1, .h1 {
+    color: $cobalt;
+    letter-spacing: 0.01em;
+}
+
+h2, .h2 {
+    color: $cobalt;
+    letter-spacing: 0.01em;
+}
+
+// Display（2.75rem、ログイン画面のワードマーク・詳細画面の日付見出しに使う）
+// Blade で `<h1 class="display-hero">` として付与する想定（段階3〜4 で適用）。
+.display-hero {
+    font-size: 2.75rem;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+    color: $cobalt;
+}
+
+// Meta（時刻・件数・キャプション、ink 65%）
+.meta {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: rgba(15, 26, 46, 0.65);
+}
+
+// Eyebrow（セクション上部の小見出し「最新のトレーニング」等）
+// システムサンスに戻ったため letter-spacing を広く取っても字形が崩れない。
+.eyebrow {
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0.08em;
+    color: rgba(15, 26, 46, 0.65);
+}
+
+// -----------------------------------------------------------------------------
+// カード・入力欄の境界（設計書 §2-1「カード境界の作り方」）
+// paper × mat = 1.11:1 のため、罫線と影の両方が必須。
+// **設計書に「罫線か影のどちらかを省略しない」と明記されている禁止事項**。
+// - 細罫線: ink を 8% 不透明度で使用（Bootstrap の $border-color 経由で
+//   .card / .form-control の border-color に反映済み）
+// - 落ち影: ink を 6〜8% で 2 段影（Bootstrap には $card-box-shadow 相当の
+//   変数がないため、明示的にルールで指定）
+// フォーカス時は $input-btn-focus-box-shadow の二重輪郭で置き換わる
+// （box-shadow は置き換え、border は残る）。
+// -----------------------------------------------------------------------------
+.card {
+    box-shadow: 0 1px 3px rgba(15, 26, 46, 0.08), 0 4px 12px rgba(15, 26, 46, 0.06);
+}
+
+// -----------------------------------------------------------------------------
+// ember 面（.btn-danger 等）の文字色を mat に明示上書き（設計書 §2-1）
+// color-contrast() は $min-contrast-ratio 4.5 で ember に対し自動的に mat を
+// 選ぶが、閾値近傍の色を追加する事故を防ぐため、変数任せにせず明示する。
+// -----------------------------------------------------------------------------
+.btn-danger {
+    color: $mat;
+
+    &:hover, &:focus, &:active, &.active, &:disabled {
+        color: $mat;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 成功系メッセージ（設計書 §2-1）
+// Bootstrap の .alert-success は $success（cobalt）の tint / shade から
+// 自動生成されるため、そのままだと「薄い青の面 + 濃い青の文字」になる。
+// 設計書は「cobalt 面 + mat 文字」を求めているため明示上書きする。
+// -----------------------------------------------------------------------------
+.alert-success {
+    background-color: $cobalt;
+    color: $mat;
+    border-color: $cobalt;
+
+    // 閉じるボタン（× アイコン）は SVG 背景で黒基調のため、白に反転させる
+    .btn-close {
+        filter: invert(1);
+    }
+}
+
+// -----------------------------------------------------------------------------
+// ナビゲーションバー（段階2 の暫定措置。段階4 で削除する捨てコード）
+//
+// Blade は `<nav class="... navbar-dark bg-client-nav">` のままで、
+// navbar-dark（白文字前提）と組み合わされている。設計書の方向性
+// 「写真が主役、UI は額縁」に従い、ナビは mat 面 + ink 文字にする。
+//
+// **このブロックは段階4 で Blade から navbar-dark を外す際に削除する**。
+// -----------------------------------------------------------------------------
 .bg-client-nav {
-    background-color: #fd7e14 !important;
+    background-color: $mat !important;
+    border-bottom: 1px solid rgba(15, 26, 46, 0.08);
+
+    // navbar-dark を打ち消して ink 基調にする（Bootstrap 5.3 の CSS 変数）
+    --bs-navbar-color:              #{$ink};
+    --bs-navbar-hover-color:        #{$cobalt};
+    --bs-navbar-active-color:       #{$ink};
+    --bs-navbar-brand-color:        #{$ink};
+    --bs-navbar-brand-hover-color:  #{$cobalt};
+    --bs-navbar-disabled-color:     rgba(15, 26, 46, 0.5);
+
+    .navbar-brand,
+    .navbar-text {
+        color: $ink !important;
+    }
+
+    // ログアウトボタン（Blade の btn-outline-light、白基調前提）を個別上書き
+    .btn-outline-light {
+        color: $ink;
+        border-color: rgba(15, 26, 46, 0.2);
+
+        &:hover, &:focus, &:active {
+            color: $mat;
+            background-color: $ink;
+            border-color: $ink;
+        }
+    }
 }
 
-// トレーナー側ナビバー背景（クライアント側 .bg-client-nav のオレンジと区別する紺）
-.bg-trainer-nav {
-    background-color: #0a4fa8 !important;
+// -----------------------------------------------------------------------------
+// 数字の桁揃え（設計書 §3「数字の扱い」）
+// body 全体には適用しない。以下の要素に限定：
+// - .num-tabular ユーティリティクラス（段階3以降で日付ブロックの日・
+//   記録件数・時刻・郵便番号の要素に付与）
+// - input[type="tel"]（電話番号）— セマンティクスから自動適用
+// -----------------------------------------------------------------------------
+.num-tabular,
+input[type="tel"] {
+    font-variant-numeric: tabular-nums;
 }
 
-// トレーナー側テーマの文字色（ナビ背景 .bg-trainer-nav と同じ紺）
-.text-trainer-nav {
-    color: #0a4fa8 !important;
-}
+// -----------------------------------------------------------------------------
+// app.scss 由来の保持ルール（h2 の font-size 上書きは §3 の型スケールと
+// 矛盾するため削除。他は保持）
+// -----------------------------------------------------------------------------
 
 // フォーム入力欄の高さ調整（上下 padding を Bootstrap デフォルト .375rem から縮小）
 .form-control,
 .form-select {
     padding-top: 0.25rem;
     padding-bottom: 0.25rem;
-}
-
-// 画面タイトル（h2）のフォントサイズを Bootstrap デフォルト（2rem）から縮小
-h2 {
-    font-size: 1.75rem;
 }
 
 // 水平フォームの固定幅ラベル（登録・編集画面のラベル左・入力欄右レイアウト用）
