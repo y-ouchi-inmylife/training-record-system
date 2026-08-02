@@ -280,6 +280,291 @@ input[type="tel"] {
 }
 
 // -----------------------------------------------------------------------------
+// ダッシュボード（段階3）: セッションカード・フィード
+// 設計書 §4-2「ダッシュボード — 改善案」・§5「シグネチャー」に従う。
+//
+// 【解いていること】
+// - カード内スクロールを一切持たない（ページ全体のスクロールのみ）
+// - 独立したメディアギャラリー廃止、写真は各記録カード内に統合
+// - 日付ブロック（cobalt 帯）が各カード左端で共通のシグネチャー要素
+// - hero（先頭1件）は写真を大きく、feed（残り）はサムネイル数枚
+//
+// 【§2-1 の禁止事項の遵守】
+// - cobalt 面（日付ブロック）の文字は mat のみ
+// - カードは罫線（$border-color = ink 8%）と box-shadow 2 段影の両方を持つ
+// - vivid 面（persimmon 等）は現状カード内に配置しない
+//   （training-type タグは §4-2 のワイヤーフレームに無いため廃止した）
+// -----------------------------------------------------------------------------
+
+// あいさつ（H1 のグローバルスタイル: color=cobalt, weight=700, letter-spacing=0.01em
+// はすでに適用済み。ここでは余白のみ調整）
+.c-greeting {
+    margin-bottom: 0.5rem;
+}
+
+// 犬の名前・写真の予約領域（現状は hidden）。将来 dog エンティティ差し込み用。
+.c-dog-placeholder {
+    // hidden 属性で非表示。CSS 側では余白だけ確保（実質 0）。
+}
+
+// セクション（hero / feed 全体のラッパ）
+.c-section {
+    margin-top: 2rem;
+}
+.c-section:first-of-type {
+    margin-top: 1.5rem;
+}
+.c-section-sub {
+    margin-top: -0.25rem;
+    margin-bottom: 1rem;
+}
+
+// 空状態カード（記録0件） — 装飾を入れず、次に何が起きるかを言葉で伝える
+.c-empty-state .c-empty-card {
+    background-color: $mat;
+    border: 1px solid rgba(15, 26, 46, 0.08);
+    box-shadow: 0 1px 3px rgba(15, 26, 46, 0.08), 0 4px 12px rgba(15, 26, 46, 0.06);
+    border-radius: 0.5rem;
+    padding: 1.5rem 1.25rem;
+    line-height: 1.75;
+}
+
+// セッションカード本体（mat 面 + 罫線 + 影）
+.c-session {
+    display: flex;
+    background-color: $mat;
+    border: 1px solid rgba(15, 26, 46, 0.08);
+    box-shadow: 0 1px 3px rgba(15, 26, 46, 0.08), 0 4px 12px rgba(15, 26, 46, 0.06);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.c-session:hover {
+    box-shadow: 0 2px 6px rgba(15, 26, 46, 0.12), 0 8px 20px rgba(15, 26, 46, 0.08);
+    transform: translateY(-1px);
+}
+@media (prefers-reduced-motion: reduce) {
+    .c-session,
+    .c-session:hover {
+        transition: none;
+        transform: none;
+    }
+}
+
+// 日付ブロック（シグネチャー・§5）
+// cobalt 帯の縦組み日本語。数字は 700 で 2rem、hero では 2.75rem。
+.c-date-block {
+    flex: 0 0 auto;
+    width: 4.5rem;
+    background-color: $cobalt;
+    color: $mat;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 0.25rem;
+    text-align: center;
+    line-height: 1;
+    gap: 0.35rem;
+}
+.c-date-month {
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+.c-date-day {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+}
+.c-date-weekday {
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+}
+
+// hero variant: 日付ブロックをやや大きくして「最新の 1 件」の存在感を作る
+.c-session--hero .c-date-block {
+    width: 5.5rem;
+    padding: 1.5rem 0.5rem;
+    gap: 0.5rem;
+}
+.c-session--hero .c-date-day {
+    font-size: 2.75rem;
+}
+
+// セッションカード本体（日付ブロックの右）
+.c-session-body {
+    flex: 1 1 auto;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    min-width: 0; // flex 子要素で img/text-overflow が効くように
+}
+.c-session--hero .c-session-body {
+    padding: 1.25rem 1.5rem;
+}
+
+// 中身が少ないカードでも上下中央に配置するためのラッパ。
+// flex + margin:auto パターン（media-records/_lightbox.blade.php の教訓を踏襲）。
+// 親に justify-content:center を効かせると、内容が親より大きくなったときに
+// 親の overflow:hidden で上端がクリップされる罠がある。margin:auto は
+// 余りが無ければ自動的に 0 に崩れるため、内容が満たしている場合の見た目は
+// 変わらず、少ないときのみ上下均等に余白が振り分けられる。
+.c-session-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: auto 0;
+    min-width: 0;
+}
+.c-session--hero .c-session-content {
+    gap: 1rem;
+}
+
+// メディア（写真・動画のサムネイル）
+// feed: 小さい固定サイズのサムネイル(設計書 §4-2 wireframe の
+// [thumb][thumb] の小型並びを再現)。72px 固定の正方形を自動フィル。
+.c-session-media {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 72px);
+    gap: 0.5rem;
+    justify-content: start;
+}
+// hero: 大きめの写真(minmax 140px 以上でカード幅にフィット)
+.c-session-media--hero {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.75rem;
+    justify-content: initial; // feed の start を打ち消し、grid 既定の stretch へ
+}
+
+.c-media-thumb {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    background-color: rgba(15, 26, 46, 0.04);
+    border-radius: 0.25rem;
+    overflow: hidden;
+    cursor: pointer;
+    outline: none;
+}
+.c-media-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.c-media-thumb:hover img {
+    opacity: 0.92;
+}
+.c-media-thumb:focus-visible {
+    // 二重輪郭のフォーカスリング（§2-1）
+    box-shadow: 0 0 0 3px $mat, 0 0 0 5px $ink;
+}
+.c-media-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(15, 26, 46, 0.5);
+    font-size: 0.75rem;
+}
+// 変換未完メディア用の「準備中」バッジ（設計書 §6 の文言方針）
+// 黒に近い ink 半透過に mat 文字（8.29:1 以上）
+.c-media-badge {
+    position: absolute;
+    top: 0.25rem;
+    left: 0.25rem;
+    background-color: rgba(15, 26, 46, 0.85);
+    color: $mat;
+    font-size: 0.7rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.25rem;
+    line-height: 1.4;
+}
+
+// 「+N」（残数リンク）
+.c-media-more {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1 / 1;
+    background-color: rgba(15, 26, 46, 0.04);
+    border: 1px dashed rgba(15, 26, 46, 0.25);
+    border-radius: 0.25rem;
+    color: $ink;
+    font-weight: 700;
+    text-decoration: none;
+}
+.c-media-more:hover {
+    background-color: rgba(15, 26, 46, 0.08);
+    color: $cobalt;
+}
+.c-media-more:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px $mat, 0 0 0 5px $ink;
+}
+
+// ノート冒頭
+.c-session-note {
+    margin: 0;
+    color: $ink;
+    line-height: 1.75;
+}
+
+// 「続きを読む →」CTA
+.c-session-cta {
+    align-self: flex-start;
+    color: $cobalt;
+    font-weight: 700;
+    text-decoration: none;
+}
+.c-session-cta:hover {
+    text-decoration: underline;
+}
+.c-session-cta:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px $mat, 0 0 0 5px $ink;
+    border-radius: 2px;
+}
+
+// トースト（成功系メッセージ規約に準拠: cobalt 面 + mat 文字）
+.c-toast {
+    background-color: $cobalt;
+    color: $mat;
+}
+
+// モバイル（576px 未満）
+// - 日付ブロックを少し狭く
+// - hero の写真グリッドを 2 列に
+@media (max-width: 575.98px) {
+    .c-date-block {
+        width: 3.75rem;
+        padding: 0.75rem 0.25rem;
+    }
+    .c-date-day {
+        font-size: 1.75rem;
+    }
+    .c-session--hero .c-date-block {
+        width: 4.25rem;
+        padding: 1rem 0.25rem;
+    }
+    .c-session--hero .c-date-day {
+        font-size: 2.25rem;
+    }
+    .c-session-body {
+        padding: 0.75rem 1rem;
+    }
+    .c-session--hero .c-session-body {
+        padding: 1rem 1.25rem;
+    }
+    .c-session-media--hero {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+// -----------------------------------------------------------------------------
 // app.scss 由来の保持ルール（h2 の font-size 上書きは §3 の型スケールと
 // 矛盾するため削除。他は保持）
 // -----------------------------------------------------------------------------
