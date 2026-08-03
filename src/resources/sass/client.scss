@@ -605,6 +605,85 @@ input[type="tel"] {
 }
 
 // -----------------------------------------------------------------------------
+// 記録詳細画面（段階4-1） — 設計書 §4-4「トレーニング記録詳細」
+//
+// - 表(table)を廃止し、狭幅で崩れない縦積み構造
+// - 日付は h1 テキストとして表示（ダッシュボードの日付ブロックとは
+//   プレゼンテーションが異なるが、同じ「8月2日（金）」の文字列を保つことで
+//   飼い主が2画面で同じ表現を見る一貫性を維持）
+// - impression は表示しない（コントローラも読み込んでいない=構造的漏洩防止）
+// - 空値の項目は行ごと出さない（「—」表示は廃止）
+// - モバイル(<576px)は container の左右 padding が縮み、
+//   タイトルサイズも 1 段下がる
+// -----------------------------------------------------------------------------
+
+// 戻る導線: 「戻る」ではなく行き先を書く（設計書 §6）
+.c-detail-back {
+    display: inline-block;
+    color: $cobalt;
+    font-weight: 700;
+    text-decoration: none;
+    margin-bottom: 1rem;
+}
+.c-detail-back:hover {
+    text-decoration: underline;
+}
+.c-detail-back:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px $mat, 0 0 0 5px $ink;
+    border-radius: 2px;
+}
+
+// 詳細タイトル: 日付主体の大見出し
+// h1 グローバルスタイル(color: cobalt, letter-spacing: 0.01em)より
+// 大きな値で上書きされるようクラスで完全指定する
+.c-detail-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: 0.01em;
+    color: $cobalt;
+    margin-bottom: 0.5rem;
+}
+
+// メタ情報（トレーナー ・ 時刻）: 2 行を縦に積む
+.c-detail-meta {
+    margin-bottom: 2rem;
+    line-height: 1.7;
+}
+
+// 詳細内の各セクション（写真・ノート・今日やったこと）
+.c-detail-section {
+    margin-top: 2.5rem;
+}
+.c-detail-section .eyebrow {
+    margin-bottom: 0.75rem;
+}
+
+// ノート本文・「今日やったこと」本文
+// white-space: pre-wrap で record_content の改行を保持
+.c-detail-body {
+    color: $ink;
+    line-height: 1.85;
+    white-space: pre-wrap;
+}
+
+// モバイル(576px 未満)のタイトル調整
+// 2.5rem = 40px × 12〜13 文字だと 400px 幅のカードに収まらないため
+// 1.75rem = 28px に下げて余裕を作る
+@media (max-width: 575.98px) {
+    .c-detail-title {
+        font-size: 1.75rem;
+    }
+    .c-detail-section {
+        margin-top: 2rem;
+    }
+    .c-detail-meta {
+        margin-bottom: 1.5rem;
+    }
+}
+
+// -----------------------------------------------------------------------------
 // app.scss 由来の保持ルール（h2 の font-size 上書きは §3 の型スケールと
 // 矛盾するため削除。他は保持）
 // -----------------------------------------------------------------------------
