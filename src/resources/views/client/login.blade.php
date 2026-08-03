@@ -39,7 +39,7 @@
                         value="{{ old('email') }}"
                         required
                         autofocus
-                        autocomplete="email"
+                        autocomplete="username"
                     >
                 </div>
 
