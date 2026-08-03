@@ -185,12 +185,13 @@ h2, .h2 {
 
 // -----------------------------------------------------------------------------
 // カード・入力欄の境界（設計書 §2-1「カード境界の作り方」）
-// paper × mat = 1.11:1 のため、罫線と影の両方が必須。
-// **設計書に「罫線か影のどちらかを省略しない」と明記されている禁止事項**。
-// - 細罫線: ink を 8% 不透明度で使用（Bootstrap の $border-color 経由で
-//   .card / .form-control の border-color に反映済み）
-// - 落ち影: ink を 6〜8% で 2 段影（Bootstrap には $card-box-shadow 相当の
-//   変数がないため、明示的にルールで指定）
+// paper × mat = 1.11:1 のため、色差だけでは輪郭が見えない。
+// - カード（.card）: 罫線 + 影 の両方で輪郭を作る
+// - 入力欄（.form-control）: **罫線のみで輪郭を作る（影は付けない）**。
+//   フォームは要素数が多いため全ての入力欄に影を付けると視覚的にうるさく、
+//   罫線 + フォーカス時の二重輪郭リングで境界は十分識別できる
+// 細罫線色は $border-color = ink 8% を Bootstrap の変数上書きで
+// .card / .form-control 双方に反映済み。
 // フォーカス時は $input-btn-focus-box-shadow の二重輪郭で置き換わる
 // （box-shadow は置き換え、border は残る）。
 // -----------------------------------------------------------------------------
@@ -679,6 +680,78 @@ input[type="tel"] {
         margin-top: 2rem;
     }
     .c-detail-meta {
+        margin-bottom: 1.5rem;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// ログイン画面（段階4-2）— 設計書 §4-3
+//
+// 【解いていること】
+// - 旧 `min-vh-100` + `align-items:center` の縦センタリングを廃止（数ピクセル
+//   の溢れでスクロールバーが出る既知の不具合を解消）
+// - カードは max-width で幅を絞り、上余白基準で配置。フッターの有無で
+//   カード位置が動かない構造（§9-2 の要件）
+// - プロダクト名は config('app.client_portal_name') から供給（§9-1）
+// - フッター会社名は config('app.client_portal_company') が未設定なら
+//   Blade 側でブロックごと出さない（§9-2）
+// - ロゴ画像（仮のミカン）は表示しない（§9-3）。将来ロゴ再導入時のために
+//   ワードマーク左に画像スロット（max-height 48px）を追加できる余白を予約
+// -----------------------------------------------------------------------------
+
+.c-login {
+    max-width: 26rem;
+    margin: 0 auto;
+    padding-top: 3rem;
+    padding-bottom: 2rem;
+}
+
+// ワードマーク（プロダクト名）
+// 設計書 §9-1 の想定文字数は 3〜7 文字だが、暫定値「トレーニング記録」は 8 文字。
+// 400px 幅で収まるよう Display 2.75rem より少し下げた 2.5rem を採用
+// （8 文字 × 40px = 320px、モバイル container 内幅約 376px に対し余裕）。
+// モバイルではさらに 2rem に下げる。将来 3〜7 文字に変わっても破綻しない。
+.c-login-wordmark {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+    color: $cobalt;
+    text-align: center;
+    margin: 0 0 2rem;
+}
+
+// カード幅は c-login の max-width（26rem）で制約済み
+// 既存の .card ルール（罫線 + 影）をそのまま継承
+.c-login-card {
+    // No additional properties needed. Placeholder for future adjustments.
+}
+
+// ヘルプテキスト（カード下）: 会社名が無くても成立する説明文
+.c-login-help {
+    text-align: center;
+    color: rgba(15, 26, 46, 0.65);
+    font-size: 0.875rem;
+    line-height: 1.6;
+    margin: 1rem 0 0;
+}
+
+// フッター（会社名 / 年）: Blade で config が未設定なら出力されない。
+// 出力される場合のスタイルだけ定義。
+.c-login-footer {
+    text-align: center;
+    color: rgba(15, 26, 46, 0.45);
+    font-size: 0.75rem;
+    margin: 1.5rem 0 0;
+}
+
+// モバイル（<576px）: 上余白とワードマークサイズを縮小
+@media (max-width: 575.98px) {
+    .c-login {
+        padding-top: 1rem;
+    }
+    .c-login-wordmark {
+        font-size: 2rem;
         margin-bottom: 1.5rem;
     }
 }
