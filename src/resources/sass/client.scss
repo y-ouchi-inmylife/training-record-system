@@ -829,6 +829,151 @@ input[type="tel"] {
 }
 
 // -----------------------------------------------------------------------------
+// intake フォーム（段階4-5） — 設計書 §4-5・§4-6
+//
+// - layouts.client-intake の container 内に max-width を持つ .c-intake で
+//   コンテンツ幅を制約（デスクトップ 40rem 中央寄せ、モバイルは container 幅）
+// - 3 点シェブロン（基本情報 → 連絡先 → 完了）は既存の .step-badge 構造を
+//   活用。JS 依存の class 名（.step-badge / .bg-primary / .bg-secondary /
+//   .d-none / #progressBar / #step1 / #step2）と data-step 属性は変更禁止のため、
+//   ここでは見た目の調整のみ行う（バッジのサイズ・角丸・シェブロン全体の配置）
+// - 完了画面（§4-6）は cobalt の checkmark 円 + 見出し + 説明文
+// -----------------------------------------------------------------------------
+
+.c-intake {
+    max-width: 40rem;
+    margin: 0 auto;
+}
+
+// ページ h1（「事前入力情報」）
+.c-intake-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: $cobalt;
+    letter-spacing: 0.01em;
+    text-align: center;
+    margin: 0.5rem 0 1.5rem;
+}
+
+// 3 点シェブロン container
+.c-intake-progress {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+// バッジ（.step-badge / 完了）の見た目調整。.bg-primary / .bg-secondary は
+// JS 依存なので触らないが、バッジ自体のサイズ・角丸を intake 用に大きめに
+.c-intake-progress .badge {
+    font-size: 0.875rem;
+    font-weight: 700;
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+}
+
+// シェブロンの矢印セパレータ
+.c-intake-progress-arrow {
+    color: rgba(15, 26, 46, 0.4);
+    font-weight: 700;
+}
+
+// カード内のステップ見出し（「基本情報（1/2）」等）
+.c-intake-step-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: $cobalt;
+    letter-spacing: 0.01em;
+    margin: 0 0 1.25rem;
+}
+
+// ラベル横の「（必須）」テキスト
+.c-intake-required {
+    color: rgba(15, 26, 46, 0.65);
+    font-size: 0.875rem;
+    font-weight: 400;
+    margin-left: 0.25rem;
+}
+
+// アクション（ボタン）コンテナ。デフォルトは右寄せ（次へ用）、
+// --split で両端寄せ（戻る/送信用）
+.c-intake-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+}
+.c-intake-actions--split {
+    justify-content: space-between;
+}
+
+// 住所検索のインラインエラー: #postal_code_client_error に付与
+// 通常 .invalid-feedback は display:none だが d-block で常時表示可能にし、
+// Blade 側で hidden 属性で show/hide を制御する
+.c-intake-inline-error {
+    margin-top: 0.25rem;
+}
+
+// フッター（会社名）。他画面と同系のスタイル
+.c-intake-footer {
+    text-align: center;
+    color: rgba(15, 26, 46, 0.45);
+    font-size: 0.75rem;
+    margin-top: 2rem;
+    margin-bottom: 0;
+}
+
+// 完了画面（§4-6）
+.c-intake-complete {
+    max-width: 26rem;
+    margin: 0 auto;
+    padding-top: 3rem;
+    padding-bottom: 2rem;
+    text-align: center;
+}
+
+.c-intake-complete-check {
+    display: block;
+    width: 4rem;
+    height: 4rem;
+    line-height: 4rem;
+    background-color: $cobalt;
+    color: $mat;
+    border-radius: 50%;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 auto 1.5rem;
+}
+
+.c-intake-complete-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $cobalt;
+    letter-spacing: 0.01em;
+    margin: 0 0 1rem;
+}
+
+.c-intake-complete-body {
+    color: rgba(15, 26, 46, 0.75);
+    line-height: 1.7;
+    margin: 0;
+}
+
+// モバイル（<576px）
+@media (max-width: 575.98px) {
+    .c-intake-title {
+        font-size: 1.5rem;
+    }
+    .c-intake-step-title {
+        font-size: 1.125rem;
+    }
+    .c-intake-complete {
+        padding-top: 1.5rem;
+    }
+}
+
+// -----------------------------------------------------------------------------
 // app.scss 由来の保持ルール（h2 の font-size 上書きは §3 の型スケールと
 // 矛盾するため削除。他は保持）
 // -----------------------------------------------------------------------------
