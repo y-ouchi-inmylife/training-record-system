@@ -8,11 +8,11 @@
     <link rel="icon" href="/favicon.ico" sizes="32x32">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <title>@yield('title', 'トレーニング記録閲覧')</title>
+    <title>@yield('title', config('app.client_portal_name', 'トレーニング記録'))</title>
     @vite(['resources/sass/client.scss', 'resources/js/app.js'])
     @stack('styles')
 </head>
-<body class="bg-light">
+<body>
     <main class="py-4">
         <div class="container">
             @yield('content')

@@ -8,20 +8,26 @@
     <link rel="icon" href="/favicon.ico" sizes="32x32">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <title>@yield('title', 'クライアント閲覧 - トレーニング記録管理システム')</title>
+    <title>@yield('title', config('app.client_portal_name', 'トレーニング記録'))</title>
     @vite(['resources/sass/client.scss', 'resources/js/app.js'])
     @stack('styles')
 </head>
-<body class="bg-light">
+<body>
     @auth('client')
-    <nav class="navbar navbar-expand-lg navbar-dark bg-client-nav">
+    {{-- クライアント側ナビ: navbar-dark / bg-client-nav の暫定構造から
+         .c-nav に移行(段階4-6)。Bootstrap の .navbar 単体では色が付かない
+         ため、SCSS 側 .c-nav で mat 面 + 罫線 + navbar CSS 変数(ink 基調)を
+         定義する --}}
+    <nav class="navbar navbar-expand-lg c-nav">
         <div class="container">
-            <span class="navbar-brand">トレーニング記録閲覧</span>
+            <span class="navbar-brand">{{ config('app.client_portal_name', 'トレーニング記録') }}</span>
             <div class="d-flex align-items-center">
-                <span class="navbar-text text-white me-3">{{ auth('client')->user()->full_name }} さん</span>
+                <span class="navbar-text me-3">{{ auth('client')->user()->full_name }} さん</span>
                 <form method="POST" action="{{ route('client-portal.logout') }}" class="m-0">
                     @csrf
-                    <button type="submit" class="btn btn-sm btn-outline-light">ログアウト</button>
+                    {{-- 設計書 §6: ログアウトは主要な行為ではないため
+                         btn-link で文字リンク化(装飾を落とす) --}}
+                    <button type="submit" class="btn btn-link btn-sm">ログアウト</button>
                 </form>
             </div>
         </div>

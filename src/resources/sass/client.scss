@@ -230,42 +230,23 @@ h2, .h2 {
 }
 
 // -----------------------------------------------------------------------------
-// ナビゲーションバー（段階2 の暫定措置。段階4 で削除する捨てコード）
+// クライアント側ナビゲーションバー（段階4-6 で暫定コードから正式化）
 //
-// Blade は `<nav class="... navbar-dark bg-client-nav">` のままで、
-// navbar-dark（白文字前提）と組み合わされている。設計書の方向性
-// 「写真が主役、UI は額縁」に従い、ナビは mat 面 + ink 文字にする。
-//
-// **このブロックは段階4 で Blade から navbar-dark を外す際に削除する**。
+// Blade からは `navbar-dark` / `bg-client-nav` を除去し `.c-nav` に統一。
+// 打ち消し（!important）を伴わないクリーンな指定で mat 面 + ink 文字を実現。
 // -----------------------------------------------------------------------------
-.bg-client-nav {
-    background-color: $mat !important;
+.c-nav {
+    background-color: $mat;
     border-bottom: 1px solid rgba(15, 26, 46, 0.08);
 
-    // navbar-dark を打ち消して ink 基調にする（Bootstrap 5.3 の CSS 変数）
+    // Bootstrap 5.3 の navbar 用 CSS カスタムプロパティを ink 基調にセット。
+    // navbar-brand・navbar-text はこの変数値を参照するため、個別の色指定不要
     --bs-navbar-color:              #{$ink};
     --bs-navbar-hover-color:        #{$cobalt};
     --bs-navbar-active-color:       #{$ink};
     --bs-navbar-brand-color:        #{$ink};
     --bs-navbar-brand-hover-color:  #{$cobalt};
     --bs-navbar-disabled-color:     rgba(15, 26, 46, 0.5);
-
-    .navbar-brand,
-    .navbar-text {
-        color: $ink !important;
-    }
-
-    // ログアウトボタン（Blade の btn-outline-light、白基調前提）を個別上書き
-    .btn-outline-light {
-        color: $ink;
-        border-color: rgba(15, 26, 46, 0.2);
-
-        &:hover, &:focus, &:active {
-            color: $mat;
-            background-color: $ink;
-            border-color: $ink;
-        }
-    }
 }
 
 // -----------------------------------------------------------------------------
