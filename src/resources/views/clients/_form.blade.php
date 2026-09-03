@@ -58,7 +58,7 @@
                             </div>
                         </div>
                     @endif
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="row g-2 align-items-center">
                             <label for="initial_consultation_date" class="col-md-auto col-form-label text-md-end form-label-fixed">
                                 初回日 <span class="text-danger">*</span>
@@ -73,7 +73,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-5">
                         <div class="row g-2 align-items-center">
                             <label for="email" class="col-md-auto col-form-label text-md-end form-label-fixed">メールアドレス</label>
                             <div class="col-12 col-md">
