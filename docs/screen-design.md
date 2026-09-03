@@ -159,6 +159,30 @@ graph TD
 
 ---
 
+### 2-3. ブラウザタイトル
+
+ブラウザタブに表示される `<title>` は「**画面名 - サフィックス**」形式で統一する。
+
+#### 供給元
+
+| 側 | 対象レイアウト | サフィックス |
+|---|---|---|
+| トレーナー側 | `layouts/app`・`layouts/guest`・`layouts/error` | `config('app.trainer_portal_name')`（既定値「トレーニング記録管理システム」） |
+| クライアント側 | `layouts/client`・`layouts/client-public`・`layouts/client-intake` | `config('app.client_portal_name')`（既定値「トレーニング記録」。クライアント側プロダクト名の詳細は `docs/client-portal-design-plan.md` §9-1 を参照） |
+
+#### 記述規約
+
+- **画面名は各 Blade の `@section('title', ...)` で機能名のみを渡す**（例: `@section('title', 'クライアント一覧')`）。
+- **サフィックスはレイアウト側で `<title>` タグ内に後付けする**。`@section('title', ...)` 側でサフィックスを連結してはならない（連結すると規約から外れた画面ごとに手当てが発生する）。
+- `@section('title')` が未指定の画面は、レイアウトの `@hasSection('title')` 分岐によりサフィックスのみを表示する（先頭に「 - 」が付かないこと）。
+
+#### 例外
+
+1. **client-intake 系 2 画面**（`client-intake/index-public.blade.php`・`client-intake/errors/invalid-token.blade.php`）は意図的に `@section('title', ...)` を渡さず、サフィックス（クライアント側プロダクト名）のみを `<title>` に表示する。事前入力を開いた飼い主にとって、機能名としての「事前入力情報」は不要と判断したため。
+2. **`recording-v2/session.blade.php`** はレイアウトを継承せず `<title>録音実行</title>` を直書きしている。音声記録機能に属する画面のため、本規約の適用対象外。
+
+---
+
 ## 3. 画面詳細
 
 **記載範囲**:

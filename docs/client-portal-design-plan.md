@@ -953,6 +953,10 @@ DashboardController.php:33 の既存コメントにあるとおり、**同じメ
 
 - 現時点で未確定。「しっぽ帳」は仮案であり本文の暫定表記としてのみ使う
 - **Blade にベタ書きしない**。`config('app.client_portal_name')`（またはそれに準ずる config キー）を経由して供給する前提
+- `config('app.client_portal_name')` の用途は以下の 3 箇所：
+  - **ワードマーク**: ログイン画面・パスワード設定画面・intake エラー画面の `<h1 class="c-login-wordmark">`
+  - **navbar-brand**: `layouts/client`（認証後ヘッダー）のブランド表示
+  - **ブラウザタイトルのサフィックス**: `layouts/client`・`layouts/client-public`・`layouts/client-intake` が `<title>` 末尾に付与する（画面設計書 §2-3「ブラウザタイトル」を参照）
 - **ワードマーク（ログイン画面ヘッダー）は文字数で組みが変わる**ため、以下の想定範囲で成立させる：
   - 想定文字数: **3〜7 文字（日本語・漢字/ひらがな混在）**
   - システムサンス（ウェイト 700、色 cobalt）で 2.75rem 前後を基準に、7 文字までは 1 行、5 文字以下ではさらに大きく組む
