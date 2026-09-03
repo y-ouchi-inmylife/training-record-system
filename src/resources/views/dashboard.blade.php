@@ -1,57 +1,11 @@
 @extends('layouts.app')
 
-@push('styles')
-<style>
-    /* ダッシュボードの機能カード（カード全体をクリック可能なリンクに） */
-    .dashboard-link-card {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        cursor: pointer;
-    }
-    .dashboard-link-card:hover {
-        transform: translateY(-2px);
-        /* Bootstrap の shadow-sm が !important 指定のため、ホバー時も !important で打ち消す */
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-    }
-    .dashboard-link-card:focus-visible {
-        outline: 2px solid #0d6efd;
-        outline-offset: 2px;
-    }
-</style>
-@endpush
-
 @section('content')
 <div class="container">
     {{-- ウェルカムメッセージ --}}
     <div class="alert alert-info mb-4">
         ようこそ、<strong>{{ Auth::user()->name }}</strong> さん。
         （権限: {{ Auth::user()->role_display_name }}）
-    </div>
-
-    <div class="row mb-3">
-        {{-- クライアント一覧 --}}
-        <div class="col-md-4 mb-3">
-            <a href="{{ route('clients.index') }}" class="text-decoration-none text-reset d-block h-100" aria-label="クライアント一覧画面へ移動">
-                <div class="card h-100 shadow-sm dashboard-link-card">
-                    <div class="card-body">
-                        <h5 class="card-title">クライアント一覧</h5>
-                        <p class="card-text text-muted mb-0">クライアントの検索・閲覧</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        {{-- クライアント登録 --}}
-        <div class="col-md-4 mb-3">
-            <a href="{{ route('clients.create') }}" class="text-decoration-none text-reset d-block h-100" aria-label="クライアント登録画面へ移動">
-                <div class="card h-100 shadow-sm dashboard-link-card">
-                    <div class="card-body">
-                        <h5 class="card-title">クライアント登録</h5>
-                        <p class="card-text text-muted mb-0">クライアントの登録</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-
     </div>
 
     {{-- サマリー情報: 主担当クライアント一覧 --}}
