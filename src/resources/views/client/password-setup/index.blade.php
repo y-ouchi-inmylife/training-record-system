@@ -6,7 +6,7 @@
     $companyName = config('app.client_portal_company');
 @endphp
 
-@section('title', 'パスワードを決めます - ' . $portalName)
+@section('title', 'パスワードを決めます')
 
 @section('content')
 {{-- .c-login-* シェルはログイン画面と共用(pre-auth 用の同一構造)。

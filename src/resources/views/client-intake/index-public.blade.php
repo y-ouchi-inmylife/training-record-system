@@ -6,9 +6,9 @@
     $companyName = config('app.client_portal_company');
 @endphp
 
-{{-- 注: layouts.client-intake は <title> が「事前入力情報」で固定されており
-     @section('title', ...) を受け取らない。この画面の browser tab title は
-     「事前入力情報」となる制約がある(layouts は不可触) --}}
+{{-- ブラウザタイトルは意図的にサフィックス(config('app.client_portal_name'))
+     のみとする。画面設計書 §2-3「ブラウザタイトル」の例外 1 に該当。
+     事前入力を開いた飼い主にとって機能名としての「事前入力情報」は不要と判断 --}}
 
 @section('content')
 <div class="c-intake">

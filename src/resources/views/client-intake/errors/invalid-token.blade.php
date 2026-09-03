@@ -6,9 +6,9 @@
     $companyName = config('app.client_portal_company');
 @endphp
 
-{{-- 注: layouts.client-intake は <title> が「事前入力情報」で固定されており
-     @section('title', ...) を受け取らない。この画面の browser tab title は
-     「事前入力情報」となる制約がある(layouts は不可触) --}}
+{{-- ブラウザタイトルは意図的にサフィックス(config('app.client_portal_name'))
+     のみとする。画面設計書 §2-3「ブラウザタイトル」の例外 1 に該当。
+     エラー種別を <title> に露出せず、飼い主には画面本文の $title / $message で伝える --}}
 
 @section('content')
 {{-- .c-login-* シェルはログイン・パスワード設定と共用。命名は login 起源だが

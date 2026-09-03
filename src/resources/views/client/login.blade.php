@@ -7,7 +7,7 @@
     $companyName = config('app.client_portal_company');
 @endphp
 
-@section('title', $portalName . ' - ログイン')
+@section('title', 'ログイン')
 
 @section('content')
 <div class="c-login">

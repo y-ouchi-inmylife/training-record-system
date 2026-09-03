@@ -6,7 +6,7 @@
     $companyName = config('app.client_portal_company');
 @endphp
 
-@section('title', $title . ' - ' . $portalName)
+@section('title', $title)
 
 @section('content')
 {{-- .c-login-* シェルはログイン・パスワード設定と共用。命名は login 起源だが

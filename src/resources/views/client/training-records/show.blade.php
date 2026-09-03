@@ -19,7 +19,7 @@
         . '（' . $weekdaysJp[$rec->training_date->dayOfWeek] . '）';
 @endphp
 
-@section('title', $dateLabel . 'のトレーニング - トレーニング記録閲覧')
+@section('title', $dateLabel . 'のトレーニング')
 
 @section('content')
 <div class="container py-4 c-detail">
