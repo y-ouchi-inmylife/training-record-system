@@ -15,39 +15,59 @@
                 @endif
                 <div class="row g-3">
                     <div class="col-md-3">
-                        <label class="form-label">トレーナー</label>
-                        <select name="trainer_id" class="form-select">
-                            <option value="">すべて</option>
-                            @foreach($trainers as $trainer)
-                                <option value="{{ $trainer->id }}" {{ request('trainer_id') == $trainer->id ? 'selected' : '' }}>
-                                    {{ $trainer->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <div class="row g-2 align-items-center">
+                            <label for="trainer_id" class="col-md-auto col-form-label text-md-end form-label-fixed">トレーナー</label>
+                            <div class="col-12 col-md">
+                                <select class="form-select" id="trainer_id" name="trainer_id">
+                                    <option value="">すべて</option>
+                                    @foreach($trainers as $trainer)
+                                        <option value="{{ $trainer->id }}" {{ request('trainer_id') == $trainer->id ? 'selected' : '' }}>
+                                            {{ $trainer->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">操作</label>
-                        <select name="action" class="form-select">
-                            <option value="">すべて</option>
-                            @foreach(\App\Models\AccessLog::actionLabels() as $key => $label)
-                                <option value="{{ $key }}" {{ request('action') === $key ? 'selected' : '' }}>{{ $label }}</option>
-                            @endforeach
-                        </select>
+                        <div class="row g-2 align-items-center">
+                            <label for="action" class="col-md-auto col-form-label text-md-end form-label-fixed">操作</label>
+                            <div class="col-12 col-md">
+                                <select class="form-select" id="action" name="action">
+                                    <option value="">すべて</option>
+                                    @foreach(\App\Models\AccessLog::actionLabels() as $key => $label)
+                                        <option value="{{ $key }}" {{ request('action') === $key ? 'selected' : '' }}>{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label">開始日</label>
-                        <input type="date" name="date_from" class="form-control" value="{{ old('date_from', request('date_from')) }}">
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">終了日</label>
-                        <input type="date" name="date_to" class="form-control" value="{{ old('date_to', request('date_to')) }}">
+                    <div class="col-md-5">
+                        <div class="row g-2 align-items-center">
+                            <label class="col-md-auto col-form-label text-md-end form-label-fixed">日付</label>
+                            <div class="col">
+                                <input type="text" class="form-control datepicker" id="date_from" name="date_from"
+                                       value="{{ old('date_from', request('date_from')) }}"
+                                       placeholder="例: 2026-04-01"
+                                       pattern="\d{4}-\d{2}-\d{2}"
+                                       maxlength="10">
+                            </div>
+                            <div class="col-md-auto px-1">～</div>
+                            <div class="col">
+                                <input type="text" class="form-control datepicker" id="date_to" name="date_to"
+                                       value="{{ old('date_to', request('date_to')) }}"
+                                       placeholder="例: 2026-04-01"
+                                       pattern="\d{4}-\d{2}-\d{2}"
+                                       maxlength="10">
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="mt-3">
+                <div class="d-flex justify-content-end gap-2 mt-3">
+                    <a href="{{ route('access-logs.index') }}" class="btn btn-secondary">クリア</a>
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-search"></i> 検索
                     </button>
-                    <a href="{{ route('access-logs.index') }}" class="btn btn-secondary">クリア</a>
                 </div>
             </form>
         </div>
