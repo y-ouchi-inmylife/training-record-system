@@ -13,8 +13,9 @@
                 @if ($errors->has('date_to') || $errors->has('date_from'))
                     <div class="alert alert-danger">{{ $errors->first('date_to') ?: $errors->first('date_from') }}</div>
                 @endif
-                <div class="row g-3">
-                    <div class="col-md-3">
+                {{-- 行1: トレーナー + 操作 --}}
+                <div class="row g-3 mb-2">
+                    <div class="col-md-4">
                         <div class="row g-2 align-items-center">
                             <label for="trainer_id" class="col-md-auto col-form-label text-md-end form-label-fixed">トレーナー</label>
                             <div class="col-12 col-md">
@@ -29,7 +30,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="row g-2 align-items-center">
                             <label for="action" class="col-md-auto col-form-label text-md-end form-label-fixed">操作</label>
                             <div class="col-12 col-md">
@@ -42,6 +43,10 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                {{-- 行2: 日付（範囲） --}}
+                <div class="row g-3">
                     <div class="col-md-5">
                         <div class="row g-2 align-items-center">
                             <label class="col-md-auto col-form-label text-md-end form-label-fixed">日付</label>
