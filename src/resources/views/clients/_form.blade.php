@@ -140,7 +140,7 @@
 
                 <div class="row g-3">
                     {{-- 行3: 生年月日 + 性別 + 主担当 --}}
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="row g-2 align-items-center">
                             <label for="birth_date" class="col-md-auto col-form-label text-md-end form-label-fixed">生年月日</label>
                             <div class="col-12 col-md">
