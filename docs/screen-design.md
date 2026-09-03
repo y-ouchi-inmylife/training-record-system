@@ -180,6 +180,7 @@ graph TD
 
 1. **client-intake 系 2 画面**（`client-intake/index-public.blade.php`・`client-intake/errors/invalid-token.blade.php`）は意図的に `@section('title', ...)` を渡さず、サフィックス（クライアント側プロダクト名）のみを `<title>` に表示する。事前入力を開いた飼い主にとって、機能名としての「事前入力情報」は不要と判断したため。
 2. **`recording-v2/session.blade.php`** はレイアウトを継承せず `<title>録音実行</title>` を直書きしている。音声記録機能に属する画面のため、本規約の適用対象外。
+3. **ダッシュボード**（トレーナー側 `dashboard.blade.php` / クライアント側 `client/dashboard.blade.php`）は `@section('title', ...)` を渡さず、サフィックスのみを `<title>` に表示する。各ポータルの入口にあたる画面のため、画面名を重ねない。
 
 ---
 
