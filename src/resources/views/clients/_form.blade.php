@@ -66,7 +66,7 @@
                             <div class="col-12 col-md">
                                 <input type="text" class="form-control datepicker @error('initial_consultation_date') is-invalid @enderror"
                                        id="initial_consultation_date" name="initial_consultation_date"
-                                       value="{{ old('initial_consultation_date', $client?->initial_consultation_date?->format('Y-m-d') ?? date('Y-m-d')) }}" required
+                                       value="{{ old('initial_consultation_date', $client?->initial_consultation_date?->format('Y-m-d')) }}" required
                                        placeholder="例: 2000-01-15" pattern="\d{4}-\d{2}-\d{2}" maxlength="10"
                                        autocomplete="off">
                                 @error('initial_consultation_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
