@@ -1,7 +1,5 @@
 @extends('layouts.app')
 
-@section('title', 'ダッシュボード')
-
 @push('styles')
 <style>
     /* ダッシュボードの機能カード（カード全体をクリック可能なリンクに） */

@@ -1,7 +1,5 @@
 @extends('layouts.client')
 
-@section('title', 'ダッシュボード')
-
 @php
     // 曜日の日本語表記（Carbon の dayOfWeek は 0=日 〜 6=土）
     $weekdaysJp = ['日', '月', '火', '水', '木', '金', '土'];
