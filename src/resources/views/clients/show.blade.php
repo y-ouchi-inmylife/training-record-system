@@ -149,13 +149,13 @@
                 <div class="text-muted small">閲覧状態</div>
                 <div style="min-height: 1.5rem;">
                     @if(!$client->is_viewable && empty($client->email))
-                        <span class="badge bg-secondary">メールアドレス未登録</span>
+                        <span class="badge bg-secondary fs-6">メールアドレス未登録</span>
                     @elseif(!$client->is_viewable)
-                        <span class="badge bg-secondary">未解放</span>
+                        <span class="badge bg-secondary fs-6">未解放</span>
                     @elseif(empty($client->password))
-                        <span class="badge bg-warning text-dark">解放中（パスワード未設定）</span>
+                        <span class="badge bg-warning text-dark fs-6">解放中（パスワード未設定）</span>
                     @else
-                        <span class="badge bg-success">解放中</span>
+                        <span class="badge bg-success fs-6">解放中</span>
                     @endif
                 </div>
             </div>
