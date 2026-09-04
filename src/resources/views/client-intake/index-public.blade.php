@@ -142,28 +142,6 @@
             <div class="card-body p-4">
                 <h2 class="c-intake-step-title">連絡先（2/2）</h2>
 
-                {{-- 電話番号 (1) + (2) --}}
-                <div class="row g-3 mb-3">
-                    <div class="col-sm-6">
-                        <label for="phone1" class="form-label">電話番号（1）</label>
-                        <input type="tel"
-                               class="form-control @error('phone1') is-invalid @enderror"
-                               id="phone1" name="phone1"
-                               value="{{ old('phone1', $client->phone1) }}"
-                               placeholder="例: 090-1234-5678">
-                        @error('phone1') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-                    <div class="col-sm-6">
-                        <label for="phone2" class="form-label">電話番号（2）</label>
-                        <input type="tel"
-                               class="form-control @error('phone2') is-invalid @enderror"
-                               id="phone2" name="phone2"
-                               value="{{ old('phone2', $client->phone2) }}"
-                               placeholder="例: 03-1234-5678">
-                        @error('phone2') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-                </div>
-
                 {{-- 郵便番号 + 住所検索ボタン。has-validation は Bootstrap の
                      input-group 内での invalid-feedback レイアウト用 --}}
                 <div class="mb-3">
@@ -216,6 +194,28 @@
                     <input type="text" class="form-control"
                            id="address4" name="address4" inputmode="text"
                            value="{{ old('address4', $client->address4) }}">
+                </div>
+
+                {{-- 電話番号 (1) + (2) --}}
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-6">
+                        <label for="phone1" class="form-label">電話番号（1）</label>
+                        <input type="tel"
+                               class="form-control @error('phone1') is-invalid @enderror"
+                               id="phone1" name="phone1"
+                               value="{{ old('phone1', $client->phone1) }}"
+                               placeholder="例: 090-1234-5678">
+                        @error('phone1') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="phone2" class="form-label">電話番号（2）</label>
+                        <input type="tel"
+                               class="form-control @error('phone2') is-invalid @enderror"
+                               id="phone2" name="phone2"
+                               value="{{ old('phone2', $client->phone2) }}"
+                               placeholder="例: 03-1234-5678">
+                        @error('phone2') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
                 </div>
 
                 <div class="c-intake-actions c-intake-actions--split">

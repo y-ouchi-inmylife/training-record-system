@@ -148,12 +148,12 @@
         {{-- 3段目: 属性4列 --}}
         <div class="row g-3 mt-2 pt-2 border-top">
             <div class="col-md-3">
-                <div class="text-muted small">主担当</div>
-                <div style="min-height: 1.5rem;">{{ $client->primaryTrainer?->name ?: '—' }}</div>
-            </div>
-            <div class="col-md-3">
                 <div class="text-muted small">初回日</div>
                 <div style="min-height: 1.5rem;">{{ $client->initial_consultation_date?->format('Y/m/d') ?: '—' }}</div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-muted small">主担当</div>
+                <div style="min-height: 1.5rem;">{{ $client->primaryTrainer?->name ?: '—' }}</div>
             </div>
             <div class="col-md-3">
                 <div class="text-muted small">生年月日</div>
