@@ -41,7 +41,7 @@
             <div class="card-header"><h6 class="mb-0">基本情報</h6></div>
             <div class="card-body">
                 <div class="row g-3 mb-2">
-                    {{-- 行1: (編集時のみ 内部ID +) 初回日 + メールアドレス --}}
+                    {{-- 行1: (編集時のみ 内部ID +) 初回日 + 主担当 --}}
                     @if($client)
                         <div class="col-md-3">
                             <div class="row g-2 align-items-center">
@@ -73,14 +73,18 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <div class="row g-2 align-items-center">
-                            <label for="email" class="col-md-auto col-form-label text-md-end form-label-fixed">メールアドレス</label>
+                            <label for="primary_trainer_id" class="col-md-auto col-form-label text-md-end form-label-fixed">主担当</label>
                             <div class="col-12 col-md">
-                                <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                       id="email" name="email" value="{{ old('email', $client?->email) }}"
-                                       autocomplete="off">
-                                @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                <select class="form-select" id="primary_trainer_id" name="primary_trainer_id" autocomplete="off">
+                                    <option value=""></option>
+                                    @foreach($trainers as $trainer)
+                                        <option value="{{ $trainer->id }}" {{ old('primary_trainer_id', $client?->primary_trainer_id) == $trainer->id ? 'selected' : '' }}>
+                                            {{ $trainer->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -139,7 +143,7 @@
                 </div>
 
                 <div class="row g-3">
-                    {{-- 行3: 生年月日 + 性別 + 主担当 --}}
+                    {{-- 行3: 生年月日 + 性別 --}}
                     <div class="col-md-4">
                         <div class="row g-2 align-items-center">
                             <label for="birth_date" class="col-md-auto col-form-label text-md-end form-label-fixed">生年月日</label>
@@ -164,21 +168,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="row g-2 align-items-center">
-                            <label for="primary_trainer_id" class="col-md-auto col-form-label text-md-end form-label-fixed">主担当</label>
-                            <div class="col-12 col-md">
-                                <select class="form-select" id="primary_trainer_id" name="primary_trainer_id" autocomplete="off">
-                                    <option value=""></option>
-                                    @foreach($trainers as $trainer)
-                                        <option value="{{ $trainer->id }}" {{ old('primary_trainer_id', $client?->primary_trainer_id) == $trainer->id ? 'selected' : '' }}>
-                                            {{ $trainer->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -188,7 +177,66 @@
             <div class="card-header"><h6 class="mb-0">連絡先</h6></div>
             <div class="card-body">
                 <div class="row g-3 mb-2">
-                    {{-- 行1: 電話番号1 + 電話番号2 --}}
+                    {{-- 行1: 郵便番号+住所検索 + 都道府県 + 市区町村 --}}
+                    <div class="col-md-4">
+                        <div class="row g-2 align-items-center">
+                            <label for="postal_code" class="col-md-auto col-form-label text-md-end form-label-fixed">郵便番号</label>
+                            <div class="col-12 col-md">
+                                <div class="input-group">
+                                    <input type="text" class="form-control @error('postal_code') is-invalid @enderror"
+                                           id="postal_code" name="postal_code" value="{{ old('postal_code', $client?->postal_code) }}"
+                                           autocomplete="off">
+                                    <button type="button" class="btn btn-outline-secondary" id="btn-search-address" onclick="searchAddress()">検索</button>
+                                    @error('postal_code') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="row g-2 align-items-center">
+                            <label for="address1" class="col-md-auto col-form-label text-md-end form-label-fixed">都道府県</label>
+                            <div class="col-12 col-md">
+                                <select class="form-select" id="address1" name="address1" autocomplete="off">
+                                    <option value=""></option>
+                                    @foreach(['北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県','茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県','新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県','静岡県','愛知県','三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県','鳥取県','島根県','岡山県','広島県','山口県','徳島県','香川県','愛媛県','高知県','福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県'] as $pref)
+                                        <option value="{{ $pref }}" {{ old('address1', $client?->address1) == $pref ? 'selected' : '' }}>{{ $pref }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="row g-2 align-items-center">
+                            <label for="address2" class="col-md-auto col-form-label text-md-end form-label-fixed">市区町村</label>
+                            <div class="col-12 col-md">
+                                <input type="text" class="form-control" id="address2" name="address2" inputmode="text" value="{{ old('address2', $client?->address2) }}" autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-2">
+                    {{-- 行2: 町名・番地 + 建物名・部屋番号 --}}
+                    <div class="col-md-6">
+                        <div class="row g-2 align-items-center">
+                            <label for="address3" class="col-md-auto col-form-label text-md-end form-label-fixed">町名・番地</label>
+                            <div class="col-12 col-md">
+                                <input type="text" class="form-control" id="address3" name="address3" inputmode="text" value="{{ old('address3', $client?->address3) }}" autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row g-2 align-items-center">
+                            <label for="address4" class="col-md-auto col-form-label text-md-end form-label-fixed">建物名・部屋番号</label>
+                            <div class="col-12 col-md">
+                                <input type="text" class="form-control" id="address4" name="address4" inputmode="text" value="{{ old('address4', $client?->address4) }}" autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-2">
+                    {{-- 行3: 電話番号1 + 電話番号2 --}}
                     <div class="col-md-4">
                         <div class="row g-2 align-items-center">
                             <label for="phone1" class="col-md-auto col-form-label text-md-end form-label-fixed">電話番号1</label>
@@ -213,60 +261,16 @@
                     </div>
                 </div>
 
-                <div class="row g-3 mb-2">
-                    {{-- 行2: 郵便番号+住所検索 + 都道府県 + 市区町村 --}}
-                    <div class="col-md-4">
-                        <div class="row g-2 align-items-center">
-                            <label for="postal_code" class="col-md-auto col-form-label text-md-end form-label-fixed">郵便番号</label>
-                            <div class="col-12 col-md">
-                                <div class="input-group">
-                                    <input type="text" class="form-control @error('postal_code') is-invalid @enderror"
-                                           id="postal_code" name="postal_code" value="{{ old('postal_code', $client?->postal_code) }}"
-                                           autocomplete="off">
-                                    <button type="button" class="btn btn-outline-secondary" id="btn-search-address" onclick="searchAddress()">検索</button>
-                                    @error('postal_code') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="row g-2 align-items-center">
-                            <label for="address1" class="col-md-auto col-form-label text-md-end form-label-fixed">都道府県</label>
-                            <div class="col-12 col-md">
-                                <select class="form-select" id="address1" name="address1" autocomplete="off">
-                                    <option value=""></option>
-                                    @foreach(['北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県','茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県','新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県','静岡県','愛知県','三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県','鳥取県','島根県','岡山県','広島県','山口県','徳島県','香川県','愛媛県','高知県','福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県'] as $pref)
-                                        <option value="{{ $pref }}" {{ old('address1', $client?->address1) == $pref ? 'selected' : '' }}>{{ $pref }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="row g-2 align-items-center">
-                            <label for="address2" class="col-md-auto col-form-label text-md-end form-label-fixed">市区町村</label>
-                            <div class="col-12 col-md">
-                                <input type="text" class="form-control" id="address2" name="address2" inputmode="text" value="{{ old('address2', $client?->address2) }}" autocomplete="off">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="row g-3">
-                    {{-- 行3: 町名・番地 + 建物名・部屋番号 --}}
-                    <div class="col-md-6">
+                    {{-- 行4: メールアドレス --}}
+                    <div class="col-md-5">
                         <div class="row g-2 align-items-center">
-                            <label for="address3" class="col-md-auto col-form-label text-md-end form-label-fixed">町名・番地</label>
+                            <label for="email" class="col-md-auto col-form-label text-md-end form-label-fixed">メールアドレス</label>
                             <div class="col-12 col-md">
-                                <input type="text" class="form-control" id="address3" name="address3" inputmode="text" value="{{ old('address3', $client?->address3) }}" autocomplete="off">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="row g-2 align-items-center">
-                            <label for="address4" class="col-md-auto col-form-label text-md-end form-label-fixed">建物名・部屋番号</label>
-                            <div class="col-12 col-md">
-                                <input type="text" class="form-control" id="address4" name="address4" inputmode="text" value="{{ old('address4', $client?->address4) }}" autocomplete="off">
+                                <input type="email" class="form-control @error('email') is-invalid @enderror"
+                                       id="email" name="email" value="{{ old('email', $client?->email) }}"
+                                       autocomplete="off">
+                                @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                         </div>
                     </div>
