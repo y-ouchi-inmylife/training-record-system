@@ -145,7 +145,7 @@
                 <span class="font-monospace fs-5">{{ $client->internal_id }}</span>
             </div>
         </div>
-        {{-- 3段目: 属性4列 --}}
+        {{-- 3段目: 属性2列 --}}
         <div class="row g-3 mt-2 pt-2 border-top">
             <div class="col-md-3">
                 <div class="text-muted small">初回日</div>
@@ -154,14 +154,6 @@
             <div class="col-md-3">
                 <div class="text-muted small">主担当</div>
                 <div style="min-height: 1.5rem;">{{ $client->primaryTrainer?->name ?: '—' }}</div>
-            </div>
-            <div class="col-md-3">
-                <div class="text-muted small">生年月日</div>
-                <div style="min-height: 1.5rem;">{{ $client->birth_date?->format('Y/m/d') ?: '—' }}</div>
-            </div>
-            <div class="col-md-3">
-                <div class="text-muted small">性別</div>
-                <div style="min-height: 1.5rem;">{{ $client->gender ?: '—' }}</div>
             </div>
         </div>
     </div>
@@ -347,6 +339,19 @@
                 <div class="card-body">
                     <p class="text-muted mb-0">（将来の拡張用）</p>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- 基本情報 --}}
+    <div class="card mb-3">
+        <div class="card-header">
+            <h6 class="mb-0">基本情報</h6>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <x-detail-cell label="生年月日" :value="$client->birth_date?->format('Y/m/d')" />
+                <x-detail-cell label="性別" :value="$client->gender" />
             </div>
         </div>
     </div>
