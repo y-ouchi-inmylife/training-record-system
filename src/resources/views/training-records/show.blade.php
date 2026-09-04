@@ -4,9 +4,9 @@
 
 @section('content')
 <div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">トレーニング記録詳細</h2>
-        <div class="d-flex gap-2 align-items-center">
+    <div class="mb-4">
+        {{-- 1段目: 操作ボタン群（右寄せ） --}}
+        <div class="d-flex justify-content-end gap-2 mb-2">
             <a href="{{ route('clients.show', $trainingRecord->client_id) }}" class="btn btn-outline-secondary">&laquo; クライアント詳細に戻る</a>
             <a href="{{ route('training-records.edit', $trainingRecord) }}" class="btn btn-primary">編集</a>
             @if(auth()->user()->isAdmin())
@@ -18,34 +18,47 @@
                 </form>
             @endif
         </div>
+
+        {{-- 2段目: 日付行 --}}
+        <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+            <h2 class="mb-0">
+                {{ $trainingRecord->training_date->format('Y/m/d') }}@if($trainingRecord->training_time)<span class="text-muted fs-6 ms-2">{{ substr($trainingRecord->training_time, 0, 5) }}</span>@endif
+            </h2>
+            <a href="{{ route('clients.show', $trainingRecord->client_id) }}" class="ms-3">{{ $trainingRecord->client->display_name }}</a>
+            <div class="d-flex align-items-baseline gap-2 ms-3">
+                <span class="text-muted small">内部ID</span>
+                <span class="font-monospace fs-5">{{ $trainingRecord->client->internal_id }}</span>
+            </div>
+        </div>
+
+        {{-- 3段目: 属性3列 --}}
+        @php
+            $trainerNames = implode('・', array_filter([
+                $trainingRecord->trainer1?->name,
+                $trainingRecord->trainer2?->name,
+            ]));
+        @endphp
+        <div class="row g-3 mt-2 pt-2 border-top">
+            <div class="col-md-3">
+                <div class="text-muted small">トレーニング内容</div>
+                <div style="min-height: 1.5rem;">{{ $trainingRecord->trainingType?->name }}</div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-muted small">トレーニング内容（詳細）</div>
+                <div style="min-height: 1.5rem;">{{ $trainingRecord->training_detail }}</div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-muted small">担当</div>
+                <div style="min-height: 1.5rem;">{{ $trainerNames }}</div>
+            </div>
+        </div>
     </div>
 
-    {{-- 基本情報 --}}
+    {{-- メディア（ヘッダーサマリーの直下：設計書 S-0403） --}}
     <div class="card mb-3">
-        <div class="card-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#section-basic" style="cursor: pointer;">
-            <h6 class="mb-0">基本情報</h6>
-        </div>
-        <div class="collapse show" id="section-basic">
-        <div class="card-body">
-            <table class="table table-borderless table-sm">
-                <tr><th class="text-muted" style="width:20%">クライアント</th><td>{{ $trainingRecord->client->display_name }}</td></tr>
-                <tr><th class="text-muted">日付</th><td>{{ $trainingRecord->training_date->format('Y/m/d') }}</td></tr>
-                <tr><th class="text-muted">時刻</th><td>{{ $trainingRecord->training_time ?: '—' }}</td></tr>
-                <tr><th class="text-muted">トレーニング内容</th><td>{{ $trainingRecord->trainingType->name ?? '—' }}</td></tr>
-                <tr><th class="text-muted">トレーニング内容（詳細）</th><td>{{ $trainingRecord->training_detail ?: '—' }}</td></tr>
-                <tr><th class="text-muted">担当1</th><td>{{ $trainingRecord->trainer1->name ?? '—' }}</td></tr>
-                <tr><th class="text-muted">担当2</th><td>{{ $trainingRecord->trainer2->name ?? '—' }}</td></tr>
-            </table>
-        </div>
-        </div>
-    </div>
-
-    {{-- メディア（基本情報の直下：設計書 S-0403） --}}
-    <div class="card mb-3">
-        <div class="card-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#section-media" style="cursor: pointer;">
+        <div class="card-header">
             <h6 class="mb-0">メディア</h6>
         </div>
-        <div class="collapse show" id="section-media">
         <div class="card-body">
             @if(count($mediaItems) === 0)
                 <div class="text-muted">この記録のメディアはありません。</div>
@@ -79,38 +92,33 @@
                 </div>
             @endif
         </div>
-        </div>
     </div>
 
     {{-- トレーニング記録 --}}
     <div class="card mb-3">
-        <div class="card-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#section-record" style="cursor: pointer;">
+        <div class="card-header">
             <h6 class="mb-0">トレーニング記録 <span class="text-muted">（事実を客観的に記録）</span></h6>
         </div>
-        <div class="collapse show" id="section-record">
-            <div class="card-body">
-                @if($trainingRecord->record_content)
-                    <div>{!! nl2br(e($trainingRecord->record_content)) !!}</div>
-                @else
-                    <div class="text-muted">未記入</div>
-                @endif
-            </div>
+        <div class="card-body">
+            @if($trainingRecord->record_content)
+                <div>{!! nl2br(e($trainingRecord->record_content)) !!}</div>
+            @else
+                <div class="text-muted">未記入</div>
+            @endif
         </div>
     </div>
 
     {{-- 所感 --}}
     <div class="card mb-3">
-        <div class="card-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#section-impression" style="cursor: pointer;">
+        <div class="card-header">
             <h6 class="mb-0">所感 <span class="text-muted">（トレーナー間共有・クライアント非開示）</span></h6>
         </div>
-        <div class="collapse show" id="section-impression">
-            <div class="card-body">
-                @if($trainingRecord->impression)
-                    <div>{!! nl2br(e($trainingRecord->impression)) !!}</div>
-                @else
-                    <div class="text-muted">未記入</div>
-                @endif
-            </div>
+        <div class="card-body">
+            @if($trainingRecord->impression)
+                <div>{!! nl2br(e($trainingRecord->impression)) !!}</div>
+            @else
+                <div class="text-muted">未記入</div>
+            @endif
         </div>
     </div>
 
