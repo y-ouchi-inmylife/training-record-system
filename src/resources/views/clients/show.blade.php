@@ -355,41 +355,30 @@
         </div>
     </div>
 
-    {{-- カテゴリー2: 連絡先 --}}
+    {{-- 連絡先 --}}
+    @php
+        // 都道府県・市区町村・町名番地は区切りなしで連結し、
+        // 建物名・部屋番号との間だけ半角スペースを入れる。
+        // 空の項目は array_filter で除外するため余分な区切りは残らない。
+        $addressMain = implode('', array_filter([
+            $client->address1,
+            $client->address2,
+            $client->address3,
+        ]));
+        $fullAddress = implode(' ', array_filter([$addressMain, $client->address4]));
+    @endphp
     <div class="card mb-3">
-        <div class="card-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#section-contact" style="cursor: pointer;">
+        <div class="card-header">
             <h6 class="mb-0">連絡先</h6>
-            @if($client->phone1 || $client->address1)
-                <span class="badge bg-success">入力あり</span>
-            @else
-                <span class="badge bg-light text-muted">入力なし</span>
-            @endif
         </div>
-        <div class="collapse" id="section-contact">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <table class="table table-borderless table-sm">
-                            <tr><th class="text-muted" style="width:40%">電話番号1</th><td>{{ $client->phone1 ?: '—' }}</td></tr>
-                            <tr><th class="text-muted">電話番号2</th><td>{{ $client->phone2 ?: '—' }}</td></tr>
-                            <tr><th class="text-muted">メールアドレス</th><td>{{ $client->email ?: '—' }}</td></tr>
-                        </table>
-                    </div>
-                    <div class="col-md-6">
-                        <table class="table table-borderless table-sm">
-                            <tr><th class="text-muted" style="width:40%">郵便番号</th><td>{{ $client->postal_code ?: '—' }}</td></tr>
-                            <tr><th class="text-muted">住所</th>
-                                <td>
-                                    @if($client->address1 || $client->address2 || $client->address3 || $client->address4)
-                                        {{ $client->address1 }}{{ $client->address2 }}{{ $client->address3 }}<br>{{ $client->address4 }}
-                                    @else
-                                        —
-                                    @endif
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <x-detail-cell label="郵便番号" :value="$client->postal_code" />
+                <x-detail-cell label="住所" :value="$fullAddress" />
+                <div class="col-6 col-md-4"></div>
+                <x-detail-cell label="電話番号1" :value="$client->phone1" />
+                <x-detail-cell label="電話番号2" :value="$client->phone2" />
+                <x-detail-cell label="メールアドレス" :value="$client->email" />
             </div>
         </div>
     </div>
