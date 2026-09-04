@@ -4,30 +4,75 @@
 
 @push('styles')
 <style>
+/* トレーニング記録の一覧領域: ビューポート基準の最大高さ、
+   収まらない場合のみ縦スクロール */
 .training-records-scroll {
-    max-height: 200px;
+    max-height: 60vh;
     overflow-y: auto;
-    overflow-x: auto;
 }
-.training-records-scroll::-webkit-scrollbar {
-    width: 8px;
+
+/* トレーニング記録タイムライン */
+.training-records-timeline {
+    position: relative;
+    padding-left: 24px;
 }
-.training-records-scroll::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-}
-.training-records-scroll::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 10px;
-}
-.training-records-scroll::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
-.training-records-scroll thead th {
-    position: sticky;
+.training-records-timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
     top: 0;
-    z-index: 1;
-    background-color: #f8f9fa;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+.record-block-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    margin-bottom: 1rem;
+}
+.record-block-link:hover .record-block {
+    background: #f8f9fa;
+}
+.record-block-link:focus-visible {
+    outline: 2px solid #0d6efd;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+.record-block {
+    position: relative;
+    padding: 10px 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background: #fff;
+}
+/* 点マーカー: 縦線上の位置に配置 */
+.record-block::before {
+    content: '';
+    position: absolute;
+    left: -18px;
+    top: 16px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--bs-primary);
+}
+.record-block__line1 {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    color: #212529;
+}
+.record-block__line2,
+.record-block__line3 {
+    color: #495057;
+    margin-top: 4px;
+    font-size: 0.9em;
+}
+.record-block__line3 {
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 </style>
 @endpush
@@ -220,50 +265,71 @@
         </script>
     @endpush
 
-    {{-- トレーニング記録一覧 --}}
-    <div class="card mb-3">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h6 class="mb-0">
-                トレーニング記録（{{ $client->trainingRecords->count() }}件）
-            </h6>
-            <a href="{{ route('training-records.create', ['client_id' => $client->id]) }}" class="btn btn-primary">新規登録</a>
+    <div class="row g-3">
+        {{-- 左カラム: トレーニング記録（タイムライン） --}}
+        <div class="col-lg-8">
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">トレーニング記録（{{ $client->trainingRecords->count() }}件）</h6>
+                    <a href="{{ route('training-records.create', ['client_id' => $client->id]) }}"
+                       class="btn btn-primary">新規登録</a>
+                </div>
+                @if($client->trainingRecords->count() > 0)
+                    <div class="card-body training-records-scroll">
+                        <div class="training-records-timeline">
+                            @foreach($client->trainingRecords as $record)
+                                @php
+                                    $isFutureDate = $record->training_date > now()->startOfDay();
+                                    // 担当1・担当2 を中黒で連結。両方空なら行ごと非表示
+                                    $trainerNames = implode('・', array_filter([
+                                        $record->trainer1?->name,
+                                        $record->trainer2?->name,
+                                    ]));
+                                @endphp
+                                <a href="{{ route('training-records.show', $record) }}" class="record-block-link">
+                                    <div class="record-block">
+                                        {{-- 1行目: 日付 + 時刻 + トレーニング内容バッジ --}}
+                                        <div class="record-block__line1">
+                                            <span @if($isFutureDate) class="text-primary" @endif>{{ $record->training_date->format('Y/m/d') }}</span>
+                                            @if($record->training_time)
+                                                <span>{{ substr($record->training_time, 0, 5) }}</span>
+                                            @endif
+                                            @if($record->trainingType)
+                                                <span class="badge bg-light text-dark border">{{ $record->trainingType->name }}</span>
+                                            @endif
+                                        </div>
+                                        {{-- 2行目: 担当 --}}
+                                        @if($trainerNames !== '')
+                                            <div class="record-block__line2"><span class="text-muted">担当</span> {{ $trainerNames }}</div>
+                                        @endif
+                                        {{-- 3行目: 記録本文 --}}
+                                        @if($record->record_content)
+                                            <div class="record-block__line3">{{ $record->record_content }}</div>
+                                        @endif
+                                    </div>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @else
+                    <div class="card-body">
+                        <p class="text-muted mb-0">トレーニング記録はありません</p>
+                    </div>
+                @endif
+            </div>
         </div>
-        @if($client->trainingRecords->count() > 0)
-            <div class="training-records-scroll">
-                <table class="table table-hover mb-0 training-records-table">
-                    <thead class="table-light">
-                        <tr>
-                            <th>日付</th>
-                            <th>担当1</th>
-                            <th>担当2</th>
-                            <th>トレーニング内容</th>
-                            <th>メディア</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($client->trainingRecords as $record)
-                            <tr style="cursor: pointer;" onclick="location.href='{{ route('training-records.show', $record) }}'">
-                                <td>
-                                    @if($record->training_date > now()->startOfDay())
-                                        <span class="text-primary">{{ $record->training_date->format('Y/m/d') }}</span>
-                                    @else
-                                        {{ $record->training_date->format('Y/m/d') }}
-                                    @endif
-                                </td>
-                                <td>{{ $record->trainer1->name ?? '—' }}</td>
-                                <td>{{ $record->trainer2->name ?? '—' }}</td>
-                                <td>{{ $record->trainingType->name ?? '—' }}</td>
-                                <td>{{ $record->media_records_count > 0 ? $record->media_records_count : '—' }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+
+        {{-- 右カラム: 予備カード --}}
+        <div class="col-lg-4">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0">（未定）</h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-0">（将来の拡張用）</p>
+                </div>
             </div>
-        @else
-            <div class="card-body">
-                <p class="text-muted mb-0">トレーニング記録はありません</p>
-            </div>
-        @endif
+        </div>
     </div>
 
     {{-- カテゴリー2: 連絡先 --}}
