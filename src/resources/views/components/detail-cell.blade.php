@@ -3,7 +3,7 @@
 
     引数:
       label     (string)                  ラベル。上段に小さく表示
-      value     (string|int|float|null)   値。下段に表示。null・空文字は「—」
+      value     (string|int|float|null)   値。下段に表示。null・空文字は何も表示しない（画面設計書 §2-4）
 
     スロット（省略可）:
       値に HTML を含めたい場合はスロットに書く。
@@ -22,7 +22,7 @@
         @if($slot->isNotEmpty())
             {{ $slot }}
         @else
-            {{ ($value === null || $value === '') ? '—' : $value }}
+            {{ $value ?? '' }}
         @endif
     </div>
 </div>
