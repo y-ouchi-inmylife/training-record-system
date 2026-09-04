@@ -170,6 +170,10 @@
         </div>
     </div>
 
+    @php
+        $intakeUrl = $activeIntakeToken ? route('client-intake.show-by-token', $activeIntakeToken->token) : null;
+    @endphp
+
     @push('scripts')
         @if(!$client->is_viewable && $client->email)
         <script>
@@ -396,9 +400,6 @@
     </div>
 
     {{-- 初回情報入力URL モーダル（S-0305-M01。未発行/発行済みを1つで扱う） --}}
-    @php
-        $intakeUrl = $activeIntakeToken ? route('client-intake.show-by-token', $activeIntakeToken->token) : null;
-    @endphp
     <div class="modal fade" id="intakeUrlModal" tabindex="-1" aria-labelledby="intakeUrlModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
