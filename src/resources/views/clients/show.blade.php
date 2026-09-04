@@ -121,11 +121,12 @@
             {{-- 右: ボタン群 --}}
             <div class="d-flex gap-2 flex-shrink-0">
                 <a href="{{ route('clients.index') }}" class="btn btn-outline-secondary">&laquo; クライアント一覧に戻る</a>
-                @if(!$activeIntakeToken)
+                @if($activeIntakeToken)
+                    <button type="button" class="btn btn-primary"
+                            data-bs-toggle="modal" data-bs-target="#intakeUrlModal">URL発行済み・残り{{ $activeIntakeToken->remaining_days }}日</button>
+                @else
                     <button type="button" class="btn btn-outline-primary"
-                            data-bs-toggle="modal" data-bs-target="#issueIntakeTokenModal">
-                        URL発行
-                    </button>
+                            data-bs-toggle="modal" data-bs-target="#intakeUrlModal">URL発行</button>
                 @endif
                 <a href="{{ route('clients.edit', $client) }}" class="btn btn-primary">編集</a>
                 @if(auth()->user()->isAdmin())
@@ -169,45 +170,6 @@
         </div>
     </div>
 
-    @if($activeIntakeToken)
-        @php
-            $intakeUrl = route('client-intake.show-by-token', $activeIntakeToken->token);
-        @endphp
-        {{-- 初回情報入力URL --}}
-        <div class="card mb-3" style="border-left: 4px solid #0d6efd;">
-            <div class="card-header d-flex justify-content-between align-items-center gap-3">
-                <div class="d-flex align-items-center gap-2 text-truncate" style="min-width: 0;">
-                    <h6 class="mb-0 flex-shrink-0"><i class="bi bi-link-45deg"></i> 初回情報入力URL</h6>
-                    <span class="text-muted text-truncate" title="{{ $intakeUrl }}">({{ $intakeUrl }})</span>
-                </div>
-                <div class="d-flex gap-2 align-items-center flex-shrink-0">
-                    <button type="button" class="btn btn-outline-primary btn-sm"
-                            onclick="copyToClipboard(this, '{{ $intakeUrl }}')">URLをコピー</button>
-                    <button type="button" class="btn btn-outline-primary btn-sm"
-                            onclick="showQrModal('{{ $intakeUrl }}')">QRコード</button>
-                    <form method="POST"
-                          action="{{ route('client-intake-tokens.destroy', [$client, $activeIntakeToken]) }}"
-                          class="d-inline m-0"
-                          onsubmit="return confirmDeleteIntakeToken()">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-outline-danger btn-sm">削除</button>
-                    </form>
-                </div>
-            </div>
-            <div class="card-body">
-                <table class="table table-borderless table-sm mb-0">
-                    <tr>
-                        <th class="text-muted" style="width:20%">発行日時</th>
-                        <td>{{ $activeIntakeToken->created_at->format('Y/m/d H:i') }}</td>
-                        <th class="text-muted" style="width:20%">有効期限</th>
-                        <td>{{ $activeIntakeToken->expires_at->format('Y/m/d H:i') }}</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-    @endif
-
     @push('scripts')
         @if(!$client->is_viewable && $client->email)
         <script>
@@ -225,7 +187,9 @@
         @endif
 
         {{-- 初回情報入力URL 関連 --}}
+        @if($activeIntakeToken)
         <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+        @endif
         <script>
         function copyToClipboard(button, text) {
             navigator.clipboard.writeText(text).then(function () {
@@ -244,24 +208,79 @@
                 alert('コピーに失敗しました');
             });
         }
+        </script>
 
-        function showQrModal(url) {
-            const qrContainer = document.getElementById('qrcode');
-            qrContainer.innerHTML = '';
-            new QRCode(qrContainer, {
-                text: url,
-                width: 256,
-                height: 256,
-                correctLevel: QRCode.CorrectLevel.M,
+        {{-- 初回情報入力URL モーダル制御 --}}
+        <script>
+        (function () {
+            const modalEl = document.getElementById('intakeUrlModal');
+            if (!modalEl) return;
+
+            @if($activeIntakeToken)
+            // 発行済み状態: QRコード生成 / 削除確認の切り替え
+            const bodyDefault = document.getElementById('intake-modal-body-default');
+            const bodyConfirm = document.getElementById('intake-modal-body-confirm');
+            const footerDefault = document.getElementById('intake-modal-footer-default');
+            const footerConfirm = document.getElementById('intake-modal-footer-confirm');
+            const qrContainer = document.getElementById('intake-qrcode');
+            const btnShowConfirm = document.getElementById('btn-show-delete-confirm');
+            const btnCancelConfirm = document.getElementById('btn-cancel-delete-confirm');
+
+            function showDefault() {
+                bodyDefault.style.display = '';
+                footerDefault.style.display = '';
+                bodyConfirm.style.display = 'none';
+                footerConfirm.style.display = 'none';
+            }
+            function showConfirm() {
+                bodyDefault.style.display = 'none';
+                footerDefault.style.display = 'none';
+                bodyConfirm.style.display = '';
+                footerConfirm.style.display = '';
+            }
+
+            btnShowConfirm.addEventListener('click', showConfirm);
+            btnCancelConfirm.addEventListener('click', showDefault);
+
+            modalEl.addEventListener('show.bs.modal', function () {
+                // 未生成のときのみ QRコードを1回だけ生成
+                if (qrContainer && qrContainer.childElementCount === 0) {
+                    new QRCode(qrContainer, {
+                        text: @json($intakeUrl),
+                        width: 200,
+                        height: 200,
+                        correctLevel: QRCode.CorrectLevel.M,
+                    });
+                }
             });
-            document.getElementById('qrUrl').textContent = url;
-            const modal = new bootstrap.Modal(document.getElementById('qrModal'));
-            modal.show();
-        }
+            modalEl.addEventListener('hidden.bs.modal', showDefault);
+            @else
+            // 未発行状態: 有効期限プレビュー
+            const preview = document.getElementById('expires-at-preview');
+            const radios = modalEl.querySelectorAll('input[name="expires_in_days"]');
+            function updatePreview() {
+                const checked = modalEl.querySelector('input[name="expires_in_days"]:checked');
+                if (!checked || !preview) return;
+                const days = parseInt(checked.value, 10);
+                const d = new Date();
+                d.setDate(d.getDate() + days);
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                preview.textContent = y + '/' + m + '/' + day + ' 23:59 まで有効';
+            }
+            radios.forEach(function (r) { r.addEventListener('change', updatePreview); });
+            modalEl.addEventListener('show.bs.modal', updatePreview);
+            document.addEventListener('DOMContentLoaded', updatePreview);
 
-        function confirmDeleteIntakeToken() {
-            return confirm('この初回情報入力URLを削除しますか？削除後は再発行できます。');
-        }
+            @if($errors->has('expires_in_days'))
+            // バリデーションエラー時は自動でモーダルを開く
+            document.addEventListener('DOMContentLoaded', function () {
+                bootstrap.Modal.getOrCreateInstance(modalEl).show();
+            });
+            @endif
+            @endif
+        })();
         </script>
     @endpush
 
@@ -376,51 +395,109 @@
         最終更新: {{ $client->updated_at->format('Y/m/d H:i') }} {{ $client->updatedBy?->name ?: '—' }}
     </div>
 
-    {{-- URL発行モーダル（S-0305-M01） --}}
-    <div class="modal fade" id="issueIntakeTokenModal" tabindex="-1" aria-labelledby="issueIntakeTokenModalLabel" aria-hidden="true">
+    {{-- 初回情報入力URL モーダル（S-0305-M01。未発行/発行済みを1つで扱う） --}}
+    @php
+        $intakeUrl = $activeIntakeToken ? route('client-intake.show-by-token', $activeIntakeToken->token) : null;
+    @endphp
+    <div class="modal fade" id="intakeUrlModal" tabindex="-1" aria-labelledby="intakeUrlModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <form method="POST" action="{{ route('client-intake-tokens.store', $client) }}">
-                    @csrf
+                @if($activeIntakeToken)
+                    {{-- 発行済み状態 --}}
                     <div class="modal-header">
-                        <h5 class="modal-title" id="issueIntakeTokenModalLabel">初回情報入力URLの発行</h5>
+                        <h5 class="modal-title" id="intakeUrlModalLabel">初回情報入力URL</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body" id="intake-modal-body-default">
                         <div class="mb-3">
-                            <label for="expires_in_days" class="form-label">有効期限 <span class="text-danger">*</span></label>
-                            <select class="form-select" id="expires_in_days" name="expires_in_days" required>
-                                <option value="1" {{ old('expires_in_days') == 1 ? 'selected' : '' }}>1日後</option>
-                                <option value="7" {{ old('expires_in_days', 7) == 7 ? 'selected' : '' }}>7日後</option>
-                                <option value="14" {{ old('expires_in_days') == 14 ? 'selected' : '' }}>14日後</option>
-                                <option value="30" {{ old('expires_in_days') == 30 ? 'selected' : '' }}>30日後</option>
-                            </select>
+                            <span class="badge {{ $activeIntakeToken->status_badge_class }} fs-6">{{ $activeIntakeToken->status }}</span>
+                            <span class="ms-2">残り {{ $activeIntakeToken->remaining_days }}日</span>
                         </div>
+                        <div class="mb-3 text-center">
+                            <div id="intake-qrcode" class="d-inline-block"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small mb-1">URL</label>
+                            <div class="d-flex align-items-start gap-2">
+                                <code class="font-monospace flex-grow-1 user-select-all p-2 bg-light rounded" style="word-break: break-all;">{{ $intakeUrl }}</code>
+                                <button type="button" class="btn btn-sm btn-outline-secondary flex-shrink-0"
+                                        onclick="copyToClipboard(this, '{{ $intakeUrl }}')">コピー</button>
+                            </div>
+                        </div>
+                        <table class="table table-borderless table-sm mb-3">
+                            <tr>
+                                <th class="text-muted" style="width:30%">発行日時</th>
+                                <td>{{ $activeIntakeToken->created_at->format('Y/m/d H:i') }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">有効期限</th>
+                                <td>{{ $activeIntakeToken->expires_at->format('Y/m/d H:i') }}</td>
+                            </tr>
+                        </table>
+                        <p class="text-muted small mb-0">新しいURLを発行するには、現在のURLを削除してください。</p>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-                        <button type="submit" class="btn btn-success">発行</button>
+                    {{-- 削除確認（初期非表示） --}}
+                    <div class="modal-body" id="intake-modal-body-confirm" style="display: none;">
+                        <p class="mb-2">この初回情報入力URLを削除しますか？</p>
+                        <p class="text-muted small mb-0">削除後は再発行できます。</p>
                     </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    {{-- QRコード表示モーダル（S-0305-M02） --}}
-    <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="qrModalLabel">QRコード</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
-                </div>
-                <div class="modal-body text-center">
-                    <div id="qrcode" class="d-inline-block"></div>
-                    <p class="text-muted small text-break mt-3 mb-0" id="qrUrl"></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
-                </div>
+                    <div class="modal-footer" id="intake-modal-footer-default">
+                        <button type="button" class="btn btn-outline-danger me-auto" id="btn-show-delete-confirm">削除</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                    </div>
+                    <div class="modal-footer" id="intake-modal-footer-confirm" style="display: none;">
+                        <button type="button" class="btn btn-secondary" id="btn-cancel-delete-confirm">キャンセル</button>
+                        <form method="POST"
+                              action="{{ route('client-intake-tokens.destroy', [$client, $activeIntakeToken]) }}"
+                              class="d-inline m-0">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger">削除する</button>
+                        </form>
+                    </div>
+                @else
+                    {{-- 未発行状態 --}}
+                    <form method="POST" action="{{ route('client-intake-tokens.store', $client) }}">
+                        @csrf
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="intakeUrlModalLabel">URL発行</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="mb-3">
+                                <strong>{{ trim($client->full_name) }}</strong> さんに初回情報を入力してもらうための URL を発行します。
+                                発行後、URL または QR コードをクライアントに渡してください。
+                            </p>
+                            @if($latestIntakeToken && ! $latestIntakeToken->isValid())
+                                <div class="alert alert-secondary py-2 mb-3">
+                                    以前発行したURLは{{ $latestIntakeToken->status }}です。
+                                </div>
+                            @endif
+                            <div class="mb-3">
+                                <label class="form-label">有効期限 <span class="text-danger">*</span></label>
+                                <div class="btn-group d-flex" role="group" aria-label="有効期限の選択">
+                                    @foreach([1, 7, 14, 30] as $days)
+                                        <input type="radio" class="btn-check" name="expires_in_days"
+                                               id="expires_in_days_{{ $days }}" value="{{ $days }}"
+                                               {{ (int) old('expires_in_days', 7) === $days ? 'checked' : '' }} required>
+                                        <label class="btn btn-outline-primary" for="expires_in_days_{{ $days }}">{{ $days }}日後</label>
+                                    @endforeach
+                                </div>
+                                @error('expires_in_days')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                                <div class="text-muted small mt-2" id="expires-at-preview" aria-live="polite"></div>
+                            </div>
+                            <p class="text-muted small mb-0">
+                                このURLは1回のみ使用可能です。クライアントが入力を完了するとリンクは無効になります。
+                            </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                            <button type="submit" class="btn btn-primary">発行する</button>
+                        </div>
+                    </form>
+                @endif
             </div>
         </div>
     </div>
