@@ -34,36 +34,93 @@
 
 @section('content')
 <div class="container">
-    {{-- ヘッダー --}}
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">クライアント詳細</h2>
-        <div class="d-flex gap-2 align-items-center">
-            <a href="{{ route('clients.index') }}" class="btn btn-outline-secondary">&laquo; クライアント一覧に戻る</a>
-            @if(!$activeIntakeToken)
-                <button type="button" class="btn btn-outline-primary"
-                        data-bs-toggle="modal" data-bs-target="#issueIntakeTokenModal">
-                    URL発行
-                </button>
-            @endif
-            <a href="{{ route('clients.edit', $client) }}" class="btn btn-primary">編集</a>
-            @if(auth()->user()->isAdmin())
-                <form method="POST" action="{{ route('clients.destroy', $client) }}" class="d-inline"
-                      onsubmit="return confirmDelete()">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger">削除</button>
-                </form>
-                <script>
-                function confirmDelete() {
-                    @if($client->trainingRecords->count() > 0)
-                        alert('このクライアントにはトレーニング記録が登録されているため削除できません。');
-                        return false;
+    {{-- ヘッダーサマリー --}}
+    <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-start">
+            {{-- 左: 氏名エリア --}}
+            <div class="flex-grow-1 me-3">
+                <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                    <h2 class="mb-0">
+                        {{ $client->full_name }}@if($client->full_name_kana)<span class="text-muted fs-6">（{{ $client->full_name_kana }}）</span>@endif
+                    </h2>
+                    {{-- 閲覧状態バッジ（現行の4分岐ロジックを移植） --}}
+                    @if(!$client->is_viewable && empty($client->email))
+                        <span class="badge bg-secondary fs-6">メールアドレス未登録</span>
+                    @elseif(!$client->is_viewable)
+                        <span class="badge bg-secondary fs-6">未解放</span>
+                    @elseif(empty($client->password))
+                        <span class="badge bg-warning text-dark fs-6">解放中（パスワード未設定）</span>
                     @else
-                        return confirm('このクライアントを削除しますか？');
+                        <span class="badge bg-success fs-6">解放中</span>
                     @endif
-                }
-                </script>
-            @endif
+                    {{-- 閲覧解放 / 解放取り消しボタン（旧・基本情報カードヘッダーから移動） --}}
+                    @if(!$client->is_viewable && $client->email)
+                        <form method="POST" action="{{ route('client-view-release.store', $client) }}"
+                              onsubmit="return confirmReleaseView()" class="d-inline m-0">
+                            @csrf
+                            <button type="submit" class="btn btn-primary btn-sm">閲覧を解放する</button>
+                        </form>
+                    @elseif($client->is_viewable)
+                        <form method="POST" action="{{ route('client-view-revoke.store', $client) }}"
+                              onsubmit="return confirmRevokeView()" class="d-inline m-0">
+                            @csrf
+                            <button type="submit" class="btn btn-outline-secondary btn-sm">閲覧の解放を取り消す</button>
+                        </form>
+                    @endif
+                    <div class="d-flex align-items-baseline gap-2 ms-3">
+                        <span class="text-muted small">内部ID</span>
+                        <span class="font-monospace fs-5">{{ $client->internal_id }}</span>
+                    </div>
+                </div>
+            </div>
+            {{-- 右: ボタン群 --}}
+            <div class="d-flex gap-2 flex-shrink-0">
+                <a href="{{ route('clients.index') }}" class="btn btn-outline-secondary">&laquo; クライアント一覧に戻る</a>
+                @if(!$activeIntakeToken)
+                    <button type="button" class="btn btn-outline-primary"
+                            data-bs-toggle="modal" data-bs-target="#issueIntakeTokenModal">
+                        URL発行
+                    </button>
+                @endif
+                <a href="{{ route('clients.edit', $client) }}" class="btn btn-primary">編集</a>
+                @if(auth()->user()->isAdmin())
+                    <form method="POST" action="{{ route('clients.destroy', $client) }}" class="d-inline"
+                          onsubmit="return confirmDelete()">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">削除</button>
+                    </form>
+                    <script>
+                    function confirmDelete() {
+                        @if($client->trainingRecords->count() > 0)
+                            alert('このクライアントにはトレーニング記録が登録されているため削除できません。');
+                            return false;
+                        @else
+                            return confirm('このクライアントを削除しますか？');
+                        @endif
+                    }
+                    </script>
+                @endif
+            </div>
+        </div>
+        {{-- 下段: 属性4列 --}}
+        <div class="row g-3 mt-2 pt-2 border-top">
+            <div class="col-md-3">
+                <div class="text-muted small">主担当</div>
+                <div style="min-height: 1.5rem;">{{ $client->primaryTrainer?->name ?: '—' }}</div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-muted small">初回日</div>
+                <div style="min-height: 1.5rem;">{{ $client->initial_consultation_date?->format('Y/m/d') ?: '—' }}</div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-muted small">生年月日</div>
+                <div style="min-height: 1.5rem;">{{ $client->birth_date?->format('Y/m/d') ?: '—' }}</div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-muted small">性別</div>
+                <div style="min-height: 1.5rem;">{{ $client->gender ?: '—' }}</div>
+            </div>
         </div>
     </div>
 
@@ -105,69 +162,6 @@
             </div>
         </div>
     @endif
-
-    {{-- カテゴリー1: 基本情報（閲覧管理を統合） --}}
-    <div class="card mb-3">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h6 class="mb-0">基本情報</h6>
-            <div>
-                @if(!$client->is_viewable && $client->email)
-                    {{-- B: 未解放・メール有 --}}
-                    <form method="POST" action="{{ route('client-view-release.store', $client) }}"
-                          onsubmit="return confirmReleaseView()" class="d-inline m-0">
-                        @csrf
-                        <button type="submit" class="btn btn-primary btn-sm">閲覧を解放する</button>
-                    </form>
-                @elseif($client->is_viewable)
-                    {{-- C・D: 解放済み --}}
-                    <form method="POST" action="{{ route('client-view-revoke.store', $client) }}"
-                          onsubmit="return confirmRevokeView()" class="d-inline m-0">
-                        @csrf
-                        <button type="submit" class="btn btn-outline-secondary btn-sm">閲覧の解放を取り消す</button>
-                    </form>
-                @endif
-                {{-- A: メール未登録は何も出さない --}}
-            </div>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    {{-- 閲覧状態を左カラム表の4行目として組み込む。以前は行外の全幅テーブルに
-                         切り出されていて、テーブル間の下マージンで隙間が空いていた。 --}}
-                    <table class="table table-borderless table-sm mb-0">
-                        <tr><th class="text-muted" style="width:40%">内部ID</th><td>{{ $client->internal_id }}</td></tr>
-                        <tr>
-                            <th class="text-muted">名前</th>
-                            <td>{{ $client->full_name }} <span class="text-muted">{{ $client->full_name_kana ? '（' . $client->full_name_kana . '）' : '' }}</span></td>
-                        </tr>
-                        <tr><th class="text-muted">メールアドレス</th><td>{{ $client->email ?: '—' }}</td></tr>
-                        <tr>
-                            <th class="text-muted">閲覧状態</th>
-                            <td>
-                                @if(!$client->is_viewable && empty($client->email))
-                                    <span class="badge bg-secondary fs-6">メールアドレス未登録</span>
-                                @elseif(!$client->is_viewable)
-                                    <span class="badge bg-secondary fs-6">未解放</span>
-                                @elseif(empty($client->password))
-                                    <span class="badge bg-warning text-dark fs-6">解放中（パスワード未設定）</span>
-                                @else
-                                    <span class="badge bg-success fs-6">解放中</span>
-                                @endif
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                <div class="col-md-6">
-                    <table class="table table-borderless table-sm mb-0">
-                        <tr><th class="text-muted" style="width:40%">初回日</th><td>{{ $client->initial_consultation_date?->format('Y/m/d') ?: '—' }}</td></tr>
-                        <tr><th class="text-muted">生年月日</th><td>{{ $client->birth_date?->format('Y/m/d') ?: '—' }}</td></tr>
-                        <tr><th class="text-muted">性別</th><td>{{ $client->gender ?: '—' }}</td></tr>
-                        <tr><th class="text-muted">主担当</th><td>{{ $client->primaryTrainer?->name ?: '—' }}</td></tr>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
 
     @push('scripts')
         @if(!$client->is_viewable && $client->email)
@@ -289,6 +283,7 @@
                         <table class="table table-borderless table-sm">
                             <tr><th class="text-muted" style="width:40%">電話番号1</th><td>{{ $client->phone1 ?: '—' }}</td></tr>
                             <tr><th class="text-muted">電話番号2</th><td>{{ $client->phone2 ?: '—' }}</td></tr>
+                            <tr><th class="text-muted">メールアドレス</th><td>{{ $client->email ?: '—' }}</td></tr>
                         </table>
                     </div>
                     <div class="col-md-6">
