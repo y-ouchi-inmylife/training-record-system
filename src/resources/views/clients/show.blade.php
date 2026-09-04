@@ -130,22 +130,12 @@
             <h2 class="mb-0">
                 {{ $client->full_name }}@if($client->full_name_kana)<span class="text-muted fs-6">（{{ $client->full_name_kana }}）</span>@endif
             </h2>
-            {{-- 閲覧状態バッジ（現行の4分岐ロジックを移植） --}}
-            @if(!$client->is_viewable && empty($client->email))
-                <span class="badge bg-secondary fs-6">メールアドレス未登録</span>
-            @elseif(!$client->is_viewable)
-                <span class="badge bg-secondary fs-6">未解放</span>
-            @elseif(empty($client->password))
-                <span class="badge bg-warning text-dark fs-6">解放中（パスワード未設定）</span>
-            @else
-                <span class="badge bg-success fs-6">解放中</span>
-            @endif
             <div class="d-flex align-items-baseline gap-2 ms-3">
                 <span class="text-muted small">内部ID</span>
                 <span class="font-monospace fs-5">{{ $client->internal_id }}</span>
             </div>
         </div>
-        {{-- 3段目: 属性2列 --}}
+        {{-- 3段目: 属性3列 --}}
         <div class="row g-3 mt-2 pt-2 border-top">
             <div class="col-md-3">
                 <div class="text-muted small">初回日</div>
@@ -154,6 +144,20 @@
             <div class="col-md-3">
                 <div class="text-muted small">主担当</div>
                 <div style="min-height: 1.5rem;">{{ $client->primaryTrainer?->name }}</div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-muted small">閲覧状態</div>
+                <div style="min-height: 1.5rem;">
+                    @if(!$client->is_viewable && empty($client->email))
+                        <span class="badge bg-secondary">メールアドレス未登録</span>
+                    @elseif(!$client->is_viewable)
+                        <span class="badge bg-secondary">未解放</span>
+                    @elseif(empty($client->password))
+                        <span class="badge bg-warning text-dark">解放中（パスワード未設定）</span>
+                    @else
+                        <span class="badge bg-success">解放中</span>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
