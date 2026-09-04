@@ -154,7 +154,13 @@ class ClientController extends Controller
             ->where('expires_at', '>=', Carbon::now())
             ->first();
 
-        return view('clients.show', compact('client', 'trainers', 'activeIntakeToken'));
+        // 有効・無効を問わない最新1件（未発行状態のモーダルで
+        // 「以前発行したURLは〈状態〉です」の案内に使う）
+        $latestIntakeToken = $client->intakeTokens()
+            ->latest()
+            ->first();
+
+        return view('clients.show', compact('client', 'trainers', 'activeIntakeToken', 'latestIntakeToken'));
     }
 
     /**

@@ -67,4 +67,18 @@ class ClientIntakeToken extends Model
         }
         return 'bg-success';
     }
+
+    /**
+     * 残り日数（切り上げ）
+     *
+     * 「あと何日使えるか」を伝えるための表示用。
+     * 切り捨てだと期限当日に「残り0日」となり必要以上に急かすため、
+     * 切り上げで返す。期限切れ（expires_at < now）の場合は 0 を返す。
+     */
+    public function getRemainingDaysAttribute(): int
+    {
+        $hoursLeft = now()->diffInHours($this->expires_at, absolute: false);
+
+        return max(0, (int) ceil($hoursLeft / 24));
+    }
 }
