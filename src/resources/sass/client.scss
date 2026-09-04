@@ -1,0 +1,987 @@
+// クライアントポータル専用スタイル
+// トレーナー側の app.scss とは独立したエントリ。
+// 設計書 docs/client-portal-design-plan.md §2・§2-0・§2-1・§3 を実装する。
+// 段階2（改訂版・書体差し戻し後）: アルバム方向・新パレット・Web フォント不採用。
+// Blade は触らない。トークンが Bootstrap と衝突せずに効くかの検証段階。
+
+// -----------------------------------------------------------------------------
+// タイポグラフィ方針（設計書 §3）
+//
+// **Web フォントは一切読み込まない**。前案では Zen Maru Gothic を読み込んで
+// いたが、ブラウザ実測で 90.8KB（CSS 29KB + woff2 5 サブセット 61.9KB）と
+// 判明し撤回。29KB の CSS は動的サブセット `@font-face` 宣言の構造的コストで
+// 使用箇所を絞っても減らない。モバイル読者・週1回訪問という前提と釣り合わない。
+//
+// 見出しと本文の階層は書体差ではなく、ウェイト・サイズ・letter-spacing・色
+// （見出しに cobalt）で作る（設計書 §3 型スケール参照）。
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+// デザイントークン（設計書 §2）
+// Bootstrap の !default 変数より前に定義することで、
+// Bootstrap の各コンポーネント（btn / card / form-control / alert 等）へ
+// 自動的に適用される。個別クラスの上書きを最小化する狙い。
+// -----------------------------------------------------------------------------
+$paper:     #F5F3EC; // ページ背景
+$mat:       #FFFFFF; // カード面・写真の周辺・入力欄の面
+$ink:       #0F1A2E; // 本文・見出しのインク・細線・フォーカスリング外側
+$cobalt:    #1E45B0; // 日付ブロック帯・主要 CTA・リンク・成功トースト・フォーカスリング外側・H1/H2/Display の色
+$persimmon: #F0592B; // タグ・「新着」/「今日」ピル（面 + ink 文字ペア専用）
+$ember:     #B2311C; // エラー・破棄アクション（mat 面上のみ）
+
+// -----------------------------------------------------------------------------
+// Bootstrap 変数の上書き（Bootstrap import の前）
+// -----------------------------------------------------------------------------
+
+// テーマカラー
+$primary: $cobalt;
+$danger:  $ember;
+$success: $cobalt; // 設計書: 成功メッセージは cobalt 面 + mat 文字
+
+// 面
+$body-bg:    $paper;
+$body-color: $ink;
+$light:      $paper; // .bg-light を paper に寄せる（layouts の <body class="bg-light">）
+$dark:       $ink;
+
+// color-contrast() の候補と閾値
+// - dark 候補を ink に（黒ではなく紺）
+// - light 候補を mat に（純白）
+// - min-contrast-ratio 4.5 で AA テキスト基準
+// これにより ember 面（ink 2.77:1 < 4.5）に対しては自動的に mat が選ばれる。
+$color-contrast-dark:  $ink;
+$color-contrast-light: $mat;
+$min-contrast-ratio:   4.5;
+
+// カード・入力欄
+$card-bg:  $mat;
+$input-bg: $mat;
+
+// 罫線（設計書 §2-1「カード境界の作り方」— ink を 8% 不透明度）
+$border-color: rgba(15, 26, 46, 0.08);
+
+// リンク
+$link-color:       $cobalt;
+$link-hover-color: $ink;
+
+// フォーカスリング（設計書 §2-1 の定義そのまま）
+// mat 3px 内リング + ink 2px 外リングの二重輪郭。
+// - 明色地（paper / mat）では外側 ink が 15:1 以上で可視
+// - vivid 面（cobalt / persimmon）では内側 mat が 3.4〜8.3:1 で可視
+// Bootstrap 5.3: input/button の focus は $input-btn-focus-box-shadow を、
+// .focus-ring ユーティリティは $focus-ring-* を使う。両方に反映する。
+$input-btn-focus-box-shadow: 0 0 0 3px $mat, 0 0 0 5px $ink;
+$focus-ring-color:   $ink;
+$focus-ring-width:   2px;
+$focus-ring-blur:    0;
+$focus-ring-opacity: 1;
+
+// タイポグラフィ変数（設計書 §3）
+//
+// フォントスタック（設計書 §3「フォントスタックの定義」）
+// - system-ui を先頭に置くことでモダン環境では OS のシステム UI フォントを取得
+//   Windows なら Latin=Segoe UI、JP はグリフ単位フォールバックで Yu Gothic UI
+//   Regular が当たる（"Yu Gothic" 直指定で起きる Light 問題を回避）
+// - 旧環境の fallback では "Yu Gothic Medium" を明示指定（"Yu Gothic" と違い
+//   独立ファミリ名でウェイト 500 で描画される）
+// - 見出しは本文と同じスタック（書体差はつけず、ウェイト・サイズ・色で階層を作る）
+$font-family-sans-serif: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic Medium", "Meiryo", sans-serif;
+$font-family-base:       $font-family-sans-serif;
+$headings-font-family:   $font-family-sans-serif;
+$headings-font-weight:   700;
+
+// 型スケール（設計書 §3 型スケール表）
+// - H1 = 2rem、H2 = 1.5rem、H3 = 1.125rem
+// - Bootstrap 既定（h1=2.5, h2=2, h3=1.75）を全て下方修正
+// - 見出しの色は $headings-color ではなく、Bootstrap import 後に h1/h2 に対して
+//   直接 cobalt を当てる（H3 は ink のまま残すため。詳細は下記の「見出し色」節）
+$h1-font-size: 2rem;
+$h2-font-size: 1.5rem;
+$h3-font-size: 1.125rem;
+
+// 行間（日本語のため Bootstrap 既定 1.5 から広げる）
+$line-height-base:     1.75;
+$headings-line-height: 1.4;
+
+// -----------------------------------------------------------------------------
+// Bootstrap 本体（変数上書き後にインポート）
+// -----------------------------------------------------------------------------
+@import 'bootstrap/scss/bootstrap';
+
+// -----------------------------------------------------------------------------
+// flatpickr（intake フォームの生年月日入力で使用）
+// -----------------------------------------------------------------------------
+@import 'flatpickr/dist/flatpickr.css';
+
+// -----------------------------------------------------------------------------
+// 削除したもの（履歴）
+// - Bootstrap Icons の @import: クライアント側 Blade に `bi bi-*` の
+//   使用箇所が 1 件も無い（grep 済）ため削除
+// - .bg-trainer-nav / .text-trainer-nav: トレーナー側専用の色クラスで、
+//   クライアント側 Blade から参照されていないため削除
+// - Google Fonts の @import（Zen Maru Gothic）: 実測 90.8KB のコスト理由で撤回
+// - app.scss 由来の `h2 { font-size: 1.75rem; }` 上書き:
+//   設計書 §3 の新しい型スケール（H2 = 1.5rem）と矛盾するため削除。
+//   代わりに $h2-font-size: 1.5rem を Bootstrap 変数として設定
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+// デザイントークンを CSS カスタムプロパティとしても公開する。
+// 段階3以降のセッションカード・日付ブロック等から `var(--c-*)` で参照するため。
+// -----------------------------------------------------------------------------
+:root {
+    --c-paper:     #{$paper};
+    --c-mat:       #{$mat};
+    --c-ink:       #{$ink};
+    --c-cobalt:    #{$cobalt};
+    --c-persimmon: #{$persimmon};
+    --c-ember:     #{$ember};
+}
+
+// -----------------------------------------------------------------------------
+// 見出しの色と letter-spacing（設計書 §3 型スケール表）
+//
+// - H1 / H2 / .display-hero は cobalt（palette 内で「構造の色」として統一）
+// - H3 以下は ink のまま（cobalt にするとカード内で cobalt が濫用され、
+//   §2-1「鮮色同士の隣接禁止」に抵触する）
+// - letter-spacing は日本語でも軽く効かせて存在感を作る（過度は不可）
+// -----------------------------------------------------------------------------
+h1, .h1 {
+    color: $cobalt;
+    letter-spacing: 0.01em;
+}
+
+h2, .h2 {
+    color: $cobalt;
+    letter-spacing: 0.01em;
+}
+
+// Display（2.75rem、ログイン画面のワードマーク・詳細画面の日付見出しに使う）
+// Blade で `<h1 class="display-hero">` として付与する想定（段階3〜4 で適用）。
+.display-hero {
+    font-size: 2.75rem;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+    color: $cobalt;
+}
+
+// Meta（時刻・件数・キャプション、ink 65%）
+.meta {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: rgba(15, 26, 46, 0.65);
+}
+
+// Eyebrow（セクション上部の小見出し「最新のトレーニング」等）
+// システムサンスに戻ったため letter-spacing を広く取っても字形が崩れない。
+.eyebrow {
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0.08em;
+    color: rgba(15, 26, 46, 0.65);
+}
+
+// -----------------------------------------------------------------------------
+// カード・入力欄の境界（設計書 §2-1「カード境界の作り方」）
+// paper × mat = 1.11:1 のため、色差だけでは輪郭が見えない。
+// - カード（.card）: 罫線 + 影 の両方で輪郭を作る
+// - 入力欄（.form-control）: **罫線のみで輪郭を作る（影は付けない）**。
+//   フォームは要素数が多いため全ての入力欄に影を付けると視覚的にうるさく、
+//   罫線 + フォーカス時の二重輪郭リングで境界は十分識別できる
+// 細罫線色は $border-color = ink 8% を Bootstrap の変数上書きで
+// .card / .form-control 双方に反映済み。
+// フォーカス時は $input-btn-focus-box-shadow の二重輪郭で置き換わる
+// （box-shadow は置き換え、border は残る）。
+// -----------------------------------------------------------------------------
+.card {
+    box-shadow: 0 1px 3px rgba(15, 26, 46, 0.08), 0 4px 12px rgba(15, 26, 46, 0.06);
+}
+
+// -----------------------------------------------------------------------------
+// ember 面（.btn-danger 等）の文字色を mat に明示上書き（設計書 §2-1）
+// color-contrast() は $min-contrast-ratio 4.5 で ember に対し自動的に mat を
+// 選ぶが、閾値近傍の色を追加する事故を防ぐため、変数任せにせず明示する。
+// -----------------------------------------------------------------------------
+.btn-danger {
+    color: $mat;
+
+    &:hover, &:focus, &:active, &.active, &:disabled {
+        color: $mat;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 成功系メッセージ（設計書 §2-1）
+// Bootstrap の .alert-success は $success（cobalt）の tint / shade から
+// 自動生成されるため、そのままだと「薄い青の面 + 濃い青の文字」になる。
+// 設計書は「cobalt 面 + mat 文字」を求めているため明示上書きする。
+// -----------------------------------------------------------------------------
+.alert-success {
+    background-color: $cobalt;
+    color: $mat;
+    border-color: $cobalt;
+
+    // 閉じるボタン（× アイコン）は SVG 背景で黒基調のため、白に反転させる
+    .btn-close {
+        filter: invert(1);
+    }
+}
+
+// -----------------------------------------------------------------------------
+// クライアント側ナビゲーションバー（段階4-6 で暫定コードから正式化）
+//
+// Blade からは `navbar-dark` / `bg-client-nav` を除去し `.c-nav` に統一。
+// 打ち消し（!important）を伴わないクリーンな指定で mat 面 + ink 文字を実現。
+// -----------------------------------------------------------------------------
+.c-nav {
+    background-color: $mat;
+    border-bottom: 1px solid rgba(15, 26, 46, 0.08);
+
+    // Bootstrap 5.3 の navbar 用 CSS カスタムプロパティを ink 基調にセット。
+    // navbar-brand・navbar-text はこの変数値を参照するため、個別の色指定不要
+    --bs-navbar-color:              #{$ink};
+    --bs-navbar-hover-color:        #{$cobalt};
+    --bs-navbar-active-color:       #{$ink};
+    --bs-navbar-brand-color:        #{$ink};
+    --bs-navbar-brand-hover-color:  #{$cobalt};
+    --bs-navbar-disabled-color:     rgba(15, 26, 46, 0.5);
+}
+
+// -----------------------------------------------------------------------------
+// 数字の桁揃え（設計書 §3「数字の扱い」）
+// body 全体には適用しない。以下の要素に限定：
+// - .num-tabular ユーティリティクラス（段階3以降で日付ブロックの日・
+//   記録件数・時刻・郵便番号の要素に付与）
+// - input[type="tel"]（電話番号）— セマンティクスから自動適用
+// -----------------------------------------------------------------------------
+.num-tabular,
+input[type="tel"] {
+    font-variant-numeric: tabular-nums;
+}
+
+// -----------------------------------------------------------------------------
+// ダッシュボード（段階3）: セッションカード・フィード
+// 設計書 §4-2「ダッシュボード — 改善案」・§5「シグネチャー」に従う。
+//
+// 【解いていること】
+// - カード内スクロールを一切持たない（ページ全体のスクロールのみ）
+// - 独立したメディアギャラリー廃止、写真は各記録カード内に統合
+// - 日付ブロック（cobalt 帯）が各カード左端で共通のシグネチャー要素
+// - hero（先頭1件）は写真を大きく、feed（残り）はサムネイル数枚
+//
+// 【§2-1 の禁止事項の遵守】
+// - cobalt 面（日付ブロック）の文字は mat のみ
+// - カードは罫線（$border-color = ink 8%）と box-shadow 2 段影の両方を持つ
+// - vivid 面（persimmon 等）は現状カード内に配置しない
+//   （training-type タグは §4-2 のワイヤーフレームに無いため廃止した）
+// -----------------------------------------------------------------------------
+
+// あいさつ（H1 のグローバルスタイル: color=cobalt, weight=700, letter-spacing=0.01em
+// はすでに適用済み。ここでは余白のみ調整）
+.c-greeting {
+    margin-bottom: 0.5rem;
+}
+
+// 犬の名前・写真の予約領域（現状は hidden）。将来 dog エンティティ差し込み用。
+.c-dog-placeholder {
+    // hidden 属性で非表示。CSS 側では余白だけ確保（実質 0）。
+}
+
+// セクション（hero / feed 全体のラッパ）
+.c-section {
+    margin-top: 2rem;
+}
+.c-section:first-of-type {
+    margin-top: 1.5rem;
+}
+.c-section-sub {
+    margin-top: -0.25rem;
+    margin-bottom: 1rem;
+}
+
+// 空状態カード（記録0件） — 装飾を入れず、次に何が起きるかを言葉で伝える
+.c-empty-state .c-empty-card {
+    background-color: $mat;
+    border: 1px solid rgba(15, 26, 46, 0.08);
+    box-shadow: 0 1px 3px rgba(15, 26, 46, 0.08), 0 4px 12px rgba(15, 26, 46, 0.06);
+    border-radius: 0.5rem;
+    padding: 1.5rem 1.25rem;
+    line-height: 1.75;
+}
+
+// セッションカード本体（mat 面 + 罫線 + 影）
+.c-session {
+    display: flex;
+    background-color: $mat;
+    border: 1px solid rgba(15, 26, 46, 0.08);
+    box-shadow: 0 1px 3px rgba(15, 26, 46, 0.08), 0 4px 12px rgba(15, 26, 46, 0.06);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.c-session:hover {
+    box-shadow: 0 2px 6px rgba(15, 26, 46, 0.12), 0 8px 20px rgba(15, 26, 46, 0.08);
+    transform: translateY(-1px);
+}
+@media (prefers-reduced-motion: reduce) {
+    .c-session,
+    .c-session:hover {
+        transition: none;
+        transform: none;
+    }
+}
+
+// 日付ブロック（シグネチャー・§5）
+// cobalt 帯の縦組み日本語。数字は 700 で 2rem、hero では 2.75rem。
+.c-date-block {
+    flex: 0 0 auto;
+    width: 4.5rem;
+    background-color: $cobalt;
+    color: $mat;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 0.25rem;
+    text-align: center;
+    line-height: 1;
+    gap: 0.35rem;
+}
+.c-date-month {
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+.c-date-day {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+}
+.c-date-weekday {
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+}
+
+// モバイル(<576px)横帯用の1行版。デスクトップでは非表示、モバイルの
+// メディアクエリで display を切り替える(設計書 §5-1 の形態分岐)。
+.c-date-inline {
+    display: none;
+}
+
+// hero variant: 日付ブロックをやや大きくして「最新の 1 件」の存在感を作る
+.c-session--hero .c-date-block {
+    width: 5.5rem;
+    padding: 1.5rem 0.5rem;
+    gap: 0.5rem;
+}
+.c-session--hero .c-date-day {
+    font-size: 2.75rem;
+}
+
+// セッションカード本体（日付ブロックの右）
+.c-session-body {
+    flex: 1 1 auto;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    min-width: 0; // flex 子要素で img/text-overflow が効くように
+}
+.c-session--hero .c-session-body {
+    padding: 1.25rem 1.5rem;
+}
+
+// 中身が少ないカードでも上下中央に配置するためのラッパ。
+// flex + margin:auto パターン（media-records/_lightbox.blade.php の教訓を踏襲）。
+// 親に justify-content:center を効かせると、内容が親より大きくなったときに
+// 親の overflow:hidden で上端がクリップされる罠がある。margin:auto は
+// 余りが無ければ自動的に 0 に崩れるため、内容が満たしている場合の見た目は
+// 変わらず、少ないときのみ上下均等に余白が振り分けられる。
+.c-session-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: auto 0;
+    min-width: 0;
+}
+.c-session--hero .c-session-content {
+    gap: 1rem;
+}
+
+// メディア（写真・動画のサムネイル）
+// feed: 小さい固定サイズのサムネイル(設計書 §4-2 wireframe の
+// [thumb][thumb] の小型並びを再現)。72px 固定の正方形を自動フィル。
+.c-session-media {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 72px);
+    gap: 0.5rem;
+    justify-content: start;
+}
+// hero: 大きめの写真(minmax 140px 以上でカード幅にフィット)
+.c-session-media--hero {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.75rem;
+    justify-content: initial; // feed の start を打ち消し、grid 既定の stretch へ
+}
+
+.c-media-thumb {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    background-color: rgba(15, 26, 46, 0.04);
+    border-radius: 0.25rem;
+    overflow: hidden;
+    cursor: pointer;
+    outline: none;
+}
+.c-media-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.c-media-thumb:hover img {
+    opacity: 0.92;
+}
+.c-media-thumb:focus-visible {
+    // 二重輪郭のフォーカスリング（§2-1）
+    box-shadow: 0 0 0 3px $mat, 0 0 0 5px $ink;
+}
+.c-media-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(15, 26, 46, 0.5);
+    font-size: 0.75rem;
+}
+// 変換未完メディア用の「準備中」バッジ（設計書 §6 の文言方針）
+// 黒に近い ink 半透過に mat 文字（8.29:1 以上）
+.c-media-badge {
+    position: absolute;
+    top: 0.25rem;
+    left: 0.25rem;
+    background-color: rgba(15, 26, 46, 0.85);
+    color: $mat;
+    font-size: 0.7rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.25rem;
+    line-height: 1.4;
+}
+
+// 「+N」（残数リンク）
+.c-media-more {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1 / 1;
+    background-color: rgba(15, 26, 46, 0.04);
+    border: 1px dashed rgba(15, 26, 46, 0.25);
+    border-radius: 0.25rem;
+    color: $ink;
+    font-weight: 700;
+    text-decoration: none;
+}
+.c-media-more:hover {
+    background-color: rgba(15, 26, 46, 0.08);
+    color: $cobalt;
+}
+.c-media-more:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px $mat, 0 0 0 5px $ink;
+}
+
+// ノート冒頭
+.c-session-note {
+    margin: 0;
+    color: $ink;
+    line-height: 1.75;
+}
+
+// 「続きを読む →」CTA
+.c-session-cta {
+    align-self: flex-start;
+    color: $cobalt;
+    font-weight: 700;
+    text-decoration: none;
+}
+.c-session-cta:hover {
+    text-decoration: underline;
+}
+.c-session-cta:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px $mat, 0 0 0 5px $ink;
+    border-radius: 2px;
+}
+
+// トースト（成功系メッセージ規約に準拠: cobalt 面 + mat 文字）
+.c-toast {
+    background-color: $cobalt;
+    color: $mat;
+}
+
+// モバイル(576px 未満、Bootstrap の sm ブレークポイント境界)
+// 設計書 §5-1「表示形態の分岐」に従い、日付ブロックを cobalt 縦帯から
+// カード上部の cobalt 横帯へ切り替える。
+// - モバイル幅では写真が 2 列以上に折り返しカードが縦に伸びる
+// - 縦帯だと date-block も追随して間延びし、「日付が視覚のリズムを作る」
+//   意図が「青い柱が並ぶ装飾」に変質する(§5-2)
+// - カード自体を flex-direction: column に切り替え、date-block を上部の
+//   横帯にする。日本語は「8月 2日(金)」の横 1 行表記(§5-6)
+// - §2-1 の制約は維持: 横帯上の文字は mat のみ、鮮色隣接なし、
+//   カード境界(罫線+影)は不変
+@media (max-width: 575.98px) {
+    // カード全体を縦積みに切り替え(date-block を上、body を下)
+    .c-session {
+        flex-direction: column;
+    }
+
+    // date-block を横帯化(幅は 100%、高さは 1 行分、内容は左寄せ横並び)
+    .c-date-block,
+    .c-session--hero .c-date-block {
+        width: auto;
+        padding: 0.5rem 1rem;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 0;
+        line-height: 1.4;
+        text-align: left;
+    }
+
+    // 縦組み用の 3 つの span を非表示
+    .c-date-month,
+    .c-date-day,
+    .c-date-weekday,
+    .c-session--hero .c-date-day {
+        display: none;
+    }
+
+    // モバイル横帯用の 1 行版を表示(設計書 §5-6: 日本語表記維持)
+    .c-date-inline {
+        display: inline;
+        font-weight: 700;
+        font-size: 1.125rem;
+        color: $mat;
+        letter-spacing: 0.02em;
+    }
+    .c-session--hero .c-date-inline {
+        font-size: 1.25rem;
+    }
+
+    // 本体 padding は狭め(既存維持)
+    .c-session-body {
+        padding: 0.75rem 1rem;
+    }
+    .c-session--hero .c-session-body {
+        padding: 1rem 1.25rem;
+    }
+
+    // hero の写真グリッドは 2 列(既存維持)
+    .c-session-media--hero {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 記録詳細画面（段階4-1） — 設計書 §4-4「トレーニング記録詳細」
+//
+// - 表(table)を廃止し、狭幅で崩れない縦積み構造
+// - 日付は h1 テキストとして表示（ダッシュボードの日付ブロックとは
+//   プレゼンテーションが異なるが、同じ「8月2日（金）」の文字列を保つことで
+//   飼い主が2画面で同じ表現を見る一貫性を維持）
+// - impression は表示しない（コントローラも読み込んでいない=構造的漏洩防止）
+// - 空値の項目は行ごと出さない（「—」表示は廃止）
+// - モバイル(<576px)は container の左右 padding が縮み、
+//   タイトルサイズも 1 段下がる
+// -----------------------------------------------------------------------------
+
+// 戻る導線: 「戻る」ではなく行き先を書く（設計書 §6）
+.c-detail-back {
+    display: inline-block;
+    color: $cobalt;
+    font-weight: 700;
+    text-decoration: none;
+    margin-bottom: 1rem;
+}
+.c-detail-back:hover {
+    text-decoration: underline;
+}
+.c-detail-back:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px $mat, 0 0 0 5px $ink;
+    border-radius: 2px;
+}
+
+// 詳細タイトル: 日付主体の大見出し
+// h1 グローバルスタイル(color: cobalt, letter-spacing: 0.01em)より
+// 大きな値で上書きされるようクラスで完全指定する
+.c-detail-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: 0.01em;
+    color: $cobalt;
+    margin-bottom: 0.5rem;
+}
+
+// メタ情報（トレーナー ・ 時刻）: 2 行を縦に積む
+.c-detail-meta {
+    margin-bottom: 2rem;
+    line-height: 1.7;
+}
+
+// 詳細内の各セクション（写真・ノート・今日やったこと）
+.c-detail-section {
+    margin-top: 2.5rem;
+}
+.c-detail-section .eyebrow {
+    margin-bottom: 0.75rem;
+}
+
+// ノート本文・「今日やったこと」本文
+// white-space: pre-wrap で record_content の改行を保持
+.c-detail-body {
+    color: $ink;
+    line-height: 1.85;
+    white-space: pre-wrap;
+}
+
+// モバイル(576px 未満)のタイトル調整
+// 2.5rem = 40px × 12〜13 文字だと 400px 幅のカードに収まらないため
+// 1.75rem = 28px に下げて余裕を作る
+@media (max-width: 575.98px) {
+    .c-detail-title {
+        font-size: 1.75rem;
+    }
+    .c-detail-section {
+        margin-top: 2rem;
+    }
+    .c-detail-meta {
+        margin-bottom: 1.5rem;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// ログイン画面（段階4-2）— 設計書 §4-3
+//
+// 【解いていること】
+// - 旧 `min-vh-100` + `align-items:center` の縦センタリングを廃止（数ピクセル
+//   の溢れでスクロールバーが出る既知の不具合を解消）
+// - カードは max-width で幅を絞り、上余白基準で配置。フッターの有無で
+//   カード位置が動かない構造（§9-2 の要件）
+// - プロダクト名は config('app.client_portal_name') から供給（§9-1）
+// - フッター会社名は config('app.client_portal_company') が未設定なら
+//   Blade 側でブロックごと出さない（§9-2）
+// - ロゴ画像（仮のミカン）は表示しない（§9-3）。将来ロゴ再導入時のために
+//   ワードマーク左に画像スロット（max-height 48px）を追加できる余白を予約
+// -----------------------------------------------------------------------------
+
+.c-login {
+    max-width: 26rem;
+    margin: 0 auto;
+    padding-top: 3rem;
+    padding-bottom: 2rem;
+}
+
+// ワードマーク（プロダクト名）
+// 設計書 §9-1 の想定文字数は 3〜7 文字だが、暫定値「トレーニング記録」は 8 文字。
+// 400px 幅で収まるよう Display 2.75rem より少し下げた 2.5rem を採用
+// （8 文字 × 40px = 320px、モバイル container 内幅約 376px に対し余裕）。
+// モバイルではさらに 2rem に下げる。将来 3〜7 文字に変わっても破綻しない。
+.c-login-wordmark {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+    color: $cobalt;
+    text-align: center;
+    margin: 0 0 2rem;
+}
+
+// カード幅は c-login の max-width（26rem）で制約済み
+// 既存の .card ルール（罫線 + 影）をそのまま継承
+.c-login-card {
+    // No additional properties needed. Placeholder for future adjustments.
+}
+
+// ヘルプテキスト（カード下）: 会社名が無くても成立する説明文
+.c-login-help {
+    text-align: center;
+    color: rgba(15, 26, 46, 0.65);
+    font-size: 0.875rem;
+    line-height: 1.6;
+    margin: 1rem 0 0;
+}
+
+// フッター（会社名 / 年）: Blade で config が未設定なら出力されない。
+// 出力される場合のスタイルだけ定義。
+.c-login-footer {
+    text-align: center;
+    color: rgba(15, 26, 46, 0.45);
+    font-size: 0.75rem;
+    margin: 1.5rem 0 0;
+}
+
+// モバイル（<576px）: 上余白とワードマークサイズを縮小
+@media (max-width: 575.98px) {
+    .c-login {
+        padding-top: 1rem;
+    }
+    .c-login-wordmark {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// パスワード設定画面（段階4-3）— 設計書 §4-7
+//
+// ページ全体のシェル（.c-login / .c-login-wordmark / .c-login-card /
+// .c-login-footer）はログイン画面と共用。以下はカード内の追加要素のみ。
+//
+// 設計書 §6 の文言方針に従い、以下の書き換えを可能にするクラス：
+// - .c-auth-heading: 「パスワードの設定」（サブタイトル）→「パスワードを決めます」
+// - .c-auth-lead:    「メールアドレス: ○○」ラベル+値 → 宛先を含む 1 文
+// -----------------------------------------------------------------------------
+
+// カード内の見出し(H2 相当だが、ページ全体の H1 はワードマークなので
+// カード内はレベルを 1 段下げた見出しとして扱う)
+.c-auth-heading {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+    color: $cobalt;
+    margin: 0 0 0.75rem;
+}
+
+// カード内の説明文(見出しの下、フォームの前)
+// 長いメールアドレスでも折り返してカードを突き破らないよう
+// overflow-wrap: anywhere を効かせる
+.c-auth-lead {
+    color: rgba(15, 26, 46, 0.75);
+    line-height: 1.7;
+    margin: 0 0 1.5rem;
+    overflow-wrap: anywhere;
+}
+
+// メールアドレスの強調(<strong>)。ink を使う(cobalt にすると
+// カード内の primary CTA と鮮色隣接になり得る可能性を回避)
+.c-auth-email {
+    font-weight: 700;
+    color: $ink;
+}
+
+// -----------------------------------------------------------------------------
+// 無効なトークン画面（段階4-4）— 設計書 §4-8
+//
+// password-setup / intake の invalid-token 両画面で使う「次にできること」
+// ブロックのスタイル。$title / $message はコントローラから渡される変数を
+// 器（.c-login シェル + .card）に流し込むだけ。
+// この画面は「エラー(飼い主の落ち度)」ではなく「状況の説明」なので、
+// ember(エラー色)は使わず cobalt 基調の見出しで柔らかく伝える。
+// -----------------------------------------------------------------------------
+
+// カード内で $message の下に置く「次にできること」ブロック
+// $message との視覚的分離は margin-top で確保（罫線は入れない、装飾を最小化）
+.c-next {
+    margin-top: 1.5rem;
+}
+.c-next .eyebrow {
+    margin-bottom: 0.5rem;
+}
+
+// 行動リスト
+.c-next-list {
+    padding-left: 1.25rem;
+    margin: 0;
+    color: $ink;
+    line-height: 1.8;
+}
+.c-next-list li {
+    margin-bottom: 0.25rem;
+}
+.c-next-list li:last-child {
+    margin-bottom: 0;
+}
+
+// -----------------------------------------------------------------------------
+// intake フォーム（段階4-5） — 設計書 §4-5・§4-6
+//
+// - layouts.client-intake の container 内に max-width を持つ .c-intake で
+//   コンテンツ幅を制約（デスクトップ 40rem 中央寄せ、モバイルは container 幅）
+// - 3 点シェブロン（基本情報 → 連絡先 → 完了）は既存の .step-badge 構造を
+//   活用。JS 依存の class 名（.step-badge / .bg-primary / .bg-secondary /
+//   .d-none / #progressBar / #step1 / #step2）と data-step 属性は変更禁止のため、
+//   ここでは見た目の調整のみ行う（バッジのサイズ・角丸・シェブロン全体の配置）
+// - 完了画面（§4-6）は cobalt の checkmark 円 + 見出し + 説明文
+// -----------------------------------------------------------------------------
+
+.c-intake {
+    max-width: 40rem;
+    margin: 0 auto;
+}
+
+// ページ h1（「事前入力情報」）
+.c-intake-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: $cobalt;
+    letter-spacing: 0.01em;
+    text-align: center;
+    margin: 0.5rem 0 1.5rem;
+}
+
+// 3 点シェブロン container
+.c-intake-progress {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+// バッジ（.step-badge / 完了）の見た目調整。.bg-primary / .bg-secondary は
+// JS 依存なので触らないが、バッジ自体のサイズ・角丸を intake 用に大きめに
+.c-intake-progress .badge {
+    font-size: 0.875rem;
+    font-weight: 700;
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+}
+
+// シェブロンの矢印セパレータ
+.c-intake-progress-arrow {
+    color: rgba(15, 26, 46, 0.4);
+    font-weight: 700;
+}
+
+// カード内のステップ見出し（「基本情報（1/2）」等）
+.c-intake-step-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: $cobalt;
+    letter-spacing: 0.01em;
+    margin: 0 0 1.25rem;
+}
+
+// ラベル横の「（必須）」テキスト
+.c-intake-required {
+    color: rgba(15, 26, 46, 0.65);
+    font-size: 0.875rem;
+    font-weight: 400;
+    margin-left: 0.25rem;
+}
+
+// アクション（ボタン）コンテナ。デフォルトは右寄せ（次へ用）、
+// --split で両端寄せ（戻る/送信用）
+.c-intake-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+}
+.c-intake-actions--split {
+    justify-content: space-between;
+}
+
+// 住所検索のインラインエラー: #postal_code_client_error に付与
+// 通常 .invalid-feedback は display:none だが d-block で常時表示可能にし、
+// Blade 側で hidden 属性で show/hide を制御する
+.c-intake-inline-error {
+    margin-top: 0.25rem;
+}
+
+// フッター（会社名）。他画面と同系のスタイル
+.c-intake-footer {
+    text-align: center;
+    color: rgba(15, 26, 46, 0.45);
+    font-size: 0.75rem;
+    margin-top: 2rem;
+    margin-bottom: 0;
+}
+
+// 完了画面（§4-6）
+.c-intake-complete {
+    max-width: 26rem;
+    margin: 0 auto;
+    padding-top: 3rem;
+    padding-bottom: 2rem;
+    text-align: center;
+}
+
+.c-intake-complete-check {
+    display: block;
+    width: 4rem;
+    height: 4rem;
+    line-height: 4rem;
+    background-color: $cobalt;
+    color: $mat;
+    border-radius: 50%;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 auto 1.5rem;
+}
+
+.c-intake-complete-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $cobalt;
+    letter-spacing: 0.01em;
+    margin: 0 0 1rem;
+}
+
+.c-intake-complete-body {
+    color: rgba(15, 26, 46, 0.75);
+    line-height: 1.7;
+    margin: 0;
+}
+
+// モバイル（<576px）
+@media (max-width: 575.98px) {
+    .c-intake-title {
+        font-size: 1.5rem;
+    }
+    .c-intake-step-title {
+        font-size: 1.125rem;
+    }
+    .c-intake-complete {
+        padding-top: 1.5rem;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// app.scss 由来の保持ルール（h2 の font-size 上書きは §3 の型スケールと
+// 矛盾するため削除。他は保持）
+// -----------------------------------------------------------------------------
+
+// フォーム入力欄の高さ調整（上下 padding を Bootstrap デフォルト .375rem から縮小）
+.form-control,
+.form-select {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+}
+
+// 水平フォームの固定幅ラベル（登録・編集画面のラベル左・入力欄右レイアウト用）
+// md以上で幅140px固定。md未満（縦積み時）は幅指定を解除して全幅に戻す。
+.form-label-fixed {
+    @media (min-width: 768px) {
+        width: 140px;
+    }
+}
+
+// 固定幅ラベルに収まらない長いラベル用の縮小クラス（必要な項目にのみ付与）
+// 現時点では未使用。将来140pxに収まらないラベルが出た場合に label へ追加する。
+.form-label-fixed-sm {
+    font-size: 0.875rem;
+}
+
+// フラッシュメッセージのフェード速度をゆっくりに（Bootstrap 既定 0.15s → 1s）
+// .alert.fade で限定し、modal（.modal.fade）や tab-pane（.tab-pane.fade）には影響させない
+.alert.fade {
+    transition: opacity 1s linear;
+}

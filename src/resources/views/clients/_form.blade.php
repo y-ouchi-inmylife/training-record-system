@@ -58,7 +58,7 @@
                             </div>
                         </div>
                     @endif
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="row g-2 align-items-center">
                             <label for="initial_consultation_date" class="col-md-auto col-form-label text-md-end form-label-fixed">
                                 初回日 <span class="text-danger">*</span>
@@ -66,14 +66,14 @@
                             <div class="col-12 col-md">
                                 <input type="text" class="form-control datepicker @error('initial_consultation_date') is-invalid @enderror"
                                        id="initial_consultation_date" name="initial_consultation_date"
-                                       value="{{ old('initial_consultation_date', $client?->initial_consultation_date?->format('Y-m-d') ?? date('Y-m-d')) }}" required
+                                       value="{{ old('initial_consultation_date', $client?->initial_consultation_date?->format('Y-m-d')) }}" required
                                        placeholder="例: 2000-01-15" pattern="\d{4}-\d{2}-\d{2}" maxlength="10"
                                        autocomplete="off">
                                 @error('initial_consultation_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-5">
                         <div class="row g-2 align-items-center">
                             <label for="email" class="col-md-auto col-form-label text-md-end form-label-fixed">メールアドレス</label>
                             <div class="col-12 col-md">
@@ -140,7 +140,7 @@
 
                 <div class="row g-3">
                     {{-- 行3: 生年月日 + 性別 + 主担当 --}}
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="row g-2 align-items-center">
                             <label for="birth_date" class="col-md-auto col-form-label text-md-end form-label-fixed">生年月日</label>
                             <div class="col-12 col-md">
@@ -189,7 +189,7 @@
             <div class="card-body">
                 <div class="row g-3 mb-2">
                     {{-- 行1: 電話番号1 + 電話番号2 --}}
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="row g-2 align-items-center">
                             <label for="phone1" class="col-md-auto col-form-label text-md-end form-label-fixed">電話番号1</label>
                             <div class="col-12 col-md">
@@ -200,7 +200,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="row g-2 align-items-center">
                             <label for="phone2" class="col-md-auto col-form-label text-md-end form-label-fixed">電話番号2</label>
                             <div class="col-12 col-md">
@@ -215,7 +215,7 @@
 
                 <div class="row g-3 mb-2">
                     {{-- 行2: 郵便番号+住所検索 + 都道府県 + 市区町村 --}}
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="row g-2 align-items-center">
                             <label for="postal_code" class="col-md-auto col-form-label text-md-end form-label-fixed">郵便番号</label>
                             <div class="col-12 col-md">

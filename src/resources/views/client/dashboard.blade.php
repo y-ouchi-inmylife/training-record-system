@@ -1,171 +1,212 @@
 @extends('layouts.client')
 
-@section('title', 'ダッシュボード - トレーニング記録閲覧')
+@php
+    // 曜日の日本語表記（Carbon の dayOfWeek は 0=日 〜 6=土）
+    $weekdaysJp = ['日', '月', '火', '水', '木', '金', '土'];
+    $hero = $sessions->first();
+@endphp
 
 @section('content')
-<div class="container py-4">
-    <h1 class="h4 mb-4">{{ auth('client')->user()->full_name }} さん、ようこそ</h1>
+<div class="container py-4 c-dashboard">
+    {{-- 挨拶（設計書 §6: 「ようこそ」→「こんにちは」に変更） --}}
+    <h1 class="c-greeting">{{ auth('client')->user()->full_name }} さん、こんにちは</h1>
 
-    {{-- メディアギャラリー（S-1402） --}}
-    <div class="card mb-3">
-        {{-- クライアントナビと同じオレンジ（.bg-client-nav = #fd7e14）＋白文字。 --}}
-        {{-- 「トレーニング記録」ヘッダー側は白のまま変えない。 --}}
-        <div class="card-header bg-client-nav text-white">
-            <h6 class="mb-0">メディア（{{ count($mediaItems) }}件）</h6>
-        </div>
-        <div class="card-body">
-            @if(count($mediaItems) === 0)
-                <div class="text-muted">メディアはありません。</div>
-            @else
-                {{-- メディアが多い場合の縦スクロール（training-records-scroll と同じ流儀） --}}
-                <div class="media-gallery-scroll">
-                <div class="row row-cols-2 row-cols-md-4 row-cols-xl-6 g-3" id="mediaGalleryGrid">
-                    @foreach($mediaItems as $m)
-                        <div class="col">
-                            <div class="card h-100 media-card"
-                                 data-media-id="{{ $m['id'] }}"
-                                 data-media-type="{{ $m['type'] }}"
-                                 data-conversion-status="{{ $m['conversionStatus'] }}"
-                                 data-display-title="{{ $m['displayTitle'] }}"
-                                 style="cursor: pointer;" role="button" tabindex="0">
-                                <div class="ratio ratio-1x1 bg-light d-flex align-items-center justify-content-center">
+    {{-- 犬の名前・写真の予約領域（設計書 §8-4）。
+         将来 Client に dog リレーションが入ったら hidden を外して差し込む。 --}}
+    <div class="c-dog-placeholder" hidden></div>
+
+    @if($sessions->isEmpty())
+        {{-- 空状態（記録0件）— 設計書 §4-2 --}}
+        <section class="c-section c-empty-state" aria-label="空状態">
+            <p class="eyebrow">ここに届きます</p>
+            <div class="c-empty-card">
+                <p class="mb-0">
+                    最初のトレーニングが記録されると、この場所に
+                    日付・写真・トレーナーからのノートが順番に届きます。
+                </p>
+            </div>
+        </section>
+    @else
+        {{-- hero: 最新のトレーニング（先頭1件） --}}
+        @php $rec = $hero['record']; $media = $hero['media']; @endphp
+        <section class="c-section" aria-labelledby="c-latest-heading">
+            <p class="eyebrow" id="c-latest-heading">最新のトレーニング</p>
+
+            <article class="c-session c-session--hero">
+                <div class="c-date-block" aria-hidden="true">
+                    {{-- ≥576px 用: 縦組み3行(月・日・曜日)。モバイルでは display:none --}}
+                    <span class="c-date-month">{{ $rec->training_date->month }}月</span>
+                    <span class="c-date-day num-tabular">{{ $rec->training_date->day }}</span>
+                    <span class="c-date-weekday">{{ $weekdaysJp[$rec->training_date->dayOfWeek] }}</span>
+                    {{-- <576px 用: 横1行版(設計書 §5-1 モバイル形態)。≥576px では display:none --}}
+                    <span class="c-date-inline">{{ $rec->training_date->month }}月 {{ $rec->training_date->day }}日（{{ $weekdaysJp[$rec->training_date->dayOfWeek] }}）</span>
+                </div>
+                <div class="c-session-body">
+                    <div class="c-session-content">
+                    {{-- 日付をスクリーンリーダー向けに追加(視覚では日付ブロックが表示) --}}
+                    <p class="visually-hidden">{{ $rec->training_date->format('Y年n月j日') }}（{{ $weekdaysJp[$rec->training_date->dayOfWeek] }}）のトレーニング</p>
+
+                    @if(count($media) > 0)
+                        @php
+                            $shown = array_slice($media, 0, 4);
+                            $extra = count($media) - count($shown);
+                        @endphp
+                        <div class="c-session-media c-session-media--hero" data-media-grid>
+                            @foreach($shown as $m)
+                                <div class="c-media-thumb"
+                                     data-media-id="{{ $m['id'] }}"
+                                     data-media-type="{{ $m['type'] }}"
+                                     data-conversion-status="{{ $m['conversionStatus'] }}"
+                                     data-display-title="{{ $m['displayTitle'] }}"
+                                     role="button"
+                                     tabindex="0"
+                                     aria-label="{{ $m['type'] === 'photo' ? '写真を開く' : '動画を開く' }}: {{ $m['displayTitle'] }}">
                                     @if($m['thumbnailUrl'])
-                                        <img src="{{ $m['thumbnailUrl'] }}" alt="{{ $m['displayTitle'] }}" class="img-fluid">
-                                        {{-- 動画のときだけ中央に▶をオーバーレイ（写真・プレースホルダには出さない） --}}
+                                        <img src="{{ $m['thumbnailUrl'] }}" alt="{{ $m['displayTitle'] }}">
                                         @if($m['type'] === 'video')
                                             @include('media-records._video-play-overlay')
                                         @endif
                                     @else
-                                        <span class="text-muted">{{ $m['type'] === 'photo' ? '写真' : '動画' }}</span>
+                                        <span class="c-media-placeholder">{{ $m['type'] === 'photo' ? '写真' : '動画' }}</span>
+                                    @endif
+                                    @if($m['conversionStatus'] !== 'not_required' && $m['conversionStatus'] !== 'done')
+                                        <span class="c-media-badge">準備中</span>
                                     @endif
                                 </div>
-                                <div class="card-body p-2 small text-center">
-                                    <div class="text-muted">{{ $m['trainingDate'] }}</div>
+                            @endforeach
+                            @if($extra > 0)
+                                <a href="{{ route('client-portal.training-records.show', $rec) }}" class="c-media-more" aria-label="残り{{ $extra }}枚を見る">+{{ $extra }}</a>
+                            @endif
+                        </div>
+                    @endif
+
+                    @if($rec->record_content)
+                        <p class="c-session-note">{{ \Illuminate\Support\Str::limit($rec->record_content, 120, '…') }}</p>
+                    @endif
+
+                    <a href="{{ route('client-portal.training-records.show', $rec) }}" class="c-session-cta">
+                        {{ empty($rec->record_content) ? '記録を見る' : '続きを読む' }} <span aria-hidden="true">→</span>
+                    </a>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        {{-- feed: これまでの記録（残り） --}}
+        @if($sessions->count() > 1)
+            <section class="c-section" aria-labelledby="c-past-heading">
+                <p class="eyebrow" id="c-past-heading">これまでの記録</p>
+                <p class="meta c-section-sub">これまで <span class="num-tabular">{{ $sessions->count() }}</span> 回のトレーニング</p>
+
+                @foreach($sessions->skip(1) as $session)
+                    @php $rec = $session['record']; $media = $session['media']; @endphp
+                    <article class="c-session">
+                        <div class="c-date-block" aria-hidden="true">
+                            {{-- ≥576px 用: 縦組み3行(月・日・曜日)。モバイルでは display:none --}}
+                            <span class="c-date-month">{{ $rec->training_date->month }}月</span>
+                            <span class="c-date-day num-tabular">{{ $rec->training_date->day }}</span>
+                            <span class="c-date-weekday">{{ $weekdaysJp[$rec->training_date->dayOfWeek] }}</span>
+                            {{-- <576px 用: 横1行版(設計書 §5-1 モバイル形態)。≥576px では display:none --}}
+                            <span class="c-date-inline">{{ $rec->training_date->month }}月 {{ $rec->training_date->day }}日（{{ $weekdaysJp[$rec->training_date->dayOfWeek] }}）</span>
+                        </div>
+                        <div class="c-session-body">
+                            <div class="c-session-content">
+                            <p class="visually-hidden">{{ $rec->training_date->format('Y年n月j日') }}（{{ $weekdaysJp[$rec->training_date->dayOfWeek] }}）のトレーニング</p>
+
+                            @if(count($media) > 0)
+                                @php
+                                    $shown = array_slice($media, 0, 3);
+                                    $extra = count($media) - count($shown);
+                                @endphp
+                                <div class="c-session-media" data-media-grid>
+                                    @foreach($shown as $m)
+                                        <div class="c-media-thumb"
+                                             data-media-id="{{ $m['id'] }}"
+                                             data-media-type="{{ $m['type'] }}"
+                                             data-conversion-status="{{ $m['conversionStatus'] }}"
+                                             data-display-title="{{ $m['displayTitle'] }}"
+                                             role="button"
+                                             tabindex="0"
+                                             aria-label="{{ $m['type'] === 'photo' ? '写真を開く' : '動画を開く' }}: {{ $m['displayTitle'] }}">
+                                            @if($m['thumbnailUrl'])
+                                                <img src="{{ $m['thumbnailUrl'] }}" alt="{{ $m['displayTitle'] }}">
+                                                @if($m['type'] === 'video')
+                                                    @include('media-records._video-play-overlay')
+                                                @endif
+                                            @else
+                                                <span class="c-media-placeholder">{{ $m['type'] === 'photo' ? '写真' : '動画' }}</span>
+                                            @endif
+                                            @if($m['conversionStatus'] !== 'not_required' && $m['conversionStatus'] !== 'done')
+                                                <span class="c-media-badge">準備中</span>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                    @if($extra > 0)
+                                        <a href="{{ route('client-portal.training-records.show', $rec) }}" class="c-media-more" aria-label="残り{{ $extra }}枚を見る">+{{ $extra }}</a>
+                                    @endif
                                 </div>
+                            @endif
+
+                            @if($rec->record_content)
+                                <p class="c-session-note">{{ \Illuminate\Support\Str::limit($rec->record_content, 70, '…') }}</p>
+                            @endif
+
+                            <a href="{{ route('client-portal.training-records.show', $rec) }}" class="c-session-cta">
+                                {{ empty($rec->record_content) ? '記録を見る' : '続きを読む' }} <span aria-hidden="true">→</span>
+                            </a>
                             </div>
                         </div>
-                    @endforeach
-                </div>
-                </div>
-            @endif
-        </div>
-    </div>
-
-    {{-- トレーニング記録一覧（S-1402 記録表） --}}
-    <div class="card mb-3">
-        <div class="card-header">
-            <h6 class="mb-0">トレーニング記録（{{ $trainingRecords->count() }}件）</h6>
-        </div>
-        @if($trainingRecords->count() > 0)
-            <div class="training-records-scroll">
-                <table class="table table-hover mb-0 training-records-table">
-                    <thead class="table-light">
-                        <tr>
-                            <th>日付</th>
-                            <th>担当1</th>
-                            <th>担当2</th>
-                            <th>トレーニング内容</th>
-                            <th>メディア</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($trainingRecords as $record)
-                            <tr style="cursor: pointer;"
-                                onclick="location.href='{{ route('client-portal.training-records.show', $record) }}'">
-                                <td>{{ $record->training_date->format('Y/m/d') }}</td>
-                                <td>{{ $record->trainer1->name ?? '—' }}</td>
-                                <td>{{ $record->trainer2->name ?? '—' }}</td>
-                                <td>{{ $record->trainingType->name ?? '—' }}</td>
-                                <td>{{ $record->media_records_count > 0 ? $record->media_records_count : '—' }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        @else
-            <div class="card-body">
-                <p class="text-muted mb-0">トレーニング記録はありません</p>
-            </div>
+                    </article>
+                @endforeach
+            </section>
         @endif
+    @endif
+</div>
+
+{{-- インライン通知(「準備中」等) 用の Bootstrap Toast。
+     設計書 §6: alert() を廃止し、内部状態語彙(processing 等)を出さない
+     お客様向け文言に置き換える。トーストは cobalt 面 + mat 文字(§2-1)。 --}}
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;">
+    <div id="c-toast" class="toast align-items-center c-toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4000">
+        <div class="d-flex">
+            <div class="toast-body" id="c-toast-body"></div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="閉じる"></button>
+        </div>
     </div>
 </div>
 
-{{-- 記録表のスクロール＋ヘッダー固定スタイル（layouts.client に @stack が無いためインラインで定義） --}}
-<style>
-    /* メディアギャラリーの縦スクロール（1.2行分くらい＝下のトレーニング記録の
-       一番上の行が見える高さ）。値は実機で見え方を見て微調整すること（260〜290px 目安）。 */
-    .media-gallery-scroll {
-        max-height: 270px;
-        overflow-x: hidden;
-        overflow-y: auto;
-        /* スクロールバー分、右側に少し余白を確保してカードが詰まって見えないようにする */
-        padding-right: 4px;
-    }
-    .media-gallery-scroll::-webkit-scrollbar {
-        width: 8px;
-    }
-    .media-gallery-scroll::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-    .media-gallery-scroll::-webkit-scrollbar-thumb {
-        background: #888;
-        border-radius: 10px;
-    }
-    .media-gallery-scroll::-webkit-scrollbar-thumb:hover {
-        background: #555;
-    }
-    .training-records-scroll {
-        max-height: 200px;
-        overflow-y: auto;
-        overflow-x: auto;
-    }
-    .training-records-scroll::-webkit-scrollbar {
-        width: 8px;
-    }
-    .training-records-scroll::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-    .training-records-scroll::-webkit-scrollbar-thumb {
-        background: #888;
-        border-radius: 10px;
-    }
-    .training-records-scroll::-webkit-scrollbar-thumb:hover {
-        background: #555;
-    }
-    .training-records-scroll thead th {
-        position: sticky;
-        top: 0;
-        z-index: 1;
-        background-color: #f8f9fa;
-    }
-</style>
-
-{{-- 原寸ライトボックス（写真拡大・動画再生）— S-1404 と共用の汎用 partial --}}
+{{-- 原寸ライトボックス(写真拡大・動画再生) — S-1404 と共用の汎用 partial --}}
 @include('media-records._lightbox')
 @endsection
 
 @push('scripts')
 <script>
-// メディアサムネイルをクリック → /client-portal/media/{id}/play で presigned URL を取得 → ライトボックス表示。
-// S-1404（client/training-records/show.blade.php）と同じロジックを、
-// ダッシュボード側のグリッド ID（mediaGalleryGrid）に対して適用する。
+// メディアサムネイルをクリック → /client-portal/media/{id}/play で
+// presigned URL を取得 → ライトボックス表示。
+// 設計書 §6 に従い alert() を廃止し、「準備中」等の状態は Bootstrap Toast で
+// お客様向けの言葉に置き換えて表示する(内部状態語 processing 等は出さない)。
 document.addEventListener('DOMContentLoaded', function () {
-    const grid = document.getElementById('mediaGalleryGrid');
-    if (!grid) return;
+    const grids = document.querySelectorAll('[data-media-grid]');
+    if (grids.length === 0) return;
 
-    grid.addEventListener('click', async function (e) {
-        const card = e.target.closest('.media-card');
-        if (!card) return;
+    const toastEl = document.getElementById('c-toast');
+    const toastBody = document.getElementById('c-toast-body');
+
+    function showToast(msg) {
+        if (!toastEl || !toastBody || typeof bootstrap === 'undefined') return;
+        toastBody.textContent = msg;
+        bootstrap.Toast.getOrCreateInstance(toastEl).show();
+    }
+
+    async function openMedia(card) {
         const id = card.dataset.mediaId;
         const type = card.dataset.mediaType;
         const status = card.dataset.conversionStatus;
         const title = card.dataset.displayTitle || '';
 
-        // 変換未完（pending/processing/error）は先取りで弾く
+        // 変換未完(pending/processing/error)はお客様向け文言で通知
         if (status !== 'not_required' && status !== 'done') {
-            alert('現在このメディアは表示できません（変換状態: ' + status + '）。');
+            showToast('この写真/動画は準備中です。少ししてから開いてみてください。');
             return;
         }
 
@@ -173,17 +214,38 @@ document.addEventListener('DOMContentLoaded', function () {
             const res = await fetch('/client-portal/media/' + encodeURIComponent(id) + '/play', {
                 headers: { 'Accept': 'application/json' },
             });
-            if (!res.ok) throw new Error('再生 URL の取得に失敗しました');
+            if (!res.ok) throw new Error('写真/動画を開けませんでした。時間をおいて試してみてください。');
             const body = await res.json();
             const url = body.data && body.data.url;
-            if (!url) throw new Error('URL が取得できませんでした');
+            if (!url) throw new Error('写真/動画を開けませんでした。時間をおいて試してみてください。');
             if (typeof window.openLightbox !== 'function') {
-                throw new Error('ライトボックスが初期化されていません');
+                throw new Error('この画面ではまだ写真/動画を開けません。ページを再読み込みしてみてください。');
             }
             window.openLightbox(type === 'photo' ? 'IMG' : 'VIDEO', url, title);
         } catch (err) {
-            alert(err.message || '再生に失敗しました');
+            showToast(err.message || '写真/動画を開けませんでした。');
         }
+    }
+
+    grids.forEach(function (grid) {
+        grid.addEventListener('click', function (e) {
+            // "+N" のリンクは通常のページ遷移として扱う
+            if (e.target.closest('.c-media-more')) return;
+
+            const card = e.target.closest('.c-media-thumb');
+            if (!card) return;
+            openMedia(card);
+        });
+
+        // キーボード操作: Enter / Space で開く
+        grid.addEventListener('keydown', function (e) {
+            const card = e.target.closest('.c-media-thumb');
+            if (!card) return;
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openMedia(card);
+            }
+        });
     });
 });
 </script>

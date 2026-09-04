@@ -123,4 +123,43 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Trainer Portal Branding（画面設計書 §2-3「ブラウザタイトル」）
+    |--------------------------------------------------------------------------
+    |
+    | トレーナー側画面のブランド関連文字列。
+    |
+    | - trainer_portal_name: layouts/app・layouts/guest・layouts/error の
+    |   <title> 末尾サフィックスに使用する（画面設計書 §2-3）。
+    |
+    | APP_NAME を流用しない理由: APP_NAME は MAIL_FROM_NAME / VITE_APP_NAME /
+    | cache・session の Str::slug プレフィックスに波及しており、
+    | ブラウザタイトルの変更が上記に影響しないよう独立キーで扱う。
+    |
+    */
+
+    'trainer_portal_name' => env('TRAINER_PORTAL_NAME', 'トレーニング記録管理システム'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Client Portal Branding（設計書 §9-1 / §9-2）
+    |--------------------------------------------------------------------------
+    |
+    | クライアントポータルのブランド関連文字列。Blade にベタ書きせず、
+    | env 経由で切り替えできるようにする。
+    |
+    | - client_portal_name: ログイン画面のワードマーク・タイトルに表示する
+    |   プロダクト名。設計書 §9-1 の暫定値は「トレーニング記録」（8 文字）。
+    |   想定文字数 3〜7 文字だが 8 文字でも組めるようレイアウト側で対応。
+    | - client_portal_company: フッターに表示するトレーニング提供会社名
+    |   （開発会社ではない）。設計書 §9-2 に従い、null / 空の場合は
+    |   Blade 側で <footer> ブロックごと出力しない。
+    |
+    */
+
+    'client_portal_name' => env('CLIENT_PORTAL_NAME', 'トレーニング記録'),
+
+    'client_portal_company' => env('CLIENT_PORTAL_COMPANY'),
+
 ];

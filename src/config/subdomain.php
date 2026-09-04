@@ -6,11 +6,13 @@ return [
     | サブドメイン構成
     |--------------------------------------------------------------------------
     | トレーナー（内部）とクライアント（外部）を分離するサブドメインのホスト名。
-    | ローカルは両方 localhost（env 未設定時のフォールバック）。
-    | 本番は env で各サブドメインを設定する。
+    | 本番は env で各サブドメインのホスト名を設定する。
+    | 未設定（または空文字）の場合は null に倒し、ホスト制約を掛けない。
+    | 開発環境は両キーを未設定にし、localhost / 127.0.0.1 など任意のホスト名で
+    | アクセスできるようにする（トレーナー／クライアントの区別は URL のパスで行う）。
     | ルーティング（Route::domain）・ホスト判定がこの値を参照する。
     */
 
-    'trainer_host' => env('TRAINER_HOST', 'localhost'),
-    'client_host'  => env('CLIENT_HOST', 'localhost'),
+    'trainer_host' => env('TRAINER_HOST') ?: null,
+    'client_host'  => env('CLIENT_HOST') ?: null,
 ];

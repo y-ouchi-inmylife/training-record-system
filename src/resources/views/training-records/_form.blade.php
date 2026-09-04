@@ -15,7 +15,7 @@
             <h6 class="mb-0">基本情報</h6>
         </div>
         <div class="card-body">
-            {{-- 行1: クライアント / 日付 / 時刻 --}}
+            {{-- 行1: クライアント --}}
             <div class="row g-3 mb-2">
                 {{-- クライアント（クライアント詳細からの遷移で確定：変更不可） --}}
                 <div class="col-md-4">
@@ -31,9 +31,12 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
+            {{-- 行2: 日付 / 時刻 --}}
+            <div class="row g-3 mb-2">
                 {{-- 日付 --}}
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <div class="row g-2 align-items-center">
                         <label for="training_date" class="col-md-auto col-form-label text-md-end form-label-fixed">日付 <span class="text-danger">*</span></label>
                         <div class="col-12 col-md">
@@ -64,10 +67,10 @@
                 </div>
             </div>
 
-            {{-- 行2: トレーニング内容 / 詳細 --}}
+            {{-- 行3: トレーニング内容 / 詳細 --}}
             <div class="row g-3 mb-2">
                 {{-- トレーニング内容 --}}
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <div class="row g-2 align-items-center">
                         <label for="training_type_id" class="col-md-auto col-form-label text-md-end form-label-fixed">トレーニング内容</label>
                         <div class="col-12 col-md">
@@ -88,7 +91,7 @@
                 </div>
 
                 {{-- トレーニング内容（詳細） --}}
-                <div class="col-md-9">
+                <div class="col-md-8">
                     <div class="row g-2 align-items-center">
                         <label for="training_detail" class="col-md-auto col-form-label text-md-end form-label-fixed">詳細</label>
                         <div class="col-12 col-md">
@@ -104,7 +107,7 @@
                 </div>
             </div>
 
-            {{-- 行3: 担当1 / 担当2 --}}
+            {{-- 行4: 担当1 / 担当2 --}}
             <div class="row g-3">
                 {{-- 担当1 --}}
                 <div class="col-md-4">

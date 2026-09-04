@@ -21,5 +21,14 @@
     "names": [
       "app.css"
     ]
+  },
+  "resources/sass/client.scss": {
+    "file": "assets/client-DoxKJ-mS.css",
+    "src": "resources/sass/client.scss",
+    "isEntry": true,
+    "name": "client",
+    "names": [
+      "client.css"
+    ]
   }
 }
