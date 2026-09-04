@@ -84,6 +84,20 @@
         {{-- 1段目: 操作ボタン群（右寄せ） --}}
         <div class="d-flex justify-content-end gap-2 mb-2">
             <a href="{{ route('clients.index') }}" class="btn btn-outline-secondary">&laquo; クライアント一覧に戻る</a>
+            {{-- 閲覧解放 / 解放取り消しボタン（未解放なら「解放する」、解放済みなら「解放を取り消す」を排他表示） --}}
+            @if(!$client->is_viewable)
+                <form method="POST" action="{{ route('client-view-release.store', $client) }}"
+                      onsubmit="return confirmReleaseView()" class="d-inline m-0">
+                    @csrf
+                    <button type="submit" class="btn btn-primary">閲覧を解放する</button>
+                </form>
+            @else
+                <form method="POST" action="{{ route('client-view-revoke.store', $client) }}"
+                      onsubmit="return confirmRevokeView()" class="d-inline m-0">
+                    @csrf
+                    <button type="submit" class="btn btn-outline-secondary">閲覧の解放を取り消す</button>
+                </form>
+            @endif
             @if($activeIntakeToken)
                 <button type="button" class="btn btn-primary"
                         data-bs-toggle="modal" data-bs-target="#intakeUrlModal">URL発行済み・残り{{ $activeIntakeToken->remaining_days }}日</button>
@@ -126,20 +140,6 @@
             @else
                 <span class="badge bg-success fs-6">解放中</span>
             @endif
-            {{-- 閲覧解放 / 解放取り消しボタン（旧・基本情報カードヘッダーから移動） --}}
-            @if(!$client->is_viewable && $client->email)
-                <form method="POST" action="{{ route('client-view-release.store', $client) }}"
-                      onsubmit="return confirmReleaseView()" class="d-inline m-0">
-                    @csrf
-                    <button type="submit" class="btn btn-primary btn-sm">閲覧を解放する</button>
-                </form>
-            @elseif($client->is_viewable)
-                <form method="POST" action="{{ route('client-view-revoke.store', $client) }}"
-                      onsubmit="return confirmRevokeView()" class="d-inline m-0">
-                    @csrf
-                    <button type="submit" class="btn btn-outline-secondary btn-sm">閲覧の解放を取り消す</button>
-                </form>
-            @endif
             <div class="d-flex align-items-baseline gap-2 ms-3">
                 <span class="text-muted small">内部ID</span>
                 <span class="font-monospace fs-5">{{ $client->internal_id }}</span>
@@ -163,10 +163,15 @@
     @endphp
 
     @push('scripts')
-        @if(!$client->is_viewable && $client->email)
+        @if(!$client->is_viewable)
         <script>
         function confirmReleaseView() {
-            return confirm('{{ $client->email }} に招待メールを送信し、閲覧を解放します。よろしいですか？');
+            @if(empty($client->email))
+                alert('メールアドレスが未登録のため、閲覧を解放できません。編集画面でメールアドレスを登録してください。');
+                return false;
+            @else
+                return confirm('{{ $client->email }} に招待メールを送信し、閲覧を解放します。よろしいですか？');
+            @endif
         }
         </script>
         @endif
