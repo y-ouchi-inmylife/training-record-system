@@ -81,75 +81,71 @@
 <div class="container">
     {{-- ヘッダーサマリー --}}
     <div class="mb-4">
-        <div class="d-flex justify-content-between align-items-start">
-            {{-- 左: 氏名エリア --}}
-            <div class="flex-grow-1 me-3">
-                <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
-                    <h2 class="mb-0">
-                        {{ $client->full_name }}@if($client->full_name_kana)<span class="text-muted fs-6">（{{ $client->full_name_kana }}）</span>@endif
-                    </h2>
-                    {{-- 閲覧状態バッジ（現行の4分岐ロジックを移植） --}}
-                    @if(!$client->is_viewable && empty($client->email))
-                        <span class="badge bg-secondary fs-6">メールアドレス未登録</span>
-                    @elseif(!$client->is_viewable)
-                        <span class="badge bg-secondary fs-6">未解放</span>
-                    @elseif(empty($client->password))
-                        <span class="badge bg-warning text-dark fs-6">解放中（パスワード未設定）</span>
+        {{-- 1段目: 操作ボタン群（右寄せ） --}}
+        <div class="d-flex justify-content-end gap-2 mb-2">
+            <a href="{{ route('clients.index') }}" class="btn btn-outline-secondary">&laquo; クライアント一覧に戻る</a>
+            @if($activeIntakeToken)
+                <button type="button" class="btn btn-primary"
+                        data-bs-toggle="modal" data-bs-target="#intakeUrlModal">URL発行済み・残り{{ $activeIntakeToken->remaining_days }}日</button>
+            @else
+                <button type="button" class="btn btn-outline-primary"
+                        data-bs-toggle="modal" data-bs-target="#intakeUrlModal">URL発行</button>
+            @endif
+            <a href="{{ route('clients.edit', $client) }}" class="btn btn-primary">編集</a>
+            @if(auth()->user()->isAdmin())
+                <form method="POST" action="{{ route('clients.destroy', $client) }}" class="d-inline"
+                      onsubmit="return confirmDelete()">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger">削除</button>
+                </form>
+                <script>
+                function confirmDelete() {
+                    @if($client->trainingRecords->count() > 0)
+                        alert('このクライアントにはトレーニング記録が登録されているため削除できません。');
+                        return false;
                     @else
-                        <span class="badge bg-success fs-6">解放中</span>
+                        return confirm('このクライアントを削除しますか？');
                     @endif
-                    {{-- 閲覧解放 / 解放取り消しボタン（旧・基本情報カードヘッダーから移動） --}}
-                    @if(!$client->is_viewable && $client->email)
-                        <form method="POST" action="{{ route('client-view-release.store', $client) }}"
-                              onsubmit="return confirmReleaseView()" class="d-inline m-0">
-                            @csrf
-                            <button type="submit" class="btn btn-primary btn-sm">閲覧を解放する</button>
-                        </form>
-                    @elseif($client->is_viewable)
-                        <form method="POST" action="{{ route('client-view-revoke.store', $client) }}"
-                              onsubmit="return confirmRevokeView()" class="d-inline m-0">
-                            @csrf
-                            <button type="submit" class="btn btn-outline-secondary btn-sm">閲覧の解放を取り消す</button>
-                        </form>
-                    @endif
-                    <div class="d-flex align-items-baseline gap-2 ms-3">
-                        <span class="text-muted small">内部ID</span>
-                        <span class="font-monospace fs-5">{{ $client->internal_id }}</span>
-                    </div>
-                </div>
-            </div>
-            {{-- 右: ボタン群 --}}
-            <div class="d-flex gap-2 flex-shrink-0">
-                <a href="{{ route('clients.index') }}" class="btn btn-outline-secondary">&laquo; クライアント一覧に戻る</a>
-                @if($activeIntakeToken)
-                    <button type="button" class="btn btn-primary"
-                            data-bs-toggle="modal" data-bs-target="#intakeUrlModal">URL発行済み・残り{{ $activeIntakeToken->remaining_days }}日</button>
-                @else
-                    <button type="button" class="btn btn-outline-primary"
-                            data-bs-toggle="modal" data-bs-target="#intakeUrlModal">URL発行</button>
-                @endif
-                <a href="{{ route('clients.edit', $client) }}" class="btn btn-primary">編集</a>
-                @if(auth()->user()->isAdmin())
-                    <form method="POST" action="{{ route('clients.destroy', $client) }}" class="d-inline"
-                          onsubmit="return confirmDelete()">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger">削除</button>
-                    </form>
-                    <script>
-                    function confirmDelete() {
-                        @if($client->trainingRecords->count() > 0)
-                            alert('このクライアントにはトレーニング記録が登録されているため削除できません。');
-                            return false;
-                        @else
-                            return confirm('このクライアントを削除しますか？');
-                        @endif
-                    }
-                    </script>
-                @endif
+                }
+                </script>
+            @endif
+        </div>
+        {{-- 2段目: 氏名行 --}}
+        <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+            <h2 class="mb-0">
+                {{ $client->full_name }}@if($client->full_name_kana)<span class="text-muted fs-6">（{{ $client->full_name_kana }}）</span>@endif
+            </h2>
+            {{-- 閲覧状態バッジ（現行の4分岐ロジックを移植） --}}
+            @if(!$client->is_viewable && empty($client->email))
+                <span class="badge bg-secondary fs-6">メールアドレス未登録</span>
+            @elseif(!$client->is_viewable)
+                <span class="badge bg-secondary fs-6">未解放</span>
+            @elseif(empty($client->password))
+                <span class="badge bg-warning text-dark fs-6">解放中（パスワード未設定）</span>
+            @else
+                <span class="badge bg-success fs-6">解放中</span>
+            @endif
+            {{-- 閲覧解放 / 解放取り消しボタン（旧・基本情報カードヘッダーから移動） --}}
+            @if(!$client->is_viewable && $client->email)
+                <form method="POST" action="{{ route('client-view-release.store', $client) }}"
+                      onsubmit="return confirmReleaseView()" class="d-inline m-0">
+                    @csrf
+                    <button type="submit" class="btn btn-primary btn-sm">閲覧を解放する</button>
+                </form>
+            @elseif($client->is_viewable)
+                <form method="POST" action="{{ route('client-view-revoke.store', $client) }}"
+                      onsubmit="return confirmRevokeView()" class="d-inline m-0">
+                    @csrf
+                    <button type="submit" class="btn btn-outline-secondary btn-sm">閲覧の解放を取り消す</button>
+                </form>
+            @endif
+            <div class="d-flex align-items-baseline gap-2 ms-3">
+                <span class="text-muted small">内部ID</span>
+                <span class="font-monospace fs-5">{{ $client->internal_id }}</span>
             </div>
         </div>
-        {{-- 下段: 属性4列 --}}
+        {{-- 3段目: 属性4列 --}}
         <div class="row g-3 mt-2 pt-2 border-top">
             <div class="col-md-3">
                 <div class="text-muted small">主担当</div>
