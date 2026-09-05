@@ -49,7 +49,7 @@
                         </div>
                         <div class="card-body p-2 small">
                             <div class="text-muted">{{ $media->created_at->format('Y/m/d H:i') }}</div>
-                            <div class="text-truncate @if(empty($media->title)) text-muted @endif" title="{{ $media->display_title }}">{{ $media->display_title }}</div>
+                            <div class="text-truncate" title="{{ $media->display_title }}">@if(empty($media->title))({{ $media->display_title }})@else{{ $media->display_title }}@endif</div>
                         </div>
                     </div>
                 </div>
