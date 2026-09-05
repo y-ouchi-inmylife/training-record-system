@@ -24,7 +24,7 @@
     <div class="mb-4">
         {{-- 1段目: 画面タイトル + 操作ボタン群 --}}
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="text-muted">トレーニング記録詳細</span>
+            <h2 class="mb-0">トレーニング記録詳細</h2>
             <div class="d-flex gap-2">
                 <a href="{{ route('training-records.index') }}" class="btn btn-outline-secondary">&laquo; トレーニング記録一覧へ戻る</a>
                 <a href="{{ route('training-records.edit', $trainingRecord) }}" class="btn btn-primary">編集</a>
