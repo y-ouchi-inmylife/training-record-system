@@ -41,9 +41,9 @@
 
         {{-- 2段目: 日付行 --}}
         <div class="d-flex align-items-baseline gap-2 flex-wrap mb-2">
-            <h2 class="mb-0">
-                {{ $trainingRecord->training_date->format('Y/m/d') }}@if($trainingRecord->training_time)<span class="text-muted fs-6 ms-2">{{ substr($trainingRecord->training_time, 0, 5) }}</span>@endif
-            </h2>
+            <div class="fs-4 fw-bold">
+                {{ $trainingRecord->training_date->format('Y/m/d') }}@if($trainingRecord->training_time)<span class="ms-2">{{ substr($trainingRecord->training_time, 0, 5) }}</span>@endif
+            </div>
             <a href="{{ route('clients.show', $trainingRecord->client_id) }}" class="ms-3 fs-3 fw-bold text-decoration-none">{{ $trainingRecord->client->display_name }}</a>
             <div class="d-flex align-items-baseline gap-2 ms-3">
                 <span class="text-muted small">内部ID</span>
