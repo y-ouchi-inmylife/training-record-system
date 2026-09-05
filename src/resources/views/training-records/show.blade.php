@@ -22,18 +22,21 @@
 @section('content')
 <div class="container">
     <div class="mb-4">
-        {{-- 1段目: 操作ボタン群（右寄せ） --}}
-        <div class="d-flex justify-content-end gap-2 mb-2">
-            <a href="{{ route('training-records.index') }}" class="btn btn-outline-secondary">&laquo; トレーニング記録一覧へ戻る</a>
-            <a href="{{ route('training-records.edit', $trainingRecord) }}" class="btn btn-primary">編集</a>
-            @if(auth()->user()->isAdmin())
-                <form method="POST" action="{{ route('training-records.destroy', $trainingRecord) }}" class="d-inline"
-                      onsubmit="return confirm('このトレーニング記録を削除しますか？')">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger">削除</button>
-                </form>
-            @endif
+        {{-- 1段目: 画面タイトル + 操作ボタン群 --}}
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-muted">トレーニング記録詳細</span>
+            <div class="d-flex gap-2">
+                <a href="{{ route('training-records.index') }}" class="btn btn-outline-secondary">&laquo; トレーニング記録一覧へ戻る</a>
+                <a href="{{ route('training-records.edit', $trainingRecord) }}" class="btn btn-primary">編集</a>
+                @if(auth()->user()->isAdmin())
+                    <form method="POST" action="{{ route('training-records.destroy', $trainingRecord) }}" class="d-inline"
+                          onsubmit="return confirm('このトレーニング記録を削除しますか？')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">削除</button>
+                    </form>
+                @endif
+            </div>
         </div>
 
         {{-- 2段目: 日付行 --}}
