@@ -96,7 +96,7 @@
 
     {{-- 検索結果 --}}
     <div class="mb-3">
-        <p class="text-muted mb-0">{{ $records->total() }}件のトレーニング記録</p>
+        <p class="text-muted mb-0">{{ $records->total() }}件</p>
     </div>
 
     <div class="table-responsive">

@@ -87,7 +87,7 @@
 
     {{-- 件数表示・登録ボタン --}}
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <p class="text-muted mb-0">{{ $clients->total() }}件のクライアント</p>
+        <p class="text-muted mb-0">{{ $clients->total() }}件</p>
         <a href="{{ route('clients.create') }}" class="btn btn-primary">新規登録</a>
     </div>
 
