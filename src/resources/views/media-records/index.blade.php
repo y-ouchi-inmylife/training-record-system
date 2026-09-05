@@ -9,7 +9,7 @@
     {{-- 登録者フィルタ＋新規登録ボタン --}}
     <div class="d-flex align-items-center gap-2 mb-4">
         <label for="trainer-filter" class="form-label mb-0 text-nowrap">登録者:</label>
-        <select id="trainer-filter" class="form-select" style="width: auto;">
+        <select id="trainer-filter" class="form-select" style="width: 200px;">
             <option value="all" {{ $selectedTrainerId == 'all' ? 'selected' : '' }}>全員</option>
             @foreach($trainers as $trainer)
                 <option value="{{ $trainer->id }}" {{ $selectedTrainerId == $trainer->id ? 'selected' : '' }}>
