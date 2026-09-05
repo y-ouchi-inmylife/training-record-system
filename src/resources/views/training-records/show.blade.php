@@ -77,7 +77,7 @@
     {{-- メディア（ヘッダーサマリーの直下：設計書 S-0403） --}}
     <div class="card mb-3">
         <div class="card-header">
-            <h6 class="mb-0">メディア</h6>
+            <h6 class="mb-0">メディア（{{ count($mediaItems) }}件）</h6>
         </div>
         <div class="card-body">
             @if(count($mediaItems) === 0)
