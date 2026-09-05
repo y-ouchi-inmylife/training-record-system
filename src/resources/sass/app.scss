@@ -29,6 +29,15 @@
     padding-bottom: 0.25rem;
 }
 
+// input-group 内のボタンも入力欄と同じ高さに揃える。
+// .btn は上記の padding 縮小の対象外のため、そのままでは
+// input-group が背の高いボタンに合わせて伸び、
+// 郵便番号の行だけ他の項目より大きくなる。
+.input-group .btn {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+}
+
 // 画面タイトル（h2）のフォントサイズを Bootstrap デフォルト（2rem）から縮小
 h2 {
     font-size: 1.75rem;

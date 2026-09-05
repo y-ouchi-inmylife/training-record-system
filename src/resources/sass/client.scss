@@ -966,6 +966,15 @@ input[type="tel"] {
     padding-bottom: 0.25rem;
 }
 
+// input-group 内のボタンも入力欄と同じ高さに揃える。
+// .btn は上記の padding 縮小の対象外のため、そのままでは
+// input-group が背の高いボタンに合わせて伸び、
+// 郵便番号の行だけ他の項目より大きくなる。
+.input-group .btn {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+}
+
 // 水平フォームの固定幅ラベル（登録・編集画面のラベル左・入力欄右レイアウト用）
 // md以上で幅140px固定。md未満（縦積み時）は幅指定を解除して全幅に戻す。
 .form-label-fixed {
