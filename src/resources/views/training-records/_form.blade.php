@@ -90,7 +90,7 @@
                     </div>
                 </div>
 
-                {{-- トレーニング内容（詳細） --}}
+                {{-- 詳細 --}}
                 <div class="col-md-8">
                     <div class="row g-2 align-items-center">
                         <label for="training_detail" class="col-md-auto col-form-label text-md-end form-label-fixed">詳細</label>
