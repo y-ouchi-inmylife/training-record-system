@@ -7,7 +7,7 @@
     <div class="mb-4">
         {{-- 1段目: 操作ボタン群（右寄せ） --}}
         <div class="d-flex justify-content-end gap-2 mb-2">
-            <a href="{{ route('clients.show', $trainingRecord->client_id) }}" class="btn btn-outline-secondary">&laquo; クライアント詳細に戻る</a>
+            <a href="{{ route('training-records.index') }}" class="btn btn-outline-secondary">&laquo; トレーニング記録一覧へ戻る</a>
             <a href="{{ route('training-records.edit', $trainingRecord) }}" class="btn btn-primary">編集</a>
             @if(auth()->user()->isAdmin())
                 <form method="POST" action="{{ route('training-records.destroy', $trainingRecord) }}" class="d-inline"
