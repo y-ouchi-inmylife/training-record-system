@@ -103,7 +103,7 @@
                                 @endif
                             </div>
                             <div class="card-body p-2 small">
-                                <div class="text-truncate" title="{{ $m['displayTitle'] }}">{{ $m['displayTitle'] }}</div>
+                                <div class="text-truncate @if(! $m['hasTitle']) text-muted @endif" title="{{ $m['displayTitle'] }}">{{ $m['displayTitle'] }}</div>
                             </div>
                         </div>
                     @endforeach

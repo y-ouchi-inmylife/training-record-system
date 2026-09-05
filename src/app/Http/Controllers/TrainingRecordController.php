@@ -218,6 +218,7 @@ class TrainingRecordController extends Controller
                 'id'               => $m->id,
                 'type'             => $m->type,
                 'displayTitle'     => $m->display_title,
+                'hasTitle'         => filled($m->title),
                 'thumbnailUrl'     => $m->temporaryThumbnailUrl($thumbnailExpiresAt),
                 'conversionStatus' => $m->conversion_status,
             ];
