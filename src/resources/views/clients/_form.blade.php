@@ -92,7 +92,7 @@
 
                 <div class="row g-3 mb-2">
                     {{-- 行2: 名前(姓+名) + ふりがな(せい+めい) --}}
-                    <div class="col-md-6">
+                    <div class="col-md-5">
                         <div class="row g-2 align-items-center">
                             <label for="last_name" class="col-md-auto col-form-label text-md-end form-label-fixed">
                                 名前 <span class="text-danger">*</span>
@@ -117,7 +117,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-5">
                         <div class="row g-2 align-items-center">
                             <label for="last_name_kana" class="col-md-auto col-form-label text-md-end form-label-fixed">ふりがな</label>
                             <div class="col-12 col-md">
@@ -263,7 +263,7 @@
 
                 <div class="row g-3">
                     {{-- 行4: メールアドレス --}}
-                    <div class="col-md-5">
+                    <div class="col-md-6">
                         <div class="row g-2 align-items-center">
                             <label for="email" class="col-md-auto col-form-label text-md-end form-label-fixed">メールアドレス</label>
                             <div class="col-12 col-md">
