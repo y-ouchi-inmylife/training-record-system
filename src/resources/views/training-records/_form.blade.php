@@ -109,7 +109,7 @@
 
             {{-- 行4: 担当1 + 担当2 --}}
             <div class="row g-3">
-                <div class="col-md-8">
+                <div class="col-md-7">
                     <div class="row g-2 align-items-center">
                         <label for="trainer1_id" class="col-md-auto col-form-label text-md-end form-label-fixed">
                             担当1 <span class="text-danger">*</span> / 担当2
