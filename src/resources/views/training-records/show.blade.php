@@ -129,7 +129,7 @@
     {{-- 所感 --}}
     <div class="card mb-3">
         <div class="card-header">
-            <h6 class="mb-0">所感 <span class="text-muted">（トレーナー間共有・クライアント非開示）</span></h6>
+            <h6 class="mb-0">所感 <span class="text-muted">（クライアント非開示）</span></h6>
         </div>
         <div class="card-body">
             @if($trainingRecord->impression)
