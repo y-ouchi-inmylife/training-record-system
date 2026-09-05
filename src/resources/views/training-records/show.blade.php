@@ -2,6 +2,23 @@
 
 @section('title', 'トレーニング記録詳細')
 
+@push('styles')
+<style>
+/* メディアセクション: 1行に横並びで配置し、収まらない場合は横スクロール。
+   件数が増えてもセクションの高さは変わらない */
+.media-scroll {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+}
+.media-scroll > .media-card {
+    flex: 0 0 160px;
+    width: 160px;
+}
+</style>
+@endpush
+
 @section('content')
 <div class="container">
     <div class="mb-4">
@@ -63,29 +80,27 @@
             @if(count($mediaItems) === 0)
                 <div class="text-muted">この記録のメディアはありません。</div>
             @else
-                <div class="row row-cols-2 row-cols-md-4 row-cols-xl-6 g-3" id="mediaViewGrid">
+                <div class="media-scroll" id="mediaViewGrid">
                     @foreach($mediaItems as $m)
-                        <div class="col">
-                            <div class="card h-100 media-card"
-                                 data-media-id="{{ $m['id'] }}"
-                                 data-media-type="{{ $m['type'] }}"
-                                 data-conversion-status="{{ $m['conversionStatus'] }}"
-                                 data-display-title="{{ $m['displayTitle'] }}"
-                                 style="cursor: pointer;" role="button" tabindex="0">
-                                <div class="ratio ratio-1x1 bg-light d-flex align-items-center justify-content-center">
-                                    @if($m['thumbnailUrl'])
-                                        <img src="{{ $m['thumbnailUrl'] }}" alt="{{ $m['displayTitle'] }}" class="img-fluid">
-                                        {{-- 動画のときだけ中央に▶をオーバーレイ（写真・プレースホルダには出さない） --}}
-                                        @if($m['type'] === 'video')
-                                            @include('media-records._video-play-overlay')
-                                        @endif
-                                    @else
-                                        <span class="text-muted">{{ $m['type'] === 'photo' ? '写真' : '動画' }}</span>
+                        <div class="card media-card"
+                             data-media-id="{{ $m['id'] }}"
+                             data-media-type="{{ $m['type'] }}"
+                             data-conversion-status="{{ $m['conversionStatus'] }}"
+                             data-display-title="{{ $m['displayTitle'] }}"
+                             style="cursor: pointer;" role="button" tabindex="0">
+                            <div class="ratio ratio-1x1 bg-light d-flex align-items-center justify-content-center">
+                                @if($m['thumbnailUrl'])
+                                    <img src="{{ $m['thumbnailUrl'] }}" alt="{{ $m['displayTitle'] }}" class="img-fluid">
+                                    {{-- 動画のときだけ中央に▶をオーバーレイ（写真・プレースホルダには出さない） --}}
+                                    @if($m['type'] === 'video')
+                                        @include('media-records._video-play-overlay')
                                     @endif
-                                </div>
-                                <div class="card-body p-2 small">
-                                    <div class="text-truncate" title="{{ $m['displayTitle'] }}">{{ $m['displayTitle'] }}</div>
-                                </div>
+                                @else
+                                    <span class="text-muted">{{ $m['type'] === 'photo' ? '写真' : '動画' }}</span>
+                                @endif
+                            </div>
+                            <div class="card-body p-2 small">
+                                <div class="text-truncate" title="{{ $m['displayTitle'] }}">{{ $m['displayTitle'] }}</div>
                             </div>
                         </div>
                     @endforeach
