@@ -13,7 +13,7 @@
 // 使用箇所を絞っても減らない。モバイル読者・週1回訪問という前提と釣り合わない。
 //
 // 見出しと本文の階層は書体差ではなく、ウェイト・サイズ・letter-spacing・色
-// （見出しに cobalt）で作る（設計書 §3 型スケール参照）。
+// （見出しに terracotta）で作る（設計書 §3 型スケール参照）。
 // -----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
@@ -22,21 +22,23 @@
 // Bootstrap の各コンポーネント（btn / card / form-control / alert 等）へ
 // 自動的に適用される。個別クラスの上書きを最小化する狙い。
 // -----------------------------------------------------------------------------
-$paper:     #F5F3EC; // ページ背景
-$mat:       #FFFFFF; // カード面・写真の周辺・入力欄の面
-$ink:       #0F1A2E; // 本文・見出しのインク・細線・フォーカスリング外側
-$cobalt:    #1E45B0; // 日付ブロック帯・主要 CTA・リンク・成功トースト・フォーカスリング外側・H1/H2/Display の色
-$persimmon: #F0592B; // タグ・「新着」/「今日」ピル（面 + ink 文字ペア専用）
-$ember:     #B2311C; // エラー・破棄アクション（mat 面上のみ）
+$paper:      #F5F3EC; // ページ背景
+$mat:        #FFFFFF; // カード面・写真の周辺・入力欄の面
+$ink:        #0F1A2E; // 本文・見出しのインク・細線・フォーカスリング外側
+$terracotta: #A85712; // 主要 CTA・リンク・成功トースト・H1/H2/Display の色
+$persimmon:  #F0592B; // 日付ブロック帯・タグ（面 + ink 文字ペア専用）
+$madder:     #991B1B; // エラー・破棄アクション（mat 面上のみ）
+$driftwood:  #6B6155; // 補助アクション面（$secondary）
 
 // -----------------------------------------------------------------------------
 // Bootstrap 変数の上書き（Bootstrap import の前）
 // -----------------------------------------------------------------------------
 
 // テーマカラー
-$primary: $cobalt;
-$danger:  $ember;
-$success: $cobalt; // 設計書: 成功メッセージは cobalt 面 + mat 文字
+$primary:   $terracotta;
+$secondary: $driftwood; // 補助アクション（.badge.bg-secondary / .btn-outline-secondary）— 暖色グレーで基調と調和
+$danger:    $madder;
+$success:   $terracotta; // 設計書: 成功メッセージは terracotta 面 + mat 文字
 
 // 面
 $body-bg:    $paper;
@@ -48,7 +50,7 @@ $dark:       $ink;
 // - dark 候補を ink に（黒ではなく紺）
 // - light 候補を mat に（純白）
 // - min-contrast-ratio 4.5 で AA テキスト基準
-// これにより ember 面（ink 2.77:1 < 4.5）に対しては自動的に mat が選ばれる。
+// これにより madder 面（ink 2.09:1 < 4.5）に対しては自動的に mat が選ばれる。
 $color-contrast-dark:  $ink;
 $color-contrast-light: $mat;
 $min-contrast-ratio:   4.5;
@@ -71,13 +73,13 @@ $card-shadow:       0 1px 3px rgba(15, 26, 46, 0.08), 0 4px 12px rgba(15, 26, 46
 $card-shadow-hover: 0 2px 6px rgba(15, 26, 46, 0.12), 0 8px 20px rgba(15, 26, 46, 0.08);
 
 // リンク
-$link-color:       $cobalt;
+$link-color:       $terracotta;
 $link-hover-color: $ink;
 
 // フォーカスリング（設計書 §2-1 の定義そのまま）
 // mat 3px 内リング + ink 2px 外リングの二重輪郭。
 // - 明色地（paper / mat）では外側 ink が 15:1 以上で可視
-// - vivid 面（cobalt / persimmon）では内側 mat が 3.4〜8.3:1 で可視
+// - vivid 面（terracotta / persimmon / madder / driftwood）では内側 mat が 3.40〜8.31:1 で可視
 // Bootstrap 5.3: input/button の focus は $input-btn-focus-box-shadow を、
 // .focus-ring ユーティリティは $focus-ring-* を使う。両方に反映する。
 $input-btn-focus-box-shadow: 0 0 0 3px $mat, 0 0 0 5px $ink;
@@ -104,7 +106,7 @@ $headings-font-weight:   700;
 // - H1 = 2rem、H2 = 1.5rem、H3 = 1.125rem
 // - Bootstrap 既定（h1=2.5, h2=2, h3=1.75）を全て下方修正
 // - 見出しの色は $headings-color ではなく、Bootstrap import 後に h1/h2 に対して
-//   直接 cobalt を当てる（H3 は ink のまま残すため。詳細は下記の「見出し色」節）
+//   直接 terracotta を当てる（H3 は ink のまま残すため。詳細は下記の「見出し色」節）
 $h1-font-size: 2rem;
 $h2-font-size: 1.5rem;
 $h3-font-size: 1.125rem;
@@ -140,29 +142,30 @@ $headings-line-height: 1.4;
 // 段階3以降のセッションカード・日付ブロック等から `var(--c-*)` で参照するため。
 // -----------------------------------------------------------------------------
 :root {
-    --c-paper:     #{$paper};
-    --c-mat:       #{$mat};
-    --c-ink:       #{$ink};
-    --c-cobalt:    #{$cobalt};
-    --c-persimmon: #{$persimmon};
-    --c-ember:     #{$ember};
+    --c-paper:      #{$paper};
+    --c-mat:        #{$mat};
+    --c-ink:        #{$ink};
+    --c-terracotta: #{$terracotta};
+    --c-persimmon:  #{$persimmon};
+    --c-madder:     #{$madder};
+    --c-driftwood:  #{$driftwood};
 }
 
 // -----------------------------------------------------------------------------
 // 見出しの色と letter-spacing（設計書 §3 型スケール表）
 //
-// - H1 / H2 / .display-hero は cobalt（palette 内で「構造の色」として統一）
-// - H3 以下は ink のまま（cobalt にするとカード内で cobalt が濫用され、
-//   §2-1「鮮色同士の隣接禁止」に抵触する）
+// - H1 / H2 / .display-hero は terracotta（palette 内で「構造の色」として統一）
+// - H3 以下は ink のまま（terracotta にするとカード内で鮮色が 2 種並び、
+//   §2-1「鮮色同士の隣接禁止」に抵触するリスクがある。terracotta × persimmon = 1.53）
 // - letter-spacing は日本語でも軽く効かせて存在感を作る（過度は不可）
 // -----------------------------------------------------------------------------
 h1, .h1 {
-    color: $cobalt;
+    color: $terracotta;
     letter-spacing: 0.01em;
 }
 
 h2, .h2 {
-    color: $cobalt;
+    color: $terracotta;
     letter-spacing: 0.01em;
 }
 
@@ -173,7 +176,7 @@ h2, .h2 {
     font-weight: 700;
     line-height: 1.3;
     letter-spacing: 0.02em;
-    color: $cobalt;
+    color: $terracotta;
 }
 
 // Meta（時刻・件数・キャプション、ink 65%）
@@ -210,8 +213,8 @@ h2, .h2 {
 }
 
 // -----------------------------------------------------------------------------
-// ember 面（.btn-danger 等）の文字色を mat に明示上書き（設計書 §2-1）
-// color-contrast() は $min-contrast-ratio 4.5 で ember に対し自動的に mat を
+// madder 面（.btn-danger 等）の文字色を mat に明示上書き（設計書 §2-1）
+// color-contrast() は $min-contrast-ratio 4.5 で madder に対し自動的に mat を
 // 選ぶが、閾値近傍の色を追加する事故を防ぐため、変数任せにせず明示する。
 // -----------------------------------------------------------------------------
 .btn-danger {
@@ -224,14 +227,14 @@ h2, .h2 {
 
 // -----------------------------------------------------------------------------
 // 成功系メッセージ（設計書 §2-1）
-// Bootstrap の .alert-success は $success（cobalt）の tint / shade から
+// Bootstrap の .alert-success は $success（terracotta）の tint / shade から
 // 自動生成されるため、そのままだと「薄い青の面 + 濃い青の文字」になる。
-// 設計書は「cobalt 面 + mat 文字」を求めているため明示上書きする。
+// 設計書は「terracotta 面 + mat 文字」を求めているため明示上書きする。
 // -----------------------------------------------------------------------------
 .alert-success {
-    background-color: $cobalt;
+    background-color: $terracotta;
     color: $mat;
-    border-color: $cobalt;
+    border-color: $terracotta;
 
     // 閉じるボタン（× アイコン）は SVG 背景で黒基調のため、白に反転させる
     .btn-close {
@@ -252,10 +255,10 @@ h2, .h2 {
     // Bootstrap 5.3 の navbar 用 CSS カスタムプロパティを ink 基調にセット。
     // navbar-brand・navbar-text はこの変数値を参照するため、個別の色指定不要
     --bs-navbar-color:              #{$ink};
-    --bs-navbar-hover-color:        #{$cobalt};
+    --bs-navbar-hover-color:        #{$terracotta};
     --bs-navbar-active-color:       #{$ink};
     --bs-navbar-brand-color:        #{$ink};
-    --bs-navbar-brand-hover-color:  #{$cobalt};
+    --bs-navbar-brand-hover-color:  #{$terracotta};
     --bs-navbar-disabled-color:     rgba(15, 26, 46, 0.5);
 }
 
@@ -278,17 +281,17 @@ input[type="tel"] {
 // 【解いていること】
 // - カード内スクロールを一切持たない（ページ全体のスクロールのみ）
 // - 独立したメディアギャラリー廃止、写真は各記録カード内に統合
-// - 日付ブロック（cobalt 帯）が各カード左端で共通のシグネチャー要素
+// - 日付ブロック（persimmon 帯）が各カード左端で共通のシグネチャー要素
 // - hero（先頭1件）は写真を大きく、feed（残り）はサムネイル数枚
 //
 // 【§2-1 の禁止事項の遵守】
-// - cobalt 面（日付ブロック）の文字は mat のみ
+// - persimmon 面（日付ブロック）の文字は ink のみ
 // - カードは罫線（$border-color = ink 8%）と box-shadow 2 段影の両方を持つ
 // - vivid 面（persimmon 等）は現状カード内に配置しない
 //   （training-type タグは §4-2 のワイヤーフレームに無いため廃止した）
 // -----------------------------------------------------------------------------
 
-// あいさつ（H1 のグローバルスタイル: color=cobalt, weight=700, letter-spacing=0.01em
+// あいさつ（H1 のグローバルスタイル: color=terracotta, weight=700, letter-spacing=0.01em
 // はすでに適用済み。ここでは余白のみ調整）
 .c-greeting {
     margin-bottom: 0.5rem;
@@ -345,12 +348,13 @@ input[type="tel"] {
 }
 
 // 日付ブロック（シグネチャー・§5）
-// cobalt 帯の縦組み日本語。数字は 700 で 2rem、hero では 2.75rem。
+// persimmon 帯の縦組み日本語。数字は 700 で 2rem、hero では 2.75rem。
+// 文字は ink（ink on persimmon = 5.11:1 ✓AA。mat は 3.40:1 で AA 未達のため使えない）。
 .c-date-block {
     flex: 0 0 auto;
     width: 4.5rem;
-    background-color: $cobalt;
-    color: $mat;
+    background-color: $persimmon;
+    color: $ink;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -497,7 +501,7 @@ input[type="tel"] {
 }
 .c-media-more:hover {
     background-color: rgba(15, 26, 46, 0.08);
-    color: $cobalt;
+    color: $terracotta;
 }
 .c-media-more:focus-visible {
     outline: none;
@@ -514,7 +518,7 @@ input[type="tel"] {
 // 「続きを読む →」CTA
 .c-session-cta {
     align-self: flex-start;
-    color: $cobalt;
+    color: $terracotta;
     font-weight: 700;
     text-decoration: none;
 }
@@ -527,15 +531,15 @@ input[type="tel"] {
     border-radius: 2px;
 }
 
-// トースト（成功系メッセージ規約に準拠: cobalt 面 + mat 文字）
+// トースト（成功系メッセージ規約に準拠: terracotta 面 + mat 文字）
 .c-toast {
-    background-color: $cobalt;
+    background-color: $terracotta;
     color: $mat;
 }
 
 // モバイル(576px 未満、Bootstrap の sm ブレークポイント境界)
-// 設計書 §5-1「表示形態の分岐」に従い、日付ブロックを cobalt 縦帯から
-// カード上部の cobalt 横帯へ切り替える。
+// 設計書 §5-1「表示形態の分岐」に従い、日付ブロックを persimmon 縦帯から
+// カード上部の persimmon 横帯へ切り替える。
 // - モバイル幅では写真が 2 列以上に折り返しカードが縦に伸びる
 // - 縦帯だと date-block も追随して間延びし、「日付が視覚のリズムを作る」
 //   意図が「青い柱が並ぶ装飾」に変質する(§5-2)
@@ -571,11 +575,12 @@ input[type="tel"] {
     }
 
     // モバイル横帯用の 1 行版を表示(設計書 §5-6: 日本語表記維持)
+    // 文字は ink(persimmon 面上で 5.11:1 ✓AA。デスクトップ縦帯の .c-date-block と揃える)。
     .c-date-inline {
         display: inline;
         font-weight: 700;
         font-size: 1.125rem;
-        color: $mat;
+        color: $ink;
         letter-spacing: 0.02em;
     }
     .c-session--hero .c-date-inline {
@@ -612,7 +617,7 @@ input[type="tel"] {
 // 戻る導線: 「戻る」ではなく行き先を書く（設計書 §6）
 .c-detail-back {
     display: inline-block;
-    color: $cobalt;
+    color: $terracotta;
     font-weight: 700;
     text-decoration: none;
     margin-bottom: 1rem;
@@ -627,14 +632,14 @@ input[type="tel"] {
 }
 
 // 詳細タイトル: 日付主体の大見出し
-// h1 グローバルスタイル(color: cobalt, letter-spacing: 0.01em)より
+// h1 グローバルスタイル(color: terracotta, letter-spacing: 0.01em)より
 // 大きな値で上書きされるようクラスで完全指定する
 .c-detail-title {
     font-size: 2.5rem;
     font-weight: 700;
     line-height: 1.3;
     letter-spacing: 0.01em;
-    color: $cobalt;
+    color: $terracotta;
     margin-bottom: 0.5rem;
 }
 
@@ -707,7 +712,7 @@ input[type="tel"] {
     font-weight: 700;
     line-height: 1.3;
     letter-spacing: 0.02em;
-    color: $cobalt;
+    color: $terracotta;
     text-align: center;
     margin: 0 0 2rem;
 }
@@ -765,7 +770,7 @@ input[type="tel"] {
     font-weight: 700;
     line-height: 1.4;
     letter-spacing: 0.01em;
-    color: $cobalt;
+    color: $terracotta;
     margin: 0 0 0.75rem;
 }
 
@@ -779,7 +784,7 @@ input[type="tel"] {
     overflow-wrap: anywhere;
 }
 
-// メールアドレスの強調(<strong>)。ink を使う(cobalt にすると
+// メールアドレスの強調(<strong>)。ink を使う(terracotta にすると
 // カード内の primary CTA と鮮色隣接になり得る可能性を回避)
 .c-auth-email {
     font-weight: 700;
@@ -793,7 +798,7 @@ input[type="tel"] {
 // ブロックのスタイル。$title / $message はコントローラから渡される変数を
 // 器（.c-login シェル + .card）に流し込むだけ。
 // この画面は「エラー(飼い主の落ち度)」ではなく「状況の説明」なので、
-// ember(エラー色)は使わず cobalt 基調の見出しで柔らかく伝える。
+// madder(エラー色)は使わず terracotta 基調の見出しで柔らかく伝える。
 // -----------------------------------------------------------------------------
 
 // カード内で $message の下に置く「次にできること」ブロック
@@ -828,7 +833,7 @@ input[type="tel"] {
 //   活用。JS 依存の class 名（.step-badge / .bg-primary / .bg-secondary /
 //   .d-none / #progressBar / #step1 / #step2）と data-step 属性は変更禁止のため、
 //   ここでは見た目の調整のみ行う（バッジのサイズ・角丸・シェブロン全体の配置）
-// - 完了画面（§4-6）は cobalt の checkmark 円 + 見出し + 説明文
+// - 完了画面（§4-6）は terracotta の checkmark 円 + 見出し + 説明文
 // -----------------------------------------------------------------------------
 
 .c-intake {
@@ -840,7 +845,7 @@ input[type="tel"] {
 .c-intake-title {
     font-size: 1.75rem;
     font-weight: 700;
-    color: $cobalt;
+    color: $terracotta;
     letter-spacing: 0.01em;
     text-align: center;
     margin: 0.5rem 0 1.5rem;
@@ -875,7 +880,7 @@ input[type="tel"] {
 .c-intake-step-title {
     font-size: 1.25rem;
     font-weight: 700;
-    color: $cobalt;
+    color: $terracotta;
     letter-spacing: 0.01em;
     margin: 0 0 1.25rem;
 }
@@ -929,7 +934,7 @@ input[type="tel"] {
     width: 4rem;
     height: 4rem;
     line-height: 4rem;
-    background-color: $cobalt;
+    background-color: $terracotta;
     color: $mat;
     border-radius: 50%;
     font-size: 2rem;
@@ -940,7 +945,7 @@ input[type="tel"] {
 .c-intake-complete-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: $cobalt;
+    color: $terracotta;
     letter-spacing: 0.01em;
     margin: 0 0 1rem;
 }
