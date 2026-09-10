@@ -60,6 +60,16 @@ $input-bg: $mat;
 // 罫線（設計書 §2-1「カード境界の作り方」— ink を 8% 不透明度）
 $border-color: rgba(15, 26, 46, 0.08);
 
+// カード共通の角丸（.card / .c-empty-card / .c-session）
+$radius-card:  0.5rem;
+// サムネイル系の角丸（.c-media-thumb / .c-media-badge / .c-media-more）
+$radius-media: 0.25rem;
+
+// カード共通の 2 段影（.card / .c-empty-card / .c-session）
+$card-shadow:       0 1px 3px rgba(15, 26, 46, 0.08), 0 4px 12px rgba(15, 26, 46, 0.06);
+// カードホバー時の 2 段影（.c-session:hover）
+$card-shadow-hover: 0 2px 6px rgba(15, 26, 46, 0.12), 0 8px 20px rgba(15, 26, 46, 0.08);
+
 // リンク
 $link-color:       $cobalt;
 $link-hover-color: $ink;
@@ -196,7 +206,7 @@ h2, .h2 {
 // （box-shadow は置き換え、border は残る）。
 // -----------------------------------------------------------------------------
 .card {
-    box-shadow: 0 1px 3px rgba(15, 26, 46, 0.08), 0 4px 12px rgba(15, 26, 46, 0.06);
+    box-shadow: $card-shadow;
 }
 
 // -----------------------------------------------------------------------------
@@ -305,8 +315,8 @@ input[type="tel"] {
 .c-empty-state .c-empty-card {
     background-color: $mat;
     border: 1px solid rgba(15, 26, 46, 0.08);
-    box-shadow: 0 1px 3px rgba(15, 26, 46, 0.08), 0 4px 12px rgba(15, 26, 46, 0.06);
-    border-radius: 0.5rem;
+    box-shadow: $card-shadow;
+    border-radius: $radius-card;
     padding: 1.5rem 1.25rem;
     line-height: 1.75;
 }
@@ -316,14 +326,14 @@ input[type="tel"] {
     display: flex;
     background-color: $mat;
     border: 1px solid rgba(15, 26, 46, 0.08);
-    box-shadow: 0 1px 3px rgba(15, 26, 46, 0.08), 0 4px 12px rgba(15, 26, 46, 0.06);
-    border-radius: 0.5rem;
+    box-shadow: $card-shadow;
+    border-radius: $radius-card;
     overflow: hidden;
     margin-bottom: 1rem;
     transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 .c-session:hover {
-    box-shadow: 0 2px 6px rgba(15, 26, 46, 0.12), 0 8px 20px rgba(15, 26, 46, 0.08);
+    box-shadow: $card-shadow-hover;
     transform: translateY(-1px);
 }
 @media (prefers-reduced-motion: reduce) {
@@ -431,7 +441,7 @@ input[type="tel"] {
     position: relative;
     aspect-ratio: 1 / 1;
     background-color: rgba(15, 26, 46, 0.04);
-    border-radius: 0.25rem;
+    border-radius: $radius-media;
     overflow: hidden;
     cursor: pointer;
     outline: none;
@@ -468,7 +478,7 @@ input[type="tel"] {
     color: $mat;
     font-size: 0.7rem;
     padding: 0.1rem 0.4rem;
-    border-radius: 0.25rem;
+    border-radius: $radius-media;
     line-height: 1.4;
 }
 
@@ -480,7 +490,7 @@ input[type="tel"] {
     aspect-ratio: 1 / 1;
     background-color: rgba(15, 26, 46, 0.04);
     border: 1px dashed rgba(15, 26, 46, 0.25);
-    border-radius: 0.25rem;
+    border-radius: $radius-media;
     color: $ink;
     font-weight: 700;
     text-decoration: none;
