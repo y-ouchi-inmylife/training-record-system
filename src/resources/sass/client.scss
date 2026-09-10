@@ -125,11 +125,14 @@ $headings-font-family:   $font-family-sans-serif;
 $headings-font-weight:   700;
 
 // 型スケール（設計書 §3 型スケール表）
-// - H1 = 2rem、H2 = 1.5rem、H3 = 1.125rem
+// - H1 = 1.5rem、H2 = 1.5rem、H3 = 1.125rem
 // - Bootstrap 既定（h1=2.5, h2=2, h3=1.75）を全て下方修正
 // - 見出しの色は $headings-color ではなく、Bootstrap import 後に h1/h2 に対して
 //   直接 terracotta を当てる（H3 は ink のまま残すため。詳細は下記の「見出し色」節）
-$h1-font-size: 2rem;
+// - H1 は当初 2rem。実機確認で挨拶が eyebrow（セクション見出し）より
+//   大きく目立ちすぎていたため 1.5rem に縮小（設計書 §3）。H2 と同値になるが
+//   H1 の実使用がダッシュボードの挨拶のみ、H2 は未使用のため実害なし
+$h1-font-size: 1.5rem;
 $h2-font-size: 1.5rem;
 $h3-font-size: 1.125rem;
 
@@ -211,11 +214,13 @@ h2, .h2 {
 
 // Eyebrow（セクション上部の小見出し「最新のトレーニング」等）
 // システムサンスに戻ったため letter-spacing を広く取っても字形が崩れない。
+// 当初 0.75rem / 0.08em。H1 との差が 2.7 倍あり見出しが埋もれて
+// いたため拡大。字間は文字が大きくなった分詰めた（設計書 §3）。
 .eyebrow {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     font-weight: 700;
     line-height: 1.4;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     color: rgba(15, 26, 46, 0.65);
 }
 
