@@ -22,10 +22,10 @@ Bootstrap 既定の `#fd7e14`（.bg-client-nav）は破棄する。以下 8 色�
 |---|---|---|---|---|
 | `paper` | `#F5F3EC` | ページ背景 | ink on paper = **15.66:1** ✓AAA | 「アルバムのページ」の温かみを持つ紙色。AI 既定の #F4F1EA より僅かに緑寄り・落ち着き寄りで、既定パターンから外す |
 | `mat` | `#FFFFFF` | カード面・写真の周辺・入力欄の面 | ink on mat = **17.39:1** ✓AAA<br>terracotta on mat = **5.18:1** ✓AA<br>madder on mat = **10.02:1** ✓AAA | 純白。写真アルバムの伝統的なマット色そのもの。**写真の色が最も正確に見える色**を選ぶことが、写真をアプリの主役に据える設計判断そのもの |
-| `ink` | `#0F1A2E` | 本文・見出しのインク・細線・フォーカスリング外側 | 全ての明色上で 15:1 以上<br>ink on terracotta = **3.03:1** ✗テキスト（3:1 UI は満たす）<br>ink on persimmon = **6.20:1** ✓AA（ただし日付帯の文字色は bister を採用）<br>ink on madder = **2.09:1** ✗（madder 面には mat 文字を使う）<br>ink on driftwood = **2.87:1** ✗（driftwood 面にも mat 文字を使う） | 黒ではなく深い紺。テキストの主色。65% で副次テキスト、45% でメタ情報として不透明度で階層をつける |
-| `terracotta` | `#C2410C` | 主要 CTA・リンク・成功トースト・フォーカスリング外側・H1/H2/Display の色 | terracotta on paper = **4.66:1** ✓AA<br>terracotta on mat = **5.18:1** ✓AA<br>mat on terracotta（button 文字）= **5.18:1** ✓AA<br>ink on terracotta = **3.03:1** ✗テキスト（3:1 UI は満たす） | paper 上で本文リンクとして AA を満たす明るさの上限。当初 #A85712 を採用したが実機確認で「オレンジではなく茶色」と判断されたため、`madder` を #7F1D1D へ退避させて分離を確保したうえで明度を上げた。さらに明るい #F97316 は paper 上 2.52 で本文リンク／面としては不成立だが、`persimmon` の日付帯用としては装飾的境界の判断で採用済み（本表と §2-1「persimmon 面の境界」を参照） |
+| `ink` | `#0F1A2E` | 本文・見出しのインク・細線・フォーカスリング外側 | 全ての明色上で 15:1 以上<br>ink on terracotta = **3.36:1** ✗テキスト（3:1 UI は満たす）<br>ink on persimmon = **6.20:1** ✓AA（ただし日付帯の文字色は bister を採用）<br>ink on madder = **1.74:1** ✗（madder 面には mat 文字を使う）<br>ink on driftwood = **2.87:1** ✗（driftwood 面にも mat 文字を使う） | 黒ではなく深い紺。テキストの主色。65% で副次テキスト、45% でメタ情報として不透明度で階層をつける |
+| `terracotta` | `#C2410C` | 主要 CTA・リンク・成功トースト・フォーカスリング外側・H1/H2/Display の色 | terracotta on paper = **4.66:1** ✓AA<br>terracotta on mat = **5.18:1** ✓AA<br>mat on terracotta（button 文字）= **5.18:1** ✓AA<br>ink on terracotta = **3.36:1** ✗テキスト（3:1 UI は満たす） | paper 上で本文リンクとして AA を満たす明るさの上限。当初 #A85712 を採用したが実機確認で「オレンジではなく茶色」と判断されたため、`madder` を #7F1D1D へ退避させて分離を確保したうえで明度を上げた。さらに明るい #F97316 は paper 上 2.52 で本文リンク／面としては不成立だが、`persimmon` の日付帯用としては装飾的境界の判断で採用済み（本表と §2-1「persimmon 面の境界」を参照） |
 | `persimmon` | `#F97316` | 日付ブロック帯（**面 + bister 文字ペア**）・タグ（**面 + bister 文字ペア専用**） | bister on persimmon = **4.89:1** ✓AA<br>ink on persimmon = **6.20:1** ✓AA（可読性は成立するが視覚的に浮くため日付帯には使わない）<br>persimmon on paper = **2.52:1** ✗テキスト・✗ 3:1 UI（帯と mat の境界は装飾的として許容、§2-1 参照）<br>persimmon on mat = **2.80:1** ✗テキスト・✗ 3:1 UI（同上）<br>mat on persimmon = **2.80:1** ✗（引き続き白文字は載せない） | 熟した柿の色。当初 #F0592B を採用したが実機確認で「もっと明るくオレンジっぽく」との判断があり、色相を赤橙（14°）から橙（25°）へ動かした。明色地上で 3:1 に届かないため線・小さな図形・テキスト色には使えない制約は変わらない（むしろ 3.07 → 2.52 と余裕が減った）。用途は**面 + bister 文字のペア専用**。持ち場（日付ブロック帯・タグ）は §2-1 で厳格に規定する |
-| `madder` | `#7F1D1D` | エラーテキスト（**mat 面上のみ**）・破棄アクション面（.btn-danger 等）。**面として使う場合の文字は `mat`（白）に限る** | madder on mat = **10.02:1** ✓AAA<br>madder on paper = **9.02:1** ✓AAA<br>mat on madder（面上の文字） = **10.02:1** ✓AAA<br>**ink on madder = 2.09:1** ✗（madder 面に ink 文字を載せない） | 深い茜色。terracotta を明るくするために当初の #991B1B から退避させた（terracotta を #A85712 → #C2410C に上げても分離を確保するため）。ΔE は 29.5 → 34.4 に改善している。Bootstrap 既定 `#dc3545` は palette から浮くため使わない（据置理由） |
+| `madder` | `#7F1D1D` | エラーテキスト（**mat 面上のみ**）・破棄アクション面（.btn-danger 等）。**面として使う場合の文字は `mat`（白）に限る** | madder on mat = **10.02:1** ✓AAA<br>madder on paper = **9.02:1** ✓AAA<br>mat on madder（面上の文字） = **10.02:1** ✓AAA<br>**ink on madder = 1.74:1** ✗（madder 面に ink 文字を載せない） | 深い茜色。terracotta を明るくするために当初の #991B1B から退避させた（terracotta を #A85712 → #C2410C に上げても分離を確保するため）。ΔE は 29.5 → 34.4 に改善している。Bootstrap 既定 `#dc3545` は palette から浮くため使わない（据置理由） |
 | `bister` | `#422714` | persimmon 面上の文字（日付ブロック帯）専用 | bister on persimmon = **4.89:1** ✓AA<br>bister on paper = **12.35:1** ✓AAA<br>bister on mat = **13.71:1** ✓AAA | 焦茶色。ink #0F1A2E は青寄りの黒で、鮮やかな橙と色相を共有しないため文字だけが浮いて見える。暖色系のダークに替えることで帯と一体化する。可読性は落とさずに印象だけを変えている（採用時の旧 persimmon #F0592B 上では ink 5.11 → bister 5.05 でほぼ不変、現行 persimmon #F97316 上では ink 6.20 → bister 4.89 で AA を維持しつつ文字を柔らかく）。当初 #2B1608 を採用したが、persimmon を #F97316 に明色化した後の実機確認で「日付の黒が強い」との判断があり、#422714 に明るくした。persimmon 明色化で生まれたコントラストの余裕（6.14 と AA 4.5 の差）を使って、可読性を保ったまま重さを落としている。本文・細線・フォーカスリング外側は引き続き `ink` を使い、bister で ink を置き換えない（§2-1 の bister 配置制約を参照） |
 | `driftwood` | `#6B6155` | 補助アクション面（`$secondary` に割り当て）・非主要バッジ | driftwood on paper = **5.46:1** ✓AA<br>driftwood on mat = **6.06:1** ✓AA<br>mat on driftwood（面上の文字）= **6.06:1** ✓AA<br>**ink on driftwood = 2.87:1** ✗（driftwood 面に ink 文字を載せない） | client.scss は `$secondary` を上書きしておらず、Bootstrap 既定の `#6c757d`（寒色グレー、白文字 4.69）が client-intake の `badge bg-secondary` / `btn-outline-secondary` に適用されていた。基調が暖色になったことで寒色グレーが浮くため、暖色グレーを新設する。白文字のコントラストも 4.69 から 6.06 に改善する |
 
@@ -59,7 +59,7 @@ Bootstrap 既定の `#fd7e14`（.bg-client-nav）は破棄する。以下 8 色�
 
 #### madder を面として使う場合の文字色（.btn-danger 等）
 - **文字は `mat`（白）に限る**（mat on madder = 10.02:1 ✓AAA）
-- **`ink` を madder 面に載せない**（ink on madder = 2.09:1、AA 不合格。可読性が担保できない）
+- **`ink` を madder 面に載せない**（ink on madder = 1.74:1、AA 不合格。可読性が担保できない）
 - **SCSS 実装時の注意**: client.scss には `$min-contrast-ratio: 4.5` が既に設定済みのため、Bootstrap の `color-contrast()` は madder 面に対して確実に `mat` を選ぶ。ただし**閾値近傍の色を追加する事故を防ぐ保険**として、`.btn-danger` の文字色を明示的に `$mat`（白）に上書きする指定は残す
 
 #### bister の配置制約
@@ -81,9 +81,9 @@ Bootstrap 既定の `#fd7e14`（.bg-client-nav）は破棄する。以下 8 色�
 - **各背景での可視性**（実測）:
   - `paper` 上: 外側 ink リングが **15.66:1** で可視。内側 mat リングは背景に溶ける
   - `mat` 上: 外側 ink リングが **17.39:1** で可視。内側 mat リングは背景に溶ける
-  - `terracotta` 面上（主要 CTA の focus 時）: **内側 mat リングが 5.18:1 で可視**、外側 ink リングは terracotta 上で 3.03:1 と溶けるが、内側 mat が担保するため合格
+  - `terracotta` 面上（主要 CTA の focus 時）: **内側 mat リングが 5.18:1 で可視**、外側 ink リングは terracotta 上で 3.36:1 と溶けるが、内側 mat が担保するため合格
   - `persimmon` 面上（日付ブロック帯の focus 時）: 内側 mat リングは persimmon 上で 2.80:1（3:1 未達）だが、外側 ink リングが persimmon 上で 6.20:1 と可視なので合格する（他の vivid 面と担保する側が入れ替わる）
-  - `madder` 面上（破棄アクションの focus 時）: **内側 mat リングが 10.02:1 で可視**、外側 ink リングは madder 上で 2.09:1 と溶けるが、内側 mat が担保するため合格
+  - `madder` 面上（破棄アクションの focus 時）: **内側 mat リングが 10.02:1 で可視**、外側 ink リングは madder 上で 1.74:1 と溶けるが、内側 mat が担保するため合格
   - `driftwood` 面上（補助アクションの focus 時）: **内側 mat リングが 6.06:1 で可視**、外側 ink リングは driftwood 上で 2.87:1 と溶けるが、内側 mat が担保するため合格
 - → 全面で合格。単色のフォーカスリングでは「明色地」と「vivid CTA 面」を両立できないため、**二重輪郭が必然**
 
@@ -93,24 +93,24 @@ Bootstrap 既定の `#fd7e14`（.bg-client-nav）は破棄する。以下 8 色�
 
 | 隣接組み合わせ | 比 | ΔE | 判定 |
 |---|---|---|---|
-| terracotta × persimmon | **1.66:1** | 22.5 | ✗ |
-| terracotta × madder | **1.75:1** | 34.4 | ✗ |
-| persimmon × madder | **3.71:1** | 47.4 | ✗テキスト（3:1 UI 可） |
-| terracotta × ink | **3.03:1** | 79.1 | ✗テキスト（3:1 UI 可） |
-| driftwood × terracotta | **1.35:1** | 44.6 | ✗ |
-| driftwood × persimmon | **2.17:1** | 81.0 | ✗ |
-| driftwood × madder | **1.66:1** | 55.5 | ✗ |
+| terracotta × persimmon | **1.85:1** | 22.5 | ✗ |
+| terracotta × madder | **1.93:1** | 34.4 | ✗ |
+| persimmon × madder | **3.57:1** | 55.3 | ✗テキスト（3:1 UI 可） |
+| terracotta × ink | **3.36:1** | 91.1 | ✗テキスト（3:1 UI 可） |
+| driftwood × terracotta | **1.17:1** | 66.3 | ✗ |
+| driftwood × persimmon | **2.16:1** | 77.8 | ✗ |
+| driftwood × madder | **1.65:1** | 45.4 | ✗ |
 | driftwood × ink | **2.87:1** | 39.9 | ✗ |
 | （参考・改稿前） cobalt × ember | **1.32:1** | 105.9 | — |
 
-**役割識別可能性の低下（要注記）**: 改稿前の cobalt × ember は ΔE 105.9 で、比が 1.32 でも色相差により役割を見分けられた。改稿後は terracotta / persimmon / madder / driftwood の各役が ΔE 22〜47 の範囲に散らばり（terracotta × persimmon 22.5、terracotta × madder 34.4、persimmon × madder 47.4）、色による役割の識別可能性は大幅に低下している。これはオレンジ単極化の代償として受け入れた判断であり、値の選び方では解消できない。**terracotta × persimmon は 13.5 から 22.5 に改善し、最も近いペアではなくなった。現在の最小は terracotta × madder の 34.4 ではなく terracotta × persimmon の 22.5 である**（persimmon 明色化以降も 3 役の中では引き続き最小）。したがって、**破棄アクションはラベル文言と配置でも区別を担保すること**、および terracotta 面と persimmon 面を隣接させない規律（本節の禁止事項）が引き続き要である。
+**役割識別可能性の低下（要注記）**: 改稿前の cobalt × ember は ΔE 105.9 で、比が 1.32 でも色相差により役割を見分けられた。改稿後は terracotta / persimmon / madder / driftwood の各役が ΔE 22〜55 の範囲に散らばり（terracotta × persimmon 22.5、terracotta × madder 34.4、persimmon × madder 55.3）、色による役割の識別可能性は大幅に低下している。これはオレンジ単極化の代償として受け入れた判断であり、値の選び方では解消できない。**terracotta × persimmon は 13.5 から 22.5 に改善し、最も近いペアではなくなった。現在の最小は terracotta × madder の 34.4 ではなく terracotta × persimmon の 22.5 である**（persimmon 明色化以降も 3 役の中では引き続き最小）。したがって、**破棄アクションはラベル文言と配置でも区別を担保すること**、および terracotta 面と persimmon 面を隣接させない規律（本節の禁止事項）が引き続き要である。
 
 以下を禁止事項として明文化する：
 
 - **鮮やかな色（`terracotta` / `persimmon` / `madder`）および `driftwood` 面を直接隣接させない**（境界が視認できず、UI コンポーネント間の分離が失われる）
-- 特に **`persimmon` の日付ブロック帯の上に `terracotta` / `madder` の面を重ねない・直接隣接させない**（terracotta × persimmon 1.66 / ΔE 22.5、persimmon × madder 3.71 / ΔE 47.4 で terracotta 側は依然として最も近い組み合わせ）
+- 特に **`persimmon` の日付ブロック帯の上に `terracotta` / `madder` の面を重ねない・直接隣接させない**（terracotta × persimmon 1.85 / ΔE 22.5、persimmon × madder 3.57 / ΔE 55.3 で terracotta 側は依然として最も近い組み合わせ）
 - 鮮色を並べる必要がある場合は、**必ず `mat` (#FFFFFF) または `paper` (#F5F3EC) を 1px 以上の枠または余白として挟む**（mat / paper が担う「無彩の緩衝帯」の役割）
-- **`ink` は `terracotta` 面上でテキストとして使えない**（3.03:1、AA 4.5 未達）。ただし 3:1 は満たすため、terracotta 面と ink 面を隣接させた場合の境界は視認できる。テキストとして載せるのは不可、境界として並置するのは可
+- **`ink` は `terracotta` 面上でテキストとして使えない**（3.36:1、AA 4.5 未達）。ただし 3:1 は満たすため、terracotta 面と ink 面を隣接させた場合の境界は視認できる。テキストとして載せるのは不可、境界として並置するのは可
 
 具体的な設計判断への影響：
 - 日付ブロック（persimmon）に「今日」ピル（terracotta / madder 等）を重ねたい場合は、ピルの下に **2px 以上の mat 枠を敷く**（例: `border: 2px solid $mat` を pill に付ける）
@@ -207,7 +207,7 @@ Bootstrap 既定の `#fd7e14`（.bg-client-nav）は破棄する。以下 8 色�
 - Bootstrap 既定の緑は導入しない。前案で使っていた `tennis` は新パレットに存在しない
 - **成功トーストは `terracotta` 面 + `mat` 文字で表現する**（terracotta は palette 内で「肯定・確定」を担う主要色）
 - 既存の Bootstrap `.alert-success` は変数上書きで terracotta 系に置き換わる
-- terracotta 面は paper 上でコントラスト 4.69:1 のため輪郭は明瞭、外枠追加は不要
+- terracotta 面は paper 上でコントラスト 4.66:1 のため輪郭は明瞭、外枠追加は不要
 
 ---
 
@@ -289,7 +289,7 @@ Bootstrap の rem を維持する。行間は日本語のため 1.5〜1.8。**�
 1. **ウェイトの落差**: 見出し = 700、本文 = 400（Bootstrap 既定より大きな段差）
 2. **サイズの落差**: Display / H1 / H2 を前案より一段大きく引き上げる
 3. **字間**: 見出しに letter-spacing を効かせて存在感を作る
-4. **色による階層**: 見出しに `terracotta` を使い、本文の `ink` と分ける（terracotta on paper = **4.69:1** ✓AA、terracotta on mat = **5.20:1** ✓AA）。cobalt 時代は 7.47 / 8.29 で AAA だったが、terracotta は AA 止まりであり、見出しのコントラスト水準は一段下がる。これは基調色変更に伴うトレードオフとして受け入れる
+4. **色による階層**: 見出しに `terracotta` を使い、本文の `ink` と分ける（terracotta on paper = **4.66:1** ✓AA、terracotta on mat = **5.18:1** ✓AA）。cobalt 時代は 7.47 / 8.29 で AAA だったが、terracotta は AA 止まりであり、見出しのコントラスト水準は一段下がる。これは基調色変更に伴うトレードオフとして受け入れる
 
 | 役割 | サイズ | ウェイト | letter-spacing | 文字色 | 行間 | 用途例 |
 |---|---|---|---|---|---|---|
@@ -305,7 +305,7 @@ Bootstrap の rem を維持する。行間は日本語のため 1.5〜1.8。**�
 - **見出しの色 = terracotta**: これで見出しが本文（ink）と一目で区別できる。terracotta は主要 CTA・リンクでも使う「構造の色」として palette 内で意味が統一される
 - **Display と H1 の色も terracotta**: 詳細画面の日付見出し「8月2日（金）のトレーニング」も terracotta になり、主要 CTA・リンクとの視覚的つながりが生まれる
 - **letter-spacing は日本語でも効く**（Latin 用語ではあるが、和文でも字送りが広がって落ち着いた印象になる。過度に広げると読みにくくなるため 0.01〜0.02em に抑制）
-- **カード内見出し (H3) の色は ink のまま**: カード内には既に `persimmon` の日付ブロック帯があり、そこに `terracotta` の見出しを加えると 1 カード内に鮮色が 2 種並ぶ。terracotta × persimmon は比 **1.53:1** で境界が視認できないため、§2-1 の隣接禁止に抵触するリスクがある。原則として **1 カード内の鮮色は日付ブロック帯 (`persimmon`) だけ**にとどめる
+- **カード内見出し (H3) の色は ink のまま**: カード内には既に `persimmon` の日付ブロック帯があり、そこに `terracotta` の見出しを加えると 1 カード内に鮮色が 2 種並ぶ。terracotta × persimmon は比 **1.85:1** で境界が視認できないため、§2-1 の隣接禁止に抵触するリスクがある。原則として **1 カード内の鮮色は日付ブロック帯 (`persimmon`) だけ**にとどめる
 
 ### 数字の扱い
 
@@ -598,7 +598,7 @@ body 全体には適用しない。実装時は上記の要素に対して個別
 **種別（training_type）タグを詳細画面から削除する理由**（前案では表示していたが撤回した）:
 
 1. **情報ではなく装飾になる**: 種別は `training_types` マスタで「事前相談 / トレーニング / その他」の 3 種のみ。大半の記録が「トレーニング」になるため、ほぼ全画面に同じタグが並ぶ。§7 の「装飾を情報に見せかけない」規律に反する
-2. **§2-1 の禁止事項に抵触する**: 詳細画面のタイトル（`c-detail-title`）は terracotta であり、その直下に persimmon のタグを置くと**鮮色が隣接**する（terracotta × persimmon = 1.53:1）。改稿前（cobalt 基調）の 2.44 より境界の視認性はさらに低下しており、種別タグを置かない判断の根拠は強まっている。設計書内で §2-1 と §4-4 が矛盾していた
+2. **§2-1 の禁止事項に抵触する**: 詳細画面のタイトル（`c-detail-title`）は terracotta であり、その直下に persimmon のタグを置くと**鮮色が隣接**する（terracotta × persimmon = **1.85:1**）。改稿前（cobalt 基調）の 2.44 より境界の視認性はさらに低下しており、種別タグを置かない判断の根拠は強まっている。設計書内で §2-1 と §4-4 が矛盾していた
 3. **ダッシュボードと扱いを揃える**: ダッシュボード §4-2 でも同じ理由で種別タグを廃止済み。同じ記録が 2 画面で違う見え方をすると飼い主が混乱する
 
 ### 4-5. 事前入力（intake）フォーム
@@ -771,7 +771,7 @@ body 全体には適用しない。実装時は上記の要素に対して個別
 - 前案の「forest 塗りの小丸（新着ピップ）」は撤回済み（当時の色 forest / 小丸 は新パレットに存在しない）。**新着表示の色案は保留する**。`persimmon` は日付ブロック帯に用途が移ったため、帯の周辺に `persimmon` のピルを置くことはできない（同色で消える）。必要になった時点で改めて設計する
 - **§2-1 制約との整合**（横帯形態でも維持）：
   - `persimmon` 面の文字は `bister` のみ（`ink` は可読性上は 6.20:1 で成立するが橙帯と色相を共有せず浮くため、`mat` は 2.80:1 で AA 未達のため、いずれも載せない）— 8月・日・曜日いずれも bister で 4.89:1
-  - 鮮色同士を直接隣接させない — 横帯（persimmon）と写真グリッド（背景 mat）の間は横帯の下 padding で分離。**日付帯 (persimmon) の周辺に `terracotta` / `madder` の面を配置しない**（terracotta × persimmon 比 1.66 / ΔE 22.5、persimmon × madder 比 3.71 / ΔE 47.4 で terracotta 側は依然として最も近い組み合わせ）
+  - 鮮色同士を直接隣接させない — 横帯（persimmon）と写真グリッド（背景 mat）の間は横帯の下 padding で分離。**日付帯 (persimmon) の周辺に `terracotta` / `madder` の面を配置しない**（terracotta × persimmon 比 1.85 / ΔE 22.5、persimmon × madder 比 3.57 / ΔE 55.3 で terracotta 側は依然として最も近い組み合わせ）
   - カード境界は罫線 + 影の両方（横帯化しても `.c-session` の border と box-shadow は不変）
 
 ---
@@ -835,13 +835,13 @@ body 全体には適用しない。実装時は上記の要素に対して個別
 
 8. **中間色の絶妙さ**: `meadow #EEF1E8` の緑寄り中間色は palette の独自性を担っていた。今の `paper #F5F3EC` はより一般的な紙色に近く、その独自性は弱くなった。
 
-8-b. **補色配置による独自性**: `cobalt` + `persimmon` の 2 極構造は ΔE 121.6 の色相差を持ち、palette の独自性と役割識別性を同時に担っていた。オレンジ単極化により両方を失った。役割識別は ΔE 22〜47 の範囲に散らばる水準に落ち（terracotta × persimmon 22.5、terracotta × madder 34.4、persimmon × madder 47.4）、独自性は色相の対比ではなく「鮮色を日付帯だけに集中させる規律」（§2-0）で担保する形に変わった。
+8-b. **補色配置による独自性**: `cobalt` + `persimmon` の 2 極構造は ΔE 121.6 の色相差を持ち、palette の独自性と役割識別性を同時に担っていた。オレンジ単極化により両方を失った。役割識別は ΔE 22〜55 の範囲に散らばる水準に落ち（terracotta × persimmon 22.5、terracotta × madder 34.4、persimmon × madder 55.3）、独自性は色相の対比ではなく「鮮色を日付帯だけに集中させる規律」（§2-0）で担保する形に変わった。
 
 9. **書体固有の個性**: 初版で Zen Old Mincho（明朝）を選んだ理由は「手紙を書いた人の肌温度」を出すため、改訂版で Zen Maru Gothic を選んだ理由は「丸みで元気を出す」ためだった。**今回はどちらも失い、システム日本語スタックの中庸な字形になった**。書体の個性が担っていた「らしさ」は、色（terracotta）・ウェイト（700）・letter-spacing・サイズ で代替する（§3 型スケール）。書体で語れる情緒は失うが、モバイル読者に対して 90.8KB の追加転送を強いる方が UX の損失として大きい、と判断した。
 
 ### 初版の失敗を教訓として組み込んだ点
 
-10. **アクセシビリティを事前計算した**。初版では `tennis` をフォーカスリング・新着ピップに割り当てて 1.52:1 / 1.39:1 で WCAG 1.4.11 未達を後から指摘され撤回した。今回は palette 設計段階で全ての主要組み合わせのコントラストを机上計算し、`persimmon` が明色地上で 3.04〜3.40:1 と初版 tennis と同じ罠を持つことを事前に発見。**用途を「面 + ink 文字のペア専用」に限定**して罠に陥らない構造にした（§2-1）。「vivid な色は面としてのみ、ink 文字と組んで使う」という規約は、tennis 事故の一般化した教訓。
+10. **アクセシビリティを事前計算した**。初版では `tennis` をフォーカスリング・新着ピップに割り当てて 1.52:1 / 1.39:1 で WCAG 1.4.11 未達を後から指摘され撤回した。今回は palette 設計段階で全ての主要組み合わせのコントラストを机上計算し、`persimmon` が明色地上で 3.04〜3.40:1 と初版 tennis と同じ罠を持つことを事前に発見。**用途を「面 + ink 文字のペア専用」に限定**して罠に陥らない構造にした（§2-1）。「vivid な色は面としてのみ、ink 文字と組んで使う」という規約は、tennis 事故の一般化した教訓。（当時の値。現行の persimmon #F97316 では明色地上 2.52〜2.80:1、文字色も bister に変更されている。§2 参照）
 
 11. **フォーカスリングは二重輪郭**。単色では「明色地」と「vivid CTA 面」を両立できないという初版で学んだ事実を、机上計算で確認した上で `box-shadow: 0 0 0 3px $mat, 0 0 0 5px $ink` の二重輪郭を採用。terracotta / persimmon / madder / driftwood のいずれの面上でも、**内側 mat リングまたは外側 ink リングのいずれかが 3:1 以上で可視**であることを事前保証した（terracotta: 内側 mat 5.18 / persimmon: 外側 ink 6.20 が担保、内側 mat は 2.80 で溶ける / madder: 内側 mat 10.02 / driftwood: 内側 mat 6.06）。基調色をオレンジへ変更した際も、また persimmon を #F97316 に明色化した際も、この二重輪郭の仕様は変更せずにそのまま成立した（persimmon 変更で担保する側が内側 mat から外側 ink に入れ替わったが、リング自体は据置）。
 
