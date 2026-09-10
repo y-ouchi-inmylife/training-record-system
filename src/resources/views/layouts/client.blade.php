@@ -21,12 +21,13 @@
          ため、SCSS 側 .c-nav で mat 面 + 罫線 + navbar CSS 変数(ink 基調)を
          定義する。
          ワードマークはダッシュボードへのリンク(設計書 §4-0)。
-         .c-nav の --bs-navbar-brand-hover-color は <a> でのみ機能する。 --}}
+         .c-nav の --bs-navbar-brand-hover-color は <a> でのみ機能する。
+         右端はログアウトのみ(設計書 §4-0)。ユーザー名は H1 の挨拶と
+         重複するため表示しない。 --}}
     <nav class="navbar navbar-expand-lg c-nav">
         <div class="container">
             <a class="navbar-brand" href="{{ route('client-portal.dashboard') }}">{{ config('app.client_portal_name', 'トレーニング記録') }}</a>
             <div class="d-flex align-items-center">
-                <span class="navbar-text me-3">{{ auth('client')->user()->full_name }} さん</span>
                 <form method="POST" action="{{ route('client-portal.logout') }}" class="m-0">
                     @csrf
                     {{-- 設計書 §6: ログアウトは主要な行為ではないため
