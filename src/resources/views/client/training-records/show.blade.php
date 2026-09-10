@@ -23,9 +23,11 @@
 
 @section('content')
 <div class="container py-4 c-detail">
-    {{-- 戻る導線: 「戻る」ではなく行き先を書く(設計書 §6) --}}
+    {{-- 戻る導線: 「戻る」ではなく行き先を書く(設計書 §6)。
+         ラベルはフッターの HOME と統一（設計書 §4-0・§6）。
+         矢印は「上の階層へ戻る」文脈のため残す。 --}}
     <a href="{{ route('client-portal.dashboard') }}" class="c-detail-back">
-        <span aria-hidden="true">←</span> ダッシュボードへ
+        <span aria-hidden="true">←</span> HOME
     </a>
 
     {{-- 詳細タイトル: 「トレーニング記録詳細」ではなく日付主体(§6・§4-4) --}}
