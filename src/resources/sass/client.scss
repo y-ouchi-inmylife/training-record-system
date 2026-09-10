@@ -63,10 +63,19 @@ $input-bg: $mat;
 // 罫線（設計書 §2-1「カード境界の作り方」— ink を 8% 不透明度）
 $border-color: rgba(15, 26, 46, 0.08);
 
-// カード共通の角丸（.card / .c-empty-card / .c-session）
-$radius-card:  0.5rem;
+// カード共通の角丸（.card / .c-empty-card / .c-session）— 設計書 §2-1「角丸の規約」
+$radius-card:  0.875rem;
 // サムネイル系の角丸（.c-media-thumb / .c-media-badge / .c-media-more）
-$radius-media: 0.25rem;
+$radius-media: 0.5rem;
+
+// Bootstrap 既定の角丸（0.375rem）を上書き。
+// .btn / .form-control / .form-select / .alert / .card 等に適用される。
+// -sm / -lg も併せて指定するのは、Bootstrap が .btn-sm / .btn-lg / .rounded-1〜5 で
+// 個別に参照するため。既定（sm 0.25rem / lg 0.5rem）のままだと base だけ大きくなり
+// 大小関係が崩れる。
+$border-radius:    0.5rem;
+$border-radius-sm: 0.375rem;
+$border-radius-lg: 0.75rem;
 
 // カード共通の 2 段影（.card / .c-empty-card / .c-session）
 $card-shadow:       0 1px 3px rgba(15, 26, 46, 0.08), 0 4px 12px rgba(15, 26, 46, 0.06);
