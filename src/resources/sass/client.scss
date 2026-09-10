@@ -286,6 +286,51 @@ h2, .h2 {
 }
 
 // -----------------------------------------------------------------------------
+// クライアント側フッター（設計書 §4-0「フッター（認証後のみ）」）
+//
+// 認証後レイアウトのみ。HOME リンク + コピーライト。
+// 上端の罫線はナビ下端（.c-nav の border-bottom）と対称にする。
+// 文字色は §3 Micro の規定どおり ink 65%（paper 上 5.21:1 ✓AA）。
+// pre-auth の .c-login-footer は ink 45%（2.85:1）で AA 未達だが、
+// 別タスクで扱うため本節では踏襲しない。
+// -----------------------------------------------------------------------------
+.c-footer {
+    border-top: 1px solid rgba(15, 26, 46, 0.08);
+    margin-top: 2rem;
+    padding-top: 0.5rem;
+    padding-bottom: 1rem;
+    text-align: center;
+}
+
+// HOME リンク。フッターの文字は小さいため、上下 padding で
+// タップ領域の高さ 44px 相当を確保する（設計書 §4-3・§7-17 と同じ基準）。
+.c-footer-home {
+    display: inline-block;
+    color: $terracotta;
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    padding: 0.75rem 1rem;
+}
+.c-footer-home:hover {
+    color: $ink;
+}
+.c-footer-home:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px $mat, 0 0 0 5px $ink;
+    border-radius: 2px;
+}
+
+// コピーライト。config('app.client_portal_company') が未設定なら
+// Blade 側で出力されない。
+.c-footer-copyright {
+    color: rgba(15, 26, 46, 0.65);
+    font-size: 0.75rem;
+    margin: 0;
+}
+
+// -----------------------------------------------------------------------------
 // 数字の桁揃え（設計書 §3「数字の扱い」）
 // body 全体には適用しない。以下の要素に限定：
 // - .num-tabular ユーティリティクラス（段階3以降で日付ブロックの日・

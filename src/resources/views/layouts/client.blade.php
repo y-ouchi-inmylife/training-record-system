@@ -55,6 +55,23 @@
         </div>
         @yield('content')
     </main>
+
+    @auth('client')
+    {{-- フッター（設計書 §4-0「フッター（認証後のみ）」）。
+         layouts.client は login.blade.php からも extends されるため
+         @auth('client') で囲む。ガードなしではログイン画面に到達不能な
+         HOME リンクが出力され、同画面の .c-login-footer と
+         コピーライトが二重になる。 --}}
+    <footer class="c-footer">
+        <div class="container">
+            <a href="{{ route('client-portal.dashboard') }}" class="c-footer-home">HOME</a>
+            @if(config('app.client_portal_company'))
+                <p class="c-footer-copyright">&copy; {{ date('Y') }} {{ config('app.client_portal_company') }}</p>
+            @endif
+        </div>
+    </footer>
+    @endauth
+
     <script>
         // successフラッシュメッセージを5秒後に自動消去する（data-auto-dismiss 属性を持つ要素のみ）
         document.addEventListener('DOMContentLoaded', function () {
