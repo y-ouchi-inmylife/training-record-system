@@ -988,6 +988,7 @@ input[type="tel"] {
 // 上下 padding を Bootstrap 既定の 0.375rem から 0.5rem に拡大する。
 // 理論高さ = font-size 1rem × line-height 1.75 + padding 0.5rem×2 + border 1px×2
 //          = 28 + 16 + 2 = 46px で、モバイルのタップ領域基準（44px）を満たす。
+// 同じ理由で .btn にも同じ padding を適用する（理論高さ 46px）。
 //
 // トレーナー側の app.scss は 0.25rem のまま（入力項目が多い管理画面で
 // 情報密度を優先する判断）。**client.scss に app.scss の値を持ち込まない**
@@ -995,6 +996,13 @@ input[type="tel"] {
 // -----------------------------------------------------------------------------
 .form-control,
 .form-select {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+// ボタンも入力欄と同じ高さに揃える。ボタンは入力欄より明確なタップ対象で
+// あり、タップ領域の基準（44px）はここにこそ効く。
+.btn {
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
 }
