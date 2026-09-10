@@ -77,10 +77,11 @@ $border-radius:    0.5rem;
 $border-radius-sm: 0.375rem;
 $border-radius-lg: 0.75rem;
 
-// カード共通の 2 段影（.card / .c-empty-card / .c-session）
-$card-shadow:       0 1px 3px rgba(15, 26, 46, 0.08), 0 4px 12px rgba(15, 26, 46, 0.06);
+// カード共通の 2 段影（.card / .c-empty-card / .c-session）— 設計書 §2-1「影の規約」
+// ぼかし半径を広く取り不透明度を抑えることで、輪郭の硬さを避けつつ浮きを保つ。
+$card-shadow:       0 1px 4px rgba(15, 26, 46, 0.06), 0 6px 20px rgba(15, 26, 46, 0.05);
 // カードホバー時の 2 段影（.c-session:hover）
-$card-shadow-hover: 0 2px 6px rgba(15, 26, 46, 0.12), 0 8px 20px rgba(15, 26, 46, 0.08);
+$card-shadow-hover: 0 2px 8px rgba(15, 26, 46, 0.09), 0 12px 28px rgba(15, 26, 46, 0.07);
 
 // リンク
 $link-color:       $terracotta;
