@@ -26,7 +26,7 @@ $paper:      #F5F3EC; // ページ背景
 $mat:        #FFFFFF; // カード面・写真の周辺・入力欄の面
 $ink:        #0F1A2E; // 本文・見出しのインク・細線・フォーカスリング外側
 $terracotta: #C2410C; // 主要 CTA・リンク・成功トースト・H1/H2/Display の色
-$persimmon:  #F0592B; // 日付ブロック帯・タグ（面 + bister 文字ペア専用）
+$persimmon:  #F97316; // 日付ブロック帯・タグ（面 + bister 文字ペア専用）
 $madder:     #7F1D1D; // エラー・破棄アクション（mat 面上のみ）
 $driftwood:  #6B6155; // 補助アクション面（$secondary）
 $bister:     #2B1608; // persimmon 面上の文字専用（日付ブロック帯）
@@ -80,7 +80,7 @@ $link-hover-color: $ink;
 // フォーカスリング（設計書 §2-1 の定義そのまま）
 // mat 3px 内リング + ink 2px 外リングの二重輪郭。
 // - 明色地（paper / mat）では外側 ink が 15:1 以上で可視
-// - vivid 面（terracotta / persimmon / madder / driftwood）では内側 mat が 3.40〜10.02:1 で可視
+// - vivid 面（terracotta / persimmon / madder / driftwood）では内側 mat が 2.80〜10.02:1（persimmon は外側 ink 6.20 が担保）
 // Bootstrap 5.3: input/button の focus は $input-btn-focus-box-shadow を、
 // .focus-ring ユーティリティは $focus-ring-* を使う。両方に反映する。
 $input-btn-focus-box-shadow: 0 0 0 3px $mat, 0 0 0 5px $ink;
@@ -351,8 +351,8 @@ input[type="tel"] {
 
 // 日付ブロック（シグネチャー・§5）
 // persimmon 帯の縦組み日本語。数字は 700 で 2rem、hero では 2.75rem。
-// 文字は bister（bister on persimmon = 5.05:1 ✓AA。ink は可読性上は 5.11 で成立するが
-// 青寄りの黒が橙帯と色相を共有せず浮くため使わない。mat は 3.40:1 で AA 未達のため使えない）。
+// 文字は bister（bister on persimmon = 6.14:1 ✓AA。ink は可読性上は 6.20 で成立するが
+// 青寄りの黒が橙帯と色相を共有せず浮くため使わない。mat は 2.80:1 で AA 未達のため使えない）。
 .c-date-block {
     flex: 0 0 auto;
     width: 4.5rem;
@@ -578,7 +578,7 @@ input[type="tel"] {
     }
 
     // モバイル横帯用の 1 行版を表示(設計書 §5-6: 日本語表記維持)
-    // 文字は bister(persimmon 面上で 5.05:1 ✓AA。デスクトップ縦帯の .c-date-block と揃える)。
+    // 文字は bister(persimmon 面上で 6.14:1 ✓AA。デスクトップ縦帯の .c-date-block と揃える)。
     .c-date-inline {
         display: inline;
         font-weight: 700;
