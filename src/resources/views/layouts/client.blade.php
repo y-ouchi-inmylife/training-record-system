@@ -19,10 +19,12 @@
     {{-- クライアント側ナビ: navbar-dark / bg-client-nav の暫定構造から
          .c-nav に移行(段階4-6)。Bootstrap の .navbar 単体では色が付かない
          ため、SCSS 側 .c-nav で mat 面 + 罫線 + navbar CSS 変数(ink 基調)を
-         定義する --}}
+         定義する。
+         ワードマークはダッシュボードへのリンク(設計書 §4-0)。
+         .c-nav の --bs-navbar-brand-hover-color は <a> でのみ機能する。 --}}
     <nav class="navbar navbar-expand-lg c-nav">
         <div class="container">
-            <span class="navbar-brand">{{ config('app.client_portal_name', 'トレーニング記録') }}</span>
+            <a class="navbar-brand" href="{{ route('client-portal.dashboard') }}">{{ config('app.client_portal_name', 'トレーニング記録') }}</a>
             <div class="d-flex align-items-center">
                 <span class="navbar-text me-3">{{ auth('client')->user()->full_name }} さん</span>
                 <form method="POST" action="{{ route('client-portal.logout') }}" class="m-0">
