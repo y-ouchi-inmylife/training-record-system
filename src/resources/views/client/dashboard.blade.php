@@ -92,11 +92,13 @@
             </article>
         </section>
 
-        {{-- feed: これまでの記録（残り） --}}
+        {{-- feed: これまでのトレーニング（残り）。
+             見出しは eyebrow「最新のトレーニング」と並行（出来事）、
+             件数は「記録」（成果物）。設計書 §6。 --}}
         @if($sessions->count() > 1)
             <section class="c-section" aria-labelledby="c-past-heading">
-                <p class="eyebrow" id="c-past-heading">これまでの記録</p>
-                <p class="meta c-section-sub">これまで <span class="num-tabular">{{ $sessions->count() }}</span> 回のトレーニング</p>
+                <p class="eyebrow" id="c-past-heading">これまでのトレーニング</p>
+                <p class="meta c-section-sub"><span class="num-tabular">{{ $sessions->count() }}</span> 回の記録</p>
 
                 @foreach($sessions->skip(1) as $session)
                     @php $rec = $session['record']; $media = $session['media']; @endphp
