@@ -29,7 +29,7 @@ $terracotta: #C2410C; // 主要 CTA・リンク・成功トースト・H1/H2/Dis
 $persimmon:  #F97316; // 日付ブロック帯・タグ（面 + bister 文字ペア専用）
 $madder:     #7F1D1D; // エラー・破棄アクション（mat 面上のみ）
 $driftwood:  #6B6155; // 補助アクション面（$secondary）
-$bister:     #2B1608; // persimmon 面上の文字専用（日付ブロック帯）
+$bister:     #422714; // persimmon 面上の文字専用（日付ブロック帯）
 
 // -----------------------------------------------------------------------------
 // Bootstrap 変数の上書き（Bootstrap import の前）
@@ -351,7 +351,7 @@ input[type="tel"] {
 
 // 日付ブロック（シグネチャー・§5）
 // persimmon 帯の縦組み日本語。数字は 700 で 2rem、hero では 2.75rem。
-// 文字は bister（bister on persimmon = 6.14:1 ✓AA。ink は可読性上は 6.20 で成立するが
+// 文字は bister（bister on persimmon = 4.89:1 ✓AA。ink は可読性上は 6.20 で成立するが
 // 青寄りの黒が橙帯と色相を共有せず浮くため使わない。mat は 2.80:1 で AA 未達のため使えない）。
 .c-date-block {
     flex: 0 0 auto;
@@ -578,7 +578,7 @@ input[type="tel"] {
     }
 
     // モバイル横帯用の 1 行版を表示(設計書 §5-6: 日本語表記維持)
-    // 文字は bister(persimmon 面上で 6.14:1 ✓AA。デスクトップ縦帯の .c-date-block と揃える)。
+    // 文字は bister(persimmon 面上で 4.89:1 ✓AA。デスクトップ縦帯の .c-date-block と揃える)。
     .c-date-inline {
         display: inline;
         font-weight: 700;
