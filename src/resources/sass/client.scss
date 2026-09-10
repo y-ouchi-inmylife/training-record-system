@@ -332,7 +332,7 @@ input[type="tel"] {
     border: 1px solid rgba(15, 26, 46, 0.08);
     box-shadow: $card-shadow;
     border-radius: $radius-card;
-    padding: 1.5rem 1.25rem;
+    padding: 1.75rem 1.5rem;
     line-height: 1.75;
 }
 
@@ -372,7 +372,7 @@ input[type="tel"] {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 1rem 0.25rem;
+    padding: 1.25rem 0.5rem;
     text-align: center;
     line-height: 1;
     gap: 0.35rem;
@@ -402,7 +402,7 @@ input[type="tel"] {
 // hero variant: 日付ブロックをやや大きくして「最新の 1 件」の存在感を作る
 .c-session--hero .c-date-block {
     width: 5.5rem;
-    padding: 1.5rem 0.5rem;
+    padding: 1.75rem 0.625rem;
     gap: 0.5rem;
 }
 .c-session--hero .c-date-day {
@@ -412,13 +412,13 @@ input[type="tel"] {
 // セッションカード本体（日付ブロックの右）
 .c-session-body {
     flex: 1 1 auto;
-    padding: 1rem 1.25rem;
+    padding: 1.25rem 1.5rem;
     display: flex;
     flex-direction: column;
     min-width: 0; // flex 子要素で img/text-overflow が効くように
 }
 .c-session--hero .c-session-body {
-    padding: 1.25rem 1.5rem;
+    padding: 1.5rem 1.75rem;
 }
 
 // 中身が少ないカードでも上下中央に配置するためのラッパ。
@@ -570,7 +570,7 @@ input[type="tel"] {
     .c-date-block,
     .c-session--hero .c-date-block {
         width: auto;
-        padding: 0.5rem 1rem;
+        padding: 0.625rem 1.25rem;
         flex-direction: row;
         justify-content: flex-start;
         align-items: center;
@@ -600,12 +600,12 @@ input[type="tel"] {
         font-size: 1.25rem;
     }
 
-    // 本体 padding は狭め(既存維持)
+    // 本体 padding は狭め(モバイルでもデスクトップより一段小さい)
     .c-session-body {
-        padding: 0.75rem 1rem;
+        padding: 1rem 1.25rem;
     }
     .c-session--hero .c-session-body {
-        padding: 1rem 1.25rem;
+        padding: 1.25rem 1.5rem;
     }
 
     // hero の写真グリッドは 2 列(既存維持)
