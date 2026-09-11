@@ -35,10 +35,11 @@
 
             <article class="c-session c-session--hero">
                 <div class="c-date-block" aria-hidden="true">
-                    {{-- ≥576px 用: 縦組み3行(月・日・曜日)。モバイルでは display:none --}}
+                    {{-- ≥576px 用: 縦組み3行(月・日・曜日)。モバイルでは display:none
+                         曜日は括弧付き(設計書 §5-6)。素の「日」は日付の単位と区別できないため。 --}}
                     <span class="c-date-month">{{ $rec->training_date->month }}月</span>
                     <span class="c-date-day num-tabular">{{ $rec->training_date->day }}</span>
-                    <span class="c-date-weekday">{{ $weekdaysJp[$rec->training_date->dayOfWeek] }}</span>
+                    <span class="c-date-weekday">（{{ $weekdaysJp[$rec->training_date->dayOfWeek] }}）</span>
                     {{-- <576px 用: 横1行版(設計書 §5-1 モバイル形態)。≥576px では display:none --}}
                     <span class="c-date-inline">{{ $rec->training_date->month }}月 {{ $rec->training_date->day }}日（{{ $weekdaysJp[$rec->training_date->dayOfWeek] }}）</span>
                 </div>
@@ -105,10 +106,11 @@
                     @php $rec = $session['record']; $media = $session['media']; @endphp
                     <article class="c-session">
                         <div class="c-date-block" aria-hidden="true">
-                            {{-- ≥576px 用: 縦組み3行(月・日・曜日)。モバイルでは display:none --}}
+                            {{-- ≥576px 用: 縦組み3行(月・日・曜日)。モバイルでは display:none
+                                 曜日は括弧付き(設計書 §5-6)。素の「日」は日付の単位と区別できないため。 --}}
                             <span class="c-date-month">{{ $rec->training_date->month }}月</span>
                             <span class="c-date-day num-tabular">{{ $rec->training_date->day }}</span>
-                            <span class="c-date-weekday">{{ $weekdaysJp[$rec->training_date->dayOfWeek] }}</span>
+                            <span class="c-date-weekday">（{{ $weekdaysJp[$rec->training_date->dayOfWeek] }}）</span>
                             {{-- <576px 用: 横1行版(設計書 §5-1 モバイル形態)。≥576px では display:none --}}
                             <span class="c-date-inline">{{ $rec->training_date->month }}月 {{ $rec->training_date->day }}日（{{ $weekdaysJp[$rec->training_date->dayOfWeek] }}）</span>
                         </div>
