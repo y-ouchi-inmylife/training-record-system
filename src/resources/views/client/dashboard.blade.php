@@ -17,13 +17,16 @@
     <div class="c-dog-placeholder" hidden></div>
 
     @if($sessions->isEmpty())
-        {{-- 空状態（記録0件）— 設計書 §4-2 --}}
+        {{-- 空状態（記録0件）— 設計書 §4-2。記録の種別にトレーニング以外
+             （事前相談等）があるためラベル・本文とも「記録」（設計書 §6）。
+             eyebrow「ここに届きます」と本文の主節を同じ動詞「届く」で揃え、
+             結末は「並ぶ」に振って「届く」の連続を避ける。 --}}
         <section class="c-section c-empty-state" aria-label="空状態">
             <p class="eyebrow">ここに届きます</p>
             <div class="c-empty-card">
                 <p class="mb-0">
-                    最初のトレーニングが記録されると、この場所に
-                    日付・写真・トレーナーからのノートが順番に届きます。
+                    最初の記録が届くと、この場所に
+                    日付・写真・トレーナーからのノートが順番に並びます。
                 </p>
             </div>
         </section>
