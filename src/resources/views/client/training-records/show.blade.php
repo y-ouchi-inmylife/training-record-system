@@ -19,7 +19,7 @@
         . '（' . $weekdaysJp[$rec->training_date->dayOfWeek] . '）';
 @endphp
 
-@section('title', $dateLabel . 'のトレーニング')
+@section('title', $dateLabel . 'の記録')
 
 @section('content')
 <div class="container py-4 c-detail">
@@ -30,9 +30,11 @@
         <span aria-hidden="true">←</span> HOME
     </a>
 
-    {{-- 詳細タイトル: 「トレーニング記録詳細」ではなく日付主体(§6・§4-4) --}}
+    {{-- 詳細タイトル: 「トレーニング記録詳細」ではなく日付主体(§6・§4-4)。
+         記録の種別にトレーニング以外(事前相談等)があるため
+         ラベルは「記録」(設計書 §6)。 --}}
     <h1 class="c-detail-title">
-        <span class="num-tabular">{{ $rec->training_date->month }}</span>月<span class="num-tabular">{{ $rec->training_date->day }}</span>日（{{ $weekdaysJp[$rec->training_date->dayOfWeek] }}）のトレーニング
+        <span class="num-tabular">{{ $rec->training_date->month }}</span>月<span class="num-tabular">{{ $rec->training_date->day }}</span>日（{{ $weekdaysJp[$rec->training_date->dayOfWeek] }}）の記録
     </h1>
 
     {{-- メタ情報(トレーナー / 時刻)。値がある行だけ出す。無い行は「—」を

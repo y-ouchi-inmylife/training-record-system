@@ -28,10 +28,11 @@
             </div>
         </section>
     @else
-        {{-- hero: 最新のトレーニング（先頭1件） --}}
+        {{-- hero: 最新の記録（先頭1件）。記録の種別にトレーニング以外
+             (事前相談等)があるためラベルは「記録」(設計書 §6)。 --}}
         @php $rec = $hero['record']; $media = $hero['media']; @endphp
         <section class="c-section" aria-labelledby="c-latest-heading">
-            <p class="eyebrow" id="c-latest-heading">最新のトレーニング</p>
+            <p class="eyebrow" id="c-latest-heading">最新の記録</p>
 
             <article class="c-session c-session--hero">
                 <div class="c-date-block" aria-hidden="true">
@@ -46,7 +47,7 @@
                 <div class="c-session-body">
                     <div class="c-session-content">
                     {{-- 日付をスクリーンリーダー向けに追加(視覚では日付ブロックが表示) --}}
-                    <p class="visually-hidden">{{ $rec->training_date->format('Y年n月j日') }}（{{ $weekdaysJp[$rec->training_date->dayOfWeek] }}）のトレーニング</p>
+                    <p class="visually-hidden">{{ $rec->training_date->format('Y年n月j日') }}（{{ $weekdaysJp[$rec->training_date->dayOfWeek] }}）の記録</p>
 
                     @if(count($media) > 0)
                         @php
@@ -94,13 +95,14 @@
             </article>
         </section>
 
-        {{-- feed: これまでのトレーニング（残り）。
-             見出しは eyebrow「最新のトレーニング」と並行（出来事）、
-             件数は「記録」（成果物）。設計書 §6。 --}}
+        {{-- feed: これまでの記録（残り）。記録の種別にトレーニング以外
+             (事前相談等)があるため、hero と揃えてラベルを「記録」に統一
+             (設計書 §6)。件数のサブテキストは「記録」の反復と「これまで」の
+             二重をどちらも避けるため「全 N 回」とする。 --}}
         @if($sessions->count() > 1)
             <section class="c-section" aria-labelledby="c-past-heading">
-                <p class="eyebrow" id="c-past-heading">これまでのトレーニング</p>
-                <p class="meta c-section-sub"><span class="num-tabular">{{ $sessions->count() }}</span> 回の記録</p>
+                <p class="eyebrow" id="c-past-heading">これまでの記録</p>
+                <p class="meta c-section-sub">全 <span class="num-tabular">{{ $sessions->count() }}</span> 回</p>
 
                 @foreach($sessions->skip(1) as $session)
                     @php $rec = $session['record']; $media = $session['media']; @endphp
@@ -116,7 +118,7 @@
                         </div>
                         <div class="c-session-body">
                             <div class="c-session-content">
-                            <p class="visually-hidden">{{ $rec->training_date->format('Y年n月j日') }}（{{ $weekdaysJp[$rec->training_date->dayOfWeek] }}）のトレーニング</p>
+                            <p class="visually-hidden">{{ $rec->training_date->format('Y年n月j日') }}（{{ $weekdaysJp[$rec->training_date->dayOfWeek] }}）の記録</p>
 
                             @if(count($media) > 0)
                                 @php
