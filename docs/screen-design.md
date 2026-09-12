@@ -893,31 +893,75 @@ Bootstrap 既定（`font-weight: 700`）を使い、個別に変更しない。
 
 ##### 状態一覧
 
-状態は、メールアドレス・パスワード・メールアドレス登録用トークンの有無から導出する。カラムを持たないため、次の**判定順序**を上から順に評価し、最初に一致した状態を採用する（同時に複数当てはまるケースがあるため順序が必要）。
+状態は、メールアドレス・パスワード・**メールアドレス登録用トークン**（`client_email_registration_tokens`）の有無から導出する。カラムを持たないため、次の**判定順序**を上から順に評価し、最初に一致した状態を採用する（同時に複数当てはまるケースがあるため順序が必要）。
 
 **判定順序**
 
 1. `clients.password` が非 NULL → **利用中**
-2. `clients.email` が非 NULL（`password` は NULL） → **初回設定待ち**（有効なメールアドレス登録用 URL が同時に有効でも、こちらを優先）
-3. 有効なメールアドレス登録用 URL がある（`email` も NULL） → **メールアドレス登録待ち**
+2. `clients.email` が非 NULL（`password` は NULL） → **初回設定待ち**（有効なメールアドレス登録用 URL が同時に存在しても、こちらを優先）
+3. `clients.email` が NULL かつ、対象クライアントの `client_email_registration_tokens` に `is_used = false` の行がある → **メールアドレス登録待ち**（`expires_at` は問わない。期限切れの未使用トークンだけを持つ場合もこの状態）
 4. 上記いずれにも当てはまらない → **メールアドレスなし**
 
-**「有効な」の判定**：`client_email_registration_tokens` のうち `is_used=false` かつ `expires_at > now()` のレコードを 1 件以上持つ状態を指す。`is_used=false` だが `expires_at <= now()` の期限切れトークンしかない場合は「有効ではない」と扱い、下位判定に進むと同時に、次表の「（期限切れ）」の添え書きを付ける。
+**期限切れの添え書き**は、状態が「初回設定待ち」または「メールアドレス登録待ち」のとき、**対応するメールアドレス登録用トークン（`client_email_registration_tokens`）の最新 1 件の `expires_at` が `now()` を過ぎているか**で判定する。ログイン用リンク（`client_password_setup_tokens`）の `expires_at` は参照しない（発行し直し直後はログイン用リンクが未生成のため、判定基準にできない。設計方針上、ログイン用リンクは登録用トークンの期限を引き継ぐだけの存在）。
+
+- 対象クライアントに対応するメールアドレス登録用トークンが 1 件も存在しない場合（直接データを操作した等の想定外ケース）は、**期限切れとして扱う**
+
+**判定のクエリ例**（Eloquent）：
+
+有効・期限切れの区別を明示するために、`client_email_registration_tokens` を **「有効（未使用かつ期限内）」** と **「未使用トークンの最新期限」** の 2 軸で先読みする。行ごとに個別クエリを発行しない（N+1 を避ける）。
+
+```php
+// 一覧・詳細で共通に使う想定。1 クエリで状態導出に必要な 2 値を持たせる
+$clients = Client::query()
+    ->addSelect([
+        // 「有効な（未使用・期限内の）メールアドレス登録用トークンの有無」= 1 or 0
+        'has_active_email_reg_token' => ClientEmailRegistrationToken::selectRaw('1')
+            ->whereColumn('client_id', 'clients.id')
+            ->where('is_used', false)
+            ->where('expires_at', '>', now())
+            ->limit(1),
+        // 「最新の未使用トークンの期限」= 期限切れかどうかの判定に使う
+        'latest_email_reg_expires_at' => ClientEmailRegistrationToken::select('expires_at')
+            ->whereColumn('client_id', 'clients.id')
+            ->where('is_used', false)
+            ->orderByDesc('id')
+            ->limit(1),
+    ])
+    ->get();
+
+// ステータス導出（アクセサ or Enum ヘルパで表現）
+foreach ($clients as $c) {
+    if ($c->password !== null) {
+        $status = 'in_use';                    // 利用中
+    } elseif ($c->email !== null) {
+        $status = 'awaiting_setup';            // 初回設定待ち
+    } elseif ($c->latest_email_reg_expires_at !== null) {
+        $status = 'awaiting_email';            // メールアドレス登録待ち
+    } else {
+        $status = 'no_email';                  // メールアドレスなし
+    }
+
+    // 期限切れの添え書き（有効なトークンが 1 件もない場合に付ける）
+    $isExpired = in_array($status, ['awaiting_setup', 'awaiting_email'], true)
+        && ! $c->has_active_email_reg_token;
+}
+```
 
 **状態一覧**
 
 | 状態 | 判定 | バッジ文言 | 配色 | 操作ボタンの出方 |
 |------|------|------|------|------|
 | 利用中 | `password` が非 NULL | 利用中 | `bg-success` | 「メールアドレス登録用 URL を発行」＋「メールアドレスを削除」（両方表示） |
-| 初回設定待ち（期限内） | `email` あり、`password` NULL、対応するログイン用リンクの `expires_at` が有効期限内 | 初回設定待ち | `bg-warning text-dark` | 「メールアドレス登録用 URL を発行」のみ（「発行し直す」ボタンとして機能） |
-| 初回設定待ち（期限切れ） | `email` あり、`password` NULL、対応するログイン用リンクの `expires_at` が期限切れ | 初回設定待ち（期限切れ） | `bg-danger` | 「メールアドレス登録用 URL を発行」のみ（「発行し直す」ボタンとして機能） |
-| メールアドレス登録待ち（期限内） | `email` NULL、有効なメールアドレス登録用 URL あり | メールアドレス登録待ち | `bg-warning text-dark` | 「メールアドレス登録用 URL を発行」のみ（「発行し直す」ボタンとして機能） |
-| メールアドレス登録待ち（期限切れ） | `email` NULL、期限切れのメールアドレス登録用 URL のみあり | メールアドレス登録待ち（期限切れ） | `bg-danger` | 「メールアドレス登録用 URL を発行」のみ（「発行する」ボタンとして機能） |
-| メールアドレスなし | `email` NULL、有効・期限切れいずれのメールアドレス登録用 URL もなし | メールアドレスなし | `bg-secondary` | 「メールアドレス登録用 URL を発行」のみ（「発行する」ボタンとして機能） |
+| 初回設定待ち（期限内） | `email` あり、`password` NULL、対応するメールアドレス登録用トークンの `expires_at` が `now()` 以降 | 初回設定待ち | `bg-warning text-dark` | 「メールアドレス登録用 URL を発行」のみ（「発行し直す」ボタンとして機能） |
+| 初回設定待ち（期限切れ） | `email` あり、`password` NULL、対応するメールアドレス登録用トークンの `expires_at` が `now()` を過ぎている（またはトークンが存在しない） | 初回設定待ち（期限切れ） | `bg-danger` | 「メールアドレス登録用 URL を発行」のみ（「発行し直す」ボタンとして機能） |
+| メールアドレス登録待ち（期限内） | `email` NULL、`is_used=false` かつ `expires_at > now()` のメールアドレス登録用トークンあり | メールアドレス登録待ち | `bg-warning text-dark` | 「メールアドレス登録用 URL を発行」のみ（「発行し直す」ボタンとして機能） |
+| メールアドレス登録待ち（期限切れ） | `email` NULL、`is_used=false` のメールアドレス登録用トークンはあるが有効期限内のものはない | メールアドレス登録待ち（期限切れ） | `bg-danger` | 「メールアドレス登録用 URL を発行」のみ（「発行し直す」ボタンとして機能） |
+| メールアドレスなし | `email` NULL、`is_used=false` のメールアドレス登録用トークンが 1 件もない | メールアドレスなし | `bg-secondary` | 「メールアドレス登録用 URL を発行」のみ（「発行する」ボタンとして機能） |
 
 **備考**：
 - 「メールアドレスを削除」ボタンは**利用中のときだけ**表示する。他の状態では clients.email や clients.password の一部が既に NULL のため、削除操作の効果が不明確になり、意図せぬデータ破損を招くおそれがある
 - 「メールアドレス登録用 URL を発行」ボタンは全状態で表示する。押下時のモーダル内の文言は S-0305-M01 の状態欄で切り替える
+- **期限判定の唯一の参照元は `client_email_registration_tokens.expires_at`**。ログイン用リンク（`client_password_setup_tokens`）の `expires_at` は本判定では使わない（発行し直し直後はログイン用リンクが未生成であり、判定の基準にできないため）。ログイン用リンク側の `expires_at` は登録用トークンの `expires_at` を引き継ぐだけの派生値であり、単一の真の値は登録用トークン側にある
 
 ---
 
@@ -1075,7 +1119,10 @@ Bootstrap 既定（`font-weight: 700`）を使い、個別に変更しない。
 
 ##### 備考
 
-- ページを印刷用に最適化するため、`@media print` で不要な要素を非表示にする。ページ幅・余白は A4 想定
+- **印刷専用のレイアウトを新規に用意する**（例：`layouts.print` として `layouts.app` とは別に置く。ナビゲーションバーもフッターも最初から出力しない）。既存レイアウトを CSS の `@media print` で隠す方式は取らない。理由は 2 点：
+  - 隠す方式より確実（ロゴやサブナビの取りこぼしを避けられる）
+  - 通常表示と印刷で見た目が変わらないため、トレーナーが画面で確認したものがそのまま紙に出る
+- ページの余白・改ページ・用紙サイズ（A4 想定）など、**印刷でしか効かない指定**は必要に応じて `@media print` の `@page` ルール等で調整してよい。ただし要素の表示・非表示を切り替える目的で `@media print` を使うことはしない（表示・非表示はレイアウト側で完結させる）
 - URL 文字列は QR が読み取れないときの手入力を想定し、ハイフンや `/` の直前で自然に折り返せるよう、等幅フォント＋ `word-break: break-all` を適用する
 - **有効期限は日付のみ**を大きく表示する。時刻（`H:i`）はここには載せない（紙で読むとき「23:59 まで有効？ 24:00 まで？」の混乱を避けるため、日付だけの粒度に統一する）
 

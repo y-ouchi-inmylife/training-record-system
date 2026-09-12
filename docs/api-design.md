@@ -328,8 +328,12 @@ Laravelのセッション認証（Cookie + CSRF）で保護する。
 | direction | string | ソート方向（asc, desc）。asc以外はdesc |
 | page | integer | ページ番号 |
 
+**処理**:
+- 検索条件・並び替え・ページネーションに沿ってクライアントを取得する
+- 各行に表示する**状態**（メールアドレスなし／メールアドレス登録待ち／初回設定待ち／利用中）に必要な値を、**行ごとに個別のクエリを発行しない形で**まとめて取得する（N+1 を避ける）。具体的な取得方法（サブクエリ、JOIN、リレーションの事前読み込み等）は実装時に決めるが、方針として「1 ページの描画で `client_email_registration_tokens` へのクエリが行数分発行されない」ことを満たすこと
+
 **レスポンス**:
-- view `clients.index`（各行に**クライアントの状態**〔メールアドレスなし／メールアドレス登録待ち／初回設定待ち／利用中〕を表示。状態は clients.email・clients.password と、対応する `client_email_registration_tokens` の有無〔`is_used=false` かつ `expires_at > now()`〕から導出する。判定順序は screen-design.md の S-0305 状態一覧を参照。**状態列は並び替え・絞り込みの対象にしない**）
+- view `clients.index`（各行に**クライアントの状態**〔メールアドレスなし／メールアドレス登録待ち／初回設定待ち／利用中〕を表示。状態は clients.email・clients.password と、対応する `client_email_registration_tokens` の有無から導出する。**期限判定の参照元は `client_email_registration_tokens.expires_at`**（ログイン用リンクの `expires_at` は参照しない）。判定順序と具体的なクエリ例は screen-design.md の S-0305 状態一覧を参照。**状態列は並び替え・絞り込みの対象にしない**）
 
 ---
 
@@ -340,7 +344,7 @@ Laravelのセッション認証（Cookie + CSRF）で保護する。
 **概要**: クライアント詳細画面を表示する。
 
 **レスポンス**:
-- view `clients.show`（クライアント情報、トレーニング記録一覧。トレーニング記録は新しい順。**クライアントの状態**〔メールアドレスなし／メールアドレス登録待ち／初回設定待ち／利用中〕はヘッダーに強調バッジで表示する。導出は clients.email・clients.password・対応する `client_email_registration_tokens` の有無〔`is_used=false` かつ `expires_at > now()`〕から。判定順序は screen-design.md の S-0305 状態一覧を参照。**メールアドレス登録用 URL 発行モーダル**では有効な URL があるとき QR コード（ビルドに含める JS ライブラリで生成）と印刷用ページ〔S-0307〕へのリンクを提示する。**メールアドレスを削除**ボタンは状態が「利用中」のときだけ表示する）
+- view `clients.show`（クライアント情報、トレーニング記録一覧。トレーニング記録は新しい順。**クライアントの状態**〔メールアドレスなし／メールアドレス登録待ち／初回設定待ち／利用中〕はヘッダーに強調バッジで表示する。導出は clients.email・clients.password・対応する `client_email_registration_tokens` の有無から。**期限判定の参照元は `client_email_registration_tokens.expires_at`**（ログイン用リンクの `expires_at` は参照しない）。判定順序と具体的なクエリ例は screen-design.md の S-0305 状態一覧を参照。**メールアドレス登録用 URL 発行モーダル**では有効な URL があるとき QR コード〔ビルドに含める JS ライブラリで生成〕と印刷用ページ〔S-0307〕へのリンクを提示する。**メールアドレスを削除**ボタンは状態が「利用中」のときだけ表示する）
 
 
 ###### POST /clients/{client}/email-registration-tokens
@@ -375,8 +379,8 @@ Laravelのセッション認証（Cookie + CSRF）で保護する。
 - 見つからない場合はエラーメッセージ用の view を返す（QR・URL・有効期限は出さない）
 
 **レスポンス**:
-- 有効なトークンあり：view `clients.email-registration-token-print`（印刷用の最小レイアウト。ナビゲーションバー・フッターは出さない）
-- 有効なトークンなし：view `clients.email-registration-token-print`（「発行済みの有効なメールアドレス登録用 URL がありません。クライアント詳細画面から発行してください」の案内と S-0305 へのリンクのみ）
+- 有効なトークンあり：view `clients.email-registration-token-print`。**印刷専用の新規レイアウト**（例：`layouts.print`）で描画する。`layouts.app` のナビゲーションバー・フッターは継承せず、レイアウト側で最初から出力しない
+- 有効なトークンなし：同じ view を返し、「発行済みの有効なメールアドレス登録用 URL がありません。クライアント詳細画面から発行してください」の案内と S-0305 へのリンクを出す。QR・URL・有効期限は出力しない
 
 **備考**:
 - **お客様の氏名は view に渡さない**（紙の紛失時に氏名と URL が同時に漏れることを避けるため。決定事項 #3）
