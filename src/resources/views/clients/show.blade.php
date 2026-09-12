@@ -265,8 +265,8 @@
                 <x-detail-cell label="郵便番号" :value="$client->postal_code" />
                 <x-detail-cell label="住所" :value="$fullAddress" />
                 <div class="col-6 col-md-4"></div>
-                <x-detail-cell label="電話番号1" :value="$client->phone1" />
-                <x-detail-cell label="電話番号2" :value="$client->phone2" />
+                <x-detail-cell label="電話番号" :value="$client->phone1" />
+                <x-detail-cell label="予備の電話番号" :value="$client->phone2" />
                 <x-detail-cell label="メールアドレス" :value="$client->email" />
             </div>
         </div>
