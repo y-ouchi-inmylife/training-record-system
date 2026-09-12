@@ -109,11 +109,15 @@
                 </script>
             @endif
         </div>
-        {{-- 2段目: 氏名行 --}}
+        {{-- 2段目: 氏名行 + 状態バッジ --}}
+        @php
+            $badge = $client->statusBadge();
+        @endphp
         <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
             <h2 class="mb-0">
                 {{ $client->full_name }}@if($client->full_name_kana)<span class="text-muted fs-6">（{{ $client->full_name_kana }}）</span>@endif
             </h2>
+            <span class="badge fs-6 {{ $badge['class'] }}">{{ $badge['label'] }}</span>
             <div class="d-flex align-items-baseline gap-2 ms-3">
                 <span class="text-muted small">内部ID</span>
                 <span class="font-monospace fs-5">{{ $client->internal_id }}</span>

@@ -119,22 +119,28 @@
                             @endif
                         </a>
                     </th>
+                    {{-- 状態列：カラムを持たない導出値のためソート不可（設計書 §S-0304）--}}
+                    <th>状態</th>
                     <th>主担当</th>
                     <th>最終記録日</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($clients as $client)
+                    @php
+                        $badge = $client->statusBadge();
+                    @endphp
                     <tr style="cursor: pointer;" onclick="location.href='{{ route('clients.show', $client) }}'">
                         <td>{{ $client->internal_id }}</td>
                         <td>{{ $client->display_name }}</td>
                         <td class="text-muted">{{ $client->display_name_kana }}</td>
+                        <td><span class="badge {{ $badge['class'] }}">{{ $badge['label'] }}</span></td>
                         <td>{{ $client->primaryTrainer?->name }}</td>
                         <td>{{ $client->last_training_date ? \Carbon\Carbon::parse($client->last_training_date)->format('Y/m/d') : '' }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="text-center text-muted py-4">該当するクライアントがありません。</td>
+                        <td colspan="6" class="text-center text-muted py-4">該当するクライアントがありません。</td>
                     </tr>
                 @endforelse
             </tbody>

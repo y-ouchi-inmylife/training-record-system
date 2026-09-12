@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -16,6 +17,20 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  */
 class Client extends Authenticatable
 {
+    /*
+    |--------------------------------------------------------------------------
+    | クライアント状態（段階 4-2）
+    |--------------------------------------------------------------------------
+    | 4 状態はカラムを持たず、email・password・メールアドレス登録用トークンの
+    | 有無から導出する。判定順序と期限判定元は screen-design.md の
+    | S-0305 状態一覧を唯一の正とする。
+    */
+
+    public const STATUS_IN_USE = 'in_use';                    // 利用中
+    public const STATUS_AWAITING_SETUP = 'awaiting_setup';    // 初回設定待ち
+    public const STATUS_AWAITING_EMAIL = 'awaiting_email';    // メールアドレス登録待ち
+    public const STATUS_NO_EMAIL = 'no_email';                // メールアドレスなし
+
     use HasFactory;
 
     protected $fillable = [
@@ -154,5 +169,113 @@ class Client extends Authenticatable
     public function updatedBy(): BelongsTo
     {
         return $this->belongsTo(Trainer::class, 'updated_by');
+    }
+
+    /**
+     * 状態判定のための派生値を、サブクエリでまとめて先読みするスコープ。
+     *
+     * - has_active_email_reg_token：未使用・期限内の登録用トークンが 1 件でもあれば 1、なければ NULL
+     * - latest_email_reg_expires_at：最新の未使用トークンの expires_at（なければ NULL）
+     *
+     * これで一覧描画時に行ごとの追加クエリが発生しない（N+1 を避ける）。
+     * 単体取得（詳細画面など）は本スコープの代わりに loadStatusData() でも同じ 2 値を埋められる。
+     */
+    public function scopeWithStatusData(Builder $query): Builder
+    {
+        return $query->addSelect([
+            'has_active_email_reg_token' => ClientEmailRegistrationToken::selectRaw('1')
+                ->whereColumn('client_id', 'clients.id')
+                ->where('is_used', false)
+                ->where('expires_at', '>', now())
+                ->limit(1),
+            'latest_email_reg_expires_at' => ClientEmailRegistrationToken::select('expires_at')
+                ->whereColumn('client_id', 'clients.id')
+                ->where('is_used', false)
+                ->orderByDesc('id')
+                ->limit(1),
+        ]);
+    }
+
+    /**
+     * 単体取得のインスタンスに、状態判定に必要な 2 値を埋め込む。
+     * 一覧は withStatusData スコープを使うため、こちらは詳細画面等のワンショット用。
+     * 再発行時に未使用トークンが物理削除される設計上、同時に存在する未使用トークンは
+     * 常に高々 1 件のため、1 回のクエリで判定に必要な情報を取り切れる。
+     */
+    public function loadStatusData(): self
+    {
+        $token = $this->emailRegistrationTokens()
+            ->where('is_used', false)
+            ->orderByDesc('id')
+            ->first();
+
+        $this->setAttribute('latest_email_reg_expires_at', $token?->expires_at);
+        $this->setAttribute(
+            'has_active_email_reg_token',
+            ($token && $token->expires_at > now()) ? 1 : null
+        );
+
+        return $this;
+    }
+
+    /**
+     * 4 状態のうち、どれに該当するかを返す。
+     * 判定順序は screen-design.md §S-0305 状態一覧の定義に一致させる。
+     */
+    public function getStatusAttribute(): string
+    {
+        if ($this->password !== null) {
+            return self::STATUS_IN_USE;
+        }
+        if ($this->email !== null) {
+            return self::STATUS_AWAITING_SETUP;
+        }
+        // メールアドレス登録待ち: `is_used=false` の登録用トークンが 1 件以上ある
+        // （期限内かどうかは問わない。期限切れの添え書きは isEmailRegTokenExpired 側で判定）
+        if ($this->getAttribute('latest_email_reg_expires_at') !== null) {
+            return self::STATUS_AWAITING_EMAIL;
+        }
+        return self::STATUS_NO_EMAIL;
+    }
+
+    /**
+     * 「期限切れ」の添え書きを付けるべきか。
+     * 対応する登録用トークンが 1 件も存在しないケースも、設計書に従い期限切れ扱い。
+     */
+    public function getShowExpiredNoteAttribute(): bool
+    {
+        if (! in_array($this->status, [self::STATUS_AWAITING_SETUP, self::STATUS_AWAITING_EMAIL], true)) {
+            return false;
+        }
+        // 有効な（未使用・期限内の）トークンが 1 件でもあれば期限切れではない
+        return ! (bool) ($this->getAttribute('has_active_email_reg_token') ?? false);
+    }
+
+    /**
+     * 状態バッジの表示用情報（文言と Bootstrap クラス）。
+     *
+     * 配色は screen-design.md §2-5 の「クライアント状態バッジの 4 状態対応」に従う。
+     * 一覧・詳細で同じ表示にするため、モデル側にひとつだけ置いてビューから参照する。
+     */
+    public function statusBadge(): array
+    {
+        $baseLabel = match ($this->status) {
+            self::STATUS_IN_USE => '利用中',
+            self::STATUS_AWAITING_SETUP => '初回設定待ち',
+            self::STATUS_AWAITING_EMAIL => 'メールアドレス登録待ち',
+            self::STATUS_NO_EMAIL => 'メールアドレスなし',
+        };
+
+        $isExpired = $this->show_expired_note;
+        $label = $isExpired ? "{$baseLabel}（期限切れ）" : $baseLabel;
+
+        $class = match (true) {
+            $this->status === self::STATUS_IN_USE => 'bg-success',
+            $this->status === self::STATUS_NO_EMAIL => 'bg-secondary',
+            $isExpired => 'bg-danger',
+            default => 'bg-warning text-dark',
+        };
+
+        return ['label' => $label, 'class' => $class];
     }
 }
