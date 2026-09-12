@@ -232,6 +232,11 @@ Route::domain(config('subdomain.client_host'))->group(function () {
                 ->name('training-records.show');
             Route::get('/media/{mediaRecord}/play', [\App\Http\Controllers\Client\MediaRecordController::class, 'play'])
                 ->name('media.play');
+            // 登録情報設定（S-1406、段階 4-3）
+            Route::get('/settings', [\App\Http\Controllers\Client\SettingsController::class, 'index'])
+                ->name('settings.index');
+            Route::put('/settings/profile', [\App\Http\Controllers\Client\SettingsController::class, 'updateProfile'])
+                ->name('settings.profile.update');
         });
     });
 

@@ -789,6 +789,17 @@ input[type="tel"] {
     }
 }
 
+// 登録情報設定画面（S-1406）用の幅広コンテナ。
+// 認証後レイアウト（layouts.client）で使うため .c-login のシェル
+// （padding-top など pre-auth 用の余白）は継承しない。3 フォーム
+// （基本情報・メールアドレス変更・パスワード変更）を 1 カードに載せる。
+// 設計書: client-portal-design-plan.md §4-10
+.c-settings {
+    max-width: 40rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 // ワードマーク（プロダクト名）
 // 設計書 §9-1 の想定文字数は 3〜7 文字だが、暫定値「トレーニング記録」は 8 文字。
 // 400px 幅で収まるよう Display 2.75rem より少し下げた 2.5rem を採用
