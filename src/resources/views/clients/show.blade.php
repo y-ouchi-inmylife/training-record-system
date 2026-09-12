@@ -307,4 +307,18 @@
     @endif
 
 </div>
+
+{{-- 発行直後の別タブ遷移。
+     コントローラで `open_print_url` をフラッシュに載せてリダイレクトされたときだけ、
+     このスクリプトが印刷ページを新しいタブで開く。ポップアップブロック時は
+     `window.open` が失敗するが、この詳細画面自体は既に発行後の状態で表示・更新
+     されているため、必要ならその場から「印刷ページを表示」ボタンで開き直せる。
+     設計書：requirements.md 6-3-6、screen-design.md S-0305 参照 --}}
+@if(session('open_print_url'))
+    <script>
+        (function () {
+            window.open({!! json_encode(session('open_print_url')) !!}, '_blank', 'noopener');
+        })();
+    </script>
+@endif
 @endsection

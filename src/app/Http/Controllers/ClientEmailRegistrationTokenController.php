@@ -27,14 +27,29 @@ class ClientEmailRegistrationTokenController extends Controller
     /**
      * メールアドレス登録用 URL の発行処理
      *
-     * 発行後は同じタブで印刷ページ（S-0307）を開く。発行直後にトレーナーが
-     * する作業はお客様に渡す作業のため、渡す紙面を目の前に出すことで
-     * 案内文を挟まずに次の動作へ進める（requirements.md 6-3-6 参照）。
-     * 完了メッセージは印刷ページには出さない（お客様に見せる／紙に出す
-     * ページのため、トレーナー向けの通知テキストを混ぜない）。
+     * 発行後はクライアント詳細画面（S-0305）にリダイレクトし、完了メッセージを
+     * 表示する。同時に、印刷ページ（S-0307）を別タブで開けるように印刷 URL を
+     * フラッシュで渡し、ビュー側の JS が `window.open` する。
+     *
+     * 詳細画面に戻す理由：
+     * - 発行直後の状態（例：登録待ち）を残さずリロードで見せられる
+     * - 前の実装（印刷ページへ同タブ遷移）では、印刷ページから戻ったときに
+     *   ブラウザキャッシュで発行前の詳細画面が表示され、トレーナーが「発行
+     *   できていない」と誤解する事象があった
+     * - 詳細画面ボタン「印刷ページを表示」からの導線と同じ挙動（別タブで開く）に
+     *   統一され、入口による違いがなくなる
+     *
+     * ポップアップブロック時は `window.open` が失敗するが、詳細画面自体は
+     * 正しく表示・更新されているので、必要ならその場から「印刷ページを表示」で
+     * 印刷ページを開ける。
      */
     public function store(Client $client): RedirectResponse
     {
+        // 既存の未使用トークンがあれば再発行扱い
+        $wasReissued = $client->emailRegistrationTokens()
+            ->where('is_used', false)
+            ->exists();
+
         DB::transaction(function () use ($client) {
             // 対象クライアントの未使用メールアドレス登録用トークンを物理削除
             $client->emailRegistrationTokens()
@@ -59,7 +74,14 @@ class ClientEmailRegistrationTokenController extends Controller
             ]);
         });
 
-        return redirect()->route('client-email-registration-tokens.print', $client);
+        $message = $wasReissued
+            ? 'メールアドレス登録用 URL を発行し直しました。'
+            : 'メールアドレス登録用 URL を発行しました。';
+
+        return redirect()
+            ->route('clients.show', $client)
+            ->with('success', $message)
+            ->with('open_print_url', route('client-email-registration-tokens.print', $client));
     }
 
     /**
