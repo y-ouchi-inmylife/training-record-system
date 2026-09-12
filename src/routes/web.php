@@ -76,6 +76,9 @@ Route::domain(config('subdomain.trainer_host'))->middleware('check-ip')->group(f
             // メールアドレス登録用 URL の発行（段階 4-1）
             Route::post('clients/{client}/email-registration-tokens', [ClientEmailRegistrationTokenController::class, 'store'])
                 ->name('client-email-registration-tokens.store');
+            // メールアドレス登録用 URL の印刷用ページ（S-0307、段階 4-2）
+            Route::get('clients/{client}/email-registration-tokens/print', [ClientEmailRegistrationTokenController::class, 'print'])
+                ->name('client-email-registration-tokens.print');
             Route::resource('training-records', TrainingRecordController::class);
 
             // 旧録音画面 → 録音【改良版】にリダイレクト

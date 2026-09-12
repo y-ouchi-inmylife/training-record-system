@@ -19,6 +19,12 @@
     "src": "resources/js/app.js",
     "isEntry": true
   },
+  "resources/js/qr-code.js": {
+    "file": "assets/qr-code-BgIumkyX.js",
+    "name": "qr-code",
+    "src": "resources/js/qr-code.js",
+    "isEntry": true
+  },
   "resources/sass/app.scss": {
     "file": "assets/app-Dk5zqCD6.css",
     "src": "resources/sass/app.scss",

@@ -249,7 +249,7 @@
                 </div>
                 <div class="modal-body">
                     @if($emailRegistrationUrl)
-                        {{-- 発行済み：URL・コピー・有効期限・発行し直し --}}
+                        {{-- 発行済み：URL・コピー・QR コード・印刷用ページへのリンク・有効期限・発行し直し --}}
                         <p class="mb-2">発行済みのメールアドレス登録用 URL があります。お客様にお渡しください。</p>
                         <div class="mb-3">
                             <label class="form-label small text-muted mb-1">URL</label>
@@ -264,9 +264,20 @@
                                 コピーしました
                             </div>
                         </div>
+                        <div class="mb-3 text-center">
+                            <label class="form-label small text-muted mb-1 d-block">QR コード</label>
+                            <canvas data-qr-url="{{ $emailRegistrationUrl }}" data-qr-size="200"
+                                    aria-label="メールアドレス登録用 URL の QR コード"></canvas>
+                        </div>
                         <div class="mb-3">
                             <div class="text-muted small">有効期限</div>
                             <div>{{ $activeEmailRegToken->expires_at->format('Y/m/d H:i') }} まで</div>
+                        </div>
+                        <div class="mb-3">
+                            <a href="{{ route('client-email-registration-tokens.print', $client) }}"
+                               class="btn btn-outline-secondary" target="_blank" rel="noopener">
+                                印刷用ページを開く
+                            </a>
                         </div>
                         <p class="text-muted small mb-0">
                             発行し直すと、上記の URL と、送信済みのログイン用リンクは無効になります。
@@ -294,6 +305,9 @@
     </div>
 
 </div>
+@if($emailRegistrationUrl)
+    @vite(['resources/js/qr-code.js'])
+@endif
 @push('scripts')
 <script>
 // メールアドレス登録用 URL をクリップボードにコピー

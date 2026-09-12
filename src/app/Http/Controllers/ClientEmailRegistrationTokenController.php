@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\ClientEmailRegistrationToken;
 use App\Models\ClientPasswordSetupToken;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -64,5 +65,35 @@ class ClientEmailRegistrationTokenController extends Controller
         return redirect()
             ->route('clients.show', $client)
             ->with('success', $message);
+    }
+
+    /**
+     * メールアドレス登録用 URL の印刷用ページ（S-0307）を表示する。
+     *
+     * 設計書 api-design.md `GET /clients/{client}/email-registration-tokens/print`。
+     * お客様の氏名はビューに渡さない（決定事項 #3）。
+     */
+    public function print(Client $client): View
+    {
+        $token = $client->emailRegistrationTokens()
+            ->where('is_used', false)
+            ->where('expires_at', '>', now())
+            ->orderByDesc('id')
+            ->first();
+
+        // 有効なトークンがなければ案内画面を返す（同じビューを状態で切り替え）
+        if (! $token) {
+            return view('clients.email-registration-token-print', [
+                'client' => $client,
+                'url' => null,
+                'expiresOn' => null,
+            ]);
+        }
+
+        return view('clients.email-registration-token-print', [
+            'client' => $client,
+            'url' => route('client-portal.email-registration.show', ['token' => $token->token]),
+            'expiresOn' => $token->expires_at,
+        ]);
     }
 }
