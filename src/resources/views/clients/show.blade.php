@@ -130,15 +130,22 @@
                 <span class="font-monospace fs-5">{{ $client->internal_id }}</span>
             </div>
         </div>
-        {{-- 3段目: 属性2列。状態バッジは段階 4-2 で追加予定 --}}
+        {{-- 3段目: 属性 3 列（初回日／主担当／メールアドレス）。
+             メールアドレスは連絡先カードから移設。ログイン ID を兼ねる項目のため
+             ヘッダーサマリーで一目確認できる位置に置く。未登録のときは値部を空欄にする
+             （状態バッジで「メールアドレスなし」等が示されるため）。設計書 S-0305 参照 --}}
         <div class="row g-3 mt-2 pt-2 border-top">
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="text-muted small">初回日</div>
                 <div style="min-height: 1.5rem;">{{ $client->initial_consultation_date?->format('Y/m/d') }}</div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="text-muted small">主担当</div>
                 <div style="min-height: 1.5rem;">{{ $client->primaryTrainer?->name }}</div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-muted small">メールアドレス</div>
+                <div style="min-height: 1.5rem;">{{ $client->email }}</div>
             </div>
         </div>
     </div>
@@ -233,7 +240,6 @@
                 <div class="col-6 col-md-4"></div>
                 <x-detail-cell label="電話番号" :value="$client->phone1" />
                 <x-detail-cell label="予備の電話番号" :value="$client->phone2" />
-                <x-detail-cell label="メールアドレス" :value="$client->email" />
             </div>
         </div>
     </div>
