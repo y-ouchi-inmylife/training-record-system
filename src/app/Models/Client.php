@@ -290,8 +290,8 @@ class Client extends Authenticatable
         $baseLabel = match ($this->status) {
             self::STATUS_IN_USE => '利用中',
             self::STATUS_AWAITING_SETUP => '初回設定待ち',
-            self::STATUS_AWAITING_EMAIL => 'メールアドレス登録待ち',
-            self::STATUS_NO_EMAIL => 'メールアドレスなし',
+            self::STATUS_AWAITING_EMAIL => '登録待ち',
+            self::STATUS_NO_EMAIL => 'なし',
         };
 
         $isExpired = $this->show_expired_note;
