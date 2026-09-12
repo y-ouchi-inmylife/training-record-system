@@ -8,6 +8,7 @@ use App\Http\Controllers\Client\DashboardController as ClientDashboardController
 use App\Http\Controllers\Client\LoginController as ClientLoginController;
 use App\Http\Controllers\Client\LogoutController as ClientLogoutController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ClientEmailController;
 use App\Http\Controllers\ClientEmailRegistrationTokenController;
 use App\Http\Controllers\TrainingTypeController;
 use App\Http\Controllers\TrainingRecordController;
@@ -79,6 +80,9 @@ Route::domain(config('subdomain.trainer_host'))->middleware('check-ip')->group(f
             // メールアドレス登録用 URL の印刷用ページ（S-0307、段階 4-2）
             Route::get('clients/{client}/email-registration-tokens/print', [ClientEmailRegistrationTokenController::class, 'print'])
                 ->name('client-email-registration-tokens.print');
+            // メールアドレスの削除（6-3-7、段階 4-2）
+            Route::delete('clients/{client}/email', [ClientEmailController::class, 'destroy'])
+                ->name('client-email.destroy');
             Route::resource('training-records', TrainingRecordController::class);
 
             // 旧録音画面 → 録音【改良版】にリダイレクト

@@ -215,6 +215,12 @@ class Client extends Authenticatable
             ($token && $token->expires_at > now()) ? 1 : null
         );
 
+        // これらは DB カラムではない導出値。dirty 扱いにすると
+        // 後続の update() で存在しないカラムへ書き込もうとしてエラーになるため、
+        // original にも同期して「変更なし」の状態にする（scope 経由の hydrate と同じ扱い）。
+        $this->syncOriginalAttribute('latest_email_reg_expires_at');
+        $this->syncOriginalAttribute('has_active_email_reg_token');
+
         return $this;
     }
 

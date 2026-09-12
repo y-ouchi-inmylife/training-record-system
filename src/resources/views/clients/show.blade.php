@@ -89,6 +89,13 @@
                     data-bs-toggle="modal" data-bs-target="#emailRegistrationTokenModal">
                 メールアドレス登録用 URL を発行
             </button>
+            {{-- メールアドレスを削除（段階 4-2、6-3-7）— 利用中のときだけ表示 --}}
+            @if($client->status === \App\Models\Client::STATUS_IN_USE)
+                <button type="button" class="btn btn-outline-danger"
+                        data-bs-toggle="modal" data-bs-target="#emailDeletionModal">
+                    メールアドレスを削除
+                </button>
+            @endif
             <a href="{{ route('clients.edit', $client) }}" class="btn btn-primary">編集</a>
             @if(auth()->user()->isAdmin())
                 <form method="POST" action="{{ route('clients.destroy', $client) }}" class="d-inline"
@@ -303,6 +310,37 @@
             </div>
         </div>
     </div>
+
+    {{-- メールアドレス削除確認モーダル（S-0305-M02、段階 4-2）--}}
+    @if($client->status === \App\Models\Client::STATUS_IN_USE)
+    <div class="modal fade" id="emailDeletionModal" tabindex="-1"
+         aria-labelledby="emailDeletionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="emailDeletionModalLabel">
+                        メールアドレスの削除
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0">
+                        このお客様はログインできなくなります。<br>
+                        クライアント情報とトレーニング記録は残ります。
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <form method="POST" action="{{ route('client-email.destroy', $client) }}" class="d-inline m-0">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">削除する</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 
 </div>
 @if($emailRegistrationUrl)
