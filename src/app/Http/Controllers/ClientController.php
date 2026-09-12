@@ -146,29 +146,13 @@ class ClientController extends Controller
         }]);
 
         // 状態バッジ（4 状態＋期限切れ）判定に必要な派生値を先読みする。
-        // 再発行時に未使用トークンは物理削除されるため、同時存在は高々 1 件。
+        // 状態別ボタン（「メールアドレス登録用 URL を発行」／「印刷ページを表示」／
+        // 「メールアドレスを削除」）の出し分けもこの派生値だけで判断できる。
         $client->loadStatusData();
 
         $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
 
-        // 有効な（未使用かつ有効期限内）メールアドレス登録用トークンを 1 件取得。
-        // 発行モーダルに URL・QR・印刷用リンクを出すために使う。
-        $activeEmailRegToken = $client->emailRegistrationTokens()
-            ->where('is_used', false)
-            ->where('expires_at', '>', now())
-            ->orderByDesc('id')
-            ->first();
-
-        $emailRegistrationUrl = $activeEmailRegToken
-            ? route('client-portal.email-registration.show', ['token' => $activeEmailRegToken->token])
-            : null;
-
-        return view('clients.show', compact(
-            'client',
-            'trainers',
-            'activeEmailRegToken',
-            'emailRegistrationUrl',
-        ));
+        return view('clients.show', compact('client', 'trainers'));
     }
 
     /**
