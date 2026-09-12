@@ -214,6 +214,13 @@ Route::domain(config('subdomain.client_host'))->group(function () {
     Route::get('client-portal/email-change/{token}', [\App\Http\Controllers\Client\EmailChangeController::class, 'confirm'])
         ->name('client-portal.email-change.confirm');
 
+    // パスワード再設定 申し込み（S-1407、公開URL、認証不要）。段階 4-4。
+    // {token} を含む再設定用ルートより先に定義する（申し込みルートを優先マッチさせるため）。
+    Route::get('client-portal/password-reset', [\App\Http\Controllers\Client\PasswordResetController::class, 'showRequestForm'])
+        ->name('client-portal.password-reset.request.show');
+    Route::post('client-portal/password-reset', [\App\Http\Controllers\Client\PasswordResetController::class, 'sendResetLink'])
+        ->name('client-portal.password-reset.request.send');
+
     /*
     |--------------------------------------------------------------------------
     | クライアント閲覧機能（柱2）

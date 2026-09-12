@@ -175,6 +175,17 @@ class Client extends Authenticatable
     }
 
     /**
+     * パスワード再設定トークン（DS-0900）＝パスワード再設定リンク
+     *
+     * 段階 4-4 で追加。パスワードを忘れたお客様がログイン画面から申し込む
+     * 再設定リンクのトークン。ログインさせる働きは持たない・メールアドレスも変えない。
+     */
+    public function passwordResetTokens(): HasMany
+    {
+        return $this->hasMany(ClientPasswordResetToken::class);
+    }
+
+    /**
      * 最終更新者（トレーナー）
      */
     public function updatedBy(): BelongsTo
