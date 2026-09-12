@@ -71,6 +71,14 @@ erDiagram
         bigint created_by FK
     }
 
+    client_email_registration_tokens {
+        bigint id PK
+        string token UK
+        boolean is_used
+        bigint client_id FK
+        bigint created_by FK
+    }
+
     training_records {
         bigint id PK
         bigint client_id FK
@@ -137,8 +145,10 @@ erDiagram
     trainers ||--o{ audio_records : "録音・アップロード・テキスト入力する"
 
     clients ||--o{ audio_records : "対象となる"
-    clients ||--o{ client_password_setup_tokens : "パスワード設定"
+    clients ||--o{ client_password_setup_tokens : "ログイン用リンク"
     trainers ||--o{ client_password_setup_tokens : "発行"
+    clients ||--o{ client_email_registration_tokens : "メールアドレス登録"
+    trainers ||--o{ client_email_registration_tokens : "発行"
 ```
 
 ※ER図はテーブル間の関連と主要カラム（主キー・ユニークキー・外部キー・主な業務識別/区分カラム）のみを示す。`created_at`/`updated_at`/`updated_by` 等の共通カラムおよび非識別カラムは省略しているため、全カラムは4章のテーブル定義を参照。clientsテーブルは7カテゴリー50業務項目＋共通カラムで構成され、ER図には代表カラムのみ掲載している。
@@ -210,14 +220,13 @@ erDiagram
 | primary_trainer_id | BIGINT UNSIGNED | YES | NULL | 主担当トレーナーのID（外部キー） |
 | phone1 | VARCHAR(20) | YES | NULL | 電話番号。ハイフンあり/なし両対応 |
 | phone2 | VARCHAR(20) | YES | NULL | 予備の電話番号。ハイフンあり/なし両対応 |
-| email | VARCHAR(255) | YES | NULL | メールアドレス。クライアント閲覧機能のログインIDを兼ねる。UNIQUE制約あり（未登録=NULLは複数許容） |
+| email | VARCHAR(255) | YES | NULL | メールアドレス。クライアント閲覧機能のログインIDを兼ねる。**クライアント自身がメールアドレス登録用 URL から登録する**（トレーナーは入力・書き換えできない）。UNIQUE制約あり（未登録=NULLは複数許容） |
 | postal_code | VARCHAR(10) | YES | NULL | 郵便番号。ハイフンあり/なし両対応 |
 | address1 | VARCHAR(50) | YES | NULL | 住所1（都道府県） |
 | address2 | VARCHAR(50) | YES | NULL | 住所2（市区町村） |
 | address3 | VARCHAR(100) | YES | NULL | 住所3（町名・番地） |
 | address4 | VARCHAR(100) | YES | NULL | 住所4（建物名・部屋番号） |
-| password | VARCHAR(255) | YES | NULL | クライアント閲覧機能のパスワードのハッシュ値（bcryptで暗号化）。閲覧解放後、クライアント本人が設定するまでは NULL |
-| is_viewable | BOOLEAN | NO | false | クライアント閲覧解放フラグ。true でクライアントが自分のトレーニング記録・メディアを閲覧可能になる。閲覧解放操作でトレーナーが true にする |
+| password | VARCHAR(255) | YES | NULL | クライアント閲覧機能のパスワードのハッシュ値（bcryptで暗号化）。**初回設定でクライアント本人が設定する**まで NULL |
 | created_at | TIMESTAMP | YES | NULL | 作成日時 |
 | updated_at | TIMESTAMP | YES | NULL | 更新日時 |
 | updated_by | BIGINT UNSIGNED | YES | NULL | 最終更新者のトレーナーのID（外部キー） |
@@ -642,12 +651,13 @@ erDiagram
 
 ---
 
-#### DS-0600 client_password_setup_tokens（クライアントパスワード設定トークン）
+#### DS-0600 client_password_setup_tokens（クライアントログイン用リンクトークン）
 
-**概要**: 閲覧を解放されたクライアントが招待メールから初回パスワードを設定するためのワンタイムURLのトークンを管理する
+**概要**: クライアントがメールアドレスを登録した際、当該アドレスに送信するログイン用リンクのトークンを管理する。リンクを開くとクライアントは自動ログインされ、初回設定画面（S-1403）に遷移する。
 
-**対応する要件**: 
-- クライアント閲覧解放（招待メール送信）
+**対応する要件**:
+- クライアントメールアドレス登録（6-15-4）
+- クライアント初回設定（6-15-5）
 
 ##### カラム定義
 
@@ -655,12 +665,12 @@ erDiagram
 |---------|-----|------|----------|------|
 | id | BIGINT UNSIGNED | NO | auto_increment | 主キー |
 | token | VARCHAR(64) | NO | — | `Str::random(32)` で生成された 32 文字のランダム英数字（URLに埋め込む）。カラム型 VARCHAR(64) は将来の長さ拡張に備えた余裕。重複不可 |
-| client_id | BIGINT UNSIGNED | NO | — | パスワードを設定する対象クライアントのID（外部キー）。発行時から特定のクライアントに紐づく |
-| expires_at | TIMESTAMP | NO | — | 有効期限。発行から72時間後に設定される |
-| is_used | BOOLEAN | NO | false | 使用状態。false: 未使用 / true: 使用済み。パスワード設定完了時に true に更新 |
+| client_id | BIGINT UNSIGNED | NO | — | ログイン対象のクライアントID（外部キー）。発行時から特定のクライアントに紐づく |
+| expires_at | TIMESTAMP | NO | — | 有効期限。**発行から 3 日後**に設定される（設定値は `architecture.md` §3-1 参照） |
+| is_used | BOOLEAN | NO | false | 使用状態。false: 未使用 / true: 使用済み。初回設定完了時に true に更新 |
 | created_at | TIMESTAMP | YES | NULL | 発行日時 |
 | updated_at | TIMESTAMP | YES | NULL | 更新日時 |
-| created_by | BIGINT UNSIGNED | YES | NULL | トークンを発行した（閲覧を解放した）トレーナーのID（外部キー） |
+| created_by | BIGINT UNSIGNED | YES | NULL | トークンを発行した（メールアドレス登録用 URL を発行した）トレーナーのID（外部キー） |
 
 ##### インデックス
 
@@ -679,6 +689,53 @@ erDiagram
 |--------|------|------|-----------|------|
 | client_password_setup_tokens_client_id_foreign | FOREIGN KEY | client_id → clients(id) | CASCADE | クライアント削除時はトークンも削除する（特定クライアント専用のトークンのため） |
 | client_password_setup_tokens_created_by_foreign | FOREIGN KEY | created_by → trainers(id) | SET NULL | 発行者トレーナー削除時は NULL にする |
+
+**備考**:
+- テーブル名は初期実装で「パスワード設定用」を想定していた経緯から `client_password_setup_tokens` のまま。新方式ではログイン用リンクに用途が変わっているが、テーブル名の変更は避け（マイグレーション量を抑えるため）、モデル・コントローラ層で解釈を切り替える方針。
+
+---
+
+#### DS-0700 client_email_registration_tokens（クライアントメールアドレス登録トークン）
+
+**概要**: トレーナーがクライアントに渡す、メールアドレス登録用 URL のトークンを管理する。クライアントはこの URL からメールアドレスを登録し、当該アドレスに DS-0600 のログイン用リンクが送信される。
+
+**対応する要件**:
+- メールアドレス登録用 URL の発行（6-3-6）
+- クライアントメールアドレス登録（6-15-4）
+
+##### カラム定義
+
+| カラム名 | 型 | NULL | デフォルト | 説明 |
+|---------|-----|------|----------|------|
+| id | BIGINT UNSIGNED | NO | auto_increment | 主キー |
+| token | VARCHAR(64) | NO | — | `Str::random(32)` で生成された 32 文字のランダム英数字（URLに埋め込む）。カラム型 VARCHAR(64) は将来の長さ拡張に備えた余裕。重複不可 |
+| client_id | BIGINT UNSIGNED | NO | — | メールアドレス登録の対象クライアントのID（外部キー）。発行時から特定のクライアントに紐づく |
+| expires_at | TIMESTAMP | NO | — | 有効期限。**発行から 3 日後**に設定される（設定値は `architecture.md` §3-1 参照） |
+| is_used | BOOLEAN | NO | false | 使用状態。false: 未使用 / true: 使用済み。**初回設定が完了した時点で true に更新**（メールアドレス登録単独では使用済みにしない — 何度でも入力し直せるため） |
+| created_at | TIMESTAMP | YES | NULL | 発行日時 |
+| updated_at | TIMESTAMP | YES | NULL | 更新日時 |
+| created_by | BIGINT UNSIGNED | YES | NULL | トークンを発行したトレーナーのID（外部キー） |
+
+##### インデックス
+
+| インデックス名 | カラム | 種類 | 目的 |
+|---------------|--------|------|------|
+| PRIMARY | id | PRIMARY KEY | 主キー |
+| client_email_registration_tokens_token_unique | token | UNIQUE | トークン文字列の重複を防ぐ。URLアクセス時の検索にも使用 |
+| client_email_registration_tokens_expires_at_idx | expires_at | INDEX | 有効期限による検索・期限切れ抽出 |
+| client_email_registration_tokens_is_used_idx | is_used | INDEX | 使用状態による絞り込み |
+| client_email_registration_tokens_client_id_idx | client_id | INDEX | クライアントによる検索・逆引き |
+| client_email_registration_tokens_created_by_idx | created_by | INDEX | 発行者による検索・絞り込み |
+
+##### 制約
+
+| 制約名 | 種類 | 条件 | ON DELETE | 説明 |
+|--------|------|------|-----------|------|
+| client_email_registration_tokens_client_id_foreign | FOREIGN KEY | client_id → clients(id) | CASCADE | クライアント削除時はトークンも削除する（特定クライアント専用のトークンのため） |
+| client_email_registration_tokens_created_by_foreign | FOREIGN KEY | created_by → trainers(id) | SET NULL | 発行者トレーナー削除時は NULL にする |
+
+**備考**:
+- DS-0200 は段階 1 の事前入力 URL 廃止で欠番化しているため、新しい番号として DS-0700 を採る（既存の番号は繰り上げない）
 
 ---
 
@@ -795,6 +852,7 @@ erDiagram
 | 10 | system_settings | なし |
 | 11 | ip_whitelist | なし |
 | 12 | client_password_setup_tokens | clients |
+| 13 | client_email_registration_tokens | clients |
 
 ---
 

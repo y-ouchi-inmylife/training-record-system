@@ -63,7 +63,7 @@ flowchart TD
 - **トレーナー（一般）**：クライアント情報・トレーニング記録などの登録・閲覧を利用する（内部利用者）
 - **トレーナー（管理者）**：上記に加えて、利用者管理・マスタ管理等の機能を利用する（内部利用者）
 - **システム管理者**：システム開発事業者が保守・緊急対応を行う
-- **クライアント（飼い主）**：自分に紐づくトレーニング記録・メディアの閲覧のみを行う（外部利用者。閲覧解放されたクライアントのみ）
+- **クライアント（飼い主）**：自分に紐づくトレーニング記録・メディアの閲覧のみを行う（外部利用者。初回設定が完了したクライアントのみ）
 
 **利用環境**
 
@@ -196,3 +196,18 @@ flowchart TD
 | リンター（PHP） | Laravel Pint 1.24 | コードスタイルの統一 |
 | REPL | laravel/tinker 2.10.1 | 対話型シェル（Laravel標準同梱） |
 | 並列実行 | concurrently 9.0.1 | 複数プロセスの並列起動（npm script用） |
+
+## 3. 設定値
+
+コード中にハードコードしないアプリケーション設定値。すべて `config/` 配下の PHP 設定ファイルに定数として集約し、コントローラやサービスからは `config()` ヘルパー経由で参照する。
+
+### 3-1. トークン有効期限
+
+| 設定キー | 値 | 用途 |
+|---|---|---|
+| `client_tokens.email_registration_expires_days` | 3 | メールアドレス登録用 URL のトークン（DS-0700 `client_email_registration_tokens.expires_at`）の有効日数 |
+| `client_tokens.login_link_expires_days` | 3 | ログイン用リンクのトークン（DS-0600 `client_password_setup_tokens.expires_at`）の有効日数 |
+
+- 有効期限は現在日時からの経過日数で算出する（`now()->addDays(config('client_tokens.email_registration_expires_days'))` 等）
+- **1 か所（`config/client_tokens.php`）で管理し、コントローラ・モデル・シーダーからハードコードしない**。段階 4-1 以前は 72 時間のハードコードが `ClientViewReleaseController` に埋め込まれていたが、廃止に伴って設定ファイルに移す
+- 段階 4-4（パスワード再設定）で必要になる有効期限も、同じ `config/client_tokens.php` に追加する想定

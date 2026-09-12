@@ -61,8 +61,6 @@ IP アドレス制限は、**トレーナー用サブドメイン（内部）の
 | クライアント管理 | S-0301 クライアント登録画面 | POST | `/clients` | クライアントを登録する | auth | 管理者、一般 |
 | クライアント管理 | S-0304 クライアント一覧画面 | GET | `/clients` | クライアント一覧画面を表示する | auth | 管理者、一般 |
 | クライアント管理 | S-0305 クライアント詳細画面 | GET | `/clients/{id}` | クライアント詳細画面を表示する | auth | 管理者、一般 |
-| クライアント管理 | S-0305 クライアント詳細画面 | POST | `/clients/{client}/release-view` | クライアントの閲覧を解放し招待メールを送信する | auth | 管理者、一般 |
-| クライアント管理 | S-0305 クライアント詳細画面 | POST | `/clients/{client}/revoke-view` | クライアントの閲覧解放を取り消し、解放前の状態に戻す | auth | 管理者、一般 |
 | クライアント管理 | S-0305 クライアント詳細画面 | DELETE | `/clients/{id}` | クライアントを削除する | auth | 管理者、一般 |
 | クライアント管理 | S-0306 クライアント編集画面 | GET | `/clients/{id}/edit` | クライアント編集画面を表示する | auth | 管理者、一般 |
 | クライアント管理 | S-0306 クライアント編集画面 | PUT | `/clients/{id}` | クライアント情報を更新する | auth | 管理者、一般 |
@@ -125,10 +123,14 @@ IP アドレス制限は、**トレーナー用サブドメイン（内部）の
 | クライアント閲覧 | S-1401 クライアントログイン画面 | POST | `/client-portal/login` | クライアントとしてログインする | guest:client | - |
 | クライアント閲覧 | - | POST | `/client-portal/logout` | クライアントとしてログアウトする | auth:client | クライアント |
 | クライアント閲覧 | S-1402 クライアントダッシュボード画面 | GET | `/client-portal/dashboard` | クライアントダッシュボード画面を表示する | auth:client | クライアント |
-| クライアント閲覧 | S-1403 クライアントパスワード設定画面 | GET | `/client-portal/password-setup/{token}` | パスワード設定画面を表示する（トークン検証） | public | - |
-| クライアント閲覧 | S-1403 クライアントパスワード設定画面 | POST | `/client-portal/password-setup/{token}` | パスワードを設定する | public | - |
+| クライアント閲覧 | S-1403 クライアント初回設定画面 | GET | `/client-portal/setup/{token}` | 初回設定画面を表示する（トークン検証、自動ログイン） | public | - |
+| クライアント閲覧 | S-1403 クライアント初回設定画面 | POST | `/client-portal/setup/{token}` | 初回設定（パスワード＋基本情報）を保存する | public | - |
 | クライアント閲覧 | S-1404 クライアントトレーニング記録詳細画面 | GET | `/client-portal/training-records/{id}` | クライアントが自分のトレーニング記録の詳細を表示する | auth:client | クライアント |
 | クライアント閲覧 | S-1404 クライアントトレーニング記録詳細画面 | GET | `/client-portal/media/{id}/play` | クライアントが自分の記録に紐づくメディアを表示・再生する | auth:client | クライアント |
+| クライアント閲覧 | S-1405 クライアントメールアドレス登録画面 | GET | `/client-portal/email-registration/{token}` | メールアドレス登録画面を表示する（トークン検証） | public | - |
+| クライアント閲覧 | S-1405 クライアントメールアドレス登録画面 | POST | `/client-portal/email-registration/{token}` | メールアドレスを登録し、ログイン用リンクを送信する | public | - |
+| クライアント管理 | S-0305 クライアント詳細画面 | POST | `/clients/{client}/email-registration-tokens` | メールアドレス登録用 URL を発行する | auth | 管理者、一般 |
+| クライアント管理 | S-0305 クライアント詳細画面 | DELETE | `/clients/{client}/email-registration-tokens/{tokenId}` | 発行済みのメールアドレス登録用 URL を削除する | auth | 管理者、一般 |
 | 内部API | - | GET | `/api/clients/search` | クライアントを検索する | auth | 管理者、一般 |
 | 内部API | - | POST | `/api/training-records/auto-create` | 音声記録の要約からトレーニング記録を作成する | auth | 管理者、一般 |
 | 内部API | - | GET | `/api/training-records/available-media` | トレーニング記録に紐づけ可能なメディア一覧を取得する | auth | 管理者、一般 |
@@ -337,48 +339,36 @@ Laravelのセッション認証（Cookie + CSRF）で保護する。
 **概要**: クライアント詳細画面を表示する。
 
 **レスポンス**:
-- view `clients.show`（クライアント情報、トレーニング記録一覧。トレーニング記録は新しい順。表示内容には閲覧状態（is_viewable と password から導出）を含む）
+- view `clients.show`（クライアント情報、トレーニング記録一覧。トレーニング記録は新しい順。クライアントの状態〔メールアドレスなし／メールアドレス登録待ち／初回設定待ち／利用中〕は clients.email と clients.password と有効な `client_email_registration_tokens` の有無から導出する。詳細な状態表示 UI は段階 4-2）
 
 
-###### POST /clients/{client}/release-view
+###### POST /clients/{client}/email-registration-tokens
 
-**概要**: クライアントの閲覧を解放し、パスワード設定用の招待メールを送信する。
-
-**処理**:
-- クライアントにメールアドレスが登録されていることを検証する（未登録の場合は解放しない）
-- 以下を1つのトランザクションで実行する：
-  - クライアントの is_viewable を true にする
-  - パスワード設定用トークンを発行する（ランダムなトークン、有効期限は現在日時から72時間後、対象クライアントに紐付け）
-  - トークン付きのパスワード設定URLを含む招待メールを、クライアントのメールアドレス宛に送信する
-
-**レスポンス**:
-- 成功：`redirect('/clients/{id}')` ＋「閲覧を解放し、招待メールを送信しました」
-- メールアドレス未登録：`back()` ＋「メールアドレスが未登録のため解放できません」
-
-**閲覧状態の判定**:
-- クライアント詳細画面（S-0305）に表示する閲覧状態は、専用のカラムを持たず is_viewable と password から導出する：
-  - is_viewable が false：「未解放」
-  - is_viewable が true かつ password が未設定：「解放中（パスワード未設定）」
-  - is_viewable が true かつ password が設定済み：「解放中」
-
-
-###### POST /clients/{client}/revoke-view
-
-**概要**: クライアントの閲覧解放を取り消し、解放前の状態に戻す。
+**概要**: メールアドレス登録用 URL を発行する。既に有効な発行済み URL がある場合は無効化して新しく発行する（再発行）。
 
 **処理**:
-- 以下を1つのトランザクションで実行する：
-  - クライアントの is_viewable を false にする
-  - クライアントの password を NULL にする（既に設定済みのパスワードを破棄する）
-  - 対象クライアントの未使用の招待トークン（`client_password_setup_tokens` のうち is_used=false のレコード）をすべて物理削除する
-- メール送信は行わない（send のような外部副作用は取り消し時には対称に持たせない）
-- 既存のログイン中セッションは強制的には無効化しない。次回以降の新規ログインは is_viewable=false により attempt が失敗するため弾かれる（既存セッションは SESSION_LIFETIME で自然失効する）
+- 対象クライアントの `client_email_registration_tokens` のうち未使用（is_used=false）のトークンがあれば物理削除する
+- ランダムなトークンを生成し `client_email_registration_tokens` に 1 件作成する。有効期限は現在日時から **3 日後**（設定値は `architecture.md` §3-1 参照）
+- メールアドレスの登録有無を問わず発行できる
 
 **レスポンス**:
-- 成功：`redirect('/clients/{id}')` ＋「閲覧を取り消しました」
+- 成功：`redirect('/clients/{id}')` ＋「メールアドレス登録用 URL を発行しました」
 
-**取り消し後の閲覧状態**:
-- 取り消し後は is_viewable=false かつ password=NULL となるため、上記「閲覧状態の判定」ロジックにより自然に「未解放」へ戻る。再解放が必要な場合は既存の release-view を叩けばよい（password が NULL のため特別扱いは不要）。
+**備考**:
+- 発行された URL の受け渡し方法（QR コード表示・SNS 送信・メール送信など）はトレーナー側で任意に選ぶ。段階 4-1 では URL 文字列とコピーボタンのみを提供し、QR コードと印刷用ページは段階 4-2 で追加する
+
+
+###### DELETE /clients/{client}/email-registration-tokens/{tokenId}
+
+**概要**: 発行済みのメールアドレス登録用 URL を削除する（発行前の状態に戻す）。
+
+**処理**:
+- 使用済み（is_used=true）は削除不可
+- 物理削除
+
+**レスポンス**:
+- 成功：`redirect('/clients/{id}')` ＋「メールアドレス登録用 URL を削除しました」
+- 使用済み：`redirect('/clients/{id}')` ＋「使用済みの URL は削除できません」
 
 
 ###### DELETE /clients/{id}
@@ -1337,12 +1327,13 @@ POST /training-records に以下を追加する。
 | password | string | ● | required, string | パスワード |
 
 **処理**:
-- トレーナーによって閲覧が解放されている（is_viewable が true）クライアントのみログインできる
+- 初回設定が完了している（clients.email と clients.password が両方 NOT NULL の）クライアントのみログインできる
 - トレーナーのログイン（web guard）とは独立した client guard で認証する
+- password が NULL のクライアント（初回設定未完了）は attempt が自然に失敗する（hashCheck が NULL に対して不一致となる）。専用のフラグを持たなくてもメール存在確認耐性は保たれる
 
 **レスポンス**:
 - 成功：クライアントダッシュボード画面へリダイレクト
-- 認証失敗、または閲覧が解放されていない場合：エラーを表示（「メールアドレスまたはパスワードが正しくありません。」）
+- 認証失敗、または初回設定が未完了の場合：エラーを表示（「メールアドレスまたはパスワードが正しくありません。」）
 
 ---
 
@@ -1360,26 +1351,27 @@ POST /training-records に以下を追加する。
 
 ---
 
-##### S-1403 クライアントパスワード設定画面
+##### S-1403 クライアント初回設定画面
 
-クライアントが招待メールで受け取ったURLからアクセスする、認証不要の公開画面。ログイン後にかかるクライアント用ミドルウェア（auth:client）は適用されない。
+クライアントがメールで受け取ったログイン用リンクからアクセスする、認証不要の公開画面。トークン検証と同時にクライアントを client guard で自動ログインさせる（`auth:client` ミドルウェアは適用しない）。
 
-###### GET /client-portal/password-setup/{token}
+###### GET /client-portal/setup/{token}
 
-**概要**: トークンを検証し、パスワード設定画面を表示する。
+**概要**: ログイン用リンクのトークンを検証し、初回設定画面を表示する。
 
 **処理**:
 - トークンの有効性を「存在する／期限内／未使用」の順にチェック
 - いずれかを満たさない場合はエラー画面を表示（無効・期限切れ・使用済みでメッセージを出し分ける）
+- 有効な場合、対象クライアントで client guard に自動ログインさせる
 
 **レスポンス**:
-- 有効：view（パスワード設定フォーム。対象クライアントのメールアドレスを表示）
+- 有効：view（初回設定フォーム。上部に対象クライアントのメールアドレスを表示、姓・名・かなはトレーナーが登録した値を初期表示）
 - 無効：view（トークンエラー画面）
 
 
-###### POST /client-portal/password-setup/{token}
+###### POST /client-portal/setup/{token}
 
-**概要**: パスワードを設定する。
+**概要**: 初回設定を保存する（パスワード＋基本情報）。
 
 **リクエスト**:
 
@@ -1387,15 +1379,28 @@ POST /training-records に以下を追加する。
 |-----------|-----|------|---------------|------|
 | password | string | ● | required, string, confirmed, StrongPassword | 設定するパスワード |
 | password_confirmation | string | ● | required | パスワード（確認） |
+| last_name | string | ● | required, string, max:50 | 姓 |
+| first_name | string | | nullable, string, max:50 | 名 |
+| last_name_kana | string | | nullable, string, max:50, regex:ひらがな | せい |
+| first_name_kana | string | | nullable, string, max:50, regex:ひらがな | めい |
+| phone1 | string | ● | required, string, max:20, regex:/^[0-9\-]+$/ | 電話番号 |
+| phone2 | string | | nullable, string, max:20, regex:/^[0-9\-]+$/ | 予備の電話番号 |
+| postal_code | string | ● | required, string, regex:/^\d{3}-?\d{4}$/ | 郵便番号 |
+| address1 | string | ● | required, string, max:50 | 都道府県 |
+| address2 | string | ● | required, string, max:50 | 市区町村 |
+| address3 | string | ● | required, string, max:100 | 町名・番地 |
+| address4 | string | | nullable, string, max:100 | 建物名・部屋番号 |
 
 **処理**:
 - トークンの有効性を再チェック（無効ならエラー画面）
 - 以下を1つのトランザクションで実行する：
-  - 対象クライアントのパスワードを設定する
+  - 対象クライアントの password・氏名・連絡先を更新する
   - トークンを使用済み（is_used=true）にする
+  - 対応するメールアドレス登録用トークン（`client_email_registration_tokens`）を使用済み（is_used=true）にする — 使い切り化
+- 対象クライアントで client guard にログインした状態を保つ
 
 **レスポンス**:
-- 成功：クライアントログイン画面へリダイレクト（パスワード設定完了を伝える）
+- 成功：クライアントダッシュボード画面（S-1402）へリダイレクト＋完了メッセージ表示
 - トークン無効：トークンエラー画面
 - 失敗：`back()` ＋ バリデーションエラーメッセージ
 
@@ -1443,6 +1448,52 @@ POST /training-records に以下を追加する。
 
 **レスポンス**:
 - クライアントログイン画面へリダイレクト
+
+---
+
+##### S-1405 クライアントメールアドレス登録画面
+
+トレーナーから受け取ったメールアドレス登録用 URL からアクセスする、認証不要の公開画面。
+
+###### GET /client-portal/email-registration/{token}
+
+**概要**: メールアドレス登録用 URL のトークンを検証し、メールアドレス登録画面を表示する。
+
+**処理**:
+- トークンの有効性を「存在する／期限内／未使用」の順にチェック
+- いずれかを満たさない場合はエラー画面を表示
+
+**レスポンス**:
+- 有効：view（メールアドレス入力フォーム）
+- 無効：view（トークンエラー画面）
+
+
+###### POST /client-portal/email-registration/{token}
+
+**概要**: 入力されたメールアドレスをクライアントに紐付け、ログイン用リンクを送信する。
+
+**リクエスト**:
+
+| パラメータ | 型 | 必須 | バリデーション | 説明 |
+|-----------|-----|------|---------------|------|
+| email | string | ● | required, email, unique:clients,email,{client_id} | 入力されたメールアドレス。他クライアントで使用されている場合は登録できない |
+
+**処理**:
+- トークンの有効性を再チェック（無効ならエラー画面）
+- メールアドレスの重複を確認（他クライアントで使用されている場合は「このメールアドレスは登録できません。担当トレーナーにご連絡ください」を表示して止める）
+- 以下を1つのトランザクションで実行する：
+  - 対象クライアントの clients.email を更新する
+  - 対応する既存の `client_password_setup_tokens` の未使用（is_used=false）トークンを物理削除する（前に送信したログイン用リンクを無効化）
+  - 新しい `client_password_setup_tokens` レコードを 1 件作成する（有効期限 3 日）
+  - 入力されたメールアドレス宛にログイン用リンクを送信する
+- メール送信の失敗は全ロールバック
+- **メールアドレス登録用トークンは使い切りにしない**（初回設定完了時に使い切り化。それまでは同じ URL から何度でも入力し直せる）
+
+**レスポンス**:
+- 成功：同画面の完了状態を表示（入力されたメールアドレスを表示。届かない場合の「入力し直す」ボタンを提供）
+- トークン無効：トークンエラー画面
+- 重複：「このメールアドレスは登録できません」を表示
+- 失敗：`back()` ＋ バリデーションエラーメッセージ
 
 ---
 
