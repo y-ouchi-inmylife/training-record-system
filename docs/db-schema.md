@@ -63,7 +63,7 @@ erDiagram
         bigint primary_trainer_id FK
     }
 
-    client_password_setup_tokens {
+    client_login_link_tokens {
         bigint id PK
         string token UK
         boolean is_used
@@ -160,8 +160,8 @@ erDiagram
     trainers ||--o{ audio_records : "録音・アップロード・テキスト入力する"
 
     clients ||--o{ audio_records : "対象となる"
-    clients ||--o{ client_password_setup_tokens : "ログイン用リンク"
-    trainers ||--o{ client_password_setup_tokens : "発行"
+    clients ||--o{ client_login_link_tokens : "ログイン用リンク"
+    trainers ||--o{ client_login_link_tokens : "発行"
     clients ||--o{ client_email_registration_tokens : "メールアドレス登録"
     trainers ||--o{ client_email_registration_tokens : "発行"
     clients ||--o{ client_email_change_tokens : "メールアドレス変更"
@@ -280,7 +280,7 @@ erDiagram
 
 **判定は上から順に評価し、最初に一致した状態を採用する**（複数条件が同時に成立し得るため順序が必要。特に「email あり かつ 有効な登録用 URL あり」のケースでは「初回設定待ち」を優先する）。
 
-**期限切れの判定元は、常に `client_email_registration_tokens.expires_at`** とする（DS-0700）。ログイン用リンク（DS-0600 `client_password_setup_tokens`）の `expires_at` は判定に使わない。理由は次のとおり：
+**期限切れの判定元は、常に `client_email_registration_tokens.expires_at`** とする（DS-0700）。ログイン用リンク（DS-0600 `client_login_link_tokens`）の `expires_at` は判定に使わない。理由は次のとおり：
 
 - 全体の期限は登録用トークンの `expires_at` に集約されている（段階 4-1 で確定）
 - 発行し直し直後はログイン用リンクが未生成（発行時に未使用のログイン用リンクを物理削除するため）で、判定基準にできない
@@ -689,7 +689,7 @@ erDiagram
 
 ---
 
-#### DS-0600 client_password_setup_tokens（クライアントログイン用リンクトークン）
+#### DS-0600 client_login_link_tokens（クライアントログイン用リンクトークン）
 
 **概要**: クライアントがメールアドレスを登録した際、当該アドレスに送信するログイン用リンクのトークンを管理する。リンクを開くとクライアントは自動ログインされ、初回設定画面（S-1403）に遷移する。
 
@@ -715,21 +715,18 @@ erDiagram
 | インデックス名 | カラム | 種類 | 目的 |
 |---------------|--------|------|------|
 | PRIMARY | id | PRIMARY KEY | 主キー |
-| client_password_setup_tokens_token_unique | token | UNIQUE | トークン文字列の重複を防ぐ。URLアクセス時の検索にも使用 |
-| client_password_setup_tokens_expires_at_idx | expires_at | INDEX | 有効期限による検索・期限切れ抽出 |
-| client_password_setup_tokens_is_used_idx | is_used | INDEX | 使用状態による絞り込み |
-| client_password_setup_tokens_client_id_idx | client_id | INDEX | クライアントによる検索・逆引き |
-| client_password_setup_tokens_created_by_idx | created_by | INDEX | 発行者による検索・絞り込み |
+| client_login_link_tokens_token_unique | token | UNIQUE | トークン文字列の重複を防ぐ。URLアクセス時の検索にも使用 |
+| client_login_link_tokens_expires_at_idx | expires_at | INDEX | 有効期限による検索・期限切れ抽出 |
+| client_login_link_tokens_is_used_idx | is_used | INDEX | 使用状態による絞り込み |
+| client_login_link_tokens_client_id_idx | client_id | INDEX | クライアントによる検索・逆引き |
+| client_login_link_tokens_created_by_idx | created_by | INDEX | 発行者による検索・絞り込み |
 
 ##### 制約
 
 | 制約名 | 種類 | 条件 | ON DELETE | 説明 |
 |--------|------|------|-----------|------|
-| client_password_setup_tokens_client_id_foreign | FOREIGN KEY | client_id → clients(id) | CASCADE | クライアント削除時はトークンも削除する（特定クライアント専用のトークンのため） |
-| client_password_setup_tokens_created_by_foreign | FOREIGN KEY | created_by → trainers(id) | SET NULL | 発行者トレーナー削除時は NULL にする |
-
-**備考**:
-- テーブル名は初期実装で「パスワード設定用」を想定していた経緯から `client_password_setup_tokens` のまま。新方式ではログイン用リンクに用途が変わっているが、テーブル名の変更は避け（マイグレーション量を抑えるため）、モデル・コントローラ層で解釈を切り替える方針。
+| client_login_link_tokens_client_id_foreign | FOREIGN KEY | client_id → clients(id) | CASCADE | クライアント削除時はトークンも削除する（特定クライアント専用のトークンのため） |
+| client_login_link_tokens_created_by_foreign | FOREIGN KEY | created_by → trainers(id) | SET NULL | 発行者トレーナー削除時は NULL にする |
 
 ---
 
@@ -977,7 +974,7 @@ erDiagram
 | 9 | access_logs | trainers |
 | 10 | system_settings | なし |
 | 11 | ip_whitelist | なし |
-| 12 | client_password_setup_tokens | clients |
+| 12 | client_login_link_tokens | clients |
 | 13 | client_email_registration_tokens | clients |
 | 14 | client_email_change_tokens | clients |
 | 15 | client_password_reset_tokens | clients |
