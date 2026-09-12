@@ -63,14 +63,6 @@ erDiagram
         bigint primary_trainer_id FK
     }
 
-    client_intake_tokens {
-        bigint id PK
-        string token UK
-        boolean is_used
-        bigint client_id FK
-        bigint created_by FK
-    }
-
     client_password_setup_tokens {
         bigint id PK
         string token UK
@@ -145,8 +137,6 @@ erDiagram
     trainers ||--o{ audio_records : "録音・アップロード・テキスト入力する"
 
     clients ||--o{ audio_records : "対象となる"
-    clients ||--o{ client_intake_tokens : "トークンで登録"
-    trainers ||--o{ client_intake_tokens : "発行"
     clients ||--o{ client_password_setup_tokens : "パスワード設定"
     trainers ||--o{ client_password_setup_tokens : "発行"
 ```
@@ -551,46 +541,6 @@ erDiagram
 
 ---
 
-#### DS-0200 client_intake_tokens（クライアント事前入力トークン）
-
-**概要**: 登録済みクライアントの情報をクライアント自身が入力できるワンタイムURLのトークンを管理する
-
-**対応する要件**: 
-- クライアント編集（URL発行）
-
-##### カラム定義
-
-| カラム名 | 型 | NULL | デフォルト | 説明 |
-|---------|-----|------|----------|------|
-| id | BIGINT UNSIGNED | NO | auto_increment | 主キー |
-| token | VARCHAR(64) | NO | — | `Str::random(32)` で生成された 32 文字のランダム英数字（URLに埋め込む）。カラム型 VARCHAR(64) は将来の長さ拡張に備えた余裕。重複不可 |
-| expires_at | TIMESTAMP | NO | — | 有効期限。選択された日数後の 23:59:59 に設定される |
-| is_used | BOOLEAN | NO | false | 使用状態。false: 未使用 / true: 使用済み。クライアントの情報入力完了時に true に更新 |
-| client_id | BIGINT UNSIGNED | NO | — | 対象クライアントのID（外部キー）。URL発行時に指定 |
-| created_at | TIMESTAMP | YES | NULL | 発行日時 |
-| updated_at | TIMESTAMP | YES | NULL | 更新日時 |
-| created_by | BIGINT UNSIGNED | YES | NULL | トークンを発行したトレーナーのID（外部キー） |
-
-##### インデックス
-
-| インデックス名 | カラム | 種類 | 目的 |
-|---------------|--------|------|------|
-| PRIMARY | id | PRIMARY KEY | 主キー |
-| client_intake_tokens_token_unique | token | UNIQUE | トークン文字列の重複を防ぐ。URLアクセス時の検索にも使用 |
-| client_intake_tokens_expires_at_idx | expires_at | INDEX | 有効期限による検索・期限切れ抽出 |
-| client_intake_tokens_is_used_idx | is_used | INDEX | 使用状態による絞り込み |
-| client_intake_tokens_client_id_idx | client_id | INDEX | 対象クライアントによる検索。未使用トークンの存在チェックにも使用 |
-| client_intake_tokens_created_by_idx | created_by | INDEX | 発行者による検索・絞り込み |
-
-##### 制約
-
-| 制約名 | 種類 | 条件 | ON DELETE | 説明 |
-|--------|------|------|-----------|------|
-| client_intake_tokens_client_id_foreign | FOREIGN KEY | client_id → clients(id) | CASCADE | クライアント削除時はトークンも削除する |
-| client_intake_tokens_created_by_foreign | FOREIGN KEY | created_by → trainers(id) | SET NULL | 発行者トレーナー削除時は NULL にする |
-
----
-
 #### DS-0300 login_attempts（ログイン試行記録）
 
 **概要**: ログインの試行を記録し、アカウントロック機能を実現する
@@ -855,8 +805,7 @@ erDiagram
 | 9 | access_logs | trainers |
 | 10 | system_settings | なし |
 | 11 | ip_whitelist | なし |
-| 12 | client_intake_tokens | clients |
-| 13 | client_password_setup_tokens | clients |
+| 12 | client_password_setup_tokens | clients |
 
 ---
 
