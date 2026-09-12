@@ -164,6 +164,17 @@ class Client extends Authenticatable
     }
 
     /**
+     * メールアドレス変更トークン（DS-0800）＝メールアドレス確認リンク
+     *
+     * 段階 4-3 で追加。ログイン中のクライアントがメールアドレスを変更する際、
+     * 新しいアドレス宛に送る確認リンクのトークン。
+     */
+    public function emailChangeTokens(): HasMany
+    {
+        return $this->hasMany(ClientEmailChangeToken::class);
+    }
+
+    /**
      * 最終更新者（トレーナー）
      */
     public function updatedBy(): BelongsTo

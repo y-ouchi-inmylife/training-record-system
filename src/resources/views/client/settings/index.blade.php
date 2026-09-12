@@ -7,6 +7,7 @@
     // で参照する。
     $profileErrors = $errors->hasBag('profile') ? $errors->profile : null;
     $passwordErrors = $errors->hasBag('password') ? $errors->password : null;
+    $emailErrors = $errors->hasBag('email') ? $errors->email : null;
 @endphp
 
 @section('title', '登録情報')
@@ -105,6 +106,54 @@
 
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary">基本情報を保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {{-- メールアドレス変更フォーム --}}
+        <div class="card mb-4">
+            <div class="card-body p-4">
+                <p class="eyebrow">── メールアドレスの変更 ──</p>
+
+                @if(session('email_success'))
+                    <div class="alert alert-success" role="alert">
+                        {{ session('email_success') }}
+                    </div>
+                @endif
+
+                @if($emailErrors && $emailErrors->any())
+                    <div class="alert alert-danger" role="alert">
+                        @foreach($emailErrors->all() as $error)
+                            <p class="mb-0">{{ $error }}</p>
+                        @endforeach
+                    </div>
+                @endif
+
+                <div class="mb-3">
+                    <div class="text-muted small">現在のメールアドレス</div>
+                    <div class="font-monospace">{{ $client->email }}</div>
+                </div>
+
+                <form method="POST" action="{{ route('client-portal.settings.email-change.request') }}">
+                    @csrf
+
+                    <div class="mb-3">
+                        <label for="new_email" class="form-label">新しいメールアドレス <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control @if($emailErrors && $emailErrors->has('new_email')) is-invalid @endif"
+                               id="new_email" name="new_email" required maxlength="255"
+                               value="{{ old('new_email') }}"
+                               autocomplete="email">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email_current_password" class="form-label">現在のパスワード <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control @if($emailErrors && $emailErrors->has('current_password')) is-invalid @endif"
+                               id="email_current_password" name="current_password" required
+                               autocomplete="current-password">
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">確認メールを送る</button>
                     </div>
                 </form>
             </div>

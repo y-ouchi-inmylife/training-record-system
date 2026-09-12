@@ -209,6 +209,11 @@ Route::domain(config('subdomain.client_host'))->group(function () {
     Route::post('client-portal/email-registration/{token}', [\App\Http\Controllers\Client\EmailRegistrationController::class, 'storeByToken'])
         ->name('client-portal.email-registration.store');
 
+    // メールアドレス確認リンク（S-1406 派生、公開URL、認証不要）。段階 4-3。
+    // ログイン状態を問わず、切替 → ログアウト → ログイン画面へ遷移する。
+    Route::get('client-portal/email-change/{token}', [\App\Http\Controllers\Client\EmailChangeController::class, 'confirm'])
+        ->name('client-portal.email-change.confirm');
+
     /*
     |--------------------------------------------------------------------------
     | クライアント閲覧機能（柱2）
@@ -239,6 +244,8 @@ Route::domain(config('subdomain.client_host'))->group(function () {
                 ->name('settings.profile.update');
             Route::put('/settings/password', [\App\Http\Controllers\Client\SettingsController::class, 'updatePassword'])
                 ->name('settings.password.update');
+            Route::post('/settings/email-change', [\App\Http\Controllers\Client\SettingsController::class, 'requestEmailChange'])
+                ->name('settings.email-change.request');
         });
     });
 
