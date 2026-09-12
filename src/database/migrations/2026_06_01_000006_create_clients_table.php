@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -19,8 +18,6 @@ return new class extends Migration
             $table->string('first_name', 50)->nullable()->comment('名');
             $table->string('last_name_kana', 50)->nullable()->comment('姓かな');
             $table->string('first_name_kana', 50)->nullable()->comment('名かな');
-            $table->date('birth_date')->nullable()->comment('生年月日');
-            $table->string('gender', 10)->nullable()->comment('性別');
 
             // カテゴリー2: 連絡先
             $table->string('phone1', 20)->nullable()->comment('電話番号1（携帯）');
@@ -56,9 +53,6 @@ return new class extends Migration
             $table->foreign('updated_by', 'clients_updated_by_foreign')
                 ->references('id')->on('trainers')->nullOnDelete();
         });
-
-        // CHECK 制約（全角文字を含む文字列値は既存マイグレーションから正確にコピー）
-        DB::statement("ALTER TABLE clients ADD CONSTRAINT clients_gender_check CHECK (gender IS NULL OR gender IN ('男', '女', '無回答'))");
     }
 
     public function down(): void

@@ -244,19 +244,6 @@
         </div>
     </div>
 
-    {{-- 基本情報 --}}
-    <div class="card mb-3">
-        <div class="card-header">
-            <h6 class="mb-0">基本情報</h6>
-        </div>
-        <div class="card-body">
-            <div class="row g-3">
-                <x-detail-cell label="生年月日" :value="$client->birth_date?->format('Y/m/d')" />
-                <x-detail-cell label="性別" :value="$client->gender" />
-            </div>
-        </div>
-    </div>
-
     {{-- 連絡先 --}}
     @php
         // 都道府県・市区町村・町名番地は区切りなしで連結し、

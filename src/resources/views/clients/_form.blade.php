@@ -142,33 +142,6 @@
                     </div>
                 </div>
 
-                <div class="row g-3">
-                    {{-- 行3: 生年月日 + 性別 --}}
-                    <div class="col-md-4">
-                        <div class="row g-2 align-items-center">
-                            <label for="birth_date" class="col-md-auto col-form-label text-md-end form-label-fixed">生年月日</label>
-                            <div class="col-12 col-md">
-                                <input type="text" class="form-control datepicker" id="birth_date" name="birth_date"
-                                       value="{{ old('birth_date', $client?->birth_date?->format('Y-m-d')) }}"
-                                       placeholder="例: 2000-01-15" pattern="\d{4}-\d{2}-\d{2}" maxlength="10"
-                                       autocomplete="off">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="row g-2 align-items-center">
-                            <label for="gender" class="col-md-auto col-form-label text-md-end form-label-fixed">性別</label>
-                            <div class="col-12 col-md">
-                                <select class="form-select" id="gender" name="gender" autocomplete="off">
-                                    <option value=""></option>
-                                    @foreach(['男', '女', '無回答'] as $g)
-                                        <option value="{{ $g }}" {{ old('gender', $client?->gender) === $g ? 'selected' : '' }}>{{ $g }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 

@@ -24,7 +24,6 @@ class Client extends Authenticatable
         // カテゴリー1: 基本情報
         'initial_consultation_date', 'last_name', 'first_name',
         'last_name_kana', 'first_name_kana',
-        'birth_date', 'gender',
         'primary_trainer_id',
         // カテゴリー2: 連絡先
         'phone1', 'phone2', 'email',
@@ -43,7 +42,6 @@ class Client extends Authenticatable
     {
         return [
             'initial_consultation_date' => 'date',
-            'birth_date' => 'date',
             'password' => 'hashed',
             'is_viewable' => 'boolean',
         ];
@@ -114,18 +112,6 @@ class Client extends Authenticatable
     public function getDisplayNameKanaAttribute(): string
     {
         return $this->full_name_kana;
-    }
-
-    /**
-     * 現在の年齢（生年月日から計算。生年月日が無ければ不明）
-     */
-    public function getEstimatedAgeAttribute(): ?int
-    {
-        if ($this->birth_date) {
-            return $this->birth_date->age;
-        }
-
-        return null;
     }
 
     /**

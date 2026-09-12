@@ -203,8 +203,6 @@ return [
         'first_name' => '名',
         'last_name_kana' => 'せい',
         'first_name_kana' => 'めい',
-        'birth_date' => '生年月日',
-        'gender' => '性別',
         'initial_consultation_date' => '初回日',
         'phone1' => '電話番号1',
         'phone2' => '電話番号2',

@@ -119,8 +119,6 @@
                             @endif
                         </a>
                     </th>
-                    <th>年齢</th>
-                    <th>性別</th>
                     <th>主担当</th>
                     <th>最終記録日</th>
                 </tr>
@@ -131,14 +129,12 @@
                         <td>{{ $client->internal_id }}</td>
                         <td>{{ $client->display_name }}</td>
                         <td class="text-muted">{{ $client->display_name_kana }}</td>
-                        <td>{{ $client->estimated_age }}</td>
-                        <td>{{ $client->gender }}</td>
                         <td>{{ $client->primaryTrainer?->name }}</td>
                         <td>{{ $client->last_training_date ? \Carbon\Carbon::parse($client->last_training_date)->format('Y/m/d') : '' }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-4">該当するクライアントがありません。</td>
+                        <td colspan="5" class="text-center text-muted py-4">該当するクライアントがありません。</td>
                     </tr>
                 @endforelse
             </tbody>
