@@ -202,6 +202,12 @@ Route::domain(config('subdomain.client_host'))->group(function () {
     Route::post('client-portal/password-setup/{token}', [\App\Http\Controllers\Client\PasswordSetupController::class, 'storeByToken'])
         ->name('client-portal.password-setup.store');
 
+    // メールアドレス登録画面（S-1405、公開URL、認証不要）。段階 4-1。
+    Route::get('client-portal/email-registration/{token}', [\App\Http\Controllers\Client\EmailRegistrationController::class, 'showByToken'])
+        ->name('client-portal.email-registration.show');
+    Route::post('client-portal/email-registration/{token}', [\App\Http\Controllers\Client\EmailRegistrationController::class, 'storeByToken'])
+        ->name('client-portal.email-registration.store');
+
     /*
     |--------------------------------------------------------------------------
     | クライアント閲覧機能（柱2）
