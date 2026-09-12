@@ -221,6 +221,13 @@ Route::domain(config('subdomain.client_host'))->group(function () {
     Route::post('client-portal/password-reset', [\App\Http\Controllers\Client\PasswordResetController::class, 'sendResetLink'])
         ->name('client-portal.password-reset.request.send');
 
+    // パスワード再設定（S-1408、公開URL、認証不要）。段階 4-4。
+    // 申し込みルート（/password-reset）より後に定義する。
+    Route::get('client-portal/password-reset/{token}', [\App\Http\Controllers\Client\PasswordResetController::class, 'showResetForm'])
+        ->name('client-portal.password-reset.reset.show');
+    Route::post('client-portal/password-reset/{token}', [\App\Http\Controllers\Client\PasswordResetController::class, 'resetPassword'])
+        ->name('client-portal.password-reset.reset.save');
+
     /*
     |--------------------------------------------------------------------------
     | クライアント閲覧機能（柱2）

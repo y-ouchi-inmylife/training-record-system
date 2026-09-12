@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ClientPasswordResetCompleteRequest;
 use App\Http\Requests\ClientPasswordResetLinkRequest;
 use App\Mail\ClientPasswordResetMail;
 use App\Models\Client;
@@ -77,6 +78,82 @@ class PasswordResetController extends Controller
         // 該当しても・しなくても、同じ完了状態を返す
         return view('client.password-reset.request', [
             'submitted' => true,
+        ]);
+    }
+
+    /**
+     * 再設定画面を表示（GET /client-portal/password-reset/{token}）
+     *
+     * トークンを検証し、有効なら新しいパスワード入力フォームを表示する。
+     * リンクを開いた時点ではお客様をログインさせない（決定事項 #7 / 6-15-12 の備考）。
+     */
+    public function showResetForm(string $token): View
+    {
+        $tokenRecord = ClientPasswordResetToken::where('token', $token)->first();
+
+        if (!$tokenRecord) {
+            return $this->invalidTokenView(
+                'このURLは無効です',
+                'URLが間違っているか、削除された可能性があります。担当のトレーナーにお問い合わせください。'
+            );
+        }
+        if ($tokenRecord->isExpired()) {
+            return $this->invalidTokenView(
+                'このURLは期限切れです',
+                'このURLの有効期限が切れています。ログイン画面から改めてお申し込みください。'
+            );
+        }
+        if ($tokenRecord->is_used) {
+            return $this->invalidTokenView(
+                'このURLは既に使用されています',
+                'このURLでは既にパスワードの再設定が完了しています。ログイン画面からログインしてください。'
+            );
+        }
+
+        return view('client.password-reset.reset', [
+            'token' => $token,
+        ]);
+    }
+
+    /**
+     * 新しいパスワードを保存（POST /client-portal/password-reset/{token}）
+     *
+     * トークンを再検証し、パスワードを更新して使用済みにする。
+     * **ログアウトさせない**（決定事項 #7）。ログイン中だった場合もログイン状態は
+     * 維持する。**完了の通知メールは送らない**（決定事項 #6 / 6-15-12 の備考）。
+     */
+    public function resetPassword(ClientPasswordResetCompleteRequest $request, string $token): View|RedirectResponse
+    {
+        $tokenRecord = ClientPasswordResetToken::where('token', $token)->first();
+
+        // トークン再検証（レース対策）
+        if (!$tokenRecord || $tokenRecord->isExpired() || $tokenRecord->is_used) {
+            return $this->invalidTokenView(
+                'このURLは無効です',
+                'URLが無効か、既に使用されています。ログイン画面からお進みください。'
+            );
+        }
+
+        DB::transaction(function () use ($tokenRecord, $request) {
+            $tokenRecord->client->update([
+                'password' => $request->validated()['new_password'],
+            ]);
+            $tokenRecord->update(['is_used' => true]);
+        });
+
+        // 認証状態は変えない。ログイン中だった場合もそのまま維持する。
+        // 未ログインの場合はログイン画面へ、ログイン中の場合もログイン画面に遷移するが
+        // guest:client により automatically ダッシュボードにリダイレクトされる。
+        return redirect()
+            ->route('client-portal.login')
+            ->with('success', 'パスワードを再設定しました。新しいパスワードでログインしてください。');
+    }
+
+    private function invalidTokenView(string $title, string $message): View
+    {
+        return view('client.setup.invalid-token', [
+            'title' => $title,
+            'message' => $message,
         ]);
     }
 }
