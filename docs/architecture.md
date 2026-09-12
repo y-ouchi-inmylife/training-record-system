@@ -207,6 +207,7 @@ flowchart TD
 |---|---|---|
 | `client_tokens.email_registration_expires_days` | 3 | メールアドレス登録用 URL のトークン（DS-0700 `client_email_registration_tokens.expires_at`）の有効日数 |
 | `client_tokens.login_link_expires_days` | 3 | ログイン用リンクのトークン（DS-0600 `client_password_setup_tokens.expires_at`）の有効日数 |
+| `client_tokens.email_change_confirm_expires_days` | 3（予定） | **段階 4-3 で実装予定**。ログイン後にメールアドレスを変更する際に新しいアドレスへ送るメールアドレス確認リンクの有効日数。ログイン用リンクと同じ期限とする方針（用途は異なるため別キーで管理） |
 
 - 有効期限は現在日時からの経過日数で算出する（`now()->addDays(config('client_tokens.email_registration_expires_days'))` 等）
 - **1 か所（`config/client_tokens.php`）で管理し、コントローラ・モデル・シーダーからハードコードしない**。段階 4-1 以前は 72 時間のハードコードが `ClientViewReleaseController` に埋め込まれていたが、廃止に伴って設定ファイルに移す
