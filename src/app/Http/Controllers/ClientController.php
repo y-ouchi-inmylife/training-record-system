@@ -6,7 +6,6 @@ use App\Models\Client;
 use App\Models\TrainingRecord;
 use App\Models\Trainer;
 use App\Services\ClientInternalIdService;
-use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
@@ -146,20 +145,7 @@ class ClientController extends Controller
 
         $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
 
-        // 有効な初回情報入力URL（未使用かつ期限内）を1件のみ取得
-        $activeIntakeToken = $client->intakeTokens()
-            ->with('creator')
-            ->where('is_used', false)
-            ->where('expires_at', '>=', Carbon::now())
-            ->first();
-
-        // 有効・無効を問わない最新1件（未発行状態のモーダルで
-        // 「以前発行したURLは〈状態〉です」の案内に使う）
-        $latestIntakeToken = $client->intakeTokens()
-            ->latest()
-            ->first();
-
-        return view('clients.show', compact('client', 'trainers', 'activeIntakeToken', 'latestIntakeToken'));
+        return view('clients.show', compact('client', 'trainers'));
     }
 
     /**

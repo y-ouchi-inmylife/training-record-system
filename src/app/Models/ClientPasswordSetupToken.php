@@ -9,7 +9,7 @@ use Carbon\Carbon;
  * クライアントパスワード設定トークンモデル（DS-0600）
  *
  * 閲覧を解放されたクライアントが招待メールから初回パスワードを設定するための
- * ワンタイムURLのトークン。手本は ClientIntakeToken（DS-0200）。
+ * ワンタイムURLのトークン。
  * 有効期限は発行から72時間（発行時に expires_at を設定）。
  */
 class ClientPasswordSetupToken extends Model

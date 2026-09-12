@@ -8,8 +8,7 @@ use Illuminate\Support\Facades\DB;
  * clients.internal_id の採番サービス
  *
  * 既存の最大 internal_id（数値として解釈）に +1 した値を採番する。
- * ClientController（管理画面登録）と ClientIntakeController（公開URL登録）の
- * 採番ロジックを集約したもの。
+ * ClientController（管理画面登録）の採番ロジックを集約したもの。
  */
 class ClientInternalIdService
 {

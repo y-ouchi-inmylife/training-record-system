@@ -36,7 +36,7 @@ class ClientViewRevokeController extends Controller
 
             // 該当クライアントの未使用招待トークンを全件物理削除。
             // 解放前はレコード不在のため、物理削除が「解放前と同じ状態」に最も近い。
-            // 使用済み（is_used=true）は履歴として残す（intake トークンの destroy と同流儀）。
+            // 使用済み（is_used=true）は履歴として残す。
             ClientPasswordSetupToken::where('client_id', $client->id)
                 ->where('is_used', false)
                 ->delete();

@@ -30,9 +30,9 @@ class SessionRoleResolver
             return true;
         }
 
-        // クライアント側パス（client-portal と client-intake）。
+        // クライアント側パス（client-portal）。
         // password-setup は client-portal/password-setup/* なので client-portal/* に含まれる。
-        return $request->is('client-portal/*') || $request->is('client-intake/*');
+        return $request->is('client-portal/*');
     }
 
     /**

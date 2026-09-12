@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\DB;
  *
  * 認証不要の公開画面。クライアントが招待メールで受け取ったURLからアクセスする。
  * client guard のログイン状態には無関係で、auth:client ミドルウェアは適用されない。
- * 手本は ClientIntakeController の showByToken/storeByToken。
  */
 class PasswordSetupController extends Controller
 {

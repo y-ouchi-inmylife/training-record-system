@@ -18,7 +18,7 @@ class CheckIpRestriction
     public function handle(Request $request, Closure $next): Response
     {
         // 本ミドルウェアはトレーナー用サブドメインのルートグループにのみ付与される。
-        // クライアント側（client-portal.* / client-intake.*）は構造的に対象外のため、
+        // クライアント側（client-portal.*）は構造的に対象外のため、
         // ここでのルート名バイパスは持たない。
 
         // ログイン・ログアウトルートは除外（誰でもアクセス可能）

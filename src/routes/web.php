@@ -18,8 +18,6 @@ use App\Http\Controllers\IpRestrictionController;
 use App\Http\Controllers\MediaRecordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AudioRecordController;
-use App\Http\Controllers\ClientIntakeController;
-use App\Http\Controllers\ClientIntakeTokenController;
 use App\Http\Controllers\RecordingV2Controller;
 use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\SummaryPromptController;
@@ -94,10 +92,6 @@ Route::domain(config('subdomain.trainer_host'))->middleware('check-ip')->group(f
                 Route::post('/start', [RecordingV2Controller::class, 'start'])->name('start');
                 Route::get('/session', [RecordingV2Controller::class, 'session'])->name('session');
             });
-
-            // 初回情報入力URL発行/削除（S-0305 クライアント詳細から起動）
-            Route::post('clients/{client}/intake-tokens', [ClientIntakeTokenController::class, 'store'])->name('client-intake-tokens.store');
-            Route::delete('clients/{client}/intake-tokens/{tokenId}', [ClientIntakeTokenController::class, 'destroy'])->name('client-intake-tokens.destroy');
 
             // メディア管理（全トレーナーがアクセス可能）
             // 一覧・登録・詳細モーダル経由の更新/削除。再生(play)は api.php 側。
@@ -188,7 +182,7 @@ Route::domain(config('subdomain.trainer_host'))->middleware('check-ip')->group(f
 | クライアント側の全ルートを Route::domain で囲む。ローカルは両ホストが localhost
 | に解決されるため、既存の動作は変わらない。
 | ルート名は変えないため、route() 呼び出しや CheckIpRestriction のバイパス判定
-| （routeIs('client-intake.*') / routeIs('client-portal.*')）は無改修で動く。
+| （routeIs('client-portal.*')）は無改修で動く。
 */
 Route::domain(config('subdomain.client_host'))->group(function () {
 
@@ -197,12 +191,8 @@ Route::domain(config('subdomain.client_host'))->group(function () {
 
     // --- 公開（認証不要） ---
 
-    // クライアント事前入力（公開URL、認証不要）
-    Route::get('client-intake/token/{token}', [ClientIntakeController::class, 'showByToken'])->name('client-intake.show-by-token');
-    Route::put('client-intake/token/{token}', [ClientIntakeController::class, 'updateByToken'])->name('client-intake.update-by-token');
-
     // クライアントパスワード設定(柱2 塊D 段2、公開URL、認証不要)。
-    // /client-portal/* の auth:client グループには入れず、client-intake と同じ公開領域に置く。
+    // /client-portal/* の auth:client グループには入れず、認証不要の公開領域に置く。
     Route::get('client-portal/password-setup/{token}', [\App\Http\Controllers\Client\PasswordSetupController::class, 'showByToken'])
         ->name('client-portal.password-setup.show');
     Route::post('client-portal/password-setup/{token}', [\App\Http\Controllers\Client\PasswordSetupController::class, 'storeByToken'])
