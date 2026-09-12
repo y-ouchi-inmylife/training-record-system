@@ -234,20 +234,24 @@
                     </div>
                 </div>
 
-                <div class="row g-3">
-                    {{-- 行4: メールアドレス --}}
-                    <div class="col-md-6">
-                        <div class="row g-2 align-items-center">
-                            <label for="email" class="col-md-auto col-form-label text-md-end form-label-fixed">メールアドレス</label>
-                            <div class="col-12 col-md">
-                                <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                       id="email" name="email" value="{{ old('email', $client?->email) }}"
-                                       autocomplete="off">
-                                @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                {{-- 行4: メールアドレス
+                     クライアント自身がメールアドレス登録用 URL から登録する項目のため
+                     トレーナーは入力・書き換えできない（設計書 D3、S-0301／S-0306）。
+                       - 登録画面（$client === null）: 項目自体を出さない
+                       - 編集画面（$client あり）    : 現在値を表示のみ（未登録なら空欄）
+                     バリデーションからも外しているため、送信されても保存されない --}}
+                @if($client)
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="row g-2 align-items-center">
+                                <label class="col-md-auto col-form-label text-md-end form-label-fixed">メールアドレス</label>
+                                <div class="col-12 col-md">
+                                    <div class="form-control-plaintext">{{ $client->email }}</div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                @endif
             </div>
         </div>
 
@@ -311,17 +315,6 @@
                 valid = false;
             }
         });
-
-        // メール形式
-        clearFieldError('email');
-        const email = document.getElementById('email').value.trim();
-        if (email !== '') {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!re.test(email)) {
-                showFieldError('email', 'メールアドレスの形式が正しくありません。');
-                valid = false;
-            }
-        }
 
         return valid;
     }

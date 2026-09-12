@@ -40,7 +40,9 @@ class ClientRequest extends FormRequest
             'first_name' => 'nullable|string|max:50',
             'last_name_kana' => ['nullable', 'string', 'max:50', 'regex:/^[\p{Hiragana}\s　]+$/u'],
             'first_name_kana' => ['nullable', 'string', 'max:50', 'regex:/^[\p{Hiragana}\s　]+$/u'],
-            'email' => 'nullable|email|max:255',
+            // メールアドレスはトレーナー側から受け付けない（設計書 D3、S-0301／S-0306）。
+            // クライアント自身がメールアドレス登録用 URL から登録する項目のため、
+            // ここでルール化しない＝validated() に含まれない＝保存されない。
             'initial_consultation_date' => 'required|date',
 
             // カテゴリー2: 連絡先
