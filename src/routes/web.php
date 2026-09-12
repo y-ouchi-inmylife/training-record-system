@@ -237,6 +237,8 @@ Route::domain(config('subdomain.client_host'))->group(function () {
                 ->name('settings.index');
             Route::put('/settings/profile', [\App\Http\Controllers\Client\SettingsController::class, 'updateProfile'])
                 ->name('settings.profile.update');
+            Route::put('/settings/password', [\App\Http\Controllers\Client\SettingsController::class, 'updatePassword'])
+                ->name('settings.password.update');
         });
     });
 

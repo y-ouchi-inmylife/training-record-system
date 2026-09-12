@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ClientPasswordChangeRequest;
 use App\Http\Requests\ClientProfileRequest;
+use App\Mail\ClientPasswordChangedMail;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * クライアント登録情報設定コントローラ（S-1406）
@@ -45,5 +49,28 @@ class SettingsController extends Controller
         return redirect()
             ->route('client-portal.settings.index')
             ->with('profile_success', '基本情報を保存しました。');
+    }
+
+    /**
+     * パスワードを変更（PUT /client-portal/settings/password）
+     *
+     * ログアウトさせない（決定事項 #4）。登録アドレスに通知メールを送る。
+     * メール送信失敗時は全ロールバックし、パスワードの更新も無効化する。
+     */
+    public function updatePassword(ClientPasswordChangeRequest $request): RedirectResponse
+    {
+        $client = Auth::guard('client')->user();
+
+        DB::transaction(function () use ($client, $request) {
+            $client->update([
+                'password' => $request->validated()['new_password'],
+            ]);
+            // 登録アドレスに通知メール。失敗時は全ロールバック
+            Mail::to($client->email)->send(new ClientPasswordChangedMail());
+        });
+
+        return redirect()
+            ->route('client-portal.settings.index')
+            ->with('password_success', 'パスワードを変更しました。');
     }
 }

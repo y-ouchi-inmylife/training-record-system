@@ -4,8 +4,9 @@
     $prefectures = config('prefectures');
     // フォームごとにエラーバッグを分離（設計書 S-1406 の備考「エラーは対応する
     // フォームの上部にのみ表示」）。$errors->profile / ->password / ->email
-    // で参照する。段階 4-3 のこの時点では基本情報のみのフォームを扱う。
+    // で参照する。
     $profileErrors = $errors->hasBag('profile') ? $errors->profile : null;
+    $passwordErrors = $errors->hasBag('password') ? $errors->password : null;
 @endphp
 
 @section('title', '登録情報')
@@ -104,6 +105,63 @@
 
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary">基本情報を保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {{-- パスワードの変更フォーム --}}
+        <div class="card mb-4">
+            <div class="card-body p-4">
+                <p class="eyebrow">── パスワードの変更 ──</p>
+
+                @if(session('password_success'))
+                    <div class="alert alert-success" role="alert">
+                        {{ session('password_success') }}
+                    </div>
+                @endif
+
+                @if($passwordErrors && $passwordErrors->any())
+                    <div class="alert alert-danger" role="alert">
+                        @foreach($passwordErrors->all() as $error)
+                            <p class="mb-0">{{ $error }}</p>
+                        @endforeach
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('client-portal.settings.password.update') }}">
+                    @csrf
+                    @method('PUT')
+
+                    {{-- パスワードマネージャー向け username（保存パスワードの紐付け先）--}}
+                    <input type="email" name="username" value="{{ $client->email }}"
+                           autocomplete="username" readonly tabindex="-1" aria-hidden="true"
+                           class="visually-hidden">
+
+                    <div class="mb-3">
+                        <label for="pw_current" class="form-label">現在のパスワード <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control @if($passwordErrors && $passwordErrors->has('current_password')) is-invalid @endif"
+                               id="pw_current" name="current_password" required
+                               autocomplete="current-password">
+                    </div>
+                    <div class="mb-3">
+                        <label for="pw_new" class="form-label">新しいパスワード <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control @if($passwordErrors && $passwordErrors->has('new_password')) is-invalid @endif"
+                               id="pw_new" name="new_password" required
+                               autocomplete="new-password" aria-describedby="pw_new_help">
+                        <div id="pw_new_help" class="form-text">
+                            8 文字以上で、大文字・小文字・数字・記号をそれぞれ 1 つ以上入れてください。
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="pw_new_confirm" class="form-label">新しいパスワード（確認） <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control"
+                               id="pw_new_confirm" name="new_password_confirmation" required
+                               autocomplete="new-password">
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">パスワードを変更</button>
                     </div>
                 </form>
             </div>
