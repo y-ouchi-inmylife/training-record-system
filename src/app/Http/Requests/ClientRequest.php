@@ -1,0 +1,58 @@
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+/**
+ * クライアント登録・編集の共通バリデーションルール。
+ *
+ * 元は ClientController::validationRules() に private で置いていたものを、
+ * クライアント側の初回設定画面（段階 4-1）からも同じルールを使うために
+ * FormRequest として切り出した。ルールの内容は移動時点で一字一句同一。
+ *
+ * 内部ID の重複チェック（update 固有）と、そのカスタムメッセージは
+ * ControllerController::update 内に据え置いている。
+ */
+class ClientRequest extends FormRequest
+{
+    /**
+     * ルーティング側のミドルウェア（practitioners 等）で認可を担保しているため、
+     * ここでは常に true を返す。
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * バリデーションルール。
+     *
+     * 元 ClientController::validationRules() の内容をそのまま移した。
+     * 電話番号1／予備の電話番号（phone1 / phone2）のラベル差替は
+     * `lang/ja/validation.php` の attributes セクションで解決している。
+     */
+    public function rules(): array
+    {
+        return [
+            // カテゴリー1: 基本情報
+            'last_name' => 'required|string|max:50',
+            'first_name' => 'nullable|string|max:50',
+            'last_name_kana' => ['nullable', 'string', 'max:50', 'regex:/^[\p{Hiragana}\s　]+$/u'],
+            'first_name_kana' => ['nullable', 'string', 'max:50', 'regex:/^[\p{Hiragana}\s　]+$/u'],
+            'email' => 'nullable|email|max:255',
+            'initial_consultation_date' => 'required|date',
+
+            // カテゴリー2: 連絡先
+            'phone1' => ['nullable', 'string', 'max:20', 'regex:/^[0-9\-]+$/'],
+            'phone2' => ['nullable', 'string', 'max:20', 'regex:/^[0-9\-]+$/'],
+            'postal_code' => ['nullable', 'string', 'regex:/^\d{3}-?\d{4}$/'],
+            'address1' => 'nullable|string|max:50',
+            'address2' => 'nullable|string|max:50',
+            'address3' => 'nullable|string|max:100',
+            'address4' => 'nullable|string|max:100',
+
+            'primary_trainer_id' => 'nullable|exists:trainers,id',
+        ];
+    }
+}

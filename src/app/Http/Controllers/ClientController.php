@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ClientRequest;
 use App\Models\Client;
 use App\Models\TrainingRecord;
 use App\Models\Trainer;
@@ -114,9 +115,9 @@ class ClientController extends Controller
     /**
      * クライアント登録処理
      */
-    public function store(Request $request): RedirectResponse
+    public function store(ClientRequest $request): RedirectResponse
     {
-        $validated = $request->validate($this->validationRules());
+        $validated = $request->validated();
 
         $validated['updated_by'] = auth()->id();
 
@@ -160,16 +161,17 @@ class ClientController extends Controller
     /**
      * クライアント更新処理
      */
-    public function update(Request $request, Client $client): RedirectResponse
+    public function update(ClientRequest $request, Client $client): RedirectResponse
     {
-        $validated = $request->validate(
-            array_merge(
-                ['internal_id' => 'required|numeric|unique:clients,internal_id,' . $client->id],
-                $this->validationRules()
-            ),
+        // ClientRequest が基本項目を先に自動検証。
+        // internal_id は update 固有の追加ルールなのでコントローラ側で個別に検証する。
+        $request->validate(
+            ['internal_id' => 'required|numeric|unique:clients,internal_id,' . $client->id],
             $this->internalIdMessages()
         );
 
+        $validated = $request->validated();
+        $validated['internal_id'] = $request->input('internal_id');
         $validated['updated_by'] = auth()->id();
         $client->update($validated);
 
@@ -256,27 +258,4 @@ class ClientController extends Controller
         ];
     }
 
-    private function validationRules(): array
-    {
-        return [
-            // カテゴリー1: 基本情報
-            'last_name' => 'required|string|max:50',
-            'first_name' => 'nullable|string|max:50',
-            'last_name_kana' => ['nullable', 'string', 'max:50', 'regex:/^[\p{Hiragana}\s　]+$/u'],
-            'first_name_kana' => ['nullable', 'string', 'max:50', 'regex:/^[\p{Hiragana}\s　]+$/u'],
-            'email' => 'nullable|email|max:255',
-            'initial_consultation_date' => 'required|date',
-
-            // カテゴリー2: 連絡先
-            'phone1' => ['nullable', 'string', 'max:20', 'regex:/^[0-9\-]+$/'],
-            'phone2' => ['nullable', 'string', 'max:20', 'regex:/^[0-9\-]+$/'],
-            'postal_code' => ['nullable', 'string', 'regex:/^\d{3}-?\d{4}$/'],
-            'address1' => 'nullable|string|max:50',
-            'address2' => 'nullable|string|max:50',
-            'address3' => 'nullable|string|max:100',
-            'address4' => 'nullable|string|max:100',
-
-            'primary_trainer_id' => 'nullable|exists:trainers,id',
-        ];
-    }
 }
