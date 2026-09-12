@@ -170,7 +170,7 @@
                     @if($client->email)
                         <span>{{ $client->email }}</span>
                     @endif
-                    <span class="badge fs-6 {{ $badge['class'] }}">{{ $badge['label'] }}</span>
+                    <span class="badge {{ $badge['class'] }}">{{ $badge['label'] }}</span>
                 </div>
             </div>
         </div>
