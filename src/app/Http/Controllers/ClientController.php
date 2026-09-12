@@ -154,11 +154,8 @@ class ClientController extends Controller
             ->orderByDesc('id')
             ->first();
 
-        // メールアドレス登録用 URL を組み立てる。
-        // 対応するルートは段階 4-1 コミット 3 で追加されるため、
-        // ここでは URL 文字列を直接組み立てる（URL 表示・コピー用途）。
         $emailRegistrationUrl = $activeEmailRegToken
-            ? $this->buildEmailRegistrationUrl($activeEmailRegToken->token)
+            ? route('client-portal.email-registration.show', ['token' => $activeEmailRegToken->token])
             : null;
 
         return view('clients.show', compact(
@@ -167,19 +164,6 @@ class ClientController extends Controller
             'activeEmailRegToken',
             'emailRegistrationUrl',
         ));
-    }
-
-    /**
-     * クライアント側公開URL（メールアドレス登録用）を組み立てる。
-     * 本番はクライアント用サブドメインで発行、開発環境は現在のホストで発行する。
-     */
-    private function buildEmailRegistrationUrl(string $token): string
-    {
-        $clientHost = config('subdomain.client_host');
-        $scheme = request()->getScheme();
-        $host = $clientHost ?: request()->getHttpHost();
-
-        return sprintf('%s://%s/client-portal/email-registration/%s', $scheme, $host, $token);
     }
 
     /**

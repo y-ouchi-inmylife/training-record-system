@@ -30,8 +30,7 @@ return new class extends Migration
             $table->string('address4', 100)->nullable()->comment('住所4（建物名・部屋番号）');
 
             // クライアント閲覧機能（柱2）用の認証カラム
-            $table->string('password', 255)->nullable()->comment('クライアント閲覧機能のパスワードのハッシュ値（bcrypt）。閲覧解放後、本人が設定するまでNULL');
-            $table->boolean('is_viewable')->default(false)->comment('クライアント閲覧解放フラグ');
+            $table->string('password', 255)->nullable()->comment('クライアント閲覧機能のパスワードのハッシュ値（bcrypt）。初回設定を完了するまで NULL');
 
             // カテゴリー7: 支援管理
             $table->unsignedBigInteger('primary_trainer_id')->nullable();

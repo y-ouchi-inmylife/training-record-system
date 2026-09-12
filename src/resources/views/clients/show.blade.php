@@ -84,20 +84,6 @@
         {{-- 1段目: 操作ボタン群（右寄せ） --}}
         <div class="d-flex justify-content-end gap-2 mb-2">
             <a href="{{ route('clients.index') }}" class="btn btn-outline-secondary">&laquo; クライアント一覧に戻る</a>
-            {{-- 閲覧解放 / 解放取り消しボタン（段階 4-1 コミット 4 で削除予定） --}}
-            @if(!$client->is_viewable)
-                <form method="POST" action="{{ route('client-view-release.store', $client) }}"
-                      onsubmit="return confirmReleaseView()" class="d-inline m-0">
-                    @csrf
-                    <button type="submit" class="btn btn-outline-secondary">閲覧を解放する</button>
-                </form>
-            @else
-                <form method="POST" action="{{ route('client-view-revoke.store', $client) }}"
-                      onsubmit="return confirmRevokeView()" class="d-inline m-0">
-                    @csrf
-                    <button type="submit" class="btn btn-outline-secondary">閲覧の解放を取り消す</button>
-                </form>
-            @endif
             {{-- メールアドレス登録用 URL を発行（段階 4-1）— モーダルで発行・再発行を扱う --}}
             <button type="button" class="btn btn-primary"
                     data-bs-toggle="modal" data-bs-target="#emailRegistrationTokenModal">
@@ -133,7 +119,7 @@
                 <span class="font-monospace fs-5">{{ $client->internal_id }}</span>
             </div>
         </div>
-        {{-- 3段目: 属性3列 --}}
+        {{-- 3段目: 属性2列。状態バッジは段階 4-2 で追加予定 --}}
         <div class="row g-3 mt-2 pt-2 border-top">
             <div class="col-md-3">
                 <div class="text-muted small">初回日</div>
@@ -143,44 +129,8 @@
                 <div class="text-muted small">主担当</div>
                 <div style="min-height: 1.5rem;">{{ $client->primaryTrainer?->name }}</div>
             </div>
-            <div class="col-md-3">
-                <div class="text-muted small">閲覧状態</div>
-                <div style="min-height: 1.5rem;">
-                    @if(!$client->is_viewable && empty($client->email))
-                        <span class="badge bg-secondary fs-6">メールアドレス未登録</span>
-                    @elseif(!$client->is_viewable)
-                        <span class="badge bg-secondary fs-6">未解放</span>
-                    @elseif(empty($client->password))
-                        <span class="badge bg-warning text-dark fs-6">解放中（パスワード未設定）</span>
-                    @else
-                        <span class="badge bg-success fs-6">解放中</span>
-                    @endif
-                </div>
-            </div>
         </div>
     </div>
-
-    @push('scripts')
-        @if(!$client->is_viewable)
-        <script>
-        function confirmReleaseView() {
-            @if(empty($client->email))
-                alert('メールアドレスが未登録のため、閲覧を解放できません。編集画面でメールアドレスを登録してください。');
-                return false;
-            @else
-                return confirm('{{ $client->email }} に招待メールを送信し、閲覧を解放します。よろしいですか？');
-            @endif
-        }
-        </script>
-        @endif
-        @if($client->is_viewable)
-        <script>
-        function confirmRevokeView() {
-            return confirm('閲覧の解放を取り消すと、このクライアントは記録を閲覧できなくなり、解放前の状態に戻ります。再び閲覧してもらうには、閲覧の解放とパスワードの再設定が必要です。よろしいですか？');
-        }
-        </script>
-        @endif
-    @endpush
 
     <div class="row g-3">
         {{-- 左カラム: トレーニング記録（タイムライン） --}}

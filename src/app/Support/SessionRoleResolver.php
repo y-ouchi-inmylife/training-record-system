@@ -31,7 +31,7 @@ class SessionRoleResolver
         }
 
         // クライアント側パス（client-portal）。
-        // password-setup は client-portal/password-setup/* なので client-portal/* に含まれる。
+        // 初回設定・メールアドレス登録などの公開画面も client-portal/* 配下にある。
         return $request->is('client-portal/*');
     }
 

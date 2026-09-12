@@ -8,7 +8,7 @@
     "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
   },
   "resources/js/address-search.js": {
-    "file": "assets/address-search-joFG5S6a.js",
+    "file": "assets/address-search-fo0Cmbll.js",
     "name": "address-search",
     "src": "resources/js/address-search.js",
     "isEntry": true
@@ -29,7 +29,7 @@
     ]
   },
   "resources/sass/client.scss": {
-    "file": "assets/client-BBxTPmVZ.css",
+    "file": "assets/client-DpZeGr_A.css",
     "src": "resources/sass/client.scss",
     "isEntry": true,
     "name": "client",

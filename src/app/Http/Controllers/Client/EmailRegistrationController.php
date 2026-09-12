@@ -131,9 +131,8 @@ class EmailRegistrationController extends Controller
 
     private function invalidTokenView(string $title, string $message): View
     {
-        // 段階 4-1 コミット 3 の時点では、既存のパスワード設定側の無効トークンビューを流用する。
-        // 段階 4-1 コミット 4 で `client/setup/invalid-token.blade.php` に移設予定。
-        return view('client.password-setup.invalid-token', [
+        // 段階 4-1 コミット 4 で `client/setup/invalid-token.blade.php` に移設済み。
+        return view('client.setup.invalid-token', [
             'title' => $title,
             'message' => $message,
         ]);

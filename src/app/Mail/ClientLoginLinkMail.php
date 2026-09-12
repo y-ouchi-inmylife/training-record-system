@@ -43,10 +43,7 @@ class ClientLoginLinkMail extends Mailable
             text: 'mail.client-login-link',
             with: [
                 // ログイン用リンク（初回設定画面のトークン付き URL）。
-                // このルートは段階 4-1 コミット 4 で
-                // `client-portal.password-setup.show` → `client-portal.setup.show`
-                // にリネーム予定。コミット 3 時点では既存のルート名で組み立てる。
-                'loginUrl' => route('client-portal.password-setup.show', ['token' => $this->token->token]),
+                'loginUrl' => route('client-portal.setup.show', ['token' => $this->token->token]),
                 'expiresAt' => $this->token->expires_at,
             ],
         );

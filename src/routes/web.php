@@ -9,8 +9,6 @@ use App\Http\Controllers\Client\LoginController as ClientLoginController;
 use App\Http\Controllers\Client\LogoutController as ClientLogoutController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientEmailRegistrationTokenController;
-use App\Http\Controllers\ClientViewReleaseController;
-use App\Http\Controllers\ClientViewRevokeController;
 use App\Http\Controllers\TrainingTypeController;
 use App\Http\Controllers\TrainingRecordController;
 use App\Http\Controllers\TrainerController;
@@ -75,11 +73,6 @@ Route::domain(config('subdomain.trainer_host'))->middleware('check-ip')->group(f
         Route::middleware('practitioners')->group(function () {
             Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
             Route::resource('clients', ClientController::class);
-            // クライアント閲覧解放（柱2）— Route::resource の外に個別追加
-            Route::post('clients/{client}/release-view', [ClientViewReleaseController::class, 'store'])
-                ->name('client-view-release.store');
-            Route::post('clients/{client}/revoke-view', [ClientViewRevokeController::class, 'store'])
-                ->name('client-view-revoke.store');
             // メールアドレス登録用 URL の発行（段階 4-1）
             Route::post('clients/{client}/email-registration-tokens', [ClientEmailRegistrationTokenController::class, 'store'])
                 ->name('client-email-registration-tokens.store');
@@ -195,12 +188,13 @@ Route::domain(config('subdomain.client_host'))->group(function () {
 
     // --- 公開（認証不要） ---
 
-    // クライアントパスワード設定(柱2 塊D 段2、公開URL、認証不要)。
+    // クライアント初回設定（S-1403、公開URL、認証不要）。
     // /client-portal/* の auth:client グループには入れず、認証不要の公開領域に置く。
-    Route::get('client-portal/password-setup/{token}', [\App\Http\Controllers\Client\PasswordSetupController::class, 'showByToken'])
-        ->name('client-portal.password-setup.show');
-    Route::post('client-portal/password-setup/{token}', [\App\Http\Controllers\Client\PasswordSetupController::class, 'storeByToken'])
-        ->name('client-portal.password-setup.store');
+    // GET 時にトークン検証と同時に client guard でログインさせる（自動ログイン）。
+    Route::get('client-portal/setup/{token}', [\App\Http\Controllers\Client\InitialSetupController::class, 'showByToken'])
+        ->name('client-portal.setup.show');
+    Route::post('client-portal/setup/{token}', [\App\Http\Controllers\Client\InitialSetupController::class, 'storeByToken'])
+        ->name('client-portal.setup.store');
 
     // メールアドレス登録画面（S-1405、公開URL、認証不要）。段階 4-1。
     Route::get('client-portal/email-registration/{token}', [\App\Http\Controllers\Client\EmailRegistrationController::class, 'showByToken'])

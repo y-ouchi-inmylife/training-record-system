@@ -29,7 +29,7 @@ class Client extends Authenticatable
         'phone1', 'phone2', 'email',
         'postal_code', 'address1', 'address2', 'address3', 'address4',
         // クライアント閲覧機能（柱2）
-        'password', 'is_viewable',
+        'password',
         // 最終更新者
         'updated_by',
     ];
@@ -43,7 +43,6 @@ class Client extends Authenticatable
         return [
             'initial_consultation_date' => 'date',
             'password' => 'hashed',
-            'is_viewable' => 'boolean',
         ];
     }
 
