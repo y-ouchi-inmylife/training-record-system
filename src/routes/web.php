@@ -8,6 +8,7 @@ use App\Http\Controllers\Client\DashboardController as ClientDashboardController
 use App\Http\Controllers\Client\LoginController as ClientLoginController;
 use App\Http\Controllers\Client\LogoutController as ClientLogoutController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ClientEmailRegistrationTokenController;
 use App\Http\Controllers\ClientViewReleaseController;
 use App\Http\Controllers\ClientViewRevokeController;
 use App\Http\Controllers\TrainingTypeController;
@@ -79,6 +80,9 @@ Route::domain(config('subdomain.trainer_host'))->middleware('check-ip')->group(f
                 ->name('client-view-release.store');
             Route::post('clients/{client}/revoke-view', [ClientViewRevokeController::class, 'store'])
                 ->name('client-view-revoke.store');
+            // メールアドレス登録用 URL の発行（段階 4-1）
+            Route::post('clients/{client}/email-registration-tokens', [ClientEmailRegistrationTokenController::class, 'store'])
+                ->name('client-email-registration-tokens.store');
             Route::resource('training-records', TrainingRecordController::class);
 
             // 旧録音画面 → 録音【改良版】にリダイレクト

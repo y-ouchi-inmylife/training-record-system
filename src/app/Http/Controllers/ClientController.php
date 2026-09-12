@@ -146,7 +146,40 @@ class ClientController extends Controller
 
         $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
 
-        return view('clients.show', compact('client', 'trainers'));
+        // 有効な（未使用かつ有効期限内）メールアドレス登録用トークンを 1 件取得。
+        // 通常は再発行で常に 1 件のみになるが、防御的に最新 1 件を採用する。
+        $activeEmailRegToken = $client->emailRegistrationTokens()
+            ->where('is_used', false)
+            ->where('expires_at', '>', now())
+            ->orderByDesc('id')
+            ->first();
+
+        // メールアドレス登録用 URL を組み立てる。
+        // 対応するルートは段階 4-1 コミット 3 で追加されるため、
+        // ここでは URL 文字列を直接組み立てる（URL 表示・コピー用途）。
+        $emailRegistrationUrl = $activeEmailRegToken
+            ? $this->buildEmailRegistrationUrl($activeEmailRegToken->token)
+            : null;
+
+        return view('clients.show', compact(
+            'client',
+            'trainers',
+            'activeEmailRegToken',
+            'emailRegistrationUrl',
+        ));
+    }
+
+    /**
+     * クライアント側公開URL（メールアドレス登録用）を組み立てる。
+     * 本番はクライアント用サブドメインで発行、開発環境は現在のホストで発行する。
+     */
+    private function buildEmailRegistrationUrl(string $token): string
+    {
+        $clientHost = config('subdomain.client_host');
+        $scheme = request()->getScheme();
+        $host = $clientHost ?: request()->getHttpHost();
+
+        return sprintf('%s://%s/client-portal/email-registration/%s', $scheme, $host, $token);
     }
 
     /**

@@ -84,12 +84,12 @@
         {{-- 1段目: 操作ボタン群（右寄せ） --}}
         <div class="d-flex justify-content-end gap-2 mb-2">
             <a href="{{ route('clients.index') }}" class="btn btn-outline-secondary">&laquo; クライアント一覧に戻る</a>
-            {{-- 閲覧解放 / 解放取り消しボタン（未解放なら「解放する」、解放済みなら「解放を取り消す」を排他表示） --}}
+            {{-- 閲覧解放 / 解放取り消しボタン（段階 4-1 コミット 4 で削除予定） --}}
             @if(!$client->is_viewable)
                 <form method="POST" action="{{ route('client-view-release.store', $client) }}"
                       onsubmit="return confirmReleaseView()" class="d-inline m-0">
                     @csrf
-                    <button type="submit" class="btn btn-primary">閲覧を解放する</button>
+                    <button type="submit" class="btn btn-outline-secondary">閲覧を解放する</button>
                 </form>
             @else
                 <form method="POST" action="{{ route('client-view-revoke.store', $client) }}"
@@ -98,6 +98,11 @@
                     <button type="submit" class="btn btn-outline-secondary">閲覧の解放を取り消す</button>
                 </form>
             @endif
+            {{-- メールアドレス登録用 URL を発行（段階 4-1）— モーダルで発行・再発行を扱う --}}
+            <button type="button" class="btn btn-primary"
+                    data-bs-toggle="modal" data-bs-target="#emailRegistrationTokenModal">
+                メールアドレス登録用 URL を発行
+            </button>
             <a href="{{ route('clients.edit', $client) }}" class="btn btn-primary">編集</a>
             @if(auth()->user()->isAdmin())
                 <form method="POST" action="{{ route('clients.destroy', $client) }}" class="d-inline"
@@ -277,5 +282,89 @@
         最終更新: {{ $client->updated_at->format('Y/m/d H:i') }} {{ $client->updatedBy?->name ?: '—' }}
     </div>
 
+    {{-- メールアドレス登録用 URL 発行モーダル --}}
+    <div class="modal fade" id="emailRegistrationTokenModal" tabindex="-1"
+         aria-labelledby="emailRegistrationTokenModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="emailRegistrationTokenModalLabel">
+                        メールアドレス登録用 URL の発行
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @if($emailRegistrationUrl)
+                        {{-- 発行済み：URL・コピー・有効期限・発行し直し --}}
+                        <p class="mb-2">発行済みのメールアドレス登録用 URL があります。お客様にお渡しください。</p>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted mb-1">URL</label>
+                            <div class="input-group">
+                                <input type="text" id="emailRegistrationUrlInput"
+                                       class="form-control font-monospace" readonly
+                                       value="{{ $emailRegistrationUrl }}">
+                                <button type="button" class="btn btn-outline-secondary"
+                                        onclick="copyEmailRegistrationUrl()">コピー</button>
+                            </div>
+                            <div id="emailRegistrationUrlCopyStatus" class="form-text text-success" style="display: none;">
+                                コピーしました
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="text-muted small">有効期限</div>
+                            <div>{{ $activeEmailRegToken->expires_at->format('Y/m/d H:i') }} まで</div>
+                        </div>
+                        <p class="text-muted small mb-0">
+                            発行し直すと、上記の URL と、送信済みのログイン用リンクは無効になります。
+                        </p>
+                    @else
+                        {{-- 未発行：発行の案内 --}}
+                        <p class="mb-0">
+                            このクライアントにメールアドレス登録用 URL を発行します。<br>
+                            発行された URL をお客様にお渡しし、メールアドレスを登録してもらいます。
+                        </p>
+                    @endif
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">閉じる</button>
+                    <form method="POST" action="{{ route('client-email-registration-tokens.store', $client) }}"
+                          class="d-inline m-0">
+                        @csrf
+                        <button type="submit" class="btn btn-primary">
+                            {{ $emailRegistrationUrl ? '発行し直す' : '発行する' }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
+@push('scripts')
+<script>
+// メールアドレス登録用 URL をクリップボードにコピー
+function copyEmailRegistrationUrl() {
+    const input = document.getElementById('emailRegistrationUrlInput');
+    if (!input) return;
+    // execCommand フォールバックを含む二段構え
+    const doneMsg = document.getElementById('emailRegistrationUrlCopyStatus');
+    const showDone = () => {
+        if (!doneMsg) return;
+        doneMsg.style.display = '';
+        setTimeout(() => { doneMsg.style.display = 'none'; }, 2000);
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(input.value).then(showDone).catch(() => {
+            input.select();
+            document.execCommand('copy');
+            showDone();
+        });
+    } else {
+        input.select();
+        document.execCommand('copy');
+        showDone();
+    }
+}
+</script>
+@endpush
 @endsection
