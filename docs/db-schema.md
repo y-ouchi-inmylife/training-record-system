@@ -207,8 +207,6 @@ erDiagram
 | first_name | VARCHAR(50) | YES | NULL | 名 |
 | last_name_kana | VARCHAR(50) | YES | NULL | せい。ひらがなのみ |
 | first_name_kana | VARCHAR(50) | YES | NULL | めい。ひらがなのみ |
-| birth_date | DATE | YES | NULL | 生年月日 |
-| gender | VARCHAR(10) | YES | NULL | 性別（5-2.参照） |
 | primary_trainer_id | BIGINT UNSIGNED | YES | NULL | 主担当トレーナーのID（外部キー） |
 | phone1 | VARCHAR(20) | YES | NULL | 電話番号1。ハイフンあり/なし両対応 |
 | phone2 | VARCHAR(20) | YES | NULL | 電話番号2。ハイフンあり/なし両対応 |
@@ -240,7 +238,6 @@ erDiagram
 
 | 制約名 | 種類 | 条件 | ON DELETE | 説明 |
 |--------|------|------|-----------|------|
-| clients_gender_check | CHECK | gender IS NULL OR gender IN ('男', '女', '無回答') | — | 定義済みの性別のみ許可（5-2.参照） |
 | clients_primary_trainer_id_foreign | FOREIGN KEY | primary_trainer_id → trainers(id) | SET NULL | トレーナー削除時は主担当をNULLにする |
 | clients_updated_by_foreign | FOREIGN KEY | updated_by → trainers(id) | SET NULL | トレーナー削除時は最終更新者をNULLにする |
 
@@ -687,14 +684,6 @@ erDiagram
 
 
 ## 5. ENUMおよび定数
-
-### 5-2. 性別
-
-| 値 | 説明 |
-|----|------|
-| 男 | |
-| 女 | |
-| 無回答 | |
 
 ### 5-13. 音声ソース種別
 
