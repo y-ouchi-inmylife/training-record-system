@@ -29,7 +29,7 @@ class ClientRequest extends FormRequest
      * バリデーションルール。
      *
      * 元 ClientController::validationRules() の内容をそのまま移した。
-     * 電話番号1／予備の電話番号（phone1 / phone2）のラベル差替は
+     * 電話番号／電話番号（予備）（phone1 / phone2）のラベル差替は
      * `lang/ja/validation.php` の attributes セクションで解決している。
      */
     public function rules(): array

@@ -55,7 +55,7 @@
                                value="{{ old('phone1', $client->phone1) }}">
                     </div>
                     <div class="mb-3">
-                        <label for="phone2" class="form-label">予備の電話番号</label>
+                        <label for="phone2" class="form-label">電話番号（予備）</label>
                         <input type="tel" class="form-control @if($profileErrors && $profileErrors->has('phone2')) is-invalid @endif"
                                id="phone2" name="phone2" maxlength="20"
                                value="{{ old('phone2', $client->phone2) }}">

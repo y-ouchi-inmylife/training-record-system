@@ -209,7 +209,7 @@
                 </div>
 
                 <div class="row g-3 mb-2">
-                    {{-- 行3: 電話番号 + 予備の電話番号 --}}
+                    {{-- 行3: 電話番号 + 電話番号（予備） --}}
                     <div class="col-md-4">
                         <div class="row g-2 align-items-center">
                             <label for="phone1" class="col-md-auto col-form-label text-md-end form-label-fixed">電話番号</label>
@@ -223,7 +223,7 @@
                     </div>
                     <div class="col-md-4">
                         <div class="row g-2 align-items-center">
-                            <label for="phone2" class="col-md-auto col-form-label text-md-end form-label-fixed">予備の電話番号</label>
+                            <label for="phone2" class="col-md-auto col-form-label text-md-end form-label-fixed">電話番号（予備）</label>
                             <div class="col-12 col-md">
                                 <input type="tel" class="form-control @error('phone2') is-invalid @enderror"
                                        id="phone2" name="phone2" value="{{ old('phone2', $client?->phone2) }}" placeholder="例: 090-1234-5678"

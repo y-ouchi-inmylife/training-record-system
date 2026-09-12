@@ -21,7 +21,7 @@ return new class extends Migration
 
             // カテゴリー2: 連絡先
             $table->string('phone1', 20)->nullable()->comment('電話番号');
-            $table->string('phone2', 20)->nullable()->comment('予備の電話番号');
+            $table->string('phone2', 20)->nullable()->comment('電話番号（予備）');
             $table->string('email', 255)->nullable()->comment('メールアドレス');
             $table->string('postal_code', 10)->nullable()->comment('郵便番号');
             $table->string('address1', 50)->nullable()->comment('住所1（都道府県）');

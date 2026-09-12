@@ -265,7 +265,7 @@
                 <x-detail-cell label="住所" :value="$fullAddress" />
                 <div class="col-6 col-md-4"></div>
                 <x-detail-cell label="電話番号" :value="$client->phone1" />
-                <x-detail-cell label="予備の電話番号" :value="$client->phone2" />
+                <x-detail-cell label="電話番号（予備）" :value="$client->phone2" />
             </div>
         </div>
     </div>

@@ -205,7 +205,7 @@ return [
         'first_name_kana' => 'めい',
         'initial_consultation_date' => '初回日',
         'phone1' => '電話番号',
-        'phone2' => '予備の電話番号',
+        'phone2' => '電話番号（予備）',
         'email' => 'メールアドレス',
         'postal_code' => '郵便番号',
         'address1' => '都道府県',

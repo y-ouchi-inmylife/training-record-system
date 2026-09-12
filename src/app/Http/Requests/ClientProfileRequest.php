@@ -40,7 +40,7 @@ class ClientProfileRequest extends FormRequest
         return [
             'phone1.required' => '電話番号を入力してください。',
             'phone1.regex' => '電話番号の形式が正しくありません。',
-            'phone2.regex' => '予備の電話番号の形式が正しくありません。',
+            'phone2.regex' => '電話番号（予備）の形式が正しくありません。',
             'postal_code.required' => '郵便番号を入力してください。',
             'postal_code.regex' => '郵便番号の形式が正しくありません。',
             'address1.required' => '都道府県を選択してください。',
