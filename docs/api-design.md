@@ -131,6 +131,11 @@ IP アドレス制限は、**トレーナー用サブドメイン（内部）の
 | クライアント閲覧 | S-1404 クライアントトレーニング記録詳細画面 | GET | `/client-portal/media/{id}/play` | クライアントが自分の記録に紐づくメディアを表示・再生する | auth:client | クライアント |
 | クライアント閲覧 | S-1405 クライアントメールアドレス登録画面 | GET | `/client-portal/email-registration/{token}` | メールアドレス登録画面を表示する（トークン検証） | public | - |
 | クライアント閲覧 | S-1405 クライアントメールアドレス登録画面 | POST | `/client-portal/email-registration/{token}` | メールアドレスを登録し、ログイン用リンクを送信する | public | - |
+| クライアント閲覧 | S-1406 クライアント登録情報設定画面 | GET | `/client-portal/settings` | 登録情報設定画面を表示する | auth:client | クライアント |
+| クライアント閲覧 | S-1406 クライアント登録情報設定画面 | PUT | `/client-portal/settings/profile` | 連絡先（電話番号・住所）を更新する | auth:client | クライアント |
+| クライアント閲覧 | S-1406 クライアント登録情報設定画面 | POST | `/client-portal/settings/email-change` | メールアドレス変更を申し込み、新しいアドレス宛にメールアドレス確認リンクを送信する | auth:client | クライアント |
+| クライアント閲覧 | S-1406 クライアント登録情報設定画面 | PUT | `/client-portal/settings/password` | パスワードを変更する | auth:client | クライアント |
+| クライアント閲覧 | (S-1406 派生・専用画面なし) | GET | `/client-portal/email-change/{token}` | メールアドレス確認リンクを開き、メールアドレスを切り替えてログアウトする（無効時のみ無効トークン画面を表示） | public | - |
 | クライアント管理 | S-0305 クライアント詳細画面 | POST | `/clients/{client}/email-registration-tokens` | メールアドレス登録用 URL を発行する（未発行時の発行と再発行を同じエンドポイントで扱う） | auth | 管理者、一般 |
 | 内部API | - | GET | `/api/clients/search` | クライアントを検索する | auth | 管理者、一般 |
 | 内部API | - | POST | `/api/training-records/auto-create` | 音声記録の要約からトレーニング記録を作成する | auth | 管理者、一般 |
@@ -1545,6 +1550,125 @@ POST /training-records に以下を追加する。
 - 成功：同画面の完了状態を表示（入力されたメールアドレスを表示。届かない場合の「入力し直す」ボタンを提供）
 - トークン無効：トークンエラー画面
 - 重複：`back()` ＋「このメールアドレスは登録できません。担当トレーナーにご連絡ください」を表示（入力状態を保持し、URL は引き続き有効）
+- 失敗：`back()` ＋ バリデーションエラーメッセージ
+
+---
+
+##### S-1406 クライアント登録情報設定画面
+
+ログイン中のクライアントが、連絡先・メールアドレス・パスワードを変更する画面。三つの独立したフォームを一画面に並べる。
+
+###### GET /client-portal/settings
+
+**概要**: 登録情報設定画面を表示する。
+
+**処理**:
+- ログイン中のクライアントに紐づく現在の値（氏名・連絡先・現在のメールアドレス）を view に渡す
+
+**レスポンス**:
+- view `client.settings.index`（基本情報・メールアドレス変更・パスワード変更の三つのフォームを含む）
+
+
+###### PUT /client-portal/settings/profile
+
+**概要**: 連絡先（電話番号・住所）を更新する。氏名は変更させない。
+
+**リクエスト**:
+
+| パラメータ | 型 | 必須 | バリデーション | 説明 |
+|-----------|-----|------|---------------|------|
+| phone1 | string | ● | required, string, max:20, regex:/^[0-9\-]+$/ | 電話番号 |
+| phone2 | string | | nullable, string, max:20, regex:/^[0-9\-]+$/ | 予備の電話番号 |
+| postal_code | string | ● | required, string, regex:/^\d{3}-?\d{4}$/ | 郵便番号 |
+| address1 | string | ● | required, string, max:50 | 都道府県 |
+| address2 | string | ● | required, string, max:50 | 市区町村 |
+| address3 | string | ● | required, string, max:100 | 町名・番地 |
+| address4 | string | | nullable, string, max:100 | 建物名・部屋番号 |
+
+**処理**:
+- ログイン中クライアントの `clients` の該当カラムを更新する
+- 氏名・メールアドレス・パスワードには一切触れない
+
+**レスポンス**:
+- 成功：`redirect('/client-portal/settings')` ＋「基本情報を保存しました」（フラッシュメッセージ）
+- 失敗：`back()` ＋ バリデーションエラーメッセージ（他フォームの状態には影響しない）
+
+
+###### POST /client-portal/settings/email-change
+
+**概要**: メールアドレス変更を申し込み、新しいアドレス宛にメールアドレス確認リンクを送信する。**この時点では `clients.email` は書き換えない**。切替は次項 `GET /client-portal/email-change/{token}` で行う。
+
+**リクエスト**:
+
+| パラメータ | 型 | 必須 | バリデーション | 説明 |
+|-----------|-----|------|---------------|------|
+| new_email | string | ● | required, email, max:255, different:current-email, unique:clients,email,{client_id} | 新しいメールアドレス。現在と同じ場合と、他クライアントで使用中の場合は申し込めない |
+| current_password | string | ● | required, current_password (client guard) | 本人確認のため入力する現在のパスワード |
+
+**処理**:
+- 現在のパスワードを照合する（一致しない場合はバリデーションエラー）
+- 新しいメールアドレスの重複と、現在のアドレスと同じでないことを確認する
+- 以下を 1 つのトランザクションで実行する：
+  - 同一クライアントの `client_email_change_tokens` のうち未使用のトークンがあれば物理削除する（同時に生きる確認リンクは 1 本に制限）
+  - `client_email_change_tokens` にランダムなトークンを 1 件作成する。`new_email` に新しいアドレスを保持、`expires_at` は現在日時から **3 日後**（設定値は `architecture.md` §3-1 の `client_tokens.email_change_confirm_expires_days`）
+  - 新しいメールアドレス宛にメールアドレス確認リンクを送信する
+- メール送信の失敗は全ロールバック
+- **`clients.email` は書き換えない**（確認完了までは古いアドレスのままログイン可能）
+
+**レスポンス**:
+- 成功：`redirect('/client-portal/settings')` ＋「新しいメールアドレス宛に確認メールを送信しました。メールのリンクを開くとメールアドレスが切り替わります」
+- 失敗：`back()` ＋ バリデーションエラーメッセージ
+
+**備考**:
+- 「メールアドレス確認リンク」はメールアドレスを切り替えるだけの役割で、ログイン用リンク（DS-0600）とは性質が異なる（ログインさせる働きを持たない）
+- 他のトークン（メールアドレス登録用 URL・ログイン用リンク）とは無関係に発行されるため、独立した有効期限を持つ
+
+
+###### GET /client-portal/email-change/{token}
+
+**概要**: メールアドレス確認リンクを開いたときの処理。**専用の画面を持たない**（切替後に S-1401 クライアントログイン画面へリダイレクトする）。ただし、リンクが無効・期限切れ・使用済み・重複の場合は既存の無効トークン画面（`client.setup.invalid-token`）を返す。**ログイン状態を問わず、同じ処理を実行する**（決定事項 #9）。
+
+**処理**:
+- トークンの有効性を「存在する／期限内／未使用」の順にチェック
+- 有効な場合、以下を 1 つのトランザクションで実行する：
+  - **切替の直前に、`client_email_change_tokens.new_email` の値が他クライアントで使われていないかを再チェックする**（申し込みから確認までの間に他クライアントが同じアドレスを登録した可能性があるため）
+  - 対象クライアントの `clients.email` を `new_email` に更新する
+  - 当該トークンを使用済み（is_used=true）にする
+  - **古いメールアドレス宛に通知メール**を送信する（「メールアドレスが変更されました。心当たりがない場合は担当トレーナーにご連絡ください」）
+- 通知メール送信の失敗は全ロールバック
+- 切替後、`Auth::guard('client')->logout()` でログアウトさせ、クライアントログイン画面（S-1401）へリダイレクトする。ログイン画面には「メールアドレスを変更しました。新しいメールアドレスでログインしてください」を表示する
+- **ログイン状態にかかわらず同じ処理**を行う（未ログインからリンクを開いても同じ結果になる。新しいアドレスでログインできることをその場で確かめられるようにするため）
+
+**レスポンス**:
+- 有効：`redirect('/client-portal/login')` ＋「メールアドレスを変更しました。新しいメールアドレスでログインしてください」（フラッシュメッセージ）。ログイン中だった場合は同時にログアウトを実行
+- 無効：view `client.setup.invalid-token`「このURLは無効です」
+- 期限切れ：view `client.setup.invalid-token`「このURLは期限切れです」
+- 使用済み：view `client.setup.invalid-token`「このURLは既に使用されています」
+- 重複（再チェックで発覚）：view `client.setup.invalid-token`「このメールアドレスは登録できません。担当トレーナーにご連絡ください」。**トークンは使用済みにしない**（後日、別アドレスで申し込み直せるよう `clients.email` も書き換えない）
+
+
+###### PUT /client-portal/settings/password
+
+**概要**: パスワードを変更する。**ログアウトさせない**（決定事項 #12）。
+
+**リクエスト**:
+
+| パラメータ | 型 | 必須 | バリデーション | 説明 |
+|-----------|-----|------|---------------|------|
+| current_password | string | ● | required, current_password (client guard) | 現在のパスワード |
+| new_password | string | ● | required, string, confirmed, StrongPassword | 新しいパスワード。S-1403 初回設定と同じ強度要件 |
+| new_password_confirmation | string | ● | required | 新しいパスワード（確認） |
+
+**処理**:
+- 現在のパスワードを照合する（一致しない場合はバリデーションエラー）
+- 新しいパスワードの強度を検証する
+- ログイン中クライアントの `clients.password` を更新する
+- ログイン状態はそのまま維持する（`Auth::guard('client')->logout()` は呼ばない）
+- 登録済みのメールアドレス宛に**通知メール**を送信する（「パスワードが変更されました」）
+- メール送信の失敗は全ロールバック
+
+**レスポンス**:
+- 成功：`redirect('/client-portal/settings')` ＋「パスワードを変更しました」（フラッシュメッセージ）
 - 失敗：`back()` ＋ バリデーションエラーメッセージ
 
 ---

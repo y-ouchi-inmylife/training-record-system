@@ -79,6 +79,14 @@ erDiagram
         bigint created_by FK
     }
 
+    client_email_change_tokens {
+        bigint id PK
+        string token UK
+        string new_email
+        boolean is_used
+        bigint client_id FK
+    }
+
     training_records {
         bigint id PK
         bigint client_id FK
@@ -149,6 +157,7 @@ erDiagram
     trainers ||--o{ client_password_setup_tokens : "発行"
     clients ||--o{ client_email_registration_tokens : "メールアドレス登録"
     trainers ||--o{ client_email_registration_tokens : "発行"
+    clients ||--o{ client_email_change_tokens : "メールアドレス変更"
 ```
 
 ※ER図はテーブル間の関連と主要カラム（主キー・ユニークキー・外部キー・主な業務識別/区分カラム）のみを示す。`created_at`/`updated_at`/`updated_by` 等の共通カラムおよび非識別カラムは省略しているため、全カラムは4章のテーブル定義を参照。clientsテーブルは7カテゴリー50業務項目＋共通カラムで構成され、ER図には代表カラムのみ掲載している。
@@ -761,6 +770,50 @@ erDiagram
 
 ---
 
+#### DS-0800 client_email_change_tokens（クライアントメールアドレス変更トークン）
+
+**概要**: ログイン中のお客様が登録情報設定画面（S-1406）からメールアドレスを変更する際、新しいアドレス宛に送る**メールアドレス確認リンク**のトークンを管理する。お客様がリンクを開いた時点で `clients.email` を切り替えるとともに、切替後に自動ログアウトして S-1401 クライアントログイン画面へ遷移する。
+
+**対応する要件**:
+- メールアドレスの変更（6-15-10）
+
+##### カラム定義
+
+| カラム名 | 型 | NULL | デフォルト | 説明 |
+|---------|-----|------|----------|------|
+| id | BIGINT UNSIGNED | NO | auto_increment | 主キー |
+| token | VARCHAR(64) | NO | — | `Str::random(32)` で生成された 32 文字のランダム英数字（URLに埋め込む）。カラム型 VARCHAR(64) は将来の長さ拡張に備えた余裕。重複不可 |
+| client_id | BIGINT UNSIGNED | NO | — | 変更対象クライアントのID（外部キー）。申し込みを行ったクライアント |
+| new_email | VARCHAR(255) | NO | — | **確認後に切り替える新しいメールアドレス**。確認までは `clients.email` を書き換えず、このカラムで保持する。切替直前に `clients.email` の重複を再確認するため、`clients.email` と同じ長さ・文字集合とする |
+| expires_at | TIMESTAMP | NO | — | 有効期限。**発行から 3 日後**に設定される（設定値は `architecture.md` §3-1 の `client_tokens.email_change_confirm_expires_days` を参照）。**他のトークン（DS-0600 / DS-0700）とは無関係に発行されるため、独立した有効期限を持つ**（引き継ぐ元がない） |
+| is_used | BOOLEAN | NO | false | 使用状態。false: 未使用 / true: 使用済み。リンクを開いてメールアドレスの切替が完了した時点で true に更新 |
+| created_at | TIMESTAMP | YES | NULL | 発行日時 |
+| updated_at | TIMESTAMP | YES | NULL | 更新日時 |
+
+##### インデックス
+
+| インデックス名 | カラム | 種類 | 目的 |
+|---------------|--------|------|------|
+| PRIMARY | id | PRIMARY KEY | 主キー |
+| client_email_change_tokens_token_unique | token | UNIQUE | トークン文字列の重複を防ぐ。URLアクセス時の検索にも使用 |
+| client_email_change_tokens_expires_at_idx | expires_at | INDEX | 有効期限による検索・期限切れ抽出 |
+| client_email_change_tokens_is_used_idx | is_used | INDEX | 使用状態による絞り込み |
+| client_email_change_tokens_client_id_idx | client_id | INDEX | クライアントによる検索・逆引き |
+
+##### 制約
+
+| 制約名 | 種類 | 条件 | ON DELETE | 説明 |
+|--------|------|------|-----------|------|
+| client_email_change_tokens_client_id_foreign | FOREIGN KEY | client_id → clients(id) | CASCADE | クライアント削除時はトークンも削除する（特定クライアント専用のトークンのため） |
+
+**備考**:
+- `created_by` カラムは持たない（発行者はクライアント本人であり、他のトークン（DS-0600 / DS-0700）と異なりトレーナーからは発行されないため）
+- `new_email` を保持する専用カラムを設ける理由：**確認されるまでは `clients.email` を書き換えない**という要件（6-15-10）を素直に表現するため。ログイン中のクライアントは古いアドレスのままログイン可能な状態を維持し、確認完了で切替 → ログアウト → 新アドレスでログインの流れが成立する
+- **`new_email` に UNIQUE 制約は付けない**。同一クライアントが同じ宛先で複数回試すことがあり得るのと、切替の直前に `clients.email` 側で重複を再チェックするためこちらでは制約を設けない
+- 独立した有効期限を持つ設計上、`architecture.md` §3-1 の設定値も独立キー（`client_tokens.email_change_confirm_expires_days`）で管理する
+
+---
+
 
 ## 5. ENUMおよび定数
 
@@ -875,6 +928,7 @@ erDiagram
 | 11 | ip_whitelist | なし |
 | 12 | client_password_setup_tokens | clients |
 | 13 | client_email_registration_tokens | clients |
+| 14 | client_email_change_tokens | clients |
 
 ---
 

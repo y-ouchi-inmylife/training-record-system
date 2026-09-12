@@ -207,7 +207,7 @@ flowchart TD
 | 設定キー | 値 | 用途 |
 |---|---|---|
 | `client_tokens.email_registration_expires_days` | 3 | メールアドレス登録用 URL のトークン（DS-0700 `client_email_registration_tokens.expires_at`）の有効日数。**ログイン用リンク（DS-0600）にも同じ期限が適用される**（下記「期限の考え方」参照） |
-| `client_tokens.email_change_confirm_expires_days` | 3（予定） | **段階 4-3 で実装予定**。ログイン後にメールアドレスを変更する際に新しいアドレスへ送るメールアドレス確認リンクの有効日数。メールアドレス登録用 URL とは無関係に発行されるため、独立した設定値を持つ |
+| `client_tokens.email_change_confirm_expires_days` | 3 | ログイン後にメールアドレスを変更する際に新しいアドレスへ送るメールアドレス確認リンク（DS-0800 `client_email_change_tokens.expires_at`）の有効日数。メールアドレス登録用 URL とは無関係に発行されるため、独立した設定値を持つ |
 
 **期限の考え方**：
 
