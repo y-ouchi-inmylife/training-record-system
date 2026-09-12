@@ -131,6 +131,25 @@ class Client extends Authenticatable
     }
 
     /**
+     * メールアドレス登録用トークン（DS-0700）
+     */
+    public function emailRegistrationTokens(): HasMany
+    {
+        return $this->hasMany(ClientEmailRegistrationToken::class);
+    }
+
+    /**
+     * パスワード設定トークン（DS-0600）＝ログイン用リンク
+     *
+     * 段階 4-1 でリンクの用途は「ログイン用リンク」に再定義された。
+     * テーブル名・モデル名は互換のため据え置き（段階 4-4 でリネームを検討）。
+     */
+    public function passwordSetupTokens(): HasMany
+    {
+        return $this->hasMany(ClientPasswordSetupToken::class);
+    }
+
+    /**
      * 最終更新者（トレーナー）
      */
     public function updatedBy(): BelongsTo
