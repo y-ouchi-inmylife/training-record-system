@@ -146,16 +146,15 @@
             <h2 class="mb-0">
                 {{ $client->full_name }}@if($client->full_name_kana)<span class="text-muted fs-6">（{{ $client->full_name_kana }}）</span>@endif
             </h2>
-            <span class="badge fs-6 {{ $badge['class'] }}">{{ $badge['label'] }}</span>
             <div class="d-flex align-items-baseline gap-2 ms-3">
                 <span class="text-muted small">内部ID</span>
                 <span class="font-monospace fs-5">{{ $client->internal_id }}</span>
             </div>
         </div>
         {{-- 3段目: 属性 3 列（初回日／主担当／メールアドレス）。
-             メールアドレスは連絡先カードから移設。ログイン ID を兼ねる項目のため
-             ヘッダーサマリーで一目確認できる位置に置く。未登録のときは値部を空欄にする
-             （状態バッジで「メールアドレスなし」等が示されるため）。設計書 S-0305 参照 --}}
+             状態バッジはメールアドレスの値の右に横並びで置く。バッジが示すのは
+             メールアドレスとパスワードの登録状況で、氏名とは関係がないため。
+             未登録のときは値がなくバッジだけが同じ位置に表示される。設計書 S-0305 参照 --}}
         <div class="row g-3 mt-2 pt-2 border-top">
             <div class="col-md-4">
                 <div class="text-muted small">初回日</div>
@@ -167,7 +166,12 @@
             </div>
             <div class="col-md-4">
                 <div class="text-muted small">メールアドレス</div>
-                <div style="min-height: 1.5rem;">{{ $client->email }}</div>
+                <div class="d-flex align-items-center flex-wrap gap-2" style="min-height: 1.5rem;">
+                    @if($client->email)
+                        <span>{{ $client->email }}</span>
+                    @endif
+                    <span class="badge fs-6 {{ $badge['class'] }}">{{ $badge['label'] }}</span>
+                </div>
             </div>
         </div>
     </div>
