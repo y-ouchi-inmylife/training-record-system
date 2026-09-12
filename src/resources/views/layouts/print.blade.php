@@ -6,9 +6,13 @@
     <title>@hasSection('title')@yield('title') - @endif{{ config('app.trainer_portal_name') }}</title>
     {{-- 印刷用ページ専用レイアウト（設計書 S-0307）。
          layouts.app は継承せず、ナビゲーションバー・フッターを最初から出さない。
-         `@media print` は要素の表示切替には使わず、印刷でしか効かない指定（用紙サイズ・余白）
-         にだけ用いる。トレーナーが画面で確認したものと紙が同じ見た目になるように、
-         通常表示のスタイルも同一とする。--}}
+         `@media print` は原則として要素の表示切替には使わず、印刷でしか効かない指定
+         （用紙サイズ・余白）にだけ用いる。トレーナーが画面で確認したものと紙が同じ
+         見た目になるように、通常表示のスタイルも同一とする。
+         例外：「クライアント詳細に戻る」リンクは、画面には出して紙には出さないという
+         トレーナー専用の要件があり、代替手段がないため Bootstrap の `d-print-none`
+         （実体は `@media print { display: none !important; }`）で非表示にする。
+         この一点のみ例外で、他の目的では引き続き `@media print` による表示切替を行わない。--}}
     @vite(['resources/sass/app.scss'])
     <style>
         /* A4 縦・上下左右 15mm 余白（brand 統一の余白）。ブラウザの
@@ -87,10 +91,6 @@
             color: #6c757d;
             font-size: 0.95rem;
             margin: 1.5rem 0 0;
-        }
-        .print-error-actions {
-            text-align: center;
-            margin: 2rem 0;
         }
         @media print {
             body {

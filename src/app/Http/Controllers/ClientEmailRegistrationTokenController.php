@@ -26,14 +26,15 @@ class ClientEmailRegistrationTokenController extends Controller
 {
     /**
      * メールアドレス登録用 URL の発行処理
+     *
+     * 発行後は同じタブで印刷ページ（S-0307）を開く。発行直後にトレーナーが
+     * する作業はお客様に渡す作業のため、渡す紙面を目の前に出すことで
+     * 案内文を挟まずに次の動作へ進める（requirements.md 6-3-6 参照）。
+     * 完了メッセージは印刷ページには出さない（お客様に見せる／紙に出す
+     * ページのため、トレーナー向けの通知テキストを混ぜない）。
      */
     public function store(Client $client): RedirectResponse
     {
-        // 既存の未使用トークンがあれば再発行扱い
-        $wasReissued = $client->emailRegistrationTokens()
-            ->where('is_used', false)
-            ->exists();
-
         DB::transaction(function () use ($client) {
             // 対象クライアントの未使用メールアドレス登録用トークンを物理削除
             $client->emailRegistrationTokens()
@@ -58,13 +59,7 @@ class ClientEmailRegistrationTokenController extends Controller
             ]);
         });
 
-        $message = $wasReissued
-            ? 'メールアドレス登録用 URL を発行し直しました。'
-            : 'メールアドレス登録用 URL を発行しました。';
-
-        return redirect()
-            ->route('clients.show', $client)
-            ->with('success', $message);
+        return redirect()->route('client-email-registration-tokens.print', $client);
     }
 
     /**
