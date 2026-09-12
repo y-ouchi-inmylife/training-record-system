@@ -236,7 +236,7 @@ erDiagram
 | first_name_kana | VARCHAR(50) | YES | NULL | めい。ひらがなのみ |
 | primary_trainer_id | BIGINT UNSIGNED | YES | NULL | 主担当トレーナーのID（外部キー） |
 | phone1 | VARCHAR(20) | YES | NULL | 電話番号。ハイフンあり/なし両対応 |
-| phone2 | VARCHAR(20) | YES | NULL | 予備の電話番号。ハイフンあり/なし両対応 |
+| phone2 | VARCHAR(20) | YES | NULL | 電話番号（予備）。ハイフンあり/なし両対応 |
 | email | VARCHAR(255) | YES | NULL | メールアドレス。クライアント閲覧機能のログインIDを兼ねる。**クライアント自身がメールアドレス登録用 URL から登録する**（トレーナーは入力・書き換えできない）。UNIQUE制約あり（未登録=NULLは複数許容） |
 | postal_code | VARCHAR(10) | YES | NULL | 郵便番号。ハイフンあり/なし両対応 |
 | address1 | VARCHAR(50) | YES | NULL | 住所1（都道府県） |
