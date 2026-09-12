@@ -205,9 +205,18 @@ flowchart TD
 
 | 設定キー | 値 | 用途 |
 |---|---|---|
-| `client_tokens.email_registration_expires_days` | 3 | メールアドレス登録用 URL のトークン（DS-0700 `client_email_registration_tokens.expires_at`）の有効日数 |
-| `client_tokens.login_link_expires_days` | 3 | ログイン用リンクのトークン（DS-0600 `client_password_setup_tokens.expires_at`）の有効日数 |
-| `client_tokens.email_change_confirm_expires_days` | 3（予定） | **段階 4-3 で実装予定**。ログイン後にメールアドレスを変更する際に新しいアドレスへ送るメールアドレス確認リンクの有効日数。ログイン用リンクと同じ期限とする方針（用途は異なるため別キーで管理） |
+| `client_tokens.email_registration_expires_days` | 3 | メールアドレス登録用 URL のトークン（DS-0700 `client_email_registration_tokens.expires_at`）の有効日数。**ログイン用リンク（DS-0600）にも同じ期限が適用される**（下記「期限の考え方」参照） |
+| `client_tokens.email_change_confirm_expires_days` | 3（予定） | **段階 4-3 で実装予定**。ログイン後にメールアドレスを変更する際に新しいアドレスへ送るメールアドレス確認リンクの有効日数。メールアドレス登録用 URL とは無関係に発行されるため、独立した設定値を持つ |
+
+**期限の考え方**：
+
+- **メールアドレス登録用 URL の期限が、初回設定が完了するまでの全体の期限になる**
+- ログイン用リンク（DS-0600）は、対応するメールアドレス登録用トークン（DS-0700）の `expires_at` を**そのまま引き継ぐ**（お客様がメールアドレスを登録した時点から数え直さない）
+- お客様の操作（メールアドレスの入力・入力し直し）で期限は延びない
+- **期限が新しく 3 日になるのはトレーナーが URL を発行し直したときだけ**
+- **設定値も 1 つ**（`client_tokens.email_registration_expires_days`）に集約。ログイン用リンク専用の設定値は持たない
+
+**その他**：
 
 - 有効期限は現在日時からの経過日数で算出する（`now()->addDays(config('client_tokens.email_registration_expires_days'))` 等）
 - **1 か所（`config/client_tokens.php`）で管理し、コントローラ・モデル・シーダーからハードコードしない**。段階 4-1 以前は 72 時間のハードコードが `ClientViewReleaseController` に埋め込まれていたが、廃止に伴って設定ファイルに移す

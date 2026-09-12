@@ -666,7 +666,7 @@ erDiagram
 | id | BIGINT UNSIGNED | NO | auto_increment | 主キー |
 | token | VARCHAR(64) | NO | — | `Str::random(32)` で生成された 32 文字のランダム英数字（URLに埋め込む）。カラム型 VARCHAR(64) は将来の長さ拡張に備えた余裕。重複不可 |
 | client_id | BIGINT UNSIGNED | NO | — | ログイン対象のクライアントID（外部キー）。発行時から特定のクライアントに紐づく |
-| expires_at | TIMESTAMP | NO | — | 有効期限。**発行から 3 日後**に設定される（設定値は `architecture.md` §3-1 参照） |
+| expires_at | TIMESTAMP | NO | — | 有効期限。**対応するメールアドレス登録用トークン（DS-0700 `client_email_registration_tokens`）の `expires_at` をそのまま引き継ぐ**（発行時点から数え直さない）。全体の期限はメールアドレス登録用 URL の発行時に決まる（設定値は `architecture.md` §3-1 参照） |
 | is_used | BOOLEAN | NO | false | 使用状態。false: 未使用 / true: 使用済み。初回設定完了時に true に更新 |
 | created_at | TIMESTAMP | YES | NULL | 発行日時 |
 | updated_at | TIMESTAMP | YES | NULL | 更新日時 |
@@ -710,7 +710,7 @@ erDiagram
 | id | BIGINT UNSIGNED | NO | auto_increment | 主キー |
 | token | VARCHAR(64) | NO | — | `Str::random(32)` で生成された 32 文字のランダム英数字（URLに埋め込む）。カラム型 VARCHAR(64) は将来の長さ拡張に備えた余裕。重複不可 |
 | client_id | BIGINT UNSIGNED | NO | — | メールアドレス登録の対象クライアントのID（外部キー）。発行時から特定のクライアントに紐づく |
-| expires_at | TIMESTAMP | NO | — | 有効期限。**発行から 3 日後**に設定される（設定値は `architecture.md` §3-1 参照） |
+| expires_at | TIMESTAMP | NO | — | 有効期限。**発行から 3 日後**に設定される（設定値は `architecture.md` §3-1 参照）。**この期限が初回設定完了までの全体の期限**となり、対応するログイン用リンク（DS-0600）にもそのまま引き継がれる |
 | is_used | BOOLEAN | NO | false | 使用状態。false: 未使用 / true: 使用済み。**初回設定が完了した時点で true に更新**（メールアドレス登録単独では使用済みにしない — 何度でも入力し直せるため） |
 | created_at | TIMESTAMP | YES | NULL | 発行日時 |
 | updated_at | TIMESTAMP | YES | NULL | 更新日時 |
@@ -736,6 +736,7 @@ erDiagram
 
 **備考**:
 - DS-0200 は段階 1 の事前入力 URL 廃止で欠番化しているため、新しい番号として DS-0700 を採る（既存の番号は繰り上げない）
+- 本テーブルの `expires_at` が初回設定完了までの全体の期限を決める。ログイン用リンク（DS-0600）はこの期限を引き継ぎ、独立した期限を持たない（お客様の操作で期限が延びない設計）
 
 ---
 

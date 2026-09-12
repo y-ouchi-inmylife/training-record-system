@@ -349,8 +349,9 @@ Laravelのセッション認証（Cookie + CSRF）で保護する。
 - 以下を 1 つのトランザクションで実行する：
   - 対象クライアントの `client_email_registration_tokens` のうち未使用（is_used=false）のトークンがあれば物理削除する（**再発行時、それまでのメールアドレス登録用 URL は無効になる**）
   - 対象クライアントの `client_password_setup_tokens` のうち未使用（is_used=false）のトークンがあれば物理削除する（**再発行時、送信済みのログイン用リンクも無効になる**）
-  - ランダムなトークンを生成し `client_email_registration_tokens` に 1 件作成する。有効期限は現在日時から **3 日後**（設定値は `architecture.md` §3-1 参照）
+  - ランダムなトークンを生成し `client_email_registration_tokens` に 1 件作成する。有効期限は現在日時から **3 日後**（設定値は `architecture.md` §3-1 参照）。**発行し直したときは、期限が新しく 3 日になる**（引き継ぎではなく新規の 3 日）
 - メールアドレスの登録有無を問わず発行できる
+- **この時点で決まる `expires_at` が初回設定完了までの全体の期限**となる。以降、対応する `client_password_setup_tokens`（ログイン用リンク）を作成する際は、この `expires_at` をそのまま引き継ぐ
 
 **レスポンス**:
 - 成功（新規発行）：`redirect('/clients/{id}')` ＋「メールアドレス登録用 URL を発行しました」
@@ -1482,7 +1483,7 @@ POST /training-records に以下を追加する。
 - 以下を1つのトランザクションで実行する：
   - 対象クライアントの clients.email を更新する
   - 対応する既存の `client_password_setup_tokens` の未使用（is_used=false）トークンを物理削除する（**入力し直しの場合、前に送信したログイン用リンクは無効化**）
-  - 新しい `client_password_setup_tokens` レコードを 1 件作成する（有効期限 3 日）
+  - 新しい `client_password_setup_tokens` レコードを 1 件作成する。**`expires_at` は現在のメールアドレス登録用トークン（`client_email_registration_tokens.expires_at`）をそのまま設定する**（発行時点から数え直さない）
   - 入力されたメールアドレス宛にログイン用リンクを送信する
 - メール送信の失敗は全ロールバック
 - **メールアドレス登録用トークン（`client_email_registration_tokens`）は使い切りにしない**。初回設定完了時（`POST /client-portal/setup/{token}` 成功時）に使い切り化する。それまでは同じ URL から何度でも入力し直せる（別アドレスへの変更にも対応）
