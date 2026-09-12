@@ -28,20 +28,16 @@ class ClientEmailRegistrationTokenController extends Controller
      * メールアドレス登録用 URL の発行処理
      *
      * 発行後はクライアント詳細画面（S-0305）にリダイレクトし、完了メッセージを
-     * 表示する。同時に、印刷ページ（S-0307）を別タブで開けるように印刷 URL を
-     * フラッシュで渡し、ビュー側の JS が `window.open` する。
+     * 表示する。案内シート（S-0307）を開くのはトレーナー側の判断とし、詳細画面
+     * の「登録のご案内を表示」ボタン（別タブで開く）から任意のタイミングで開く。
      *
-     * 詳細画面に戻す理由：
-     * - 発行直後の状態（例：登録待ち）を残さずリロードで見せられる
-     * - 前の実装（印刷ページへ同タブ遷移）では、印刷ページから戻ったときに
-     *   ブラウザキャッシュで発行前の詳細画面が表示され、トレーナーが「発行
-     *   できていない」と誤解する事象があった
-     * - 詳細画面ボタン「印刷ページを表示」からの導線と同じ挙動（別タブで開く）に
-     *   統一され、入口による違いがなくなる
-     *
-     * ポップアップブロック時は `window.open` が失敗するが、詳細画面自体は
-     * 正しく表示・更新されているので、必要ならその場から「印刷ページを表示」で
-     * 印刷ページを開ける。
+     * 過去の遷移案の経緯（requirements.md 6-3-6 の備考も参照）：
+     * - 案 A：同タブで印刷ページへ遷移 → 印刷ページから戻ったときに詳細画面が
+     *   キャッシュで発行前の状態のまま表示される問題があり不採用
+     * - 案 B：詳細画面へ戻しつつ `window.open` で別タブを開く → ブラウザの
+     *   ポップアップブロックで実用にならず不採用
+     * - 現行：詳細画面に戻して完了メッセージだけを表示し、案内シートは
+     *   ボタン押下で明示的に開く（当初案に戻した）
      */
     public function store(Client $client): RedirectResponse
     {
@@ -80,8 +76,7 @@ class ClientEmailRegistrationTokenController extends Controller
 
         return redirect()
             ->route('clients.show', $client)
-            ->with('success', $message)
-            ->with('open_print_url', route('client-email-registration-tokens.print', $client));
+            ->with('success', $message);
     }
 
     /**

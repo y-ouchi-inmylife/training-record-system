@@ -86,7 +86,7 @@
             <a href="{{ route('clients.index') }}" class="btn btn-outline-secondary">&laquo; クライアント一覧に戻る</a>
             {{-- 状態別ボタン（設計書 S-0305）。以下は 1 つだけ表示される：
                   - メールアドレスなし              → 「メールアドレス登録用 URL を発行」（新規発行）
-                  - メールアドレス登録待ち（期限内）→ 「印刷ページを表示」
+                  - メールアドレス登録待ち（期限内）→ 「登録のご案内を表示」
                   - メールアドレス登録待ち（期限切れ）→ 「メールアドレス登録用 URL を発行」
                     （期限切れは未発行と同じ扱い）
                   - 初回設定待ち                    → なし
@@ -110,7 +110,7 @@
             @endif
             @if($showPrint)
                 <a href="{{ route('client-email-registration-tokens.print', $client) }}"
-                   class="btn btn-primary" target="_blank" rel="noopener">印刷ページを表示</a>
+                   class="btn btn-primary" target="_blank" rel="noopener">登録のご案内を表示</a>
             @endif
             @if($showDeleteEmail)
                 <button type="button" class="btn btn-outline-danger"
@@ -307,18 +307,4 @@
     @endif
 
 </div>
-
-{{-- 発行直後の別タブ遷移。
-     コントローラで `open_print_url` をフラッシュに載せてリダイレクトされたときだけ、
-     このスクリプトが印刷ページを新しいタブで開く。ポップアップブロック時は
-     `window.open` が失敗するが、この詳細画面自体は既に発行後の状態で表示・更新
-     されているため、必要ならその場から「印刷ページを表示」ボタンで開き直せる。
-     設計書：requirements.md 6-3-6、screen-design.md S-0305 参照 --}}
-@if(session('open_print_url'))
-    <script>
-        (function () {
-            window.open({!! json_encode(session('open_print_url')) !!}, '_blank', 'noopener');
-        })();
-    </script>
-@endif
 @endsection
