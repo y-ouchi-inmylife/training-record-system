@@ -23,17 +23,6 @@
         line-height: 1.3;
         vertical-align: middle;
     }
-
-    /* 性別と年齢の区切り線 */
-    .statistics-table .border-group-end {
-        border-right: 2px solid #dee2e6 !important;
-    }
-
-    /* 2段ヘッダーの1段目（グループ名）の背景色 */
-    .statistics-table thead tr:first-child th[colspan] {
-        background-color: #e9ecef;
-        font-weight: bold;
-    }
 </style>
 @endpush
 
@@ -81,50 +70,20 @@
         </div>
     </div>
 
-    <p class="mb-2 text-end">※年齢・性別は初回トレーニング時点の情報で集計しています。</p>
-
     {{-- 年度別推移 / 年別推移 --}}
     <h5 class="mb-3">{{ $viewType === 'fiscal_year' ? '年度別' : '年別' }}推移</h5>
     <div class="table-responsive mb-4">
         <table class="table table-striped table-sm table-bordered mb-0 statistics-table">
             <colgroup>
-                <col style="width: 100px;">{{-- 年度/年/月 --}}
-                <col style="width: 70px;">{{-- のべトレーニング記録数 --}}
-                <col style="width: 70px;">{{-- クライアント実人数 --}}
-                <col style="width: 55px;">{{-- 男 --}}
-                <col style="width: 55px;">{{-- 女 --}}
-                <col style="width: 55px;">{{-- 無回答 --}}
-                <col style="width: 55px;">{{-- 未入力 --}}
-                <col style="width: 55px;">{{-- ～19 --}}
-                <col style="width: 55px;">{{-- 20～29 --}}
-                <col style="width: 55px;">{{-- 30～39 --}}
-                <col style="width: 55px;">{{-- 40～49 --}}
-                <col style="width: 55px;">{{-- 50～59 --}}
-                <col style="width: 55px;">{{-- 60～69 --}}
-                <col style="width: 55px;">{{-- 70～ --}}
-                <col style="width: 55px;">{{-- 不明 --}}
+                <col style="width: 120px;">{{-- 年度/年 --}}
+                <col style="width: 200px;">{{-- のべトレーニング記録数 --}}
+                <col style="width: 160px;">{{-- クライアント実人数 --}}
             </colgroup>
             <thead>
                 <tr>
-                    <th rowspan="2" class="text-nowrap align-middle">{{ $viewType === 'fiscal_year' ? '年度' : '年' }}</th>
-                    <th rowspan="2" class="text-end align-middle">のべ<br>トレーニング記録数</th>
-                    <th rowspan="2" class="text-end align-middle border-group-end">クライアント<br>実人数</th>
-                    <th colspan="4" class="text-center border-group-end">性別</th>
-                    <th colspan="8" class="text-center">年齢</th>
-                </tr>
-                <tr>
-                    <th class="text-nowrap text-end col-gender">男</th>
-                    <th class="text-nowrap text-end col-gender">女</th>
-                    <th class="text-nowrap text-end col-gender">無回答</th>
-                    <th class="text-nowrap text-end col-gender border-group-end">未入力</th>
-                    <th class="text-nowrap text-end col-age">～19</th>
-                    <th class="text-nowrap text-end col-age">20～29</th>
-                    <th class="text-nowrap text-end col-age">30～39</th>
-                    <th class="text-nowrap text-end col-age">40～49</th>
-                    <th class="text-nowrap text-end col-age">50～59</th>
-                    <th class="text-nowrap text-end col-age">60～69</th>
-                    <th class="text-nowrap text-end col-age">70～</th>
-                    <th class="text-nowrap text-end col-age">不明</th>
+                    <th class="text-nowrap align-middle">{{ $viewType === 'fiscal_year' ? '年度' : '年' }}</th>
+                    <th class="text-end align-middle">のべ<br>トレーニング記録数</th>
+                    <th class="text-end align-middle">クライアント<br>実人数</th>
                 </tr>
             </thead>
             <tbody>
@@ -134,23 +93,11 @@
                         {{ $row->period }}{{ $viewType === 'fiscal_year' ? '年度' : '年' }}
                     </td>
                     <td class="text-end">{{ number_format($row->total_records) }}</td>
-                    <td class="text-end border-group-end">{{ number_format($row->unique_clients) }}</td>
-                    <td class="text-end col-gender">{{ number_format($row->gender_male) }}</td>
-                    <td class="text-end col-gender">{{ number_format($row->gender_female) }}</td>
-                    <td class="text-end col-gender">{{ number_format($row->gender_other) }}</td>
-                    <td class="text-end col-gender border-group-end">{{ number_format($row->gender_unknown) }}</td>
-                    <td class="text-end col-age">{{ number_format($row->age_10s) }}</td>
-                    <td class="text-end col-age">{{ number_format($row->age_20s) }}</td>
-                    <td class="text-end col-age">{{ number_format($row->age_30s) }}</td>
-                    <td class="text-end col-age">{{ number_format($row->age_40s) }}</td>
-                    <td class="text-end col-age">{{ number_format($row->age_50s) }}</td>
-                    <td class="text-end col-age">{{ number_format($row->age_60s) }}</td>
-                    <td class="text-end col-age">{{ number_format($row->age_70plus) }}</td>
-                    <td class="text-end col-age">{{ number_format($row->age_unknown) }}</td>
+                    <td class="text-end">{{ number_format($row->unique_clients) }}</td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="15" class="text-center text-muted">データがありません</td>
+                    <td colspan="3" class="text-center text-muted">データがありません</td>
                 </tr>
                 @endforelse
             </tbody>
@@ -180,43 +127,15 @@
     <div class="table-responsive mb-4">
         <table class="table table-striped table-sm table-bordered mb-0 statistics-table">
             <colgroup>
-                <col style="width: 100px;">{{-- 年度/年/月 --}}
-                <col style="width: 70px;">{{-- のべトレーニング記録数 --}}
-                <col style="width: 70px;">{{-- クライアント実人数 --}}
-                <col style="width: 55px;">{{-- 男 --}}
-                <col style="width: 55px;">{{-- 女 --}}
-                <col style="width: 55px;">{{-- 無回答 --}}
-                <col style="width: 55px;">{{-- 未入力 --}}
-                <col style="width: 55px;">{{-- ～19 --}}
-                <col style="width: 55px;">{{-- 20～29 --}}
-                <col style="width: 55px;">{{-- 30～39 --}}
-                <col style="width: 55px;">{{-- 40～49 --}}
-                <col style="width: 55px;">{{-- 50～59 --}}
-                <col style="width: 55px;">{{-- 60～69 --}}
-                <col style="width: 55px;">{{-- 70～ --}}
-                <col style="width: 55px;">{{-- 不明 --}}
+                <col style="width: 120px;">{{-- 月 --}}
+                <col style="width: 200px;">{{-- のべトレーニング記録数 --}}
+                <col style="width: 160px;">{{-- クライアント実人数 --}}
             </colgroup>
             <thead>
                 <tr>
-                    <th rowspan="2" class="text-nowrap align-middle">月</th>
-                    <th rowspan="2" class="text-end align-middle">のべ<br>トレーニング記録数</th>
-                    <th rowspan="2" class="text-end align-middle border-group-end">クライアント<br>実人数</th>
-                    <th colspan="4" class="text-center border-group-end">性別</th>
-                    <th colspan="8" class="text-center">年齢</th>
-                </tr>
-                <tr>
-                    <th class="text-nowrap text-end col-gender">男</th>
-                    <th class="text-nowrap text-end col-gender">女</th>
-                    <th class="text-nowrap text-end col-gender">無回答</th>
-                    <th class="text-nowrap text-end col-gender border-group-end">未入力</th>
-                    <th class="text-nowrap text-end col-age">～19</th>
-                    <th class="text-nowrap text-end col-age">20～29</th>
-                    <th class="text-nowrap text-end col-age">30～39</th>
-                    <th class="text-nowrap text-end col-age">40～49</th>
-                    <th class="text-nowrap text-end col-age">50～59</th>
-                    <th class="text-nowrap text-end col-age">60～69</th>
-                    <th class="text-nowrap text-end col-age">70～</th>
-                    <th class="text-nowrap text-end col-age">不明</th>
+                    <th class="text-nowrap align-middle">月</th>
+                    <th class="text-end align-middle">のべ<br>トレーニング記録数</th>
+                    <th class="text-end align-middle">クライアント<br>実人数</th>
                 </tr>
             </thead>
             <tbody>
@@ -224,23 +143,11 @@
                 <tr>
                     <td class="text-nowrap">{{ $row->month }}</td>
                     <td class="text-end">{{ number_format($row->total_records) }}</td>
-                    <td class="text-end border-group-end">{{ number_format($row->unique_clients) }}</td>
-                    <td class="text-end col-gender">{{ number_format($row->gender_male) }}</td>
-                    <td class="text-end col-gender">{{ number_format($row->gender_female) }}</td>
-                    <td class="text-end col-gender">{{ number_format($row->gender_other) }}</td>
-                    <td class="text-end col-gender border-group-end">{{ number_format($row->gender_unknown) }}</td>
-                    <td class="text-end col-age">{{ number_format($row->age_10s) }}</td>
-                    <td class="text-end col-age">{{ number_format($row->age_20s) }}</td>
-                    <td class="text-end col-age">{{ number_format($row->age_30s) }}</td>
-                    <td class="text-end col-age">{{ number_format($row->age_40s) }}</td>
-                    <td class="text-end col-age">{{ number_format($row->age_50s) }}</td>
-                    <td class="text-end col-age">{{ number_format($row->age_60s) }}</td>
-                    <td class="text-end col-age">{{ number_format($row->age_70plus) }}</td>
-                    <td class="text-end col-age">{{ number_format($row->age_unknown) }}</td>
+                    <td class="text-end">{{ number_format($row->unique_clients) }}</td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="15" class="text-center text-muted">データがありません</td>
+                    <td colspan="3" class="text-center text-muted">データがありません</td>
                 </tr>
                 @endforelse
             </tbody>

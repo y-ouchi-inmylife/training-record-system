@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\TrainingRecord;
-use App\Models\Client;
 use App\Models\Trainer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -87,27 +86,22 @@ class StatisticsController extends Controller
             $periodExpr = "YEAR(training_date)";
         }
 
-        $basicData = $query->select(
+        $rows = $query->select(
                 DB::raw("{$periodExpr} as period"),
                 DB::raw('COUNT(*) as total_records'),
                 DB::raw('COUNT(DISTINCT client_id) as unique_clients')
             )
             ->groupBy('period')
             ->orderBy('period', 'desc')
-            ->get()
-            ->keyBy('period');
+            ->get();
 
-        // 各期間の性別・年代別内訳を取得
         $result = [];
-        foreach ($basicData as $period => $data) {
-            $clientIds = $this->getClientIdsInPeriod($trainerId, $viewType, $period);
-            $breakdown = $this->calculateBreakdown($clientIds);
-
-            $result[] = (object) array_merge([
-                'period' => $period,
-                'total_records' => $data->total_records,
-                'unique_clients' => $data->unique_clients,
-            ], $breakdown);
+        foreach ($rows as $row) {
+            $result[] = (object) [
+                'period' => $row->period,
+                'total_records' => $row->total_records,
+                'unique_clients' => $row->unique_clients,
+            ];
         }
 
         return $result;
@@ -148,16 +142,11 @@ class StatisticsController extends Controller
                 $year = $month >= 4 ? $selectedPeriod : $selectedPeriod + 1;
                 $key = $year . '-' . $month;
 
-                $clientIds = isset($data[$key])
-                    ? $this->getClientIdsByMonth($trainerId, $year, $month)
-                    : [];
-                $breakdown = $this->calculateBreakdown($clientIds);
-
-                $result[] = (object) array_merge([
+                $result[] = (object) [
                     'month' => $year . '年' . $month . '月',
                     'total_records' => $data[$key]->total_records ?? 0,
                     'unique_clients' => $data[$key]->unique_clients ?? 0,
-                ], $breakdown);
+                ];
             }
         } else {
             $query->whereYear('training_date', $selectedPeriod);
@@ -174,16 +163,11 @@ class StatisticsController extends Controller
             // 1月〜12月の全月を生成
             $result = [];
             for ($month = 1; $month <= 12; $month++) {
-                $clientIds = isset($data[$month])
-                    ? $this->getClientIdsByMonth($trainerId, $selectedPeriod, $month)
-                    : [];
-                $breakdown = $this->calculateBreakdown($clientIds);
-
-                $result[] = (object) array_merge([
+                $result[] = (object) [
                     'month' => $selectedPeriod . '年' . $month . '月',
                     'total_records' => $data[$month]->total_records ?? 0,
                     'unique_clients' => $data[$month]->unique_clients ?? 0,
-                ], $breakdown);
+                ];
             }
         }
 
@@ -201,133 +185,5 @@ class StatisticsController extends Controller
                   ->orWhere('trainer2_id', $trainerId);
             });
         }
-    }
-
-    /**
-     * 期間内のクライアントIDリストを取得
-     */
-    private function getClientIdsInPeriod(string $trainerId, string $viewType, int $period): array
-    {
-        $query = TrainingRecord::query();
-        $this->applyTrainerFilter($query, $trainerId);
-
-        if ($viewType === 'fiscal_year') {
-            $startDate = $period . '-04-01';
-            $endDate = ($period + 1) . '-03-31';
-            $query->whereBetween('training_date', [$startDate, $endDate]);
-        } else {
-            $query->whereYear('training_date', $period);
-        }
-
-        return $query->distinct()->pluck('client_id')->toArray();
-    }
-
-    /**
-     * 特定月のクライアントIDリストを取得
-     */
-    private function getClientIdsByMonth(string $trainerId, int $year, int $month): array
-    {
-        $query = TrainingRecord::query();
-        $this->applyTrainerFilter($query, $trainerId);
-
-        return $query->whereYear('training_date', $year)
-            ->whereMonth('training_date', $month)
-            ->distinct()
-            ->pluck('client_id')
-            ->toArray();
-    }
-
-    /**
-     * クライアントIDリストから性別・年代別内訳を計算
-     */
-    private function calculateBreakdown(array $clientIds): array
-    {
-        if (empty($clientIds)) {
-            return $this->getEmptyBreakdown();
-        }
-
-        $clients = Client::whereIn('id', $clientIds)->get();
-
-        $breakdown = $this->getEmptyBreakdown();
-
-        foreach ($clients as $client) {
-            // 性別集計
-            match ($client->gender) {
-                '男' => $breakdown['gender_male']++,
-                '女' => $breakdown['gender_female']++,
-                '無回答' => $breakdown['gender_other']++,
-                default => $breakdown['gender_unknown']++,
-            };
-
-            // 年齢集計（初回トレーニング時点）
-            $age = $this->getAgeAtFirstConsultation($client);
-
-            if ($age !== null) {
-                match (true) {
-                    $age < 20 => $breakdown['age_10s']++,
-                    $age < 30 => $breakdown['age_20s']++,
-                    $age < 40 => $breakdown['age_30s']++,
-                    $age < 50 => $breakdown['age_40s']++,
-                    $age < 60 => $breakdown['age_50s']++,
-                    $age < 70 => $breakdown['age_60s']++,
-                    default => $breakdown['age_70plus']++,
-                };
-            } else {
-                $breakdown['age_unknown']++;
-            }
-        }
-
-        return $breakdown;
-    }
-
-    /**
-     * 初回トレーニング時点の年齢を取得
-     *
-     * 初回日: clients.initial_consultation_date（NULLの場合はMIN(training_records.training_date)）
-     * 年齢: 生年月日がある場合は計算、なければ集計対象外（null）
-     */
-    private function getAgeAtFirstConsultation(Client $client): ?int
-    {
-        // 初回日を取得
-        $firstConsultationDate = $client->initial_consultation_date;
-
-        if (!$firstConsultationDate) {
-            // フォールバック: 最初のトレーニング記録の日付
-            $firstRecord = TrainingRecord::where('client_id', $client->id)
-                ->orderBy('training_date')
-                ->first();
-
-            if ($firstRecord) {
-                $firstConsultationDate = $firstRecord->training_date;
-            }
-        }
-
-        // 生年月日から年齢を計算
-        if ($client->birth_date && $firstConsultationDate) {
-            return $client->birth_date->diffInYears($firstConsultationDate);
-        }
-
-        return null;
-    }
-
-    /**
-     * 空の内訳を返す
-     */
-    private function getEmptyBreakdown(): array
-    {
-        return [
-            'gender_male' => 0,
-            'gender_female' => 0,
-            'gender_other' => 0,
-            'gender_unknown' => 0,
-            'age_10s' => 0,
-            'age_20s' => 0,
-            'age_30s' => 0,
-            'age_40s' => 0,
-            'age_50s' => 0,
-            'age_60s' => 0,
-            'age_70plus' => 0,
-            'age_unknown' => 0,
-        ];
     }
 }
