@@ -250,6 +250,19 @@ erDiagram
 | clients_primary_trainer_id_foreign | FOREIGN KEY | primary_trainer_id → trainers(id) | SET NULL | トレーナー削除時は主担当をNULLにする |
 | clients_updated_by_foreign | FOREIGN KEY | updated_by → trainers(id) | SET NULL | トレーナー削除時は最終更新者をNULLにする |
 
+##### 備考
+
+**クライアントの状態（メールアドレスなし／メールアドレス登録待ち／初回設定待ち／利用中）は、専用カラムを持たず導出値として扱う**。導出元は以下のとおり：
+
+| 状態 | 判定 |
+|------|------|
+| 利用中 | `clients.password` が非 NULL |
+| 初回設定待ち | `clients.email` が非 NULL かつ `clients.password` が NULL |
+| メールアドレス登録待ち | `clients.email` が NULL かつ、対応する `client_email_registration_tokens` に `is_used = false` の行がある |
+| メールアドレスなし | 上記のいずれにも当てはまらない |
+
+**判定は上から順に評価し、最初に一致した状態を採用する**（複数条件が同時に成立し得るため順序が必要。特に「email あり かつ 有効な登録用 URL あり」のケースでは「初回設定待ち」を優先する）。有効期限切れの扱いを含む詳細な判定順序と表示規約は screen-design.md の S-0305 状態一覧を単一の正とする（本書と screen-design.md の間で表現が食い違った場合は screen-design.md を優先）。
+
 
 ---
 
