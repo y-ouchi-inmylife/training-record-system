@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use App\Models\ClientEmailRegistrationToken;
-use App\Models\ClientPasswordSetupToken;
+use App\Models\ClientLoginLinkToken;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -42,7 +42,7 @@ class ClientEmailRegistrationTokenController extends Controller
 
             // 対象クライアントの未使用ログイン用リンクも物理削除
             // 再発行時に送信済みログイン用リンクも無効化するため
-            $client->passwordSetupTokens()
+            $client->loginLinkTokens()
                 ->where('is_used', false)
                 ->delete();
 

@@ -2,7 +2,7 @@
 
 namespace App\Mail;
 
-use App\Models\ClientPasswordSetupToken;
+use App\Models\ClientLoginLinkToken;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
@@ -24,7 +24,7 @@ class ClientLoginLinkMail extends Mailable
     use SerializesModels;
 
     public function __construct(
-        public readonly ClientPasswordSetupToken $token,
+        public readonly ClientLoginLinkToken $token,
     ) {}
 
     public function envelope(): Envelope

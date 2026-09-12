@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\ClientLoginLinkMail;
 use App\Models\Client;
 use App\Models\ClientEmailRegistrationToken;
-use App\Models\ClientPasswordSetupToken;
+use App\Models\ClientLoginLinkToken;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -98,13 +98,13 @@ class EmailRegistrationController extends Controller
 
                 // 未使用のログイン用リンク（DS-0600）を物理削除
                 // 入力し直しの場合、前のリンクを無効化するため
-                ClientPasswordSetupToken::where('client_id', $tokenRecord->client_id)
+                ClientLoginLinkToken::where('client_id', $tokenRecord->client_id)
                     ->where('is_used', false)
                     ->delete();
 
                 // 新しいログイン用リンクを作成。
                 // expires_at はメールアドレス登録用トークンをそのまま引き継ぐ（設計書）。
-                $loginLink = ClientPasswordSetupToken::create([
+                $loginLink = ClientLoginLinkToken::create([
                     'token' => Str::random(32),
                     'client_id' => $tokenRecord->client_id,
                     'expires_at' => $tokenRecord->expires_at,

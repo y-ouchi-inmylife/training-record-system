@@ -153,14 +153,14 @@ class Client extends Authenticatable
     }
 
     /**
-     * パスワード設定トークン（DS-0600）＝ログイン用リンク
+     * ログイン用リンクトークン（DS-0600）
      *
-     * 段階 4-1 でリンクの用途は「ログイン用リンク」に再定義された。
-     * テーブル名・モデル名は互換のため据え置き（段階 4-4 でリネームを検討）。
+     * お客様がメールアドレスを登録すると当該アドレスに送信される、開くと
+     * 自動ログインして初回設定画面へ遷移するリンクのトークン。
      */
-    public function passwordSetupTokens(): HasMany
+    public function loginLinkTokens(): HasMany
     {
-        return $this->hasMany(ClientPasswordSetupToken::class);
+        return $this->hasMany(ClientLoginLinkToken::class);
     }
 
     /**

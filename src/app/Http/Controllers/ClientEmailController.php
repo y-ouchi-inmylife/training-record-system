@@ -41,7 +41,7 @@ class ClientEmailController extends Controller
             $client->emailRegistrationTokens()
                 ->where('is_used', false)
                 ->delete();
-            $client->passwordSetupTokens()
+            $client->loginLinkTokens()
                 ->where('is_used', false)
                 ->delete();
         });

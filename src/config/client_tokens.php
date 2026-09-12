@@ -10,7 +10,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | トレーナーが発行する「メールアドレス登録用 URL」（DS-0700 client_email_registration_tokens.expires_at）
-    | の有効日数。ログイン用リンク（DS-0600 client_password_setup_tokens.expires_at）は
+    | の有効日数。ログイン用リンク（DS-0600 client_login_link_tokens.expires_at）は
     | この期限をそのまま引き継ぐため、専用の設定値は持たない。
     |
     | この期限が「初回設定完了までの全体の期限」となる。

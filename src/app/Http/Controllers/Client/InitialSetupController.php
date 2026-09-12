@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientInitialSetupRequest;
-use App\Models\ClientPasswordSetupToken;
+use App\Models\ClientLoginLinkToken;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -17,8 +17,7 @@ use Illuminate\Support\Facades\DB;
  * GET でトークン検証と同時に client guard で自動ログインさせ、
  * POST でパスワード＋基本情報を保存する。
  *
- * ログイン用リンクのトークンは `client_password_setup_tokens` テーブル（DS-0600）を
- * 継続利用する（テーブル名のリネームは段階 4-4 で検討）。
+ * ログイン用リンクのトークンは `client_login_link_tokens` テーブル（DS-0600）を使う。
  *
  * 設計書: api-design.md `GET / POST /client-portal/setup/{token}`
  */
@@ -30,7 +29,7 @@ class InitialSetupController extends Controller
      */
     public function showByToken(string $token): View
     {
-        $tokenRecord = ClientPasswordSetupToken::where('token', $token)->first();
+        $tokenRecord = ClientLoginLinkToken::where('token', $token)->first();
 
         if (!$tokenRecord) {
             return $this->invalidTokenView(
@@ -67,7 +66,7 @@ class InitialSetupController extends Controller
     public function storeByToken(ClientInitialSetupRequest $request, string $token): View|RedirectResponse
     {
         // トークン再検証（レース対策）。二重開封で後発は「使用済み」エラーになる。
-        $tokenRecord = ClientPasswordSetupToken::where('token', $token)->first();
+        $tokenRecord = ClientLoginLinkToken::where('token', $token)->first();
         if (!$tokenRecord || $tokenRecord->isExpired() || $tokenRecord->is_used) {
             return $this->invalidTokenView(
                 'このURLは既に使用されています',

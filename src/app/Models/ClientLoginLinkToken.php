@@ -6,13 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
 /**
- * クライアントパスワード設定トークンモデル（DS-0600）
+ * クライアントログイン用リンクトークンモデル（DS-0600）
  *
- * 閲覧を解放されたクライアントが招待メールから初回パスワードを設定するための
- * ワンタイムURLのトークン。
- * 有効期限は発行から72時間（発行時に expires_at を設定）。
+ * お客様がメールアドレスを登録した際、当該アドレスに送信するログイン用リンクの
+ * トークン。リンクを開くとクライアントは自動ログインされ、初回設定画面（S-1403）に
+ * 遷移する。
+ *
+ * 有効期限は対応するメールアドレス登録用トークン（DS-0700 client_email_registration_tokens）
+ * の expires_at をそのまま引き継ぐ。全体の期限はメールアドレス登録用 URL の発行時に決まる
+ * （設定値は architecture.md §3-1 参照）。
  */
-class ClientPasswordSetupToken extends Model
+class ClientLoginLinkToken extends Model
 {
     protected $fillable = [
         'token',
