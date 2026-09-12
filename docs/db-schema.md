@@ -87,6 +87,13 @@ erDiagram
         bigint client_id FK
     }
 
+    client_password_reset_tokens {
+        bigint id PK
+        string token UK
+        boolean is_used
+        bigint client_id FK
+    }
+
     training_records {
         bigint id PK
         bigint client_id FK
@@ -158,6 +165,7 @@ erDiagram
     clients ||--o{ client_email_registration_tokens : "メールアドレス登録"
     trainers ||--o{ client_email_registration_tokens : "発行"
     clients ||--o{ client_email_change_tokens : "メールアドレス変更"
+    clients ||--o{ client_password_reset_tokens : "パスワード再設定"
 ```
 
 ※ER図はテーブル間の関連と主要カラム（主キー・ユニークキー・外部キー・主な業務識別/区分カラム）のみを示す。`created_at`/`updated_at`/`updated_by` 等の共通カラムおよび非識別カラムは省略しているため、全カラムは4章のテーブル定義を参照。clientsテーブルは7カテゴリー50業務項目＋共通カラムで構成され、ER図には代表カラムのみ掲載している。
@@ -814,6 +822,49 @@ erDiagram
 
 ---
 
+#### DS-0900 client_password_reset_tokens（クライアントパスワード再設定トークン）
+
+**概要**: パスワードを忘れたお客様が、ログイン画面（S-1401）の「パスワードを忘れた方」から申し込みを行った際、当該お客様の登録アドレス宛に送る**パスワード再設定リンク**のトークンを管理する。お客様がリンクを開くとパスワード再設定画面（S-1408）へ遷移し、新しいパスワードを設定するとログイン画面（S-1401）へ戻る（そのままログインさせない）。
+
+**対応する要件**:
+- パスワードの再設定（6-15-12）
+
+##### カラム定義
+
+| カラム名 | 型 | NULL | デフォルト | 説明 |
+|---------|-----|------|----------|------|
+| id | BIGINT UNSIGNED | NO | auto_increment | 主キー |
+| token | VARCHAR(64) | NO | — | `Str::random(32)` で生成された 32 文字のランダム英数字（URLに埋め込む）。カラム型 VARCHAR(64) は将来の長さ拡張に備えた余裕。重複不可 |
+| client_id | BIGINT UNSIGNED | NO | — | 再設定対象クライアントのID（外部キー）。申し込み時に「利用中」だったクライアント |
+| expires_at | TIMESTAMP | NO | — | 有効期限。**発行から 3 日後**に設定される（設定値は `architecture.md` §3-1 の `client_tokens.password_reset_expires_days` を参照）。**他のトークン（DS-0600 / DS-0700 / DS-0800）とは無関係に発行されるため、独立した有効期限を持つ**（引き継ぐ元がない） |
+| is_used | BOOLEAN | NO | false | 使用状態。false: 未使用 / true: 使用済み。パスワード再設定が完了した時点で true に更新 |
+| created_at | TIMESTAMP | YES | NULL | 発行日時 |
+| updated_at | TIMESTAMP | YES | NULL | 更新日時 |
+
+##### インデックス
+
+| インデックス名 | カラム | 種類 | 目的 |
+|---------------|--------|------|------|
+| PRIMARY | id | PRIMARY KEY | 主キー |
+| client_password_reset_tokens_token_unique | token | UNIQUE | トークン文字列の重複を防ぐ。URLアクセス時の検索にも使用 |
+| client_password_reset_tokens_expires_at_idx | expires_at | INDEX | 有効期限による検索・期限切れ抽出 |
+| client_password_reset_tokens_is_used_idx | is_used | INDEX | 使用状態による絞り込み |
+| client_password_reset_tokens_client_id_idx | client_id | INDEX | クライアントによる検索・逆引き |
+
+##### 制約
+
+| 制約名 | 種類 | 条件 | ON DELETE | 説明 |
+|--------|------|------|-----------|------|
+| client_password_reset_tokens_client_id_foreign | FOREIGN KEY | client_id → clients(id) | CASCADE | クライアント削除時はトークンも削除する（特定クライアント専用のトークンのため） |
+
+**備考**:
+- `created_by` カラムは持たない（発行者はお客様本人。申し込み時点で認証済みではないが、メールアドレスから特定される。他のトークン（DS-0600 / DS-0700）と異なりトレーナーからは発行されないため）
+- **新しいメールアドレスを保持するカラムは持たない**（DS-0800 と異なり、パスワード再設定ではメールアドレスは変わらないため）
+- **`token` 以外の一意制約は付けない**。同一クライアントが同時に有効な再設定リンクを 1 本だけ持つ制約は、コントローラで「未使用のトークンを物理削除してから新規発行」する運用で担保する（DS-0800 と同じ考え方）
+- 独立した有効期限を持つ設計上、`architecture.md` §3-1 の設定値も独立キー（`client_tokens.password_reset_expires_days`）で管理する
+
+---
+
 
 ## 5. ENUMおよび定数
 
@@ -929,6 +980,7 @@ erDiagram
 | 12 | client_password_setup_tokens | clients |
 | 13 | client_email_registration_tokens | clients |
 | 14 | client_email_change_tokens | clients |
+| 15 | client_password_reset_tokens | clients |
 
 ---
 
