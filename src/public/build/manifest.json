@@ -7,6 +7,12 @@
     "file": "assets/bootstrap-icons-mSm7cUeB.woff2",
     "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
   },
+  "resources/js/address-search.js": {
+    "file": "assets/address-search-joFG5S6a.js",
+    "name": "address-search",
+    "src": "resources/js/address-search.js",
+    "isEntry": true
+  },
   "resources/js/app.js": {
     "file": "assets/app-D4qejdUp.js",
     "name": "app",
