@@ -85,9 +85,9 @@
         <div class="d-flex justify-content-end gap-2 mb-2">
             <a href="{{ route('clients.index') }}" class="btn btn-outline-secondary">&laquo; クライアント一覧に戻る</a>
             {{-- 状態別ボタン（設計書 S-0305）。以下は 1 つだけ表示される：
-                  - メールアドレスなし              → 「メールアドレス登録用 URL を発行」（新規発行）
-                  - メールアドレス登録待ち（期限内）→ 「登録のご案内を表示」
-                  - メールアドレス登録待ち（期限切れ）→ 「メールアドレス登録用 URL を発行」
+                  - メールアドレスなし              → 「マイページ登録案内を発行」（新規発行）
+                  - メールアドレス登録待ち（期限内）→ 「マイページ登録案内を表示」
+                  - メールアドレス登録待ち（期限切れ）→ 「マイページ登録案内を発行」
                     （期限切れは未発行と同じ扱い）
                   - 初回設定待ち                    → なし
                   - 利用中                          → 「メールアドレスを削除」
@@ -105,12 +105,12 @@
                 <form method="POST" action="{{ route('client-email-registration-tokens.store', $client) }}"
                       class="d-inline m-0">
                     @csrf
-                    <button type="submit" class="btn btn-primary">メールアドレス登録用 URL を発行</button>
+                    <button type="submit" class="btn btn-primary">マイページ登録案内を発行</button>
                 </form>
             @endif
             @if($showPrint)
                 <a href="{{ route('client-email-registration-tokens.print', $client) }}"
-                   class="btn btn-primary" target="_blank" rel="noopener">登録のご案内を表示</a>
+                   class="btn btn-primary" target="_blank" rel="noopener">マイページ登録案内を表示</a>
             @endif
             @if($showDeleteEmail)
                 <button type="button" class="btn btn-outline-danger"

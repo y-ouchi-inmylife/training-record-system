@@ -8,7 +8,7 @@
     $isDone = !empty($submittedEmail);
 @endphp
 
-@section('title', $isDone ? 'メールをお送りしました' : 'メールアドレスの登録')
+@section('title', $isDone ? 'メールをお送りしました' : 'マイページのご登録')
 
 @section('content')
 {{-- pre-auth シェル（ログイン・初回設定と共通）。入力状態と完了状態を同じ画面で切り替える --}}
@@ -35,9 +35,9 @@
                 </div>
             @else
                 {{-- 入力状態 --}}
-                <h2 class="c-auth-heading">メールアドレスの登録</h2>
+                <h2 class="c-auth-heading">マイページのご登録</h2>
                 <p class="c-auth-lead">
-                    ご自身のメールアドレスを入力してください。
+                    マイページのご登録のため、ご自身のメールアドレスを入力してください。
                 </p>
 
                 @if ($errors->any())

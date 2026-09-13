@@ -1,6 +1,6 @@
 @extends('layouts.print')
 
-@section('title', 'メールアドレス登録のご案内')
+@section('title', 'マイページ登録のご案内')
 
 @section('content')
 {{-- ページ上部の「クライアント詳細に戻る」導線。
@@ -16,15 +16,15 @@
 
 @if($url)
     {{-- 有効な URL あり ---}}
-    <h1 class="print-title">メールアドレスの登録のご案内</h1>
+    <h1 class="print-title">マイページ登録のご案内</h1>
 
     <div class="print-qr">
         <canvas data-qr-url="{{ $url }}" data-qr-size="240"
-                aria-label="メールアドレス登録用 URL の QR コード"></canvas>
+                aria-label="マイページ登録案内の QR コード"></canvas>
     </div>
 
     <p class="print-lead">
-        上の QR コードを読み取るか、下の URL をブラウザに入力してください。
+        マイページへのご登録は、上の QR コードを読み取るか、下の URL をブラウザに入力してください。
     </p>
 
     <div class="print-url">{{ $url }}</div>
@@ -51,7 +51,7 @@
     {{-- 有効な URL なし。ページ上部の「クライアント詳細に戻る」リンクで
          詳細画面へ戻れるため、専用の CTA ボタンは置かない
          （両状態で戻り導線の見せ方を揃える）。--}}
-    <h1 class="print-title">発行済みの有効なメールアドレス登録用 URL がありません</h1>
+    <h1 class="print-title">発行済みのマイページ登録案内がありません</h1>
     <p class="print-lead">
         クライアント詳細画面から発行してください。
     </p>
