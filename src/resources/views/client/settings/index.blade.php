@@ -4,7 +4,8 @@
     $prefectures = config('prefectures');
     // フォームごとにエラーバッグを分離（設計書 S-1406 の備考「エラーは対応する
     // フォームの上部にのみ表示」）。$errors->profile / ->password / ->email
-    // で参照する。
+    // で参照する。完了メッセージは共通キー session('success') に統一して、
+    // layouts.client の共通受け皿で画面上部に表示する（設計書 §4-10 参照）。
     $profileErrors = $errors->hasBag('profile') ? $errors->profile : null;
     $passwordErrors = $errors->hasBag('password') ? $errors->password : null;
     $emailErrors = $errors->hasBag('email') ? $errors->email : null;
@@ -24,12 +25,6 @@
         <div class="card mb-4">
             <div class="card-body p-4">
                 <p class="eyebrow">── メールアドレスの変更 ──</p>
-
-                @if(session('email_success'))
-                    <div class="alert alert-success" role="alert">
-                        {{ session('email_success') }}
-                    </div>
-                @endif
 
                 @if($emailErrors && $emailErrors->any())
                     <div class="alert alert-danger" role="alert">
@@ -72,12 +67,6 @@
         <div class="card mb-4">
             <div class="card-body p-4">
                 <p class="eyebrow">── パスワードの変更 ──</p>
-
-                @if(session('password_success'))
-                    <div class="alert alert-success" role="alert">
-                        {{ session('password_success') }}
-                    </div>
-                @endif
 
                 @if($passwordErrors && $passwordErrors->any())
                     <div class="alert alert-danger" role="alert">
@@ -129,12 +118,6 @@
         <div class="card mb-4">
             <div class="card-body p-4">
                 <p class="eyebrow">── 基本情報 ──</p>
-
-                @if(session('profile_success'))
-                    <div class="alert alert-success" role="alert">
-                        {{ session('profile_success') }}
-                    </div>
-                @endif
 
                 @if($profileErrors && $profileErrors->any())
                     <div class="alert alert-danger" role="alert">

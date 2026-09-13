@@ -21,7 +21,9 @@ use Illuminate\Support\Str;
  *
  * ログイン中のクライアントが、連絡先・メールアドレス・パスワードを変更する画面。
  * 三つのフォームはそれぞれ独立した送信先を持ち、エラーは名前付きエラーバッグ
- * （profile / email / password）で分離する。
+ * （profile / email / password）で分離する。完了メッセージは共通キー 'success' で
+ * 画面上部に表示する（送信後にページ先頭へ移動するため、セクション内だと下側の
+ * 操作結果が画面外になり見えなくなる）。どの操作だったかは文言で区別する。
  *
  * 設計書: api-design.md `GET /client-portal/settings`,
  *          `PUT /client-portal/settings/profile`,
@@ -52,7 +54,7 @@ class SettingsController extends Controller
 
         return redirect()
             ->route('client-portal.settings.index')
-            ->with('profile_success', '基本情報を保存しました。');
+            ->with('success', '基本情報を保存しました。');
     }
 
     /**
@@ -78,7 +80,7 @@ class SettingsController extends Controller
 
         return redirect()
             ->route('client-portal.settings.index')
-            ->with('password_success', 'パスワードを変更しました。');
+            ->with('success', 'パスワードを変更しました。');
     }
 
     /**
@@ -116,6 +118,6 @@ class SettingsController extends Controller
 
         return redirect()
             ->route('client-portal.settings.index')
-            ->with('email_success', '新しいメールアドレス宛に確認メールを送信しました。メールのリンクを開くとメールアドレスが切り替わります。');
+            ->with('success', '新しいメールアドレス宛に確認メールを送信しました。メールのリンクを開くとメールアドレスが切り替わります。');
     }
 }
