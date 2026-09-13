@@ -16,6 +16,6 @@
 @php $privacyUrl = config('app.client_portal_privacy_url'); @endphp
 @if($privacyUrl)
     <p class="c-consent-note">
-        送信することにより、お客様は当訓練所の<a href="{{ $privacyUrl }}" target="_blank" rel="noopener">プライバシーポリシー</a>に従って個人データを取り扱うことに同意したものとします。
+        送信することにより、お客様は<a href="{{ $privacyUrl }}" target="_blank" rel="noopener">プライバシーポリシー</a>に従って個人データを取り扱うことに同意したものとします。
     </p>
 @endif
