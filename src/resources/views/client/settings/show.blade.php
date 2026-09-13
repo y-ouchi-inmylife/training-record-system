@@ -23,24 +23,44 @@
     <div class="c-settings">
         <h1 class="mb-4">登録情報</h1>
 
+        {{-- 登録内容の表示。縦一列（ラベル上・値下）で、1 項目ずつ横罫線で区切る。
+             お客様側の確認・表示画面の標準（設計書 client-portal-design-plan.md §2-3）。
+             未入力値の扱いは §2-4 のセル形式に従い、ラベルを残し値を空にする。
+             各行の値エリアには min-height を持たせて、値が空でも行高が保たれるようにする。
+             並び順の先頭にメールアドレスを置くのは、メールアドレスがログイン ID を兼ねているため
+             （設計書 screen-design.md S-1406 備考参照）。 --}}
         <div class="card mb-4">
             <div class="card-body p-4">
-                <div class="row g-3">
-                    <x-detail-cell label="お名前" :value="$client->full_name" />
-                    <x-detail-cell label="お名前（かな）" :value="$client->full_name_kana" />
-
-                    {{-- 住所は複数カラムを組み合わせるためスロットで自前描画。§2-4 に従い
-                         未入力のときは何も表示しない（ラベルのみ残る） --}}
-                    <x-detail-cell label="住所">
-                        @if($hasAddress)
-                            @if($addressLine1 !== ''){{ $addressLine1 }}@endif
-                            @if($addressLine2)<br>{{ $addressLine2 }}@endif
-                        @endif
-                    </x-detail-cell>
-
-                    <x-detail-cell label="電話番号" :value="$client->phone1" />
-                    <x-detail-cell label="電話番号（予備）" :value="$client->phone2" />
-                    <x-detail-cell label="メールアドレス" :value="$client->email" />
+                <div class="border-top">
+                    <div class="py-3 border-bottom">
+                        <div class="text-muted small mb-1">メールアドレス</div>
+                        <div style="min-height: 1.5rem;">{{ $client->email }}</div>
+                    </div>
+                    <div class="py-3 border-bottom">
+                        <div class="text-muted small mb-1">お名前</div>
+                        <div style="min-height: 1.5rem;">{{ $client->full_name }}</div>
+                    </div>
+                    <div class="py-3 border-bottom">
+                        <div class="text-muted small mb-1">お名前（かな）</div>
+                        <div style="min-height: 1.5rem;">{{ $client->full_name_kana }}</div>
+                    </div>
+                    <div class="py-3 border-bottom">
+                        <div class="text-muted small mb-1">住所</div>
+                        <div style="min-height: 1.5rem;">
+                            @if($hasAddress)
+                                @if($addressLine1 !== ''){{ $addressLine1 }}@endif
+                                @if($addressLine2)<br>{{ $addressLine2 }}@endif
+                            @endif
+                        </div>
+                    </div>
+                    <div class="py-3 border-bottom">
+                        <div class="text-muted small mb-1">電話番号</div>
+                        <div style="min-height: 1.5rem;">{{ $client->phone1 }}</div>
+                    </div>
+                    <div class="py-3 border-bottom">
+                        <div class="text-muted small mb-1">電話番号（予備）</div>
+                        <div style="min-height: 1.5rem;">{{ $client->phone2 }}</div>
+                    </div>
                 </div>
             </div>
         </div>
