@@ -59,6 +59,14 @@ $min-contrast-ratio:   4.5;
 $card-bg:  $mat;
 $input-bg: $mat;
 
+// 入力欄のプレースホルダー色（設計書 client-portal-design-plan.md §2-1「プレースホルダーの色」）
+// Bootstrap 既定は rgba($body-color, .75)（75% 不透明度）で、本文とほぼ同等の濃さになり
+// 「入力済みの値」と見分けが付きにくい。50% に薄めることで白背景 3.4:1（AA 大文字 3:1）を保ち、
+// 入力済みの値との差 4.6:1 で一目区別できる状態にする。
+// $body-secondary-color は変えない（.text-muted / .form-text などに波及するため。プレースホルダー
+// だけを薄くする）。トレーナー側 app.scss は Vite の別バンドルなので影響なし。
+$input-placeholder-color: rgba($ink, .5);
+
 // 罫線（設計書 §2-1「カード境界の作り方」— ink を 8% 不透明度）
 $border-color: rgba(15, 26, 46, 0.08);
 
