@@ -164,6 +164,8 @@
                            value="{{ old('address4', $client->address4) }}">
                 </div>
 
+                @include('layouts.partials.privacy-consent')
+
                 <div class="d-grid">
                     <button type="submit" class="btn btn-primary">設定して進む</button>
                 </div>

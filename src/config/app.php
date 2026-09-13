@@ -159,6 +159,14 @@ return [
     |   URL（`public/` からの相対または絶対 URL）。設計書 §9-3 の暫定はロゴ画像
     |   なし。null / 空の場合はテキスト（client_portal_name）を表示する。
     |   将来ロゴが確定した際にこの値を設定するだけで画像に切り替わる。
+    | - client_portal_privacy_url: プライバシーポリシー文書の URL。お客様が
+    |   最初に個人情報を預ける画面（S-1405 メールアドレス登録・S-1403 初回設定）で、
+    |   送信ボタンの手前に「送信すると、[プライバシーポリシー]に同意したものと
+    |   みなされます。」の同意文を表示するときに使う。null / 空の場合は、
+    |   Blade 側で同意文のブロックごと出力しない（現状は文書側の準備中のため空。
+    |   訓練所のホームページに掲載された時点で URL を設定するだけで表示される）。
+    |   将来「利用規約」など他の同意リンクを増やす場合は、この設定値と並べて
+    |   `client_portal_terms_url` 等を追加すれば同じ形で扱える。
     |
     */
 
@@ -167,5 +175,7 @@ return [
     'client_portal_company' => env('CLIENT_PORTAL_COMPANY'),
 
     'client_portal_logo' => env('CLIENT_PORTAL_LOGO'),
+
+    'client_portal_privacy_url' => env('CLIENT_PORTAL_PRIVACY_URL'),
 
 ];

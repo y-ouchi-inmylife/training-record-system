@@ -64,6 +64,8 @@
                         >
                     </div>
 
+                    @include('layouts.partials.privacy-consent')
+
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary">登録して進む</button>
                     </div>

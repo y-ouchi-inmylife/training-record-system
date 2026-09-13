@@ -1,0 +1,21 @@
+{{--
+    プライバシーポリシー同意文（送信ボタンの手前に置く控えめな案内）。
+    お客様が最初に個人情報を預ける画面で表示する：
+      - S-1405 メールアドレス登録画面
+      - S-1403 初回設定画面
+
+    表示制御：
+      - config('app.client_portal_privacy_url') が空なら**ブロックごと出力しない**
+        （文書側が準備中の間、画面には何も出さない = 現状のまま）
+      - URL が入っている場合のみ、同意文とリンクを出す
+    リンクは別タブで開く（入力中の内容を守るため target="_blank"）。
+
+    将来「利用規約」など他の同意項目を並べる場合は、リンク要素を追記する形で
+    同じ partial 内に統合する（設計書 §? 参照）。
+--}}
+@php $privacyUrl = config('app.client_portal_privacy_url'); @endphp
+@if($privacyUrl)
+    <p class="c-consent-note">
+        送信すると、<a href="{{ $privacyUrl }}" target="_blank" rel="noopener">プライバシーポリシー</a>に同意したものとみなされます。
+    </p>
+@endif
