@@ -68,11 +68,12 @@
         </div>
 
         {{-- 3 つの入口ボタンは同格。フル幅の .btn-primary（明るいオレンジ #EC6812）で揃える。
-             並び順：登録情報 → パスワード → メールアドレス（設計書 §4-10 参照）--}}
+             並び順：メールアドレス → パスワード → 登録情報（設計書 §4-10 参照）。
+             上の表示項目の並び（メールアドレスを先頭）とボタンの並びを対応させるため。 --}}
         <div class="d-grid gap-2">
-            <a href="{{ route('client-portal.profile.edit') }}" class="btn btn-primary">登録情報を変更</a>
-            <a href="{{ route('client-portal.settings.password.edit') }}" class="btn btn-primary">パスワードを変更</a>
             <a href="{{ route('client-portal.settings.email.edit') }}" class="btn btn-primary">メールアドレスを変更</a>
+            <a href="{{ route('client-portal.settings.password.edit') }}" class="btn btn-primary">パスワードを変更</a>
+            <a href="{{ route('client-portal.profile.edit') }}" class="btn btn-primary">登録情報を変更</a>
         </div>
     </div>
 </div>
