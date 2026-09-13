@@ -24,7 +24,7 @@ class ClientEmailChangedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'メールアドレスが変更されました',
+            subject: ClientMailSubject::format('メールアドレスを変更しました'),
             replyTo: [
                 new Address('info@inmylife1965.com', 'インマイライフ'),
             ],

@@ -30,7 +30,7 @@ class ClientPasswordResetMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'パスワード再設定のご案内',
+            subject: ClientMailSubject::format('パスワード再設定のご案内'),
             replyTo: [
                 new Address('info@inmylife1965.com', 'インマイライフ'),
             ],

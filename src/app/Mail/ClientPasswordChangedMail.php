@@ -24,7 +24,7 @@ class ClientPasswordChangedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'パスワードが変更されました',
+            subject: ClientMailSubject::format('パスワードを変更しました'),
             replyTo: [
                 new Address('info@inmylife1965.com', 'インマイライフ'),
             ],

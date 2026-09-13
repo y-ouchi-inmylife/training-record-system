@@ -31,7 +31,7 @@ class ClientEmailChangeConfirmMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'メールアドレス変更のご確認',
+            subject: ClientMailSubject::format('メールアドレス変更のご確認'),
             replyTo: [
                 new Address('info@inmylife1965.com', 'インマイライフ'),
             ],

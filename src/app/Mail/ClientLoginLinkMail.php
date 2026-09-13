@@ -30,7 +30,7 @@ class ClientLoginLinkMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'トレーニング記録閲覧のログイン用リンク',
+            subject: ClientMailSubject::format('マイページのご登録手続き'),
             replyTo: [
                 new Address('info@inmylife1965.com', 'インマイライフ'),
             ],
