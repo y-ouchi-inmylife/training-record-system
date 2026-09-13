@@ -1,0 +1,64 @@
+@extends('layouts.client')
+
+@section('title', 'パスワードの変更')
+
+@section('content')
+<div class="container">
+    <div class="c-settings">
+        {{-- 戻る導線：他画面（training-records/show）と同じ .c-detail-back パターン --}}
+        <a href="{{ route('client-portal.settings.index') }}" class="c-detail-back">
+            <span aria-hidden="true">←</span> 登録情報
+        </a>
+
+        <h1 class="mb-4">パスワードの変更</h1>
+
+        <div class="card mb-4">
+            <div class="card-body p-4">
+                @if($errors->any())
+                    <div class="alert alert-danger" role="alert">
+                        @foreach($errors->all() as $error)
+                            <p class="mb-0">{{ $error }}</p>
+                        @endforeach
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('client-portal.settings.password.update') }}">
+                    @csrf
+                    @method('PUT')
+
+                    {{-- パスワードマネージャー向け username（保存パスワードの紐付け先）--}}
+                    <input type="email" name="username" value="{{ $client->email }}"
+                           autocomplete="username" readonly tabindex="-1" aria-hidden="true"
+                           class="visually-hidden">
+
+                    <div class="mb-3">
+                        <label for="pw_current" class="form-label">現在のパスワード <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control @error('current_password') is-invalid @enderror"
+                               id="pw_current" name="current_password" required
+                               autocomplete="current-password">
+                    </div>
+                    <div class="mb-3">
+                        <label for="pw_new" class="form-label">新しいパスワード <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control @error('new_password') is-invalid @enderror"
+                               id="pw_new" name="new_password" required
+                               autocomplete="new-password" aria-describedby="pw_new_help">
+                        <div id="pw_new_help" class="form-text">
+                            8 文字以上で、大文字・小文字・数字・記号をそれぞれ 1 つ以上入れてください。
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="pw_new_confirm" class="form-label">新しいパスワード（確認） <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control"
+                               id="pw_new_confirm" name="new_password_confirmation" required
+                               autocomplete="new-password">
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">パスワードを変更</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection

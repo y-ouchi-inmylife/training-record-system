@@ -254,15 +254,21 @@ Route::domain(config('subdomain.client_host'))->group(function () {
                 ->name('training-records.show');
             Route::get('/media/{mediaRecord}/play', [\App\Http\Controllers\Client\MediaRecordController::class, 'play'])
                 ->name('media.play');
-            // 登録情報設定（S-1406、段階 4-3）
+            // 登録情報設定（S-1406、段階 4-3）— 基本情報の変更＋メール・パスワード変更の入口
             Route::get('/settings', [\App\Http\Controllers\Client\SettingsController::class, 'index'])
                 ->name('settings.index');
             Route::put('/settings/profile', [\App\Http\Controllers\Client\SettingsController::class, 'updateProfile'])
                 ->name('settings.profile.update');
+            // メールアドレスの変更（S-1409）— 独立画面
+            Route::get('/settings/email', [\App\Http\Controllers\Client\SettingsController::class, 'editEmail'])
+                ->name('settings.email.edit');
+            Route::post('/settings/email', [\App\Http\Controllers\Client\SettingsController::class, 'requestEmailChange'])
+                ->name('settings.email.request');
+            // パスワードの変更（S-1410）— 独立画面
+            Route::get('/settings/password', [\App\Http\Controllers\Client\SettingsController::class, 'editPassword'])
+                ->name('settings.password.edit');
             Route::put('/settings/password', [\App\Http\Controllers\Client\SettingsController::class, 'updatePassword'])
                 ->name('settings.password.update');
-            Route::post('/settings/email-change', [\App\Http\Controllers\Client\SettingsController::class, 'requestEmailChange'])
-                ->name('settings.email-change.request');
         });
     });
 

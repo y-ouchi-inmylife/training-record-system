@@ -17,27 +17,48 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 /**
- * クライアント登録情報設定コントローラ（S-1406）
+ * クライアント登録情報設定コントローラ（S-1406 / S-1409 / S-1410）
  *
- * ログイン中のクライアントが、連絡先・メールアドレス・パスワードを変更する画面。
- * 三つのフォームはそれぞれ独立した送信先を持ち、エラーは名前付きエラーバッグ
- * （profile / email / password）で分離する。完了メッセージは共通キー 'success' で
- * 画面上部に表示する（送信後にページ先頭へ移動するため、セクション内だと下側の
- * 操作結果が画面外になり見えなくなる）。どの操作だったかは文言で区別する。
+ * ログイン中のクライアントが、連絡先・メールアドレス・パスワードを変更する。
+ * 三つの機能を三画面に分けている（それぞれフォームが一つだけになるため、
+ * エラーメッセージ・完了メッセージが画面上部に自然に載る）。
+ * 完了メッセージは共通キー 'success' で画面上部に表示する。
  *
- * 設計書: api-design.md `GET /client-portal/settings`,
- *          `PUT /client-portal/settings/profile`,
- *          `POST /client-portal/settings/email-change`,
- *          `PUT /client-portal/settings/password`
+ * 設計書: api-design.md `GET/PUT /client-portal/settings`,
+ *          `GET/POST /client-portal/settings/email`,
+ *          `GET/PUT /client-portal/settings/password`
  */
 class SettingsController extends Controller
 {
     /**
-     * 登録情報設定画面を表示（GET /client-portal/settings）
+     * 登録情報画面を表示（GET /client-portal/settings、S-1406）
+     *
+     * 基本情報の変更フォームと、メール変更（S-1409）・パスワード変更（S-1410）
+     * への入口カードを配置する。
      */
     public function index(): View
     {
         return view('client.settings.index', [
+            'client' => Auth::guard('client')->user(),
+        ]);
+    }
+
+    /**
+     * メールアドレス変更画面を表示（GET /client-portal/settings/email、S-1409）
+     */
+    public function editEmail(): View
+    {
+        return view('client.settings.email', [
+            'client' => Auth::guard('client')->user(),
+        ]);
+    }
+
+    /**
+     * パスワード変更画面を表示（GET /client-portal/settings/password、S-1410）
+     */
+    public function editPassword(): View
+    {
+        return view('client.settings.password', [
             'client' => Auth::guard('client')->user(),
         ]);
     }
@@ -84,7 +105,7 @@ class SettingsController extends Controller
     }
 
     /**
-     * メールアドレス変更の申し込み（POST /client-portal/settings/email-change）
+     * メールアドレス変更の申し込み（POST /client-portal/settings/email）
      *
      * 新しいアドレス宛にメールアドレス確認リンクを送信する。
      * この時点では clients.email を書き換えない（決定事項 6-15-10）。

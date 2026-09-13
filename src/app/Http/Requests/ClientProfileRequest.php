@@ -8,15 +8,10 @@ use Illuminate\Foundation\Http\FormRequest;
  * クライアント基本情報（連絡先）の変更（S-1406 / 6-15-9）バリデーション。
  *
  * 電話番号・郵便番号・住所を必須で受け取り、氏名・メールアドレス・パスワードは
- * 受け付けない（別フォーム）。ルールは S-1403 初回設定の連絡先項目と揃える。
- *
- * $errorBag = 'profile' を指定し、他フォーム（メールアドレス変更・パスワード変更）と
- * エラー表示を分離する。ビュー側は `$errors->profile` で参照する。
+ * 受け付けない（別画面）。ルールは S-1403 初回設定の連絡先項目と揃える。
  */
 class ClientProfileRequest extends FormRequest
 {
-    protected $errorBag = 'profile';
-
     public function authorize(): bool
     {
         return true;

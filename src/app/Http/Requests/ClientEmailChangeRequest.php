@@ -7,19 +7,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 /**
- * クライアントメールアドレス変更 申し込み（S-1406 / 6-15-10）バリデーション。
+ * クライアントメールアドレス変更 申し込み（S-1409 / 6-15-10）バリデーション。
  *
  * 新しいメールアドレスと現在のパスワードを受け取り、申し込みを行う。
  * 実際の切替は確認リンクを開いた時点で行うため、この時点では clients.email は
  * 書き換えない（コントローラ側の処理）。
- *
- * $errorBag = 'email' で他フォームとエラー表示を分離。
- * ビュー側は `$errors->email` で参照する。
  */
 class ClientEmailChangeRequest extends FormRequest
 {
-    protected $errorBag = 'email';
-
     public function authorize(): bool
     {
         return true;
