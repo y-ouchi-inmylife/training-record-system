@@ -262,19 +262,18 @@ h2, .h2 {
 }
 
 // -----------------------------------------------------------------------------
-// お客様側の主要ボタン（.btn-primary）を暫定で「中間のオレンジ」に振る
+// お客様側の主要ボタン（.btn-primary）を暫定で「中間のオレンジ」に振る（試行）
 //
-// 経緯：
-// 1. 元色 terracotta #C2410C（白文字コントラスト 5.18:1、AA 準拠）は茶色寄りで
-//    沈んで見えていた
-// 2. persimmon #F97316（同 2.80:1）を試したが、明るくなった反面、白い文字が
-//    読みにくかった（AA/大文字とも未達）
-// 3. **中間の明るさ**を探る。目標コントラスト 3.5:1 前後（大文字 3.0:1 は満たす）
+// 試行の経緯：
+// 1. 元色 terracotta #C2410C（白文字コントラスト 5.18:1、AA 準拠）は茶色寄りで沈む
+// 2. persimmon #F97316（同 2.80:1）を試したが白文字が読みにくい
+// 3. #E36110（同 3.51:1）で読みやすさは戻ったが、もう少し明るくしたい
+// 4. **現行：#EC6812（同 3.21:1）** — 少し明るくして印象を確認する試行 3
 //
-// 現行選択：$button-primary-mid = #E36110（白文字コントラスト 3.51:1）
-// - persimmon と terracotta の中間の明度・色相
-// - hover は 15% shade（Bootstrap 慣習）で #C1520E
-// - active は 20% shade で #B64E0D
+// 現行値：
+// - base:   #EC6812（白文字コントラスト 3.21:1）
+// - hover:  #C8580F（Bootstrap 慣習の 15% shade）
+// - active: #BD530E（同 20% shade）
 //
 // 影響範囲を限定するため、$primary は $terracotta のまま維持し、
 // Bootstrap 5.3 の .btn-primary 用 CSS カスタムプロパティ（--bs-btn-*）だけを
@@ -282,20 +281,19 @@ h2, .h2 {
 // 成功アラート（.alert-success ハードコード）、日付ブロック（persimmon）には
 // 影響しない。
 //
-// **コントラスト状況**：3.51:1 で AA テキスト（4.5:1）は未達、大文字基準（3.0:1）は
-// 満たす。ボタンラベルは太字・短文で使うため大文字扱いに近いが、正式に AA を
-// 満たしたいなら、次の作業で文字色を bister に変える／さらに暗いオレンジに寄せる、
-// のいずれかを判断する。設計書 §2 の試行記述を参照。
+// **コントラスト状況の判断**：3.21:1 で AA テキスト（4.5:1）は未達、大文字基準
+// （3.0:1）はかろうじて満たす。ボタンラベルは太字・短文で使うため実用上は
+// 読めると判断して明るさを優先した。設計書 §2 の試行記述に判断根拠を残す。
 // -----------------------------------------------------------------------------
 .btn-primary {
-    --bs-btn-bg:                    #E36110;
-    --bs-btn-border-color:          #E36110;
-    --bs-btn-hover-bg:              #C1520E; // 15% shade
-    --bs-btn-hover-border-color:    #C1520E;
-    --bs-btn-active-bg:             #B64E0D; // 20% shade
-    --bs-btn-active-border-color:   #B64E0D;
-    --bs-btn-disabled-bg:           #E36110;
-    --bs-btn-disabled-border-color: #E36110;
+    --bs-btn-bg:                    #EC6812;
+    --bs-btn-border-color:          #EC6812;
+    --bs-btn-hover-bg:              #C8580F; // 15% shade
+    --bs-btn-hover-border-color:    #C8580F;
+    --bs-btn-active-bg:             #BD530E; // 20% shade
+    --bs-btn-active-border-color:   #BD530E;
+    --bs-btn-disabled-bg:           #EC6812;
+    --bs-btn-disabled-border-color: #EC6812;
     --bs-btn-color:                 #{$mat};
     --bs-btn-hover-color:           #{$mat};
     --bs-btn-active-color:          #{$mat};
