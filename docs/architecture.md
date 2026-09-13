@@ -222,3 +222,17 @@ flowchart TD
 
 - 有効期限は現在日時からの経過日数で算出する（`now()->addDays(config('client_tokens.email_registration_expires_days'))` 等）
 - **1 か所（`config/client_tokens.php`）で管理し、コントローラ・モデル・シーダーからハードコードしない**。段階 4-1 以前は 72 時間のハードコードが `ClientViewReleaseController` に埋め込まれていたが、廃止に伴って設定ファイルに移す
+
+### 3-2. クライアントポータルのブランド・法務関連 URL
+
+| 設定キー | env | 既定 | 用途 |
+|---|---|---|---|
+| `app.client_portal_name` | `CLIENT_PORTAL_NAME` | 「トレーニング記録」 | ヘッダー帯のワードマーク・ブラウザタイトル。Blade にベタ書きしない |
+| `app.client_portal_company` | `CLIENT_PORTAL_COMPANY` | null | pre-auth フッターのトレーニング提供会社名（`&copy; YYYY {会社名}`）。null/空なら `<footer>` ブロックごと出力しない |
+| `app.client_portal_logo` | `CLIENT_PORTAL_LOGO` | null | ヘッダー帯左のロゴ画像 URL（`public/` からの相対または絶対）。null/空ならテキスト（プロダクト名）を出す |
+| `app.client_portal_privacy_url` | `CLIENT_PORTAL_PRIVACY_URL` | null | プライバシーポリシー文書の URL。お客様が最初に個人情報を預ける画面（S-1405 メールアドレス登録・S-1403 初回設定）で、送信ボタンの手前に同意文を表示するときに使う。**null/空なら同意文のブロックごと出力しない**（詳細は requirements.md 6-15-13） |
+
+**取り扱いの共通ルール**：
+- Blade からは `config('app.xxx', '既定')` で参照する
+- 値が空のときの挙動は Blade 側で `@if(config('app.xxx'))` によりブロックごと出力しない設計
+- 将来「利用規約」など同じ扱いの URL を追加する場合、`client_portal_terms_url` の形で並べて増やせる
