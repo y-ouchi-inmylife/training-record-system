@@ -74,13 +74,16 @@ Route::domain(config('subdomain.trainer_host'))->middleware('check-ip')->group(f
         Route::middleware('practitioners')->group(function () {
             Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
             Route::resource('clients', ClientController::class);
-            // メールアドレス登録用 URL の発行（段階 4-1）
+            // マイページ登録案内の発行（6-3-6、段階 4-1）
             Route::post('clients/{client}/email-registration-tokens', [ClientEmailRegistrationTokenController::class, 'store'])
                 ->name('client-email-registration-tokens.store');
-            // メールアドレス登録用 URL の印刷用ページ（S-0307、段階 4-2）
+            // マイページ登録案内の取消（6-3-7）
+            Route::delete('clients/{client}/email-registration-tokens', [ClientEmailRegistrationTokenController::class, 'destroy'])
+                ->name('client-email-registration-tokens.destroy');
+            // マイページ登録案内の表示（印刷ページ S-0307、段階 4-2）
             Route::get('clients/{client}/email-registration-tokens/print', [ClientEmailRegistrationTokenController::class, 'print'])
                 ->name('client-email-registration-tokens.print');
-            // メールアドレスの削除（6-3-7、段階 4-2）
+            // メールアドレスの削除（6-3-8、段階 4-2）
             Route::delete('clients/{client}/email', [ClientEmailController::class, 'destroy'])
                 ->name('client-email.destroy');
             Route::resource('training-records', TrainingRecordController::class);

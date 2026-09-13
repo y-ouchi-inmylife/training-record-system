@@ -82,6 +82,51 @@ class ClientEmailRegistrationTokenController extends Controller
     }
 
     /**
+     * マイページ登録案内の取消処理（6-3-7）
+     *
+     * 状態が「メールアドレス登録待ち（期限内）」のときだけ実行できる。未使用の
+     * メールアドレス登録用トークンを物理削除し、発行前の状態（メールアドレスなし）
+     * に戻す。クライアント情報とトレーニング記録には触らない。
+     *
+     * ログイン用リンク（`client_login_link_tokens`）はこの状態では通常存在しない
+     * が、整合性のため未使用のものがあれば一緒に物理削除する（発行 6-3-6・削除
+     * 6-3-8 と同じ扱い）。
+     *
+     * 設計書: api-design.md `DELETE /clients/{client}/email-registration-tokens`
+     */
+    public function destroy(Client $client): RedirectResponse
+    {
+        // 状態が「登録待ち（期限内）」であることを確認。
+        // 派生値（latest_email_reg_expires_at / has_active_email_reg_token）を
+        // 使う `getStatusAttribute` と `getShowExpiredNoteAttribute` を利用するため
+        // loadStatusData() で先読みする。
+        $client->loadStatusData();
+
+        if ($client->status !== Client::STATUS_AWAITING_EMAIL || $client->show_expired_note) {
+            // UI 側で取消ボタンをこの状態のときだけ表示しているため通常は到達しない。
+            // 直接エンドポイントを叩かれた場合の防御として 409 を返す。
+            abort(409, '登録待ち（期限内）のときだけ取り消せます');
+        }
+
+        DB::transaction(function () use ($client) {
+            // 未使用のメールアドレス登録用トークンを物理削除
+            $client->emailRegistrationTokens()
+                ->where('is_used', false)
+                ->delete();
+
+            // ログイン用リンクの未使用トークンも整合性のため物理削除
+            // （この状態では通常存在しないが、発行・削除処理と同じ扱いにする）
+            $client->loginLinkTokens()
+                ->where('is_used', false)
+                ->delete();
+        });
+
+        return redirect()
+            ->route('clients.show', $client)
+            ->with('success', 'マイページ登録案内を取り消しました。');
+    }
+
+    /**
      * メールアドレス登録用 URL の印刷用ページ（S-0307）を表示する。
      *
      * 設計書 api-design.md `GET /clients/{client}/email-registration-tokens/print`。

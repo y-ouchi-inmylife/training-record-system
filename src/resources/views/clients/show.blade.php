@@ -84,11 +84,12 @@
         {{-- 1段目: 操作ボタン群（右寄せ） --}}
         <div class="d-flex justify-content-end gap-2 mb-2">
             <a href="{{ route('clients.index') }}" class="btn btn-outline-secondary">&laquo; クライアント一覧に戻る</a>
-            {{-- 状態別ボタン（設計書 S-0305）。以下は 1 つだけ表示される：
+            {{-- 状態別ボタン（設計書 S-0305）。基本 1 つだけだが、
+                 「メールアドレス登録待ち（期限内）」だけ「表示」＋「取消」の 2 つが並ぶ：
                   - メールアドレスなし              → 「マイページ登録案内を発行」（新規発行）
-                  - メールアドレス登録待ち（期限内）→ 「マイページ登録案内を表示」
+                  - メールアドレス登録待ち（期限内）→ 「マイページ登録案内を表示」＋「マイページ登録案内を取消」
                   - メールアドレス登録待ち（期限切れ）→ 「マイページ登録案内を発行」
-                    （期限切れは未発行と同じ扱い）
+                    （期限切れは未発行と同じ扱い。取消は出さない）
                   - 初回設定待ち                    → なし
                   - 利用中                          → 「メールアドレスを削除」
                  状態判定は段階 4-2 で Client モデルに実装した仕組みを使う --}}
@@ -98,6 +99,8 @@
                 $showIssue = ($status === \App\Models\Client::STATUS_NO_EMAIL)
                     || ($status === \App\Models\Client::STATUS_AWAITING_EMAIL && $expired);
                 $showPrint = $status === \App\Models\Client::STATUS_AWAITING_EMAIL && !$expired;
+                // 取消は「表示」と同じ条件（登録待ち・期限内）
+                $showCancel = $showPrint;
                 $showDeleteEmail = $status === \App\Models\Client::STATUS_IN_USE;
             @endphp
             @if($showIssue)
@@ -111,6 +114,12 @@
             @if($showPrint)
                 <a href="{{ route('client-email-registration-tokens.print', $client) }}"
                    class="btn btn-primary" target="_blank" rel="noopener">マイページ登録案内を表示</a>
+            @endif
+            @if($showCancel)
+                <button type="button" class="btn btn-outline-danger"
+                        data-bs-toggle="modal" data-bs-target="#tokenCancellationModal">
+                    マイページ登録案内を取消
+                </button>
             @endif
             @if($showDeleteEmail)
                 <button type="button" class="btn btn-outline-danger"
@@ -299,6 +308,37 @@
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-danger">削除する</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    {{-- マイページ登録案内取消確認モーダル（S-0305-M03）--}}
+    @if($showCancel)
+    <div class="modal fade" id="tokenCancellationModal" tabindex="-1"
+         aria-labelledby="tokenCancellationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tokenCancellationModalLabel">
+                        マイページ登録案内の取消
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0">
+                        発行済みのマイページ登録案内が使えなくなります。<br>
+                        すでにお渡しした案内からは登録できなくなります。
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <form method="POST" action="{{ route('client-email-registration-tokens.destroy', $client) }}" class="d-inline m-0">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">取消する</button>
                     </form>
                 </div>
             </div>
