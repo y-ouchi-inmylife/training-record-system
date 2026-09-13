@@ -64,13 +64,16 @@ class SettingsController extends Controller
     public function updatePassword(ClientPasswordChangeRequest $request): RedirectResponse
     {
         $client = Auth::guard('client')->user();
+        // 変更が行われた時刻。通知メールに載せて、身に覚えがあるかをお客様が
+        // 判断できるようにする（設計書 client-portal-design-plan.md §6-2）
+        $changedAt = now();
 
-        DB::transaction(function () use ($client, $request) {
+        DB::transaction(function () use ($client, $request, $changedAt) {
             $client->update([
                 'password' => $request->validated()['new_password'],
             ]);
             // 登録アドレスに通知メール。失敗時は全ロールバック
-            Mail::to($client->email)->send(new ClientPasswordChangedMail());
+            Mail::to($client->email)->send(new ClientPasswordChangedMail($changedAt));
         });
 
         return redirect()

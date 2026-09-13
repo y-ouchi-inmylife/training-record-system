@@ -69,9 +69,12 @@ class EmailChangeController extends Controller
 
         $client = $tokenRecord->client;
         $oldEmail = $client->email;
+        // 切替が行われた時刻。通知メールに載せて、身に覚えがあるかをお客様が
+        // 判断できるようにする（設計書 client-portal-design-plan.md §6-2）
+        $changedAt = now();
 
         try {
-            DB::transaction(function () use ($client, $tokenRecord, $oldEmail) {
+            DB::transaction(function () use ($client, $tokenRecord, $oldEmail, $changedAt) {
                 // clients.email を新しいアドレスに切り替える
                 $client->update([
                     'email' => $tokenRecord->new_email,
@@ -80,7 +83,7 @@ class EmailChangeController extends Controller
                 $tokenRecord->update(['is_used' => true]);
                 // 古いアドレスに変更完了の通知メールを送る（本人性の防御）
                 if ($oldEmail !== null) {
-                    Mail::to($oldEmail)->send(new ClientEmailChangedMail());
+                    Mail::to($oldEmail)->send(new ClientEmailChangedMail($changedAt));
                 }
             });
         } catch (\Throwable $e) {
