@@ -262,33 +262,40 @@ h2, .h2 {
 }
 
 // -----------------------------------------------------------------------------
-// お客様側の主要ボタン（.btn-primary）を暫定で persimmon（明るいオレンジ）に振る
+// お客様側の主要ボタン（.btn-primary）を暫定で「中間のオレンジ」に振る
 //
-// 目的：帯・ボタンの terracotta（濃いオレンジ）が茶色寄りで沈んで見え、
-// 日付ブロックの persimmon が最も生き生きして見えるため、ボタンを persimmon に
-// 変えて画面全体の印象を確かめる**試行**。
+// 経緯：
+// 1. 元色 terracotta #C2410C（白文字コントラスト 5.18:1、AA 準拠）は茶色寄りで
+//    沈んで見えていた
+// 2. persimmon #F97316（同 2.80:1）を試したが、明るくなった反面、白い文字が
+//    読みにくかった（AA/大文字とも未達）
+// 3. **中間の明るさ**を探る。目標コントラスト 3.5:1 前後（大文字 3.0:1 は満たす）
 //
-// 影響範囲を限定するため、`$primary` は $terracotta のまま維持し、
-// Bootstrap 5.3 の `.btn-primary` 用 CSS カスタムプロパティ（--bs-btn-*）だけを
-// 上書きする。これによりリンク（$link-color = $terracotta）、見出し、
-// 帯（.c-nav ハードコード）、成功アラート（.alert-success ハードコード）、
-// 日付ブロックには一切影響しない。
+// 現行選択：$button-primary-mid = #E36110（白文字コントラスト 3.51:1）
+// - persimmon と terracotta の中間の明度・色相
+// - hover は 15% shade（Bootstrap 慣習）で #C1520E
+// - active は 20% shade で #B64E0D
 //
-// **コントラスト警告**：mat（白）on persimmon = 2.80:1。設計書 §2 の
-// パレット表に記録済みの通り、AA テキスト基準（4.5:1）はもちろん、
-// 大文字基準（3.0:1）も**満たさない**。試行のため、実機で見た印象を踏まえて
-// 次の作業で「文字色を変える／ボタンの色を戻す／中間の明るさを探る」の
-// いずれかを判断する（設計書 §2 に試行の記述あり）。
+// 影響範囲を限定するため、$primary は $terracotta のまま維持し、
+// Bootstrap 5.3 の .btn-primary 用 CSS カスタムプロパティ（--bs-btn-*）だけを
+// 上書きする。リンク（$link-color = $terracotta）、見出し、帯（.c-nav ハードコード）、
+// 成功アラート（.alert-success ハードコード）、日付ブロック（persimmon）には
+// 影響しない。
+//
+// **コントラスト状況**：3.51:1 で AA テキスト（4.5:1）は未達、大文字基準（3.0:1）は
+// 満たす。ボタンラベルは太字・短文で使うため大文字扱いに近いが、正式に AA を
+// 満たしたいなら、次の作業で文字色を bister に変える／さらに暗いオレンジに寄せる、
+// のいずれかを判断する。設計書 §2 の試行記述を参照。
 // -----------------------------------------------------------------------------
 .btn-primary {
-    --bs-btn-bg:                    #{$persimmon};
-    --bs-btn-border-color:          #{$persimmon};
-    --bs-btn-hover-bg:              #D46213; // persimmon を 15% 暗く（shade）
-    --bs-btn-hover-border-color:    #D46213;
-    --bs-btn-active-bg:             #C75B12; // persimmon を 20% 暗く（shade）
-    --bs-btn-active-border-color:   #C75B12;
-    --bs-btn-disabled-bg:           #{$persimmon};
-    --bs-btn-disabled-border-color: #{$persimmon};
+    --bs-btn-bg:                    #E36110;
+    --bs-btn-border-color:          #E36110;
+    --bs-btn-hover-bg:              #C1520E; // 15% shade
+    --bs-btn-hover-border-color:    #C1520E;
+    --bs-btn-active-bg:             #B64E0D; // 20% shade
+    --bs-btn-active-border-color:   #B64E0D;
+    --bs-btn-disabled-bg:           #E36110;
+    --bs-btn-disabled-border-color: #E36110;
     --bs-btn-color:                 #{$mat};
     --bs-btn-hover-color:           #{$mat};
     --bs-btn-active-color:          #{$mat};
