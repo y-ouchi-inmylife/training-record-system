@@ -262,6 +262,40 @@ h2, .h2 {
 }
 
 // -----------------------------------------------------------------------------
+// お客様側の主要ボタン（.btn-primary）を暫定で persimmon（明るいオレンジ）に振る
+//
+// 目的：帯・ボタンの terracotta（濃いオレンジ）が茶色寄りで沈んで見え、
+// 日付ブロックの persimmon が最も生き生きして見えるため、ボタンを persimmon に
+// 変えて画面全体の印象を確かめる**試行**。
+//
+// 影響範囲を限定するため、`$primary` は $terracotta のまま維持し、
+// Bootstrap 5.3 の `.btn-primary` 用 CSS カスタムプロパティ（--bs-btn-*）だけを
+// 上書きする。これによりリンク（$link-color = $terracotta）、見出し、
+// 帯（.c-nav ハードコード）、成功アラート（.alert-success ハードコード）、
+// 日付ブロックには一切影響しない。
+//
+// **コントラスト警告**：mat（白）on persimmon = 2.80:1。設計書 §2 の
+// パレット表に記録済みの通り、AA テキスト基準（4.5:1）はもちろん、
+// 大文字基準（3.0:1）も**満たさない**。試行のため、実機で見た印象を踏まえて
+// 次の作業で「文字色を変える／ボタンの色を戻す／中間の明るさを探る」の
+// いずれかを判断する（設計書 §2 に試行の記述あり）。
+// -----------------------------------------------------------------------------
+.btn-primary {
+    --bs-btn-bg:                    #{$persimmon};
+    --bs-btn-border-color:          #{$persimmon};
+    --bs-btn-hover-bg:              #D46213; // persimmon を 15% 暗く（shade）
+    --bs-btn-hover-border-color:    #D46213;
+    --bs-btn-active-bg:             #C75B12; // persimmon を 20% 暗く（shade）
+    --bs-btn-active-border-color:   #C75B12;
+    --bs-btn-disabled-bg:           #{$persimmon};
+    --bs-btn-disabled-border-color: #{$persimmon};
+    --bs-btn-color:                 #{$mat};
+    --bs-btn-hover-color:           #{$mat};
+    --bs-btn-active-color:          #{$mat};
+    --bs-btn-disabled-color:        #{$mat};
+}
+
+// -----------------------------------------------------------------------------
 // 成功系メッセージ（設計書 §2-1）
 // Bootstrap の .alert-success は $success（terracotta）の tint / shade から
 // 自動生成されるため、そのままだと「薄い青の面 + 濃い青の文字」になる。
