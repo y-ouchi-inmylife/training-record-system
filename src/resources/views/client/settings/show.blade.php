@@ -23,15 +23,17 @@
     <div class="c-settings">
         <h1 class="mb-4">登録情報</h1>
 
-        {{-- 登録内容の表示。縦一列（ラベル上・値下）で、1 項目ずつ横罫線で区切る。
+        {{-- 登録内容の表示。縦一列（ラベル上・値下）で、項目と項目の間だけに罫線を引く。
              お客様側の確認・表示画面の標準（設計書 client-portal-design-plan.md §2-3）。
+             カードの枠が外周を担当しているので、カード内側の上端・下端に線を引くと役割が重複する。
+             そのためラッパーの border-top と最終項目の border-bottom は付けない。
              未入力値の扱いは §2-4 のセル形式に従い、ラベルを残し値を空にする。
              各行の値エリアには min-height を持たせて、値が空でも行高が保たれるようにする。
              並び順の先頭にメールアドレスを置くのは、メールアドレスがログイン ID を兼ねているため
              （設計書 screen-design.md S-1406 備考参照）。 --}}
         <div class="card mb-4">
             <div class="card-body p-4">
-                <div class="border-top">
+                <div>
                     <div class="py-3 border-bottom">
                         <div class="text-muted small mb-1">メールアドレス</div>
                         <div style="min-height: 1.5rem;">{{ $client->email }}</div>
@@ -57,7 +59,7 @@
                         <div class="text-muted small mb-1">電話番号</div>
                         <div style="min-height: 1.5rem;">{{ $client->phone1 }}</div>
                     </div>
-                    <div class="py-3 border-bottom">
+                    <div class="py-3">
                         <div class="text-muted small mb-1">電話番号（予備）</div>
                         <div style="min-height: 1.5rem;">{{ $client->phone2 }}</div>
                     </div>
