@@ -30,8 +30,11 @@
             @endif
 
             {{-- メールアドレスは表示のみ（S-1411 の「お名前」表示行と同じマークアップに揃える）。
-                 説明文で埋め込むより行として立っている方が、ログイン ID の確認場面として目に入る。 --}}
-            <div class="mb-3">
+                 説明文で埋め込むより行として立っている方が、ログイン ID の確認場面として目に入る。
+                 pb-3 border-bottom は「メールアドレス／パスワード／氏名／連絡先」の 4 まとまりの
+                 境目に引く区切り線（S-1406 の項目ごとの罫線とは役割が違い、まとまりの区切り。
+                 設計書 S-1403 備考 / client-portal-design-plan.md §4-7 参照）。 --}}
+            <div class="mb-3 pb-3 border-bottom">
                 <div class="text-muted small">メールアドレス</div>
                 <div>{{ $client->email }}</div>
             </div>
@@ -67,7 +70,9 @@
                         8 文字以上で、大文字・小文字・数字・記号をそれぞれ 1 つ以上入れてください。
                     </div>
                 </div>
-                <div class="mb-3">
+                {{-- パスワード(確認) の下にまとまりの区切り線を引く(4 まとまりの境目の 2 本目)。
+                     pb-3 は罫線とパスワード確認欄下端の間隔、mb-3 は罫線と次のまとまり(氏名)との間隔。 --}}
+                <div class="mb-3 pb-3 border-bottom">
                     <label for="password_confirmation" class="form-label">パスワード（確認） <span class="text-danger">*</span></label>
                     <input
                         type="password"
@@ -96,7 +101,10 @@
                                value="{{ old('first_name', $client->first_name) }}">
                     </div>
                 </div>
-                <div class="row g-2 mb-3">
+                {{-- せい・めい行の下にまとまりの区切り線を引く（4 まとまりの境目の 3 本目、氏名まとまりの下）。
+                     連絡先まとまりの下（最終まとまり）には線を引かない（カード枠が外周を担当するため。
+                     設計書 S-1403 備考 / client-portal-design-plan.md §4-7 参照）。 --}}
+                <div class="row g-2 mb-3 pb-3 border-bottom">
                     <div class="col-sm-6">
                         <label for="last_name_kana" class="form-label">せい</label>
                         <input type="text" class="form-control @error('last_name_kana') is-invalid @enderror"
