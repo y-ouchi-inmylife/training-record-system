@@ -18,10 +18,11 @@
         <div class="card-body p-4">
             @if($isDone)
                 {{-- 完了状態。
-                     「入力し直す」ボタンは廃止（お客様は手元の案内 URL からもう一度開けば
-                     入力画面に戻れるため、画面上に別導線を用意しない）。
-                     案内 URL 再アクセス時の挙動は EmailRegistrationController::showByToken() が
-                     `submittedEmail => null` を渡すことで入力状態を再描画する（未変更）。 --}}
+                     案内文（下）と「メールアドレス入力に戻る」ボタン（さらに下）の 2 経路で
+                     入力し直しに戻れる。ボタンは同じトークンの GET ルートに戻る `<a>` タグで、
+                     押下時の挙動は EmailRegistrationController::showByToken() が
+                     `submittedEmail => null` を渡すことで入力状態を再描画する（未変更）。
+                     お客様が案内 URL を再アクセスした場合と同じ経路。 --}}
                 <h2 class="c-auth-heading">メールをお送りしました</h2>
                 <p class="c-auth-lead">
                     <strong class="c-auth-email">{{ $submittedEmail }}</strong> に
@@ -30,6 +31,11 @@
                 <p class="c-auth-lead">
                     メールが届かない場合は、メールアドレスに誤りがある可能性があります。お渡しした URL から、もう一度ご登録ください。
                 </p>
+
+                <div class="d-grid">
+                    <a href="{{ route('client-portal.email-registration.show', ['token' => $token]) }}"
+                       class="btn btn-outline-secondary">メールアドレス入力に戻る</a>
+                </div>
             @else
                 {{-- 入力状態 --}}
                 <h2 class="c-auth-heading">マイページのご登録</h2>
