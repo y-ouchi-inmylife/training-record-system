@@ -30,11 +30,6 @@
                     </div>
                 @endif
 
-                <div class="mb-3">
-                    <div class="text-muted small">現在のメールアドレス</div>
-                    <div class="font-monospace">{{ $client->email }}</div>
-                </div>
-
                 <form method="POST" action="{{ route('client-portal.settings.email.request') }}">
                     @csrf
 

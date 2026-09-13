@@ -60,12 +60,15 @@ class SettingsController extends Controller
 
     /**
      * メールアドレス変更画面を表示（GET /client-portal/settings/email、S-1409）
+     *
+     * この画面は「新しいメールアドレス」「現在のパスワード」の 2 入力だけを扱い、
+     * 現在のメールアドレスは view で参照しないため、$client は渡さない（設計書
+     * S-1409 参照：「変更できる項目の現在値」の再掲は S-1406 でお客様が見た直後
+     * のためここでは省く）。認可は auth:client ミドルウェアが担う。
      */
     public function editEmail(): View
     {
-        return view('client.settings.email', [
-            'client' => Auth::guard('client')->user(),
-        ]);
+        return view('client.settings.email');
     }
 
     /**

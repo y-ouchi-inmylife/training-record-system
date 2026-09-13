@@ -1656,10 +1656,10 @@ POST /training-records に以下を追加する。
 **概要**: メールアドレス変更画面を表示する。
 
 **処理**:
-- ログイン中のクライアントに紐づく現在のメールアドレスを view に渡す
+- 認可は `auth:client` ミドルウェアで担保する。view には現在値を含めて特に何も渡さない（現在のメールアドレスは S-1406 で見た直後のため画面上に再掲しない。詳細は `screen-design.md` S-1409 備考 / `client-portal-design-plan.md` §4-10 参照）
 
 **レスポンス**:
-- view `client.settings.email`（現在のメールアドレス表示と、新しいメールアドレス・現在のパスワードのフォーム）
+- view `client.settings.email`（新しいメールアドレス・現在のパスワードのフォームのみ）
 
 
 ###### POST /client-portal/settings/email
