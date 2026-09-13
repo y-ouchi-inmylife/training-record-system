@@ -82,10 +82,13 @@ class SettingsController extends Controller
     }
 
     /**
-     * 基本情報（連絡先）を更新（PUT /client-portal/profile、S-1411 の送信先）
+     * 連絡先を更新（PUT /client-portal/profile、S-1411 の送信先）
      *
      * 氏名・メールアドレス・パスワードには一切触れない。
      * 送信後は同画面（S-1411）自身に戻して完了メッセージを表示する。
+     * 完了メッセージは目的語を付けた「登録情報を変更しました。」の形。
+     * 一方、ボタン文言は目的語を落とした「変更する」で、S-1406 の入口ボタン
+     * 「登録情報を変更」との衝突を避けている（設計書 S-1411 備考参照）。
      */
     public function updateProfile(ClientProfileRequest $request): RedirectResponse
     {
@@ -94,7 +97,7 @@ class SettingsController extends Controller
 
         return redirect()
             ->route('client-portal.profile.edit')
-            ->with('success', '基本情報を保存しました。');
+            ->with('success', '登録情報を変更しました。');
     }
 
     /**

@@ -57,7 +57,7 @@
                     </div>
 
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">パスワードを変更</button>
+                        <button type="submit" class="btn btn-primary">変更する</button>
                     </div>
                 </form>
             </div>
