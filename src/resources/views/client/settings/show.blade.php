@@ -69,16 +69,11 @@
 
         {{-- 3 つの入口ボタンは同格。フル幅の .btn-primary（明るいオレンジ #EC6812）で揃える。
              並び順：登録情報 → パスワード → メールアドレス（設計書 §4-10 参照）--}}
-        <div class="d-grid gap-2 mb-4">
+        <div class="d-grid gap-2">
             <a href="{{ route('client-portal.profile.edit') }}" class="btn btn-primary">登録情報を変更</a>
             <a href="{{ route('client-portal.settings.password.edit') }}" class="btn btn-primary">パスワードを変更</a>
             <a href="{{ route('client-portal.settings.email.edit') }}" class="btn btn-primary">メールアドレスを変更</a>
         </div>
-
-        {{-- 画面下部の案内（設計書 §4-10）--}}
-        <p class="text-muted small text-center mb-0">
-            利用をやめたい場合は担当トレーナーにご連絡ください
-        </p>
     </div>
 </div>
 @endsection
