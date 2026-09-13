@@ -12,16 +12,15 @@
 {{-- pre-auth シェル（ログイン画面と共用）+ 幅広モディファイア。
      初回設定はパスワード＋氏名＋連絡先＋住所を 1 画面に載せるため
      .c-login--wide で md 以上のカード幅を拡張する（設計書 §4-7）。
-     ワードマークは layouts.partials.client-nav（ヘッダー帯の左）に移動。 --}}
+     ワードマークは layouts.partials.client-nav（ヘッダー帯の左）に移動。
+     画面構成は S-1406 / S-1411 と揃える：見出しはカード外、セクション
+     見出し（.eyebrow の ── XXX ── 装飾）は置かず、代わりに先頭に
+     メールアドレスの表示行を置く（S-1411「お名前」と同じマークアップ）。 --}}
 <div class="c-login c-login--wide">
+    <h1 class="mb-4">初回設定</h1>
+
     <div class="card c-login-card">
         <div class="card-body p-4">
-            <h2 class="c-auth-heading">初回設定</h2>
-            <p class="c-auth-lead">
-                <strong class="c-auth-email">{{ $client->email }}</strong>
-                のパスワードとご連絡先を設定します。
-            </p>
-
             @if ($errors->any())
                 <div class="alert alert-danger" role="alert">
                     @foreach ($errors->all() as $error)
@@ -29,6 +28,13 @@
                     @endforeach
                 </div>
             @endif
+
+            {{-- メールアドレスは表示のみ（S-1411 の「お名前」表示行と同じマークアップに揃える）。
+                 説明文で埋め込むより行として立っている方が、ログイン ID の確認場面として目に入る。 --}}
+            <div class="mb-3">
+                <div class="text-muted small">メールアドレス</div>
+                <div>{{ $client->email }}</div>
+            </div>
 
             <form method="POST" action="{{ route('client-portal.setup.store', ['token' => $token]) }}">
                 @csrf
@@ -45,10 +51,8 @@
                     class="visually-hidden"
                 >
 
-                {{-- パスワード --}}
-                <p class="eyebrow">── パスワード ──</p>
                 <div class="mb-3">
-                    <label for="password" class="form-label">パスワード</label>
+                    <label for="password" class="form-label">パスワード <span class="text-danger">*</span></label>
                     <input
                         type="password"
                         class="form-control @error('password') is-invalid @enderror"
@@ -64,7 +68,7 @@
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label for="password_confirmation" class="form-label">パスワード（確認）</label>
+                    <label for="password_confirmation" class="form-label">パスワード（確認） <span class="text-danger">*</span></label>
                     <input
                         type="password"
                         class="form-control"
@@ -75,8 +79,9 @@
                     >
                 </div>
 
-                {{-- お名前 --}}
-                <p class="eyebrow">── お名前 ──</p>
+                {{-- 姓・名、せい・めいは横二列のまま維持（縦一列標準への意図的な例外）。
+                     姓名は対で入力するもので横に並ぶのが自然。スマホでも 2 項目なら収まる。
+                     設計書 client-portal-design-plan.md §4-7 参照。 --}}
                 <div class="row g-2 mb-2">
                     <div class="col-sm-6">
                         <label for="last_name" class="form-label">姓 <span class="text-danger">*</span></label>
@@ -106,8 +111,6 @@
                     </div>
                 </div>
 
-                {{-- ご連絡先 --}}
-                <p class="eyebrow">── ご連絡先 ──</p>
                 <div class="mb-2">
                     <label for="phone1" class="form-label">電話番号 <span class="text-danger">*</span></label>
                     <input type="tel" class="form-control @error('phone1') is-invalid @enderror"
