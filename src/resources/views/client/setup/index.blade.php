@@ -151,10 +151,13 @@
                 </div>
 
                 <div class="mb-2">
-                    <label for="postal_code" class="form-label">郵便番号 <span class="text-danger">*</span></label>
+                    {{-- 郵便番号は任意（住所検索の入口という位置づけで、DB も NULL 許容。
+                         都道府県以下が入っていれば住所として成立する。設計書 S-1403 備考参照）。
+                         入力された場合の形式チェック（7 桁）は FormRequest で維持している。 --}}
+                    <label for="postal_code" class="form-label">郵便番号</label>
                     <div class="input-group">
                         <input type="text" class="form-control @error('postal_code') is-invalid @enderror"
-                               id="postal_code" name="postal_code" required
+                               id="postal_code" name="postal_code"
                                value="{{ old('postal_code', $client->postal_code) }}"
                                placeholder="123-4567">
                         <button type="button" class="btn btn-outline-secondary"

@@ -32,10 +32,13 @@ class ClientInitialSetupRequest extends FormRequest
             'last_name_kana' => ['nullable', 'string', 'max:50', 'regex:/^[\p{Hiragana}\s　]+$/u'],
             'first_name_kana' => ['nullable', 'string', 'max:50', 'regex:/^[\p{Hiragana}\s　]+$/u'],
 
-            // 連絡先（電話番号・郵便番号・住所は必須。建物名以外は必須）
+            // 連絡先（電話番号 phone1・都道府県 address1・市区町村 address2・
+            // 町名番地 address3 は必須。郵便番号は任意で、入力された場合のみ
+            // 形式チェック。DB が NULL 許容で、郵便番号は住所検索の入口という
+            // 位置づけのため。設計書 S-1403 備考 / 6-15-5 参照）
             'phone1' => ['required', 'string', 'max:20', 'regex:/^[0-9\-]+$/'],
             'phone2' => ['nullable', 'string', 'max:20', 'regex:/^[0-9\-]+$/'],
-            'postal_code' => ['required', 'string', 'regex:/^\d{3}-?\d{4}$/'],
+            'postal_code' => ['nullable', 'string', 'regex:/^\d{3}-?\d{4}$/'],
             'address1' => 'required|string|max:50',
             'address2' => 'required|string|max:50',
             'address3' => 'required|string|max:100',
@@ -54,7 +57,6 @@ class ClientInitialSetupRequest extends FormRequest
             'phone1.required' => '電話番号を入力してください。',
             'phone1.regex' => '電話番号の形式が正しくありません。',
             'phone2.regex' => '電話番号（予備）の形式が正しくありません。',
-            'postal_code.required' => '郵便番号を入力してください。',
             'postal_code.regex' => '郵便番号の形式が正しくありません。',
             'address1.required' => '都道府県を選択してください。',
             'address2.required' => '市区町村を入力してください。',

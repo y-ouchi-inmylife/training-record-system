@@ -5,10 +5,11 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * クライアント基本情報（連絡先）の変更（S-1406 / 6-15-9）バリデーション。
+ * クライアント基本情報（連絡先）の変更（S-1411 / 6-15-9）バリデーション。
  *
- * 電話番号・郵便番号・住所を必須で受け取り、氏名・メールアドレス・パスワードは
- * 受け付けない（別画面）。ルールは S-1403 初回設定の連絡先項目と揃える。
+ * 電話番号・都道府県・市区町村・町名番地を必須で受け取り、氏名・メールアドレス・
+ * パスワードは受け付けない（別画面）。郵便番号は任意（住所検索の入口という位置づけで、
+ * DB も NULL 許容。設計書 S-1411 備考参照）。ルールは S-1403 初回設定の連絡先項目と揃える。
  */
 class ClientProfileRequest extends FormRequest
 {
@@ -22,7 +23,7 @@ class ClientProfileRequest extends FormRequest
         return [
             'phone1' => ['required', 'string', 'max:20', 'regex:/^[0-9\-]+$/'],
             'phone2' => ['nullable', 'string', 'max:20', 'regex:/^[0-9\-]+$/'],
-            'postal_code' => ['required', 'string', 'regex:/^\d{3}-?\d{4}$/'],
+            'postal_code' => ['nullable', 'string', 'regex:/^\d{3}-?\d{4}$/'],
             'address1' => 'required|string|max:50',
             'address2' => 'required|string|max:50',
             'address3' => 'required|string|max:100',
@@ -36,7 +37,6 @@ class ClientProfileRequest extends FormRequest
             'phone1.required' => '電話番号を入力してください。',
             'phone1.regex' => '電話番号の形式が正しくありません。',
             'phone2.regex' => '電話番号（予備）の形式が正しくありません。',
-            'postal_code.required' => '郵便番号を入力してください。',
             'postal_code.regex' => '郵便番号の形式が正しくありません。',
             'address1.required' => '都道府県を選択してください。',
             'address2.required' => '市区町村を入力してください。',
