@@ -101,7 +101,7 @@
                     </div>
 
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">基本情報を保存</button>
+                        <button type="submit" class="btn btn-primary">変更する</button>
                     </div>
                 </form>
             </div>
