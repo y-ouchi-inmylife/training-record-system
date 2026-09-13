@@ -22,17 +22,13 @@
 // Bootstrap の各コンポーネント（btn / card / form-control / alert 等）へ
 // 自動的に適用される。個別クラスの上書きを最小化する狙い。
 // -----------------------------------------------------------------------------
-$paper:      #FAF7F0; // ページ背景（薄い warm off-white。詳細は変遷を parent コメント参照）
-// $paper の変遷：#F5F3EC（当初）→ #EAE4D3（カードを浮かせるため）→ #FAF7F0（現行）
-// #EAE4D3 は暖色に沈みすぎ、terracotta の帯・ボタンがくすんで見えたため、
-// 明るい warm off-white に振り直した。カードの輪郭は罫線（ink 8%）と影で作る。
-$mat:        #FFFFFF; // カード面・写真の周辺・入力欄の面
-$ink:        #0F1A2E; // 本文・見出しのインク・細線・フォーカスリング外側
-$terracotta: #C2410C; // 主要 CTA・リンク・成功トースト・H1/H2/Display の色
-$persimmon:  #F97316; // 日付ブロック帯・タグ（面 + bister 文字ペア専用）
-$madder:     #7F1D1D; // エラー・破棄アクション（mat 面上のみ）
-$driftwood:  #6B6155; // 補助アクション面（$secondary）
-$bister:     #422714; // persimmon 面上の文字専用（日付ブロック帯）
+$paper:        #FAF7F0; // ページ背景（薄い warm off-white）
+$mat:          #FFFFFF; // カード面・写真の周辺・入力欄の面
+$ink:          #0F1A2E; // 本文・見出しのインク・細線・フォーカスリング外側
+$terracotta:   #C2410C; // 暗いオレンジ：ヘッダー帯・リンク・H1/H2/Display の色
+$orange-bright: #EC6812; // 明るいオレンジ：主要ボタン・日付ブロック帯（面 + mat 文字）
+$madder:       #7F1D1D; // エラー・破棄アクション（mat 面上のみ）
+$driftwood:    #6B6155; // 補助アクション面（$secondary）
 
 // -----------------------------------------------------------------------------
 // Bootstrap 変数の上書き（Bootstrap import の前）
@@ -104,7 +100,7 @@ $link-hover-color: $ink;
 // フォーカスリング（設計書 §2-1 の定義そのまま）
 // mat 3px 内リング + ink 2px 外リングの二重輪郭。
 // - 明色地（paper / mat）では外側 ink が 15:1 以上で可視
-// - vivid 面（terracotta / persimmon / madder / driftwood）では内側 mat が 2.80〜10.02:1（persimmon は外側 ink 6.20 が担保）
+// - vivid 面（terracotta / $orange-bright / madder / driftwood）では内側 mat が 3.21〜10.02:1 で可視
 // Bootstrap 5.3: input/button の focus は $input-btn-focus-box-shadow を、
 // .focus-ring ユーティリティは $focus-ring-* を使う。両方に反映する。
 $input-btn-focus-box-shadow: 0 0 0 3px $mat, 0 0 0 5px $ink;
@@ -167,14 +163,13 @@ $headings-line-height: 1.4;
 // 段階3以降のセッションカード・日付ブロック等から `var(--c-*)` で参照するため。
 // -----------------------------------------------------------------------------
 :root {
-    --c-paper:      #{$paper};
-    --c-mat:        #{$mat};
-    --c-ink:        #{$ink};
-    --c-terracotta: #{$terracotta};
-    --c-persimmon:  #{$persimmon};
-    --c-madder:     #{$madder};
-    --c-driftwood:  #{$driftwood};
-    --c-bister:     #{$bister};
+    --c-paper:         #{$paper};
+    --c-mat:           #{$mat};
+    --c-ink:           #{$ink};
+    --c-terracotta:    #{$terracotta};
+    --c-orange-bright: #{$orange-bright};
+    --c-madder:        #{$madder};
+    --c-driftwood:     #{$driftwood};
 }
 
 // -----------------------------------------------------------------------------
@@ -182,7 +177,7 @@ $headings-line-height: 1.4;
 //
 // - H1 / H2 / .display-hero は terracotta（palette 内で「構造の色」として統一）
 // - H3 以下は ink のまま（terracotta にするとカード内で鮮色が 2 種並び、
-//   §2-1「鮮色同士の隣接禁止」に抵触するリスクがある。terracotta × persimmon = 1.53）
+//   §2-1「鮮色同士の隣接禁止」に抵触するリスクがある。terracotta × $orange-bright = 1.63）
 // - letter-spacing は日本語でも軽く効かせて存在感を作る（過度は不可）
 // -----------------------------------------------------------------------------
 h1, .h1 {
@@ -262,38 +257,30 @@ h2, .h2 {
 }
 
 // -----------------------------------------------------------------------------
-// お客様側の主要ボタン（.btn-primary）を暫定で「中間のオレンジ」に振る（試行）
+// お客様側の主要ボタン（.btn-primary）を明るいオレンジに振る
 //
-// 試行の経緯：
-// 1. 元色 terracotta #C2410C（白文字コントラスト 5.18:1、AA 準拠）は茶色寄りで沈む
-// 2. persimmon #F97316（同 2.80:1）を試したが白文字が読みにくい
-// 3. #E36110（同 3.51:1）で読みやすさは戻ったが、もう少し明るくしたい
-// 4. **現行：#EC6812（同 3.21:1）** — 少し明るくして印象を確認する試行 3
+// お客様側の画面は暗いオレンジ（$terracotta = ヘッダー帯）と明るいオレンジ
+// （$orange-bright = ボタン・日付ブロック）の二色で構成する（設計書 §2）。
+// $primary（$terracotta）はリンク・見出し・帯の役割を維持し、ボタンだけを
+// Bootstrap 5.3 の `.btn-primary` 用 CSS カスタムプロパティ（--bs-btn-*）で
+// 上書きすることで、リンク・見出し・帯・成功アラートに影響を出さない。
 //
-// 現行値：
-// - base:   #EC6812（白文字コントラスト 3.21:1）
-// - hover:  #C8580F（Bootstrap 慣習の 15% shade）
-// - active: #BD530E（同 20% shade）
+// hover / active は Bootstrap 慣習の 15% / 20% shade（black で mix）。
 //
-// 影響範囲を限定するため、$primary は $terracotta のまま維持し、
-// Bootstrap 5.3 の .btn-primary 用 CSS カスタムプロパティ（--bs-btn-*）だけを
-// 上書きする。リンク（$link-color = $terracotta）、見出し、帯（.c-nav ハードコード）、
-// 成功アラート（.alert-success ハードコード）、日付ブロック（persimmon）には
-// 影響しない。
-//
-// **コントラスト状況の判断**：3.21:1 で AA テキスト（4.5:1）は未達、大文字基準
-// （3.0:1）はかろうじて満たす。ボタンラベルは太字・短文で使うため実用上は
-// 読めると判断して明るさを優先した。設計書 §2 の試行記述に判断根拠を残す。
+// **コントラスト**：mat（白）on $orange-bright = 3.21:1。WCAG 2.2 の AA
+// テキスト基準（4.5:1）は未達、大文字基準（3.0:1）はかろうじて満たす。
+// ボタンラベルは太字・短文で使うため実用上は読めると判断し、明るさを優先した
+// （日付ブロックにも同じ組み合わせを適用。詳細は設計書 §2）。
 // -----------------------------------------------------------------------------
 .btn-primary {
-    --bs-btn-bg:                    #EC6812;
-    --bs-btn-border-color:          #EC6812;
+    --bs-btn-bg:                    #{$orange-bright};
+    --bs-btn-border-color:          #{$orange-bright};
     --bs-btn-hover-bg:              #C8580F; // 15% shade
     --bs-btn-hover-border-color:    #C8580F;
     --bs-btn-active-bg:             #BD530E; // 20% shade
     --bs-btn-active-border-color:   #BD530E;
-    --bs-btn-disabled-bg:           #EC6812;
-    --bs-btn-disabled-border-color: #EC6812;
+    --bs-btn-disabled-bg:           #{$orange-bright};
+    --bs-btn-disabled-border-color: #{$orange-bright};
     --bs-btn-color:                 #{$mat};
     --bs-btn-hover-color:           #{$mat};
     --bs-btn-active-color:          #{$mat};
@@ -435,13 +422,13 @@ input[type="tel"] {
 // 【解いていること】
 // - カード内スクロールを一切持たない（ページ全体のスクロールのみ）
 // - 独立したメディアギャラリー廃止、写真は各記録カード内に統合
-// - 日付ブロック（persimmon 帯）が各カード左端で共通のシグネチャー要素
+// - 日付ブロック（$orange-bright 帯）が各カード左端で共通のシグネチャー要素
 // - hero（先頭1件）は写真を大きく、feed（残り）はサムネイル数枚
 //
 // 【§2-1 の禁止事項の遵守】
-// - persimmon 面（日付ブロック）の文字は ink のみ
+// - 日付ブロック帯（$orange-bright 面）の文字は mat（白）で統一
 // - カードは罫線（$border-color = ink 8%）と box-shadow 2 段影の両方を持つ
-// - vivid 面（persimmon 等）は現状カード内に配置しない
+// - vivid 面はカード内に配置しない
 //   （training-type タグは §4-2 のワイヤーフレームに無いため廃止した）
 // -----------------------------------------------------------------------------
 
@@ -502,14 +489,14 @@ input[type="tel"] {
 }
 
 // 日付ブロック（シグネチャー・§5）
-// persimmon 帯の縦組み日本語。数字は 700 で 2rem、hero では 2.75rem。
-// 文字は bister（bister on persimmon = 4.89:1 ✓AA。ink は可読性上は 6.20 で成立するが
-// 青寄りの黒が橙帯と色相を共有せず浮くため使わない。mat は 2.80:1 で AA 未達のため使えない）。
+// 明るいオレンジ帯（$orange-bright）の縦組み日本語。数字は 700 で 2rem、hero では 2.75rem。
+// 文字は mat（白）。mat on $orange-bright = 3.21:1 で AA テキスト（4.5:1）は未達だが、
+// ボタンと同じ組み合わせで統一する（詳細は設計書 §2 の二色方針）。
 .c-date-block {
     flex: 0 0 auto;
     width: 4.5rem;
-    background-color: $persimmon;
-    color: $bister;
+    background-color: $orange-bright;
+    color: $mat;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -693,8 +680,8 @@ input[type="tel"] {
 }
 
 // モバイル(576px 未満、Bootstrap の sm ブレークポイント境界)
-// 設計書 §5-1「表示形態の分岐」に従い、日付ブロックを persimmon 縦帯から
-// カード上部の persimmon 横帯へ切り替える。
+// 設計書 §5-1「表示形態の分岐」に従い、日付ブロックを $orange-bright 縦帯から
+// カード上部の $orange-bright 横帯へ切り替える。
 // - モバイル幅では写真が 2 列以上に折り返しカードが縦に伸びる
 // - 縦帯だと date-block も追随して間延びし、「日付が視覚のリズムを作る」
 //   意図が「青い柱が並ぶ装飾」に変質する(§5-2)
@@ -730,12 +717,12 @@ input[type="tel"] {
     }
 
     // モバイル横帯用の 1 行版を表示(設計書 §5-6: 日本語表記維持)
-    // 文字は bister(persimmon 面上で 4.89:1 ✓AA。デスクトップ縦帯の .c-date-block と揃える)。
+    // 文字は mat（デスクトップ縦帯の .c-date-block と揃える）
     .c-date-inline {
         display: inline;
         font-weight: 700;
         font-size: 1.125rem;
-        color: $bister;
+        color: $mat;
         letter-spacing: 0.02em;
     }
     .c-session--hero .c-date-inline {
