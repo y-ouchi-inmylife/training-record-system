@@ -49,7 +49,7 @@
             <div class="collapse navbar-collapse justify-content-end" id="clientNav">
                 <ul class="navbar-nav align-items-lg-center">
                     <li class="nav-item">
-                        <a class="btn btn-link btn-sm" href="{{ route('client-portal.settings.index') }}">登録情報</a>
+                        <a class="btn btn-link btn-sm" href="{{ route('client-portal.profile.show') }}">登録情報</a>
                     </li>
                     <li class="nav-item">
                         <form method="POST" action="{{ route('client-portal.logout') }}" class="m-0">

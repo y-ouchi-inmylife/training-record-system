@@ -17,28 +17,43 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 /**
- * クライアント登録情報設定コントローラ（S-1406 / S-1409 / S-1410）
+ * クライアント登録情報コントローラ（S-1406 / S-1409 / S-1410 / S-1411）
  *
- * ログイン中のクライアントが、連絡先・メールアドレス・パスワードを変更する。
- * 三つの機能を三画面に分けている（それぞれフォームが一つだけになるため、
- * エラーメッセージ・完了メッセージが画面上部に自然に載る）。
- * 完了メッセージは共通キー 'success' で画面上部に表示する。
+ * ログイン中のクライアントが、登録内容を確認・変更する画面群を扱う。
+ * S-1406 は確認画面（表示のみ）で、そこから 3 つの変更画面へ枝分かれする：
+ *   - S-1411 登録情報の変更（連絡先）
+ *   - S-1409 メールアドレスの変更
+ *   - S-1410 パスワードの変更
+ * 各変更画面は 1 画面 1 フォームで、送信後は同画面自身に戻して完了メッセージ
+ * を画面上部に表示する（`session('success')` を layouts.client の共通受け皿
+ * が拾って描画する）。
  *
- * 設計書: api-design.md `GET/PUT /client-portal/settings`,
+ * 設計書: api-design.md `GET /client-portal/profile`,
+ *          `GET /client-portal/profile/edit`,
+ *          `PUT /client-portal/profile`,
  *          `GET/POST /client-portal/settings/email`,
  *          `GET/PUT /client-portal/settings/password`
  */
 class SettingsController extends Controller
 {
     /**
-     * 登録情報画面を表示（GET /client-portal/settings、S-1406）
+     * 登録情報の確認画面を表示（GET /client-portal/profile、S-1406）
      *
-     * 基本情報の変更フォームと、メール変更（S-1409）・パスワード変更（S-1410）
-     * への入口カードを配置する。
+     * 登録内容の一覧と、3 つの変更画面（S-1411/S-1410/S-1409）への入口を配置する。
      */
-    public function index(): View
+    public function show(): View
     {
-        return view('client.settings.index', [
+        return view('client.settings.show', [
+            'client' => Auth::guard('client')->user(),
+        ]);
+    }
+
+    /**
+     * 登録情報の変更フォームを表示（GET /client-portal/profile/edit、S-1411）
+     */
+    public function edit(): View
+    {
+        return view('client.settings.edit', [
             'client' => Auth::guard('client')->user(),
         ]);
     }
@@ -64,9 +79,10 @@ class SettingsController extends Controller
     }
 
     /**
-     * 基本情報（連絡先）を更新（PUT /client-portal/settings/profile）
+     * 基本情報（連絡先）を更新（PUT /client-portal/profile、S-1411 の送信先）
      *
      * 氏名・メールアドレス・パスワードには一切触れない。
+     * 送信後は同画面（S-1411）自身に戻して完了メッセージを表示する。
      */
     public function updateProfile(ClientProfileRequest $request): RedirectResponse
     {
@@ -74,7 +90,7 @@ class SettingsController extends Controller
         $client->update($request->validated());
 
         return redirect()
-            ->route('client-portal.settings.index')
+            ->route('client-portal.profile.edit')
             ->with('success', '基本情報を保存しました。');
     }
 
@@ -100,7 +116,7 @@ class SettingsController extends Controller
         });
 
         return redirect()
-            ->route('client-portal.settings.index')
+            ->route('client-portal.settings.password.edit')
             ->with('success', 'パスワードを変更しました。');
     }
 
@@ -138,7 +154,7 @@ class SettingsController extends Controller
         });
 
         return redirect()
-            ->route('client-portal.settings.index')
+            ->route('client-portal.settings.email.edit')
             ->with('success', '新しいメールアドレス宛に確認メールを送信しました。メールのリンクを開くとメールアドレスが切り替わります。');
     }
 }

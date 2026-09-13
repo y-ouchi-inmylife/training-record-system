@@ -6,7 +6,7 @@
 <div class="container">
     <div class="c-settings">
         {{-- 戻る導線：他画面（training-records/show）と同じ .c-detail-back パターン --}}
-        <a href="{{ route('client-portal.settings.index') }}" class="c-detail-back">
+        <a href="{{ route('client-portal.profile.show') }}" class="c-detail-back">
             <span aria-hidden="true">←</span> 登録情報
         </a>
 

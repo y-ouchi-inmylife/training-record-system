@@ -2,55 +2,25 @@
 
 @php
     $prefectures = config('prefectures');
-    // 基本情報フォームは 1 画面 1 フォームのため、名前付きエラーバッグは使わない。
+    // フォームは 1 画面 1 フォームのため名前付きエラーバッグは使わない。
     // 完了メッセージは共通キー session('success') に統一して、layouts.client の
     // 共通受け皿で画面上部に表示する（設計書 §4-10 参照）。
 @endphp
 
-@section('title', '登録情報')
+@section('title', '登録情報の変更')
 
 @section('content')
 <div class="container">
     <div class="c-settings">
-        <h1 class="mb-4">登録情報</h1>
+        {{-- 戻る導線：他画面（training-records/show, settings/email, settings/password）と同じ .c-detail-back パターン --}}
+        <a href="{{ route('client-portal.profile.show') }}" class="c-detail-back">
+            <span aria-hidden="true">←</span> 登録情報
+        </a>
 
-        {{-- 入口カード：メールアドレスの変更（S-1409 へ）。
-             順序：初回設定画面（S-1403）と前後関係を揃えるため、
-             ログインに関わる項目（メール → パスワード）を先に置き、
-             連絡先（基本情報）を最後に置く。 --}}
+        <h1 class="mb-4">登録情報の変更</h1>
+
         <div class="card mb-4">
             <div class="card-body p-4">
-                <p class="eyebrow">── メールアドレス ──</p>
-
-                <div class="mb-3">
-                    <div class="text-muted small">現在のメールアドレス</div>
-                    <div class="font-monospace">{{ $client->email }}</div>
-                </div>
-
-                <div class="text-end">
-                    <a href="{{ route('client-portal.settings.email.edit') }}"
-                       class="btn btn-outline-secondary">メールアドレスを変更する</a>
-                </div>
-            </div>
-        </div>
-
-        {{-- 入口カード：パスワードの変更（S-1410 へ） --}}
-        <div class="card mb-4">
-            <div class="card-body p-4">
-                <p class="eyebrow">── パスワード ──</p>
-
-                <div class="text-end">
-                    <a href="{{ route('client-portal.settings.password.edit') }}"
-                       class="btn btn-outline-secondary">パスワードを変更する</a>
-                </div>
-            </div>
-        </div>
-
-        {{-- 基本情報フォーム（電話番号・住所）--}}
-        <div class="card mb-4">
-            <div class="card-body p-4">
-                <p class="eyebrow">── 基本情報 ──</p>
-
                 @if($errors->any())
                     <div class="alert alert-danger" role="alert">
                         @foreach($errors->all() as $error)
@@ -67,7 +37,7 @@
                     </div>
                 </div>
 
-                <form method="POST" action="{{ route('client-portal.settings.profile.update') }}">
+                <form method="POST" action="{{ route('client-portal.profile.update') }}">
                     @csrf
                     @method('PUT')
 
@@ -133,11 +103,6 @@
                 </form>
             </div>
         </div>
-
-        {{-- 画面下部の案内（設計書 §4-10）--}}
-        <p class="text-muted small text-center mb-0">
-            利用をやめたい場合は担当トレーナーにご連絡ください
-        </p>
     </div>
 </div>
 

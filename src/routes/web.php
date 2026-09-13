@@ -254,11 +254,14 @@ Route::domain(config('subdomain.client_host'))->group(function () {
                 ->name('training-records.show');
             Route::get('/media/{mediaRecord}/play', [\App\Http\Controllers\Client\MediaRecordController::class, 'play'])
                 ->name('media.play');
-            // 登録情報設定（S-1406、段階 4-3）— 基本情報の変更＋メール・パスワード変更の入口
-            Route::get('/settings', [\App\Http\Controllers\Client\SettingsController::class, 'index'])
-                ->name('settings.index');
-            Route::put('/settings/profile', [\App\Http\Controllers\Client\SettingsController::class, 'updateProfile'])
-                ->name('settings.profile.update');
+            // 登録情報（S-1406）— 確認画面
+            Route::get('/profile', [\App\Http\Controllers\Client\SettingsController::class, 'show'])
+                ->name('profile.show');
+            // 登録情報の変更（S-1411）— 変更フォーム
+            Route::get('/profile/edit', [\App\Http\Controllers\Client\SettingsController::class, 'edit'])
+                ->name('profile.edit');
+            Route::put('/profile', [\App\Http\Controllers\Client\SettingsController::class, 'updateProfile'])
+                ->name('profile.update');
             // メールアドレスの変更（S-1409）— 独立画面
             Route::get('/settings/email', [\App\Http\Controllers\Client\SettingsController::class, 'editEmail'])
                 ->name('settings.email.edit');
