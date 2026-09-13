@@ -1465,7 +1465,7 @@ POST /training-records に以下を追加する。
 | first_name_kana | string | | nullable, string, max:50, regex:ひらがな | めい |
 | phone1 | string | ● | required, string, max:20, regex:/^[0-9\-]+$/ | 電話番号 |
 | phone2 | string | | nullable, string, max:20, regex:/^[0-9\-]+$/ | 電話番号（予備） |
-| postal_code | string | ● | required, string, regex:/^\d{3}-?\d{4}$/ | 郵便番号 |
+| postal_code | string |  | nullable, string, regex:/^\d{3}-?\d{4}$/ | 郵便番号（任意。入力された場合のみ形式チェック） |
 | address1 | string | ● | required, string, max:50 | 都道府県 |
 | address2 | string | ● | required, string, max:50 | 市区町村 |
 | address3 | string | ● | required, string, max:100 | 町名・番地 |
@@ -1631,7 +1631,7 @@ POST /training-records に以下を追加する。
 |-----------|-----|------|---------------|------|
 | phone1 | string | ● | required, string, max:20, regex:/^[0-9\-]+$/ | 電話番号 |
 | phone2 | string | | nullable, string, max:20, regex:/^[0-9\-]+$/ | 電話番号（予備） |
-| postal_code | string | ● | required, string, regex:/^\d{3}-?\d{4}$/ | 郵便番号 |
+| postal_code | string |  | nullable, string, regex:/^\d{3}-?\d{4}$/ | 郵便番号（任意。入力された場合のみ形式チェック） |
 | address1 | string | ● | required, string, max:50 | 都道府県 |
 | address2 | string | ● | required, string, max:50 | 市区町村 |
 | address3 | string | ● | required, string, max:100 | 町名・番地 |
