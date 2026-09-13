@@ -22,7 +22,7 @@
 // Bootstrap の各コンポーネント（btn / card / form-control / alert 等）へ
 // 自動的に適用される。個別クラスの上書きを最小化する狙い。
 // -----------------------------------------------------------------------------
-$paper:      #F5F3EC; // ページ背景
+$paper:      #EAE4D3; // ページ背景（カードを浮かせるためやや落とした暖色クリーム。旧 #F5F3EC）
 $mat:        #FFFFFF; // カード面・写真の周辺・入力欄の面
 $ink:        #0F1A2E; // 本文・見出しのインク・細線・フォーカスリング外側
 $terracotta: #C2410C; // 主要 CTA・リンク・成功トースト・H1/H2/Display の色
@@ -275,23 +275,57 @@ h2, .h2 {
 }
 
 // -----------------------------------------------------------------------------
-// クライアント側ナビゲーションバー（段階4-6 で暫定コードから正式化）
+// クライアント側ヘッダー帯 `.c-nav`（設計書 §4-0）
 //
-// Blade からは `navbar-dark` / `bg-client-nav` を除去し `.c-nav` に統一。
-// 打ち消し（!important）を伴わないクリーンな指定で mat 面 + ink 文字を実現。
+// ログイン前後で見た目を揃えるため、`layouts.client`（認証後 + login）と
+// `layouts.client-public`（その他 pre-auth）の両方で使用する共通スタイル。
+// 帯の色は $terracotta、文字・リンクは帯の上で読める $mat（白）で統一。
+//
+// pre-auth ではヘッダー帯の中に左のブランド（テキストまたはロゴ画像）だけを出す。
+// post-auth では加えて右側に「登録情報」「ログアウト」の 2 リンクを出す。
 // -----------------------------------------------------------------------------
 .c-nav {
-    background-color: $mat;
-    border-bottom: 1px solid rgba(15, 26, 46, 0.08);
+    background-color: $terracotta;
+    // 帯下端の境界。terracotta 面上に濃い ink 線を引くと沈むため、
+    // mat の 20% で軽い明側の輪郭を作る（沈ませず、面の縁を保つ）
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 
-    // Bootstrap 5.3 の navbar 用 CSS カスタムプロパティを ink 基調にセット。
-    // navbar-brand・navbar-text はこの変数値を参照するため、個別の色指定不要
-    --bs-navbar-color:              #{$ink};
-    --bs-navbar-hover-color:        #{$terracotta};
-    --bs-navbar-active-color:       #{$ink};
-    --bs-navbar-brand-color:        #{$ink};
-    --bs-navbar-brand-hover-color:  #{$terracotta};
-    --bs-navbar-disabled-color:     rgba(15, 26, 46, 0.5);
+    // Bootstrap 5.3 の navbar 用 CSS カスタムプロパティを mat 基調にセット。
+    // navbar-brand・navbar-text はこの変数値を参照するため、個別の色指定不要。
+    // hover は 100% mat → 85% mat（沈み込みで反応を示す）。
+    --bs-navbar-color:              #{$mat};
+    --bs-navbar-hover-color:        rgba(255, 255, 255, 0.85);
+    --bs-navbar-active-color:       #{$mat};
+    --bs-navbar-brand-color:        #{$mat};
+    --bs-navbar-brand-hover-color:  rgba(255, 255, 255, 0.85);
+    --bs-navbar-disabled-color:     rgba(255, 255, 255, 0.65);
+
+    // Bootstrap `.navbar-toggler` の枠線が透けて見えないよう、白基調に置く
+    .navbar-toggler {
+        border-color: rgba(255, 255, 255, 0.35);
+        color: $mat;
+    }
+    // トグルアイコンも白系の SVG（Bootstrap navbar-dark 相当の SVG を CSS 変数で差し込み）
+    .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255,255,255,0.95%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+
+    // navbar 内の btn-link（「登録情報」「ログアウト」）は
+    // 既定で $link-color（terracotta）になるため、帯の上で沈まないよう mat に上書き
+    .btn-link {
+        color: $mat;
+        &:hover, &:focus {
+            color: rgba(255, 255, 255, 0.85);
+        }
+    }
+}
+
+// ヘッダー帯左のロゴ画像（config('app.client_portal_logo') が設定されているとき）。
+// 設計書 §9-3：ワードマーク左に画像スロット。max-height を帯に収まる大きさに絞る
+.c-nav-brand-img {
+    display: block;
+    max-height: 32px;
+    width: auto;
 }
 
 // -----------------------------------------------------------------------------
@@ -775,7 +809,9 @@ input[type="tel"] {
 .c-login {
     max-width: 26rem;
     margin: 0 auto;
-    padding-top: 3rem;
+    // ヘッダー帯（設計書 §4-0）が上部にあるため、pre-auth 用の余白は
+    // 帯の下からカードまでの余白のみ確保する（旧 3rem → 2rem に縮小）
+    padding-top: 2rem;
     padding-bottom: 2rem;
 }
 
@@ -800,22 +836,10 @@ input[type="tel"] {
     margin-right: auto;
 }
 
-// ワードマーク（プロダクト名）
-// 過去の経緯：当初は Display 2.75rem、次にプロダクト名の暫定値「トレーニング記録」
-// （8 文字）を 400px 幅で収めるため 2.5rem に下げていた。
-// 現在：本文に近い 1rem まで縮小。理由は、実際に訓練所名が入るとページの主役に
-// なってしまい、その下の見出し（`.c-auth-heading` 1.5rem）や入力欄より目立って
-// いたため。お客様がここで行うのは入力で、訓練所名は「どこからの案内か」が
-// 分かれば足りる。色・書体・配置は変えない。
-.c-login-wordmark {
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.3;
-    letter-spacing: 0.02em;
-    color: $terracotta;
-    text-align: center;
-    margin: 0 0 2rem;
-}
+// ワードマーク（プロダクト名）は `.c-nav .navbar-brand` に移動した（設計書 §4-0）。
+// 過去の経緯：Display 2.75rem → 2.5rem → 1rem（本文サイズ）と縮小した後、
+// ページ上部が寂しく感じられたため、ヘッダー帯を導入してブランド位置を帯の左に
+// 移した。`.c-login-wordmark` クラスは廃止（該当 Blade 側の `<h1>` も除去済み）。
 
 // カード幅は c-login の max-width（26rem）で制約済み
 // 既存の .card ルール（罫線 + 影）をそのまま継承
@@ -842,7 +866,6 @@ input[type="tel"] {
 }
 
 // モバイル（<576px）: 上余白のみ縮小
-// ワードマーク自体は 1rem 単一値で desktop/mobile 共通（旧 2.5rem → 2rem の縮小は不要になった）
 @media (max-width: 575.98px) {
     .c-login {
         padding-top: 1rem;
@@ -852,8 +875,8 @@ input[type="tel"] {
 // -----------------------------------------------------------------------------
 // パスワード設定画面（段階4-3）— 設計書 §4-7
 //
-// ページ全体のシェル（.c-login / .c-login-wordmark / .c-login-card /
-// .c-login-footer）はログイン画面と共用。以下はカード内の追加要素のみ。
+// ページ全体のシェル（.c-login / .c-login-card / .c-login-footer）は
+// ログイン画面と共用。以下はカード内の追加要素のみ。
 //
 // 設計書 §6 の文言方針に従い、以下の書き換えを可能にするクラス：
 // - .c-auth-heading: 「パスワードの設定」（サブタイトル）→「パスワードを決めます」

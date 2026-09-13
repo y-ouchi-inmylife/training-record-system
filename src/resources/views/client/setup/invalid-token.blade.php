@@ -9,10 +9,9 @@
 
 @section('content')
 {{-- pre-auth の説明カード。設計書 client-portal-design-plan.md §4-8。
-     メールアドレス登録用 URL・ログイン用リンク・その他の無効トークンで共通に使う --}}
+     メールアドレス登録用 URL・ログイン用リンク・その他の無効トークンで共通に使う。
+     ワードマークは layouts.partials.client-nav（ヘッダー帯の左）に移動。 --}}
 <div class="c-login">
-    <h1 class="c-login-wordmark">{{ $portalName }}</h1>
-
     <div class="card c-login-card">
         <div class="card-body p-4">
             <h2 class="c-auth-heading">{{ $title }}</h2>

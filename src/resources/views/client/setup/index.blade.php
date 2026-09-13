@@ -11,10 +11,9 @@
 @section('content')
 {{-- pre-auth シェル（ログイン画面と共用）+ 幅広モディファイア。
      初回設定はパスワード＋氏名＋連絡先＋住所を 1 画面に載せるため
-     .c-login--wide で md 以上のカード幅を拡張する（設計書 §4-7）--}}
+     .c-login--wide で md 以上のカード幅を拡張する（設計書 §4-7）。
+     ワードマークは layouts.partials.client-nav（ヘッダー帯の左）に移動。 --}}
 <div class="c-login c-login--wide">
-    <h1 class="c-login-wordmark">{{ $portalName }}</h1>
-
     <div class="card c-login-card">
         <div class="card-body p-4">
             <h2 class="c-auth-heading">初回設定</h2>

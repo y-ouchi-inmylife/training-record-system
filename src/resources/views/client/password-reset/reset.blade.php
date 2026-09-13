@@ -8,10 +8,9 @@
 @section('title', 'パスワードの再設定')
 
 @section('content')
-{{-- pre-auth シェル。項目 2 つのため既定幅 26rem で足りる（設計書 §4-11） --}}
+{{-- pre-auth シェル。項目 2 つのため既定幅 26rem で足りる（設計書 §4-11）。
+     ワードマークは layouts.partials.client-nav（ヘッダー帯の左）に移動。 --}}
 <div class="c-login">
-    <h1 class="c-login-wordmark">{{ $portalName }}</h1>
-
     <div class="card c-login-card">
         <div class="card-body p-4">
             <h2 class="c-auth-heading">パスワードの再設定</h2>

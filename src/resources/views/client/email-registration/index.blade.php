@@ -11,10 +11,9 @@
 @section('title', $isDone ? 'メールをお送りしました' : 'マイページのご登録')
 
 @section('content')
-{{-- pre-auth シェル（ログイン・初回設定と共通）。入力状態と完了状態を同じ画面で切り替える --}}
+{{-- pre-auth シェル（ログイン・初回設定と共通）。入力状態と完了状態を同じ画面で切り替える。
+     ワードマークは layouts.partials.client-nav（ヘッダー帯の左）に移動。 --}}
 <div class="c-login">
-    <h1 class="c-login-wordmark">{{ $portalName }}</h1>
-
     <div class="card c-login-card">
         <div class="card-body p-4">
             @if($isDone)

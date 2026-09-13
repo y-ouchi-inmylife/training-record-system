@@ -155,11 +155,17 @@ return [
     | - client_portal_company: フッターに表示するトレーニング提供会社名
     |   （開発会社ではない）。設計書 §9-2 に従い、null / 空の場合は
     |   Blade 側で <footer> ブロックごと出力しない。
+    | - client_portal_logo: ヘッダー帯のブランド位置に表示するロゴ画像の
+    |   URL（`public/` からの相対または絶対 URL）。設計書 §9-3 の暫定はロゴ画像
+    |   なし。null / 空の場合はテキスト（client_portal_name）を表示する。
+    |   将来ロゴが確定した際にこの値を設定するだけで画像に切り替わる。
     |
     */
 
     'client_portal_name' => env('CLIENT_PORTAL_NAME', 'トレーニング記録'),
 
     'client_portal_company' => env('CLIENT_PORTAL_COMPANY'),
+
+    'client_portal_logo' => env('CLIENT_PORTAL_LOGO'),
 
 ];

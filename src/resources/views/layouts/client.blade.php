@@ -15,43 +15,13 @@
     @stack('styles')
 </head>
 <body>
+    {{-- クライアントポータルのヘッダー帯（設計書 client-portal-design-plan.md §4-0）。
+         ログイン前後で色・高さ・ブランド位置を揃えるため、共通の partial を経由する。
+         post-auth は右側に「登録情報」「ログアウト」を出し、pre-auth は左のブランドのみ。 --}}
     @auth('client')
-    {{-- クライアント側ナビ: navbar-dark / bg-client-nav の暫定構造から
-         .c-nav に移行(段階4-6)。Bootstrap の .navbar 単体では色が付かない
-         ため、SCSS 側 .c-nav で mat 面 + 罫線 + navbar CSS 変数(ink 基調)を
-         定義する。
-         ワードマークはダッシュボードへのリンク(設計書 §4-0)。
-         .c-nav の --bs-navbar-brand-hover-color は <a> でのみ機能する。
-         右端は「登録情報」と「ログアウト」の 2 リンク(設計書 §4-0)。
-         ユーザー名は H1 の挨拶と重複するため表示しない。
-         スマートフォン幅では折りたたみメニューの中に両方を並べる。 --}}
-    <nav class="navbar navbar-expand-lg c-nav">
-        <div class="container">
-            <a class="navbar-brand" href="{{ route('client-portal.dashboard') }}">{{ config('app.client_portal_name', 'トレーニング記録') }}</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#clientNav" aria-controls="clientNav"
-                    aria-expanded="false" aria-label="メニューを開く">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse justify-content-end" id="clientNav">
-                <ul class="navbar-nav align-items-lg-center">
-                    <li class="nav-item">
-                        {{-- 登録情報：メール・パスワード・連絡先の変更。
-                             文字リンクとして扱う(§4-0) --}}
-                        <a class="btn btn-link btn-sm" href="{{ route('client-portal.settings.index') }}">登録情報</a>
-                    </li>
-                    <li class="nav-item">
-                        <form method="POST" action="{{ route('client-portal.logout') }}" class="m-0">
-                            @csrf
-                            {{-- 設計書 §6: ログアウトは主要な行為ではないため
-                                 btn-link で文字リンク化(装飾を落とす) --}}
-                            <button type="submit" class="btn btn-link btn-sm">ログアウト</button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+        @include('layouts.partials.client-nav', ['authed' => true])
+    @else
+        @include('layouts.partials.client-nav', ['authed' => false])
     @endauth
 
     <main class="py-4">

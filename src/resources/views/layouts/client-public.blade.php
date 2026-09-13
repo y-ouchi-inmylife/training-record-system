@@ -15,6 +15,8 @@
     @stack('styles')
 </head>
 <body>
+    @include('layouts.partials.client-nav', ['authed' => false])
+
     <main class="py-4">
         <div class="container">
             @yield('content')

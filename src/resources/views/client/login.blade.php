@@ -10,12 +10,9 @@
 @section('title', 'ログイン')
 
 @section('content')
+{{-- ワードマークは layouts.partials.client-nav（ヘッダー帯の左）に移動。
+     カード外側にワードマークを繰り返さない。 --}}
 <div class="c-login">
-    {{-- ワードマーク: プロダクト名(§9-1)
-         将来ロゴ画像が確定した場合はワードマーク左に画像スロット(max-height 48px)を
-         追加できるよう余白の設計を維持。今は画像なしのテキストのみ。 --}}
-    <h1 class="c-login-wordmark">{{ $portalName }}</h1>
-
     <div class="card c-login-card">
         <div class="card-body p-4">
             @if($errors->any())

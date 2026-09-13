@@ -1,0 +1,64 @@
+{{--
+    クライアントポータルのヘッダー帯（設計書 client-portal-design-plan.md §4-0）。
+    ログイン前後で見た目を揃えるため、`layouts.client`（認証後 + login）と
+    `layouts.client-public`（その他 pre-auth）の両方から参照する。
+
+    左のブランド位置：
+      - config('app.client_portal_logo') が設定されていれば <img> を出力
+      - なければテキスト（config('app.client_portal_name')）を出力
+    右のメニュー：
+      - $authed=true のときのみ「登録情報」「ログアウト」を出す（post-auth）
+      - pre-auth は左のブランドのみ
+
+    ブランドリンクの遷移先：
+      - post-auth: ダッシュボード（client-portal.dashboard）
+      - pre-auth: リンクなし（現在ログイン前で辿れる先が画面自体のため）
+--}}
+@php
+    $portalName = config('app.client_portal_name', 'トレーニング記録');
+    $portalLogo = config('app.client_portal_logo');
+    $authed = $authed ?? false;
+@endphp
+
+<nav class="navbar navbar-expand-lg c-nav">
+    <div class="container">
+        @if($authed)
+            <a class="navbar-brand" href="{{ route('client-portal.dashboard') }}">
+                @if($portalLogo)
+                    <img src="{{ $portalLogo }}" alt="{{ $portalName }}" class="c-nav-brand-img">
+                @else
+                    {{ $portalName }}
+                @endif
+            </a>
+        @else
+            <span class="navbar-brand mb-0">
+                @if($portalLogo)
+                    <img src="{{ $portalLogo }}" alt="{{ $portalName }}" class="c-nav-brand-img">
+                @else
+                    {{ $portalName }}
+                @endif
+            </span>
+        @endif
+
+        @if($authed)
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#clientNav" aria-controls="clientNav"
+                    aria-expanded="false" aria-label="メニューを開く">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="clientNav">
+                <ul class="navbar-nav align-items-lg-center">
+                    <li class="nav-item">
+                        <a class="btn btn-link btn-sm" href="{{ route('client-portal.settings.index') }}">登録情報</a>
+                    </li>
+                    <li class="nav-item">
+                        <form method="POST" action="{{ route('client-portal.logout') }}" class="m-0">
+                            @csrf
+                            <button type="submit" class="btn btn-link btn-sm">ログアウト</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        @endif
+    </div>
+</nav>

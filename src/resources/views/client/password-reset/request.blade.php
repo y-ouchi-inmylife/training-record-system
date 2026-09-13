@@ -10,10 +10,9 @@
 @section('title', $isDone ? 'メールをお送りしました' : 'パスワードの再設定')
 
 @section('content')
-{{-- pre-auth シェル（ログイン画面と共用）。項目 1 つのため既定幅 26rem で足りる --}}
+{{-- pre-auth シェル（ログイン画面と共用）。項目 1 つのため既定幅 26rem で足りる。
+     ワードマークは layouts.partials.client-nav（ヘッダー帯の左）に移動。 --}}
 <div class="c-login">
-    <h1 class="c-login-wordmark">{{ $portalName }}</h1>
-
     <div class="card c-login-card">
         <div class="card-body p-4">
             @if($isDone)
