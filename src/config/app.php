@@ -167,6 +167,13 @@ return [
     |   訓練所のホームページに掲載された時点で URL を設定するだけで表示される）。
     |   将来「利用規約」など他の同意リンクを増やす場合は、この設定値と並べて
     |   `client_portal_terms_url` 等を追加すれば同じ形で扱える。
+    | - client_portal_reply_to: お客様に送るメールの Reply-To（返信先）アドレス。
+    |   お客様が受信メールに返信したときの届き先。訓練所の問い合わせ用アドレス
+    |   （info@... など）が確定した時点でこの値を設定する。null / 空の場合は
+    |   Reply-To を指定せず、Envelope 側の From アドレス（noreply@...）に返信
+    |   されることになる。従前は開発会社（インマイライフ）アドレスがハードコード
+    |   されていたが、お客様の返信は事業者に届くべきであり、事業者側のアドレスが
+    |   決まるまでは空にしておく（次点として From への返信になる）。
     |
     */
 
@@ -177,5 +184,7 @@ return [
     'client_portal_logo' => env('CLIENT_PORTAL_LOGO'),
 
     'client_portal_privacy_url' => env('CLIENT_PORTAL_PRIVACY_URL'),
+
+    'client_portal_reply_to' => env('CLIENT_PORTAL_REPLY_TO'),
 
 ];

@@ -4,7 +4,6 @@ namespace App\Mail;
 
 use App\Models\ClientPasswordResetToken;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -29,12 +28,7 @@ class ClientPasswordResetMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(
-            subject: ClientMailSubject::format('パスワード再設定のご案内'),
-            replyTo: [
-                new Address('info@inmylife1965.com', 'インマイライフ'),
-            ],
-        );
+        return ClientMailEnvelope::build('パスワード再設定のご案内');
     }
 
     public function content(): Content

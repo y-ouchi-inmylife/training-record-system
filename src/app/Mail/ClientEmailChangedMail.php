@@ -3,7 +3,6 @@
 namespace App\Mail;
 
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -23,12 +22,7 @@ class ClientEmailChangedMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(
-            subject: ClientMailSubject::format('メールアドレスを変更しました'),
-            replyTo: [
-                new Address('info@inmylife1965.com', 'インマイライフ'),
-            ],
-        );
+        return ClientMailEnvelope::build('メールアドレスを変更しました');
     }
 
     public function content(): Content

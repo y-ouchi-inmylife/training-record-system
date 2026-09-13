@@ -4,7 +4,6 @@ namespace App\Mail;
 
 use App\Models\ClientLoginLinkToken;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -29,12 +28,7 @@ class ClientLoginLinkMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(
-            subject: ClientMailSubject::format('マイページのご登録手続き'),
-            replyTo: [
-                new Address('info@inmylife1965.com', 'インマイライフ'),
-            ],
-        );
+        return ClientMailEnvelope::build('マイページのご登録手続き');
     }
 
     public function content(): Content
