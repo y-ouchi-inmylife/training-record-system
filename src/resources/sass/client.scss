@@ -781,12 +781,21 @@ input[type="tel"] {
 // -----------------------------------------------------------------------------
 
 // 戻る導線: 「戻る」ではなく行き先を書く（設計書 §6）
+// S-1409/S-1410/S-1411 では戻り先が S-1406 固定のため、リンクの文言は矢印記号のみ
+// にしている（画面上部を軽くするため）。記号だけだと当たり判定が矢印一文字分に
+// なりスマホで押しにくくなるため、padding: 0.75rem 1rem で 44px 四方相当の当たり
+// 判定を確保する。margin-left の負値は padding-left 分を打ち消して左端の位置を維持。
+// margin-bottom は padding-bottom を含めた合計が従来（1rem）と揃うよう 0.25rem に
+// 調整。S-1404「← HOME」でも同じ padding が乗るが、文言のあるリンクにも当たり
+// 判定の余裕を持たせる形になり、副作用として好ましい。
 .c-detail-back {
     display: inline-block;
     color: $terracotta;
     font-weight: 700;
     text-decoration: none;
-    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    margin-left: -1rem;
+    margin-bottom: 0.25rem;
 }
 .c-detail-back:hover {
     text-decoration: underline;

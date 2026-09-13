@@ -5,9 +5,12 @@
 @section('content')
 <div class="container">
     <div class="c-settings">
-        {{-- 戻る導線：他画面（training-records/show）と同じ .c-detail-back パターン --}}
-        <a href="{{ route('client-portal.profile.show') }}" class="c-detail-back">
-            <span aria-hidden="true">←</span> 登録情報
+        {{-- 戻る導線：戻り先は S-1406 固定のため画面名を書かず、矢印記号のみで軽くする。
+             矢印は装飾（aria-hidden）で、代替テキストは aria-label に持たせる。
+             当たり判定は .c-detail-back の padding で確保している（設計書 §6）。
+             aria-label は読み上げソフト向けに必要な属性。**削除しないこと**。 --}}
+        <a href="{{ route('client-portal.profile.show') }}" class="c-detail-back" aria-label="登録情報に戻る">
+            <span aria-hidden="true">←</span>
         </a>
 
         <h1 class="mb-4">パスワードの変更</h1>
