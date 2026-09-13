@@ -5,12 +5,12 @@
 @section('content')
 <div class="container">
     <div class="c-settings">
-        {{-- 戻る導線：戻り先は S-1406 固定のため画面名を書かず、矢印記号のみで軽くする。
-             矢印は装飾（aria-hidden）で、代替テキストは aria-label に持たせる。
-             当たり判定は .c-detail-back の padding で確保している（設計書 §6）。
-             aria-label は読み上げソフト向けに必要な属性。**削除しないこと**。 --}}
-        <a href="{{ route('client-portal.profile.show') }}" class="c-detail-back" aria-label="登録情報に戻る">
-            <span aria-hidden="true">←</span>
+        {{-- 戻る導線：「← 戻る」の形で置く（3 変更画面 S-1409/S-1410/S-1411 で共通）。
+             画面名を書かないのは、将来この画面への入口が増えても文言を直さずに済むため。
+             矢印は装飾なので aria-hidden にし、「戻る」の文字を読み上げソフトに読ませる。
+             設計書：`client-portal-design-plan.md` §4-10、`screen-design.md` §6。 --}}
+        <a href="{{ route('client-portal.profile.show') }}" class="c-detail-back">
+            <span aria-hidden="true">←</span> 戻る
         </a>
 
         <h1 class="mb-4">パスワードの変更</h1>
