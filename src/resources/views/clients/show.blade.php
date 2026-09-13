@@ -338,7 +338,7 @@
                     <form method="POST" action="{{ route('client-email-registration-tokens.destroy', $client) }}" class="d-inline m-0">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn btn-danger">取消する</button>
+                        <button type="submit" class="btn btn-danger">取り消す</button>
                     </form>
                 </div>
             </div>
