@@ -29,6 +29,20 @@
 
     <div class="print-url">{{ $url }}</div>
 
+    {{-- メール／LINE 送付用の「文面をコピー」ボタン。
+         文面はコントローラで組み立て、data-copy-text で受け取る（画面の文字を
+         JavaScript で拾って組み立てる方式は取らない — 画面の見た目と文面を
+         独立させるため）。`d-print-none` で印刷時は非表示にする（お客様に
+         渡す紙にトレーナー向けの操作は不要）。この画面の `d-print-none`
+         例外は「クライアント詳細に戻る」リンクに続き 2 件目
+         （設計書 S-0307「案内文面のコピー」参照）。--}}
+    <div class="print-copy d-print-none mb-3 text-center">
+        <button type="button"
+                class="btn btn-outline-primary btn-sm"
+                data-copy-registration-message
+                data-copy-text="{{ $copyText }}">文面をコピー</button>
+    </div>
+
     <hr class="print-divider">
 
     <p class="print-section-title">ご登録の手順</p>
@@ -60,6 +74,6 @@
 
 @if($url)
     @push('scripts')
-        @vite(['resources/js/qr-code.js'])
+        @vite(['resources/js/qr-code.js', 'resources/js/copy-registration-message.js'])
     @endpush
 @endif

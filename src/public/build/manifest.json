@@ -19,6 +19,12 @@
     "src": "resources/js/app.js",
     "isEntry": true
   },
+  "resources/js/copy-registration-message.js": {
+    "file": "assets/copy-registration-message-CSHlc8sk.js",
+    "name": "copy-registration-message",
+    "src": "resources/js/copy-registration-message.js",
+    "isEntry": true
+  },
   "resources/js/qr-code.js": {
     "file": "assets/qr-code-BgIumkyX.js",
     "name": "qr-code",
