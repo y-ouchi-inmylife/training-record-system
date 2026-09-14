@@ -445,11 +445,13 @@ AUDIO_STORAGE_PATH=storage/app/audio
 APP_TIMEZONE=Asia/Tokyo
 
 # Backup
-BACKUP_DIRECTORY=/home/inmylife1965/app/counseling-record-system/src/storage/app/backups
+BACKUP_DIRECTORY=/var/www/training-record-system-01/src/storage/app/backups
 BACKUP_ENCRYPTION_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-MYSQLDUMP_PATH="/usr/local/bin/mysqldump"
-MYSQL_PATH="/usr/local/bin/mysql"
-OPENSSL_PATH="/usr/bin/openssl"
+# 以下の実行パス 3 種は Linux 本番では PATH 解決で動くため未設定でよい（未設定時のデフォルトは
+# それぞれ `mysqldump` / `mysql` / `openssl`）。フルパス指定が必要な場合のみ設定する。
+#MYSQLDUMP_PATH=
+#MYSQL_PATH=
+#OPENSSL_PATH=
 
 # Backup File Storage (S3 compatible)
 # 現在の構成: Cloudflare R2（BACKUP_STORAGE_REGION は R2 では未指定でよい。既定 auto）

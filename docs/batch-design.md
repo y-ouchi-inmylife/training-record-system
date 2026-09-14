@@ -119,16 +119,18 @@
 
 なし
 
-**設定値（環境変数）**
+**設定値**
 
 バックアップ動作設定：
 
-| 項目名 | 必須 | 説明 |
-|--------|------|------|
-| `BACKUP_DIRECTORY` | ● | バックアップファイルの保存先ディレクトリ |
-| `BACKUP_ENCRYPTION_KEY` | ● | バックアップファイルの暗号化鍵（パスフレーズ） |
-| `MYSQLDUMP_PATH` | ● | mysqldump コマンドのパス |
-| `OPENSSL_PATH` | ● | openssl コマンドのパス |
+| 設定キー | 環境変数 | 必須 | 説明 |
+|----------|----------|------|------|
+| `backup.directory` | `BACKUP_DIRECTORY` | ● | バックアップファイルの保存先ディレクトリ |
+| `backup.encryption_key` | `BACKUP_ENCRYPTION_KEY` | ● | バックアップファイルの暗号化鍵（パスフレーズ） |
+| `backup.mysqldump_path` | `MYSQLDUMP_PATH` |  | mysqldump コマンドのパス（未設定時は `mysqldump`） |
+| `backup.openssl_path` | `OPENSSL_PATH` |  | openssl コマンドのパス（未設定時は `openssl`） |
+
+DB 接続情報（ホスト・ポート・ユーザー・パスワード・データベース名）は `config('database.default')` で解決した既定接続の設定を参照する。バックアップ固有の設定値としては持たない。
 
 バックアップ用オブジェクトストレージ接続設定（S3 互換。現在の既定構成は Cloudflare R2）：
 
@@ -142,11 +144,11 @@
 
 ##### 処理フロー
 
-1. データベースを mysqldump で取得し、パイプで openssl AES-256-CBC + PBKDF2 に渡して暗号化したうえで、`BACKUP_DIRECTORY` 配下に保存する。
+1. データベースを mysqldump で取得し、パイプで openssl AES-256-CBC + PBKDF2 に渡して暗号化したうえで、`backup.directory` 配下に保存する。
   - ファイル名は `{db_name}_YYYYMMDD_HHMMSS.sql.enc` 形式とする。
 2. 1. で作成したバックアップファイルを、バックアップ用オブジェクトストレージのバケット（`BACKUP_STORAGE_BUCKET`）にコピーする。
   - オブジェクトキーはファイル名と同じ：`{db_name}_YYYYMMDD_HHMMSS.sql.enc`
-3. 1. で作成したバックアップファイルを `BACKUP_DIRECTORY` から削除する。
+3. 1. で作成したバックアップファイルを `backup.directory` から削除する。
 
 ##### 出力
 
@@ -164,16 +166,18 @@
 |------|------|------|
 | ファイル名 | ● | バックアップ用オブジェクトストレージ上のバックアップファイル名。例：`{db_name}_YYYYMMDD_HHMMSS.sql.enc` |
 
-**設定値（環境変数）**
+**設定値**
 
 リストア動作設定：
 
-| 項目名 | 必須 | 説明 |
-|--------|------|------|
-| `BACKUP_DIRECTORY` | ● | バックアップファイルの保存先ディレクトリ |
-| `BACKUP_ENCRYPTION_KEY` | ● | バックアップファイルの暗号化鍵（パスフレーズ） |
-| `MYSQL_PATH` | ● | mysql コマンドのパス |
-| `OPENSSL_PATH` | ● | openssl コマンドのパス |
+| 設定キー | 環境変数 | 必須 | 説明 |
+|----------|----------|------|------|
+| `backup.directory` | `BACKUP_DIRECTORY` | ● | バックアップファイルの保存先ディレクトリ |
+| `backup.encryption_key` | `BACKUP_ENCRYPTION_KEY` | ● | バックアップファイルの暗号化鍵（パスフレーズ） |
+| `backup.mysql_path` | `MYSQL_PATH` |  | mysql コマンドのパス（未設定時は `mysql`） |
+| `backup.openssl_path` | `OPENSSL_PATH` |  | openssl コマンドのパス（未設定時は `openssl`） |
+
+DB 接続情報（ホスト・ポート・ユーザー・パスワード・データベース名）は `config('database.default')` で解決した既定接続の設定を参照する。バックアップ固有の設定値としては持たない。
 
 バックアップ用オブジェクトストレージ接続設定（S3 互換。現在の既定構成は Cloudflare R2）：
 
@@ -188,9 +192,9 @@
 ##### 処理フロー
 
 1. リストア対象の「ファイル名」を表示して、Y/N で確認を求める。
-2. バックアップ用オブジェクトストレージのバケット（`BACKUP_STORAGE_BUCKET`）から指定された「ファイル名」のオブジェクトを取得し、`BACKUP_DIRECTORY` 配下に保存する。
+2. バックアップ用オブジェクトストレージのバケット（`BACKUP_STORAGE_BUCKET`）から指定された「ファイル名」のオブジェクトを取得し、`backup.directory` 配下に保存する。
 3. 2. でダウンロードしたバックアップファイルを openssl で復号し、パイプで mysql に渡してデータベースを復元する。
-4. 2. でダウンロードしたバックアップファイルを `BACKUP_DIRECTORY` から削除する。
+4. 2. でダウンロードしたバックアップファイルを `backup.directory` から削除する。
 
 ##### 出力
 
