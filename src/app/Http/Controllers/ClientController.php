@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ClientRequest;
 use App\Models\Client;
-use App\Models\TrainingRecord;
 use App\Models\Trainer;
+use App\Models\TrainingRecord;
 use App\Services\ClientInternalIdService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ClientController extends Controller
@@ -24,7 +24,7 @@ class ClientController extends Controller
         $request->validate(
             [
                 'date_from' => 'nullable|date',
-                'date_to'   => 'nullable|date|after_or_equal:date_from',
+                'date_to' => 'nullable|date|after_or_equal:date_from',
             ],
             [
                 'date_to.after_or_equal' => '開始日は終了日以前の日付を指定してください',
@@ -43,7 +43,7 @@ class ClientController extends Controller
 
         // 内部ID検索（部分一致）
         if ($request->filled('internal_id')) {
-            $query->where('internal_id', 'like', '%' . $request->input('internal_id') . '%');
+            $query->where('internal_id', 'like', '%'.$request->input('internal_id').'%');
         }
 
         // 名前検索（姓名・かなの部分一致）
@@ -51,9 +51,9 @@ class ClientController extends Controller
             $keyword = $request->input('keyword');
             $query->where(function ($q) use ($keyword) {
                 $q->where('last_name', 'like', "%{$keyword}%")
-                  ->orWhere('first_name', 'like', "%{$keyword}%")
-                  ->orWhere('last_name_kana', 'like', "%{$keyword}%")
-                  ->orWhere('first_name_kana', 'like', "%{$keyword}%");
+                    ->orWhere('first_name', 'like', "%{$keyword}%")
+                    ->orWhere('last_name_kana', 'like', "%{$keyword}%")
+                    ->orWhere('first_name_kana', 'like', "%{$keyword}%");
             });
         }
 
@@ -80,19 +80,19 @@ class ClientController extends Controller
         $sortBy = $request->input('sort', 'created_at');
         $sortDir = $request->input('direction', 'desc');
         $allowedSorts = ['internal_id', 'last_name', 'last_name_kana', 'created_at'];
-        if (!in_array($sortBy, $allowedSorts)) {
+        if (! in_array($sortBy, $allowedSorts)) {
             $sortBy = 'created_at';
         }
         $sortDir = $sortDir === 'asc' ? 'asc' : 'desc';
         // internal_id は文字列型だが数値のみを格納するため、数値として比較する
         if ($sortBy === 'internal_id') {
-            $query->orderByRaw('CAST(internal_id AS UNSIGNED) ' . $sortDir);
+            $query->orderByRaw('CAST(internal_id AS UNSIGNED) '.$sortDir);
         } elseif ($sortBy === 'last_name') {
             // 日本語照合順序で姓順に並べる
-            $query->orderByRaw("last_name COLLATE utf8mb4_ja_0900_as_cs " . $sortDir);
+            $query->orderByRaw('last_name COLLATE utf8mb4_ja_0900_as_cs '.$sortDir);
         } elseif ($sortBy === 'last_name_kana') {
             // 日本語照合順序で姓かな順に並べる
-            $query->orderByRaw("last_name_kana COLLATE utf8mb4_ja_0900_as_cs " . $sortDir);
+            $query->orderByRaw('last_name_kana COLLATE utf8mb4_ja_0900_as_cs '.$sortDir);
         } else {
             $query->orderBy($sortBy, $sortDir);
         }
@@ -124,7 +124,7 @@ class ClientController extends Controller
 
         // トランザクション内で内部IDを採番（競合回避）
         $client = DB::transaction(function () use ($validated) {
-            $validated['internal_id'] = (string) (new ClientInternalIdService())->generateNext();
+            $validated['internal_id'] = (string) (new ClientInternalIdService)->generateNext();
 
             return Client::create($validated);
         });
@@ -141,14 +141,15 @@ class ClientController extends Controller
     {
         $client->load(['primaryTrainer', 'trainingRecords' => function ($query) {
             $query->with(['trainingType', 'trainer1', 'trainer2'])
-                  ->orderBy('training_date', 'desc')
-                  ->orderBy('training_time', 'desc');
+                ->orderBy('training_date', 'desc')
+                ->orderBy('training_time', 'desc');
         }]);
 
         // 状態バッジ（4 状態＋期限切れ）判定に必要な派生値を先読みする。
         // 状態別ボタン（「登録案内を発行」／「登録案内を表示」／「登録案内を取消」／
-        // 「メールアドレスを削除」）の出し分けもこの派生値と `status` アクセサから判断する。
-        // 「メールアドレスを削除」は初回設定待ち・利用中の両方で出る（S-0305 の設計書参照）。
+        // 「登録を削除」）の出し分けもこの派生値と `status` アクセサから判断する。
+        // 「登録を削除」（旧「メールアドレスを削除」）は初回設定待ち・利用中の両方で出る
+        // （S-0305 の設計書参照）。
         $client->loadStatusData();
 
         $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
@@ -162,6 +163,7 @@ class ClientController extends Controller
     public function edit(Client $client): View
     {
         $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
+
         return view('clients.edit', compact('client', 'trainers'));
     }
 
@@ -173,7 +175,7 @@ class ClientController extends Controller
         // ClientRequest が基本項目を先に自動検証。
         // internal_id は update 固有の追加ルールなのでコントローラ側で個別に検証する。
         $request->validate(
-            ['internal_id' => 'required|numeric|unique:clients,internal_id,' . $client->id],
+            ['internal_id' => 'required|numeric|unique:clients,internal_id,'.$client->id],
             $this->internalIdMessages()
         );
 
@@ -193,7 +195,7 @@ class ClientController extends Controller
     public function destroy(Client $client): RedirectResponse
     {
         // 管理トレーナーのみ削除可能
-        if (!auth()->user()->isAdmin()) {
+        if (! auth()->user()->isAdmin()) {
             abort(403, '管理者のみ削除できます。');
         }
 
@@ -224,9 +226,10 @@ class ClientController extends Controller
             $client = Client::find($request->input('id'));
             if ($client) {
                 return response()->json([
-                    'results' => [['id' => $client->id, 'text' => $client->internal_id . ' ' . $client->display_name]],
+                    'results' => [['id' => $client->id, 'text' => $client->internal_id.' '.$client->display_name]],
                 ]);
             }
+
             return response()->json(['results' => []]);
         }
 
@@ -234,20 +237,20 @@ class ClientController extends Controller
 
         $clients = Client::where(function ($q) use ($query) {
             $q->where('internal_id', 'like', "%{$query}%")
-              ->orWhere('last_name', 'like', "%{$query}%")
-              ->orWhere('first_name', 'like', "%{$query}%")
-              ->orWhere('last_name_kana', 'like', "%{$query}%")
-              ->orWhere('first_name_kana', 'like', "%{$query}%");
+                ->orWhere('last_name', 'like', "%{$query}%")
+                ->orWhere('first_name', 'like', "%{$query}%")
+                ->orWhere('last_name_kana', 'like', "%{$query}%")
+                ->orWhere('first_name_kana', 'like', "%{$query}%");
         })
-        ->orderBy('internal_id')
-        ->limit(20)
-        ->get();
+            ->orderBy('internal_id')
+            ->limit(20)
+            ->get();
 
         return response()->json([
             'results' => $clients->map(function ($client) {
                 return [
                     'id' => $client->id,
-                    'text' => $client->internal_id . ' ' . $client->display_name,
+                    'text' => $client->internal_id.' '.$client->display_name,
                 ];
             }),
         ]);
@@ -264,5 +267,4 @@ class ClientController extends Controller
             'internal_id.unique' => 'この内部IDは既に使用されています。',
         ];
     }
-
 }
