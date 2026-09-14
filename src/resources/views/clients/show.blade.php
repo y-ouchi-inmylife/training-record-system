@@ -86,7 +86,10 @@
               - メールアドレスなし              → 「登録案内を発行」（新規発行）
               - メールアドレス登録待ち（期限内）→ 「登録案内を表示」＋「登録案内を取消」
               - メールアドレス登録待ち（期限切れ）→ 「登録案内を発行」（期限切れは未発行と同じ扱い。取消は出さない）
-              - 初回設定待ち                    → なし
+              - 初回設定待ち（期限内・期限切れ）→ 「メールアドレスを削除」
+                （行き止まりを作らないために出す。お客様が間違ったメールアドレスを
+                 登録した場合、削除して「メールアドレスなし」に戻せば発行し直せる。
+                 期限切れの方がむしろ削除したい場面が多い）
               - 利用中                          → 「メールアドレスを削除」
              状態判定は段階 4-2 で Client モデルに実装した仕組みを使う。
              これらは 3 段目のメールアドレス列の状態バッジ隣で描画する
@@ -99,7 +102,13 @@
             $showPrint = $status === \App\Models\Client::STATUS_AWAITING_EMAIL && !$expired;
             // 取消は「表示」と同じ条件（登録待ち・期限内）
             $showCancel = $showPrint;
-            $showDeleteEmail = $status === \App\Models\Client::STATUS_IN_USE;
+            // メールアドレスを削除：初回設定待ち（期限内・期限切れの両方）と利用中で出す。
+            // 判定は「clients.email が非 NULL」で足りる（この 2 状態で真、他の状態で偽）。
+            // サーバー側 API（DELETE /clients/{client}/email）も同じ条件でガードする。
+            $showDeleteEmail = in_array($status, [
+                \App\Models\Client::STATUS_AWAITING_SETUP,
+                \App\Models\Client::STATUS_IN_USE,
+            ], true);
         @endphp
         {{-- 1段目: 上部の操作ボタン列（右寄せ）。クライアント自体の操作だけ。
              メールアドレス関連は 3 段目のバッジ隣に置く（設計書 S-0305「操作ボタンの配置」）。 --}}
@@ -290,8 +299,11 @@
         最終更新: {{ $client->updated_at->format('Y/m/d H:i') }} {{ $client->updatedBy?->name ?: '—' }}
     </div>
 
-    {{-- メールアドレス削除確認モーダル（S-0305-M02、段階 4-2）--}}
-    @if($client->status === \App\Models\Client::STATUS_IN_USE)
+    {{-- メールアドレス削除確認モーダル（S-0305-M02、段階 4-2）。
+         初回設定待ち（期限内・期限切れの両方）と利用中で開く。
+         ボタン側の $showDeleteEmail と同じ条件でモーダル本体もラップし、
+         両者の条件が食い違わないようにする。 --}}
+    @if($showDeleteEmail)
     <div class="modal fade" id="emailDeletionModal" tabindex="-1"
          aria-labelledby="emailDeletionModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -303,8 +315,10 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    {{-- 文言は初回設定待ち・利用中の両方に当てはまるようにする（設計書 S-0305-M02 参照）。
+                         状態で分岐させると保守対象が増えるため一本化 --}}
                     <p class="mb-0">
-                        このお客様はログインできなくなります。<br>
+                        登録されたメールアドレスが削除され、マイページを使えなくなります。<br>
                         クライアント情報とトレーニング記録は残ります。
                     </p>
                 </div>

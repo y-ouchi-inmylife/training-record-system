@@ -147,7 +147,8 @@ class ClientController extends Controller
 
         // 状態バッジ（4 状態＋期限切れ）判定に必要な派生値を先読みする。
         // 状態別ボタン（「登録案内を発行」／「登録案内を表示」／「登録案内を取消」／
-        // 「メールアドレスを削除」）の出し分けもこの派生値だけで判断できる。
+        // 「メールアドレスを削除」）の出し分けもこの派生値と `status` アクセサから判断する。
+        // 「メールアドレスを削除」は初回設定待ち・利用中の両方で出る（S-0305 の設計書参照）。
         $client->loadStatusData();
 
         $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
