@@ -30,8 +30,13 @@ class BackupDatabase extends Command
         Log::info('[BackupDatabase] データベースバックアップを開始します');
         $this->info('データベースバックアップを開始します...');
 
-        $dbName = env('DB_DATABASE');
-        $backupDir = rtrim((string) env('BACKUP_DIRECTORY'), "/\\");
+        // 既定接続の DB 設定を解決する（DB_CONNECTION を変更しても追従できるよう接続名はハードコードしない）
+        $connection = config('database.default');
+        $dbConfig = config("database.connections.{$connection}");
+
+        $dbName = $dbConfig['database'];
+        $backupDir = rtrim((string) config('backup.directory'), "/\\");
+        $encryptionKey = (string) config('backup.encryption_key');
         $timestamp = now()->format('Ymd_His');
         $filename = "{$dbName}_{$timestamp}.sql.enc";
         $localPath = $backupDir . DIRECTORY_SEPARATOR . $filename;
@@ -39,6 +44,9 @@ class BackupDatabase extends Command
         try {
             if ($backupDir === '' || ! is_dir($backupDir)) {
                 throw new RuntimeException("BACKUP_DIRECTORY が存在しません: {$backupDir}");
+            }
+            if ($encryptionKey === '') {
+                throw new RuntimeException('BACKUP_ENCRYPTION_KEY が設定されていません');
             }
 
             // 1. mysqldump → openssl で暗号化バックアップを作成
@@ -92,23 +100,26 @@ class BackupDatabase extends Command
      */
     private function dumpAndEncrypt(string $outputPath): void
     {
+        $connection = config('database.default');
+        $dbConfig = config("database.connections.{$connection}");
+
         $mysqldumpCmd = [
-            env('MYSQLDUMP_PATH'),
-            '-h' . env('DB_HOST'),
-            '-P' . env('DB_PORT'),
-            '-u' . env('DB_USERNAME'),
-            '-p' . env('DB_PASSWORD'),
+            (string) config('backup.mysqldump_path', 'mysqldump'),
+            '-h' . $dbConfig['host'],
+            '-P' . $dbConfig['port'],
+            '-u' . $dbConfig['username'],
+            '-p' . $dbConfig['password'],
             '--single-transaction',
             '--no-tablespaces',
-            env('DB_DATABASE'),
+            $dbConfig['database'],
         ];
 
         $opensslCmd = [
-            env('OPENSSL_PATH'),
+            (string) config('backup.openssl_path', 'openssl'),
             'enc',
             '-aes-256-cbc',
             '-pbkdf2',
-            '-pass', 'pass:' . env('BACKUP_ENCRYPTION_KEY'),
+            '-pass', 'pass:' . (string) config('backup.encryption_key'),
             '-out', $outputPath,
         ];
 

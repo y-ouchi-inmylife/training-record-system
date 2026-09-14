@@ -39,8 +39,13 @@ class RestoreDatabase extends Command
             return Command::FAILURE;
         }
 
-        $dbName = env('DB_DATABASE');
-        $backupDir = rtrim((string) env('BACKUP_DIRECTORY'), "/\\");
+        // 既定接続の DB 設定を解決する（DB_CONNECTION を変更しても追従できるよう接続名はハードコードしない）
+        $connection = config('database.default');
+        $dbConfig = config("database.connections.{$connection}");
+
+        $dbName = $dbConfig['database'];
+        $backupDir = rtrim((string) config('backup.directory'), "/\\");
+        $encryptionKey = (string) config('backup.encryption_key');
         $localPath = $backupDir . DIRECTORY_SEPARATOR . $filename;
 
         // 1. Y/N 確認
@@ -62,6 +67,9 @@ class RestoreDatabase extends Command
         try {
             if ($backupDir === '' || ! is_dir($backupDir)) {
                 throw new RuntimeException("BACKUP_DIRECTORY が存在しません: {$backupDir}");
+            }
+            if ($encryptionKey === '') {
+                throw new RuntimeException('BACKUP_ENCRYPTION_KEY が設定されていません');
             }
 
             // 2. バックアップ用ストレージからダウンロード
@@ -135,23 +143,26 @@ class RestoreDatabase extends Command
      */
     private function decryptAndRestore(string $inputPath): void
     {
+        $connection = config('database.default');
+        $dbConfig = config("database.connections.{$connection}");
+
         $opensslCmd = [
-            env('OPENSSL_PATH'),
+            (string) config('backup.openssl_path', 'openssl'),
             'enc',
             '-aes-256-cbc',
             '-pbkdf2',
             '-d',
-            '-pass', 'pass:' . env('BACKUP_ENCRYPTION_KEY'),
+            '-pass', 'pass:' . (string) config('backup.encryption_key'),
             '-in', $inputPath,
         ];
 
         $mysqlCmd = [
-            env('MYSQL_PATH'),
-            '-h' . env('DB_HOST'),
-            '-P' . env('DB_PORT'),
-            '-u' . env('DB_USERNAME'),
-            '-p' . env('DB_PASSWORD'),
-            env('DB_DATABASE'),
+            (string) config('backup.mysql_path', 'mysql'),
+            '-h' . $dbConfig['host'],
+            '-P' . $dbConfig['port'],
+            '-u' . $dbConfig['username'],
+            '-p' . $dbConfig['password'],
+            $dbConfig['database'],
         ];
 
         $opensslSpec = [
