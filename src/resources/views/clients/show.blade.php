@@ -81,52 +81,30 @@
 <div class="container">
     {{-- ヘッダーサマリー --}}
     <div class="mb-4">
-        {{-- 1段目: 操作ボタン群（右寄せ） --}}
+        {{-- 状態別ボタンの表示条件（設計書 S-0305「操作ボタンの配置」）。
+             基本 1 つだけだが、「メールアドレス登録待ち（期限内）」だけ「表示」＋「取消」の 2 つが並ぶ：
+              - メールアドレスなし              → 「登録案内を発行」（新規発行）
+              - メールアドレス登録待ち（期限内）→ 「登録案内を表示」＋「登録案内を取消」
+              - メールアドレス登録待ち（期限切れ）→ 「登録案内を発行」（期限切れは未発行と同じ扱い。取消は出さない）
+              - 初回設定待ち                    → なし
+              - 利用中                          → 「メールアドレスを削除」
+             状態判定は段階 4-2 で Client モデルに実装した仕組みを使う。
+             これらは 3 段目のメールアドレス列の状態バッジ隣で描画する
+             （下の 3 段目参照）。上部 1 段目にはクライアント自体の操作だけを置く。 --}}
+        @php
+            $status = $client->status;
+            $expired = $client->show_expired_note;
+            $showIssue = ($status === \App\Models\Client::STATUS_NO_EMAIL)
+                || ($status === \App\Models\Client::STATUS_AWAITING_EMAIL && $expired);
+            $showPrint = $status === \App\Models\Client::STATUS_AWAITING_EMAIL && !$expired;
+            // 取消は「表示」と同じ条件（登録待ち・期限内）
+            $showCancel = $showPrint;
+            $showDeleteEmail = $status === \App\Models\Client::STATUS_IN_USE;
+        @endphp
+        {{-- 1段目: 上部の操作ボタン列（右寄せ）。クライアント自体の操作だけ。
+             メールアドレス関連は 3 段目のバッジ隣に置く（設計書 S-0305「操作ボタンの配置」）。 --}}
         <div class="d-flex justify-content-end gap-2 mb-2">
             <a href="{{ route('clients.index') }}" class="btn btn-outline-secondary">&laquo; クライアント一覧に戻る</a>
-            {{-- 状態別ボタン（設計書 S-0305）。基本 1 つだけだが、
-                 「メールアドレス登録待ち（期限内）」だけ「表示」＋「取消」の 2 つが並ぶ：
-                  - メールアドレスなし              → 「マイページ登録案内を発行」（新規発行）
-                  - メールアドレス登録待ち（期限内）→ 「マイページ登録案内を表示」＋「マイページ登録案内を取消」
-                  - メールアドレス登録待ち（期限切れ）→ 「マイページ登録案内を発行」
-                    （期限切れは未発行と同じ扱い。取消は出さない）
-                  - 初回設定待ち                    → なし
-                  - 利用中                          → 「メールアドレスを削除」
-                 状態判定は段階 4-2 で Client モデルに実装した仕組みを使う --}}
-            @php
-                $status = $client->status;
-                $expired = $client->show_expired_note;
-                $showIssue = ($status === \App\Models\Client::STATUS_NO_EMAIL)
-                    || ($status === \App\Models\Client::STATUS_AWAITING_EMAIL && $expired);
-                $showPrint = $status === \App\Models\Client::STATUS_AWAITING_EMAIL && !$expired;
-                // 取消は「表示」と同じ条件（登録待ち・期限内）
-                $showCancel = $showPrint;
-                $showDeleteEmail = $status === \App\Models\Client::STATUS_IN_USE;
-            @endphp
-            @if($showIssue)
-                {{-- 押下でその場で発行し、詳細画面へ戻る（モーダルは開かない） --}}
-                <form method="POST" action="{{ route('client-email-registration-tokens.store', $client) }}"
-                      class="d-inline m-0">
-                    @csrf
-                    <button type="submit" class="btn btn-primary">マイページ登録案内を発行</button>
-                </form>
-            @endif
-            @if($showPrint)
-                <a href="{{ route('client-email-registration-tokens.print', $client) }}"
-                   class="btn btn-primary" target="_blank" rel="noopener">マイページ登録案内を表示</a>
-            @endif
-            @if($showCancel)
-                <button type="button" class="btn btn-outline-danger"
-                        data-bs-toggle="modal" data-bs-target="#tokenCancellationModal">
-                    マイページ登録案内を取消
-                </button>
-            @endif
-            @if($showDeleteEmail)
-                <button type="button" class="btn btn-outline-danger"
-                        data-bs-toggle="modal" data-bs-target="#emailDeletionModal">
-                    メールアドレスを削除
-                </button>
-            @endif
             <a href="{{ route('clients.edit', $client) }}" class="btn btn-primary">編集</a>
             @if(auth()->user()->isAdmin())
                 <form method="POST" action="{{ route('clients.destroy', $client) }}" class="d-inline"
@@ -175,11 +153,39 @@
             </div>
             <div class="col-md-4">
                 <div class="text-muted small">メールアドレス</div>
+                {{-- 値 → 状態バッジ → 状態別の操作ボタン、を横並び。狭い幅では折り返す。
+                     ボタンの分岐は上部で組み立てた $showIssue / $showPrint / $showCancel /
+                     $showDeleteEmail をそのまま使う（条件は変えていない）。
+                     設計書 S-0305「操作ボタンの配置」参照。 --}}
                 <div class="d-flex align-items-center flex-wrap gap-2" style="min-height: 1.5rem;">
                     @if($client->email)
                         <span>{{ $client->email }}</span>
                     @endif
                     <span class="badge {{ $badge['class'] }}">{{ $badge['label'] }}</span>
+                    @if($showIssue)
+                        {{-- 押下でその場で発行し、詳細画面へ戻る（モーダルは開かない） --}}
+                        <form method="POST" action="{{ route('client-email-registration-tokens.store', $client) }}"
+                              class="d-inline m-0">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-primary">登録案内を発行</button>
+                        </form>
+                    @endif
+                    @if($showPrint)
+                        <a href="{{ route('client-email-registration-tokens.print', $client) }}"
+                           class="btn btn-sm btn-primary" target="_blank" rel="noopener">登録案内を表示</a>
+                    @endif
+                    @if($showCancel)
+                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                data-bs-toggle="modal" data-bs-target="#tokenCancellationModal">
+                            登録案内を取消
+                        </button>
+                    @endif
+                    @if($showDeleteEmail)
+                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                data-bs-toggle="modal" data-bs-target="#emailDeletionModal">
+                            メールアドレスを削除
+                        </button>
+                    @endif
                 </div>
             </div>
         </div>
