@@ -3,15 +3,26 @@
 @section('title', 'マイページ登録のご案内')
 
 @section('content')
-{{-- ページ上部の「クライアント詳細に戻る」導線。
-     発行直後の同タブ遷移で開いたときに詳細画面へ戻れるようにするためのもの。
-     `d-print-none` で印刷時は非表示にする（お客様に渡す紙にトレーナー向けの
-     導線は不要）。以前「要素の表示・非表示切替に @media print を使わない」
-     と決めたが、画面には出して紙には出さないというトレーナー専用の要件で
-     代替手段がないため、この一点のみ例外として認めている
-     （設計書 S-0307 備考、api-design.md GET print エンドポイント参照）。 --}}
-<div class="print-back-link d-print-none mb-3">
-    <a href="{{ route('clients.show', $client) }}" class="btn btn-outline-secondary btn-sm">&laquo; クライアント詳細に戻る</a>
+{{-- ページ上部のトレーナー向け操作エリア。
+     「« 戻る」リンクと「文面をコピー」ボタンを横に並べる。狭い幅では
+     折り返す（`flex-wrap`）。どちらも画面表示のみで、`d-print-none` で
+     印刷時は非表示にする（お客様に渡す紙にトレーナー向けの導線・操作は
+     不要）。「@media print を要素の表示切替に使わない」方針に対し、この
+     操作エリアに含める要素だけを例外として認めている（設計書 S-0307
+     備考「操作エリアのまとめ方」参照）。
+     文面をコピーは有効な URL があるときだけ出すため `@if($url)` の内側に置く。
+     戻るリンクは URL の有無を問わず常に出す（条件分岐で出し分けない — 設計書参照）。 --}}
+<div class="print-actions d-print-none d-flex flex-wrap gap-2 mb-3">
+    <a href="{{ route('clients.show', $client) }}" class="btn btn-outline-secondary btn-sm">&laquo; 戻る</a>
+    @if($url)
+        {{-- 文面はコントローラで組み立て、data-copy-text で受け取る（画面の文字を
+             JavaScript で拾って組み立てる方式は取らない — 画面の見た目と文面を
+             独立させるため。設計書 S-0307「案内文面のコピー」参照）。 --}}
+        <button type="button"
+                class="btn btn-outline-primary btn-sm"
+                data-copy-registration-message
+                data-copy-text="{{ $copyText }}">文面をコピー</button>
+    @endif
 </div>
 
 @if($url)
@@ -28,20 +39,6 @@
     </p>
 
     <div class="print-url">{{ $url }}</div>
-
-    {{-- メール／LINE 送付用の「文面をコピー」ボタン。
-         文面はコントローラで組み立て、data-copy-text で受け取る（画面の文字を
-         JavaScript で拾って組み立てる方式は取らない — 画面の見た目と文面を
-         独立させるため）。`d-print-none` で印刷時は非表示にする（お客様に
-         渡す紙にトレーナー向けの操作は不要）。この画面の `d-print-none`
-         例外は「クライアント詳細に戻る」リンクに続き 2 件目
-         （設計書 S-0307「案内文面のコピー」参照）。--}}
-    <div class="print-copy d-print-none mb-3 text-center">
-        <button type="button"
-                class="btn btn-outline-primary btn-sm"
-                data-copy-registration-message
-                data-copy-text="{{ $copyText }}">文面をコピー</button>
-    </div>
 
     <hr class="print-divider">
 
@@ -62,9 +59,9 @@
         <p class="print-company">{{ config('app.client_portal_company') }}</p>
     @endif
 @else
-    {{-- 有効な URL なし。ページ上部の「クライアント詳細に戻る」リンクで
-         詳細画面へ戻れるため、専用の CTA ボタンは置かない
-         （両状態で戻り導線の見せ方を揃える）。--}}
+    {{-- 有効な URL なし。ページ上部の「« 戻る」リンクで詳細画面へ戻れるため、
+         専用の CTA ボタンは置かない（両状態で戻り導線の見せ方を揃える）。
+         この状態ではコピーボタンは出さないため、操作エリアには戻るリンクだけが残る。--}}
     <h1 class="print-title">発行済みのマイページ登録案内がありません</h1>
     <p class="print-lead">
         クライアント詳細画面から発行してください。
