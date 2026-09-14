@@ -162,43 +162,54 @@
             </div>
             <div class="col-md-4">
                 <div class="text-muted small">メールアドレス</div>
-                {{-- 値 → 状態バッジ → 状態別の操作ボタン、を横並び。狭い幅では折り返す。
+                {{-- 値 → 状態バッジ → 状態別の操作ボタン、を横並び。
+                     値・バッジは左寄せ、操作ボタンは右寄せにする（試行中）。
+                     状態でバッジ幅・ボタン数がまちまちなため、左詰めだと状態ごとに
+                     ボタンの位置がずれる。ボタン群を 1 つのラッパーでくくり ms-auto を
+                     付けることで、状態が変わってもボタンの右端が同じ位置に揃う。
+                     設計書 S-0305「操作ボタンの配置」参照（試行の経緯・値が空のときに
+                     離れて見える懸念・行を分ける案を採らなかった理由を記載）。
                      ボタンの分岐は上部で組み立てた $showIssue / $showPrint / $showCancel /
-                     $showDeleteEmail をそのまま使う（条件は変えていない）。
-                     設計書 S-0305「操作ボタンの配置」参照。 --}}
+                     $showDeleteEmail をそのまま使う（表示条件は変えていない）。
+                     狭い幅ではラッパーごと 2 行目に折り返し、2 行目でも右端に寄る。 --}}
                 <div class="d-flex align-items-center flex-wrap gap-2" style="min-height: 1.5rem;">
                     @if($client->email)
                         <span>{{ $client->email }}</span>
                     @endif
                     <span class="badge {{ $badge['class'] }}">{{ $badge['label'] }}</span>
-                    @if($showIssue)
-                        {{-- 押下でその場で発行し、詳細画面へ戻る（モーダルは開かない） --}}
-                        <form method="POST" action="{{ route('client-email-registration-tokens.store', $client) }}"
-                              class="d-inline m-0">
-                            @csrf
-                            <button type="submit" class="btn btn-sm btn-primary">登録案内を発行</button>
-                        </form>
-                    @endif
-                    @if($showPrint)
-                        <a href="{{ route('client-email-registration-tokens.print', $client) }}"
-                           class="btn btn-sm btn-primary" target="_blank" rel="noopener">登録案内を表示</a>
-                    @endif
-                    @if($showCancel)
-                        <button type="button" class="btn btn-sm btn-outline-danger"
-                                data-bs-toggle="modal" data-bs-target="#tokenCancellationModal">
-                            登録案内を取消
-                        </button>
-                    @endif
-                    @if($showDeleteEmail)
-                        {{-- ボタン名は「登録を削除」（旧「メールアドレスを削除」）。
-                             理由は screen-design.md S-0305「操作ボタンの配置」参照。
-                             モーダルのタイトル・本文・完了メッセージは変えていない（役割が
-                             違うため揃えない — 詳細は同設計書参照）。 --}}
-                        <button type="button" class="btn btn-sm btn-outline-danger"
-                                data-bs-toggle="modal" data-bs-target="#emailDeletionModal">
-                            登録を削除
-                        </button>
-                    @endif
+                    {{-- 状態別ボタン群のラッパー。ms-auto で右端に寄せる。
+                         ラッパー内は gap-2 のみ・flex-nowrap（デフォルト）で、
+                         2 つ並ぶとき（登録待ち期限内）は隣り合ったまま右端に寄る --}}
+                    <div class="d-flex align-items-center gap-2 ms-auto">
+                        @if($showIssue)
+                            {{-- 押下でその場で発行し、詳細画面へ戻る（モーダルは開かない） --}}
+                            <form method="POST" action="{{ route('client-email-registration-tokens.store', $client) }}"
+                                  class="d-inline m-0">
+                                @csrf
+                                <button type="submit" class="btn btn-sm btn-primary">登録案内を発行</button>
+                            </form>
+                        @endif
+                        @if($showPrint)
+                            <a href="{{ route('client-email-registration-tokens.print', $client) }}"
+                               class="btn btn-sm btn-primary" target="_blank" rel="noopener">登録案内を表示</a>
+                        @endif
+                        @if($showCancel)
+                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                    data-bs-toggle="modal" data-bs-target="#tokenCancellationModal">
+                                登録案内を取消
+                            </button>
+                        @endif
+                        @if($showDeleteEmail)
+                            {{-- ボタン名は「登録を削除」（旧「メールアドレスを削除」）。
+                                 理由は screen-design.md S-0305「操作ボタンの配置」参照。
+                                 モーダルのタイトル・本文・完了メッセージは変えていない（役割が
+                                 違うため揃えない — 詳細は同設計書参照）。 --}}
+                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                    data-bs-toggle="modal" data-bs-target="#emailDeletionModal">
+                                登録を削除
+                            </button>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
