@@ -987,10 +987,12 @@ erDiagram
 
 | ファイル名 | 内容 | 実行タイミング |
 |-----------|------|---------------|
-| `DatabaseSeeder.php` | 全シーダーの呼び出し元 | `php artisan db:seed` |
-| `TrainerSeeder.php` | 管理者アカウントの初期データ（7.2.1参照） | 初回セットアップ時 |
-| `TrainingTypeSeeder.php` | トレーニング内容マスタの初期データ（7.2.2参照） | 初回セットアップ時 |
-| `SystemSettingSeeder.php` | システム設定の初期データ（7.2.4参照） | 初回セットアップ時 |
+| `DatabaseSeeder.php` | 全シーダーの呼び出し元。**`TrainerSeeder` / `TrainingTypeSeeder` / `SystemSettingSeeder` の 3 種を順に実行する**（`ClientSeeder` は本番では実行しないため呼び出し対象外） | `php artisan db:seed` |
+| `TrainerSeeder.php` | 初期トレーナー **2 名**（システム管理者 1 名 + 管理者 1 名。詳細は 7.2.1 参照） | 本番／開発の初回セットアップ時 |
+| `TrainingTypeSeeder.php` | トレーニング内容マスタの初期データ（7.2.2参照） | 本番／開発の初回セットアップ時 |
+| `SystemSettingSeeder.php` | システム設定の初期データ（7.2.4参照） | 本番／開発の初回セットアップ時 |
+| `ClientSeeder.php` | 開発環境用のサンプルクライアント 1 件。**`DatabaseSeeder` からは呼ばれない**。開発環境でクライアントログインの動作確認等が必要なとき、`php artisan db:seed --class=ClientSeeder` として明示実行する | 開発時に必要に応じて |
+| `TrainingRecordDemoSeeder.php` | 開発・デモ用のトレーニング記録 18 件（クライアントポータル検証用）。`DatabaseSeeder` からは呼ばれない。**本番実行禁止** | 開発・デモ検証時のみ |
 
 ### 7-2. シードデータ（初期データ）の詳細
 
@@ -998,14 +1000,14 @@ erDiagram
 
 | login_id | display_order | name | role | password | 備考 |
 |---------|---------------|------|------|----------|------|
-| system_admin | 0 | システム管理者 | system_admin | InMyLife1965! | 開発用サンプル — システム管理者（設定操作のみ） |
-| admin | 1 | 管理トレーナー | admin | InMyLife1965! | 開発用サンプル — 管理トレーナー（全操作可能） |
-| staff | 2 | 一般トレーナー | staff | InMyLife1965! | 開発用サンプル — 一般トレーナー（閲覧・登録・編集） |
+| system_admin | 0 | システム管理者 | system_admin | シーダー内の固定値 | システム管理者（設定操作のみ）。開発・本番とも同じ固定値を使用（デプロイ後、必要ならシステム管理者本人が `password.change` から変更する） |
+| （トレーナー本人の login_id） | 1 | （トレーナー本人の氏名） | admin | ランダム生成（誰も知らない） | **管理者（トレーナー本人のアカウント）**。運用開始時にシステム管理者が `trainers.reset-password` からパスワードをリセットして本人に伝える |
 
-**注意事項（本番運用時）**:
-- 上記 3 アカウントは **開発環境専用のサンプル**。本番導入時は `TrainerSeeder` を実行せず、システム管理者アカウントを 1 つだけ手動で作成する想定
-- パスワード `InMyLife1965!` は **開発環境専用のハードコード値**。本番環境では絶対に使用しないこと
-- 本番では初回ログイン時にパスワード変更を促すため、`must_change_password = true` を設定する運用が望ましい
+**運用時の注意**:
+- **本番でも `TrainerSeeder` を実行する**。作成されるのはシステム管理者 1 名と管理者（トレーナー本人）1 名の 2 名
+- **管理者アカウントのパスワードはシーダーでランダム生成される**（`Illuminate\Support\Str::password()` を使用し `StrongPassword` ルールを通過した値のみ採用）。値は誰も知らないため、システム管理者が `trainers.reset-password` からリセットして本人に伝える運用
+- **`must_change_password` はシーダーで `false`** に設定するが、パスワードリセット時に `TrainerController::resetPassword` が自動で `true` に立てるため、本人の初回ログイン時にパスワード変更が求められる
+- system_admin のパスワードは開発・本番ともシーダーの固定値を使用する（`must_change_password = false` のままなので、必要ならシステム管理者本人が `password.change` から任意で変更する）
 
 #### DM-0200 training_types（トレーニング内容）
 
