@@ -899,7 +899,10 @@ document.addEventListener('DOMContentLoaded', function () {
             var dateKey = (m.created_at || '').split(' ')[0];
             if (dateKey !== prevDateKey) {
                 var headerCol = document.createElement('div');
-                headerCol.className = 'col-12';
+                // 一覧側（media-records/index.blade.php）と完全一致。
+                // col-12 は左右パディング（ガター）を維持するため、幅は w-100 で確定させる
+                // （md 以上で .row-cols-md-* > * に負けないよう !important で強制）。
+                headerCol.className = 'col-12 w-100';
                 var h6 = document.createElement('h6');
                 h6.className = 'text-muted mb-0';
                 h6.textContent = dateKey;

@@ -37,7 +37,11 @@
              インライン @php(...) を置くとパースが破綻する事故が過去にあったため排除）。 --}}
         <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-3">
             @foreach($mediaRecords->getCollection()->groupBy(fn($m) => $m->created_at->format('Y/m/d')) as $dateKey => $items)
-                <div class="col-12">
+                {{-- 見出しは 1 行フル幅で占有する。col-12 は左右パディング（ガター）を維持する
+                     ためで、幅は w-100 で確定させる。col-12 単体では md 以上のブレークポイントで
+                     .row-cols-md-* > *（メディアクエリ内・後定義）に負けて 1 カラム分の幅になる
+                     ため、.w-100 の !important で強制上書きする。 --}}
+                <div class="col-12 w-100">
                     <h6 class="text-muted mb-0">{{ $dateKey }}</h6>
                 </div>
                 @foreach($items as $media)
