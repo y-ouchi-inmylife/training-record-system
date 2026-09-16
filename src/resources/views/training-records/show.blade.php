@@ -85,27 +85,28 @@
             @else
                 <div class="media-scroll" id="mediaViewGrid">
                     @foreach($mediaItems as $m)
-                        @php($typeLabel = $m['type'] === 'photo' ? '写真' : '動画')
                         {{-- サムネイル下の表示名ラベルは出さない。属性値（alt / data-display-title）にも
                              メディアの表示名やファイル名を入れず、種別「写真」「動画」だけを載せる。
                              表示名はトレーナーの管理用で、メディア一覧（S-1302）で設定・参照する
                              （記録の文脈に名前を出すとお客様に見える名前だと誤解されるため）。
+                             typeLabel はコントローラから受け取る（Blade で @php(...) を書くと
+                             周囲の @php ... @endphp ブロックとパースが衝突する事故があったため）。
                              設計書 S-0403 セクション2 メディア参照。 --}}
                         <div class="card media-card"
                              data-media-id="{{ $m['id'] }}"
                              data-media-type="{{ $m['type'] }}"
                              data-conversion-status="{{ $m['conversionStatus'] }}"
-                             data-display-title="{{ $typeLabel }}"
+                             data-display-title="{{ $m['typeLabel'] }}"
                              style="cursor: pointer;" role="button" tabindex="0">
                             <div class="ratio ratio-1x1 bg-light d-flex align-items-center justify-content-center">
                                 @if($m['thumbnailUrl'])
-                                    <img src="{{ $m['thumbnailUrl'] }}" alt="{{ $typeLabel }}" class="img-fluid">
+                                    <img src="{{ $m['thumbnailUrl'] }}" alt="{{ $m['typeLabel'] }}" class="img-fluid">
                                     {{-- 動画のときだけ中央に▶をオーバーレイ（写真・プレースホルダには出さない） --}}
                                     @if($m['type'] === 'video')
                                         @include('media-records._video-play-overlay')
                                     @endif
                                 @else
-                                    <span class="text-muted">{{ $typeLabel }}</span>
+                                    <span class="text-muted">{{ $m['typeLabel'] }}</span>
                                 @endif
                             </div>
                         </div>

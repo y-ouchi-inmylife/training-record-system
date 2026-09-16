@@ -214,13 +214,19 @@ class TrainingRecordController extends Controller
         // 詳細画面メディアセクション用の表示データ（presigned サムネイル URL を含む）。
         $thumbnailExpiresAt = now()->addMinutes(MediaRecordController::PLAY_URL_EXPIRES_MINUTES);
         // displayTitle / hasTitle は渡さない。S-0403 詳細画面のメディアカードは
-        // 種別ラベル（写真／動画）を type から自前で組み立てて alt / data-display-title
-        // に載せる（設計書 S-0403 セクション2 メディア参照。メディアの表示名・ファイル名は
+        // 種別ラベル（写真／動画）を alt / data-display-title / aria-label に載せる
+        // （設計書 S-0403 セクション2 メディア参照。メディアの表示名・ファイル名は
         // 記録側の画面に露出させない方針）。
+        // typeLabel はコントローラで組み立てて渡す（Blade 側で `@php(...)` の
+        // インライン形式を使うと直前の `@php ... @endphp` ブロックとパースが
+        // 衝突する事故があったため、Blade 側の @php 使用を避けている）。
+        // photo / video の 2 分岐は DB の CHECK 制約と MediaRecord::TYPE_* 定数に
+        // 対応（他の値は入り得ない）。
         $mediaItems = $trainingRecord->mediaRecords->map(function ($m) use ($thumbnailExpiresAt) {
             return [
                 'id'               => $m->id,
                 'type'             => $m->type,
+                'typeLabel'        => $m->type === 'photo' ? '写真' : '動画',
                 'thumbnailUrl'     => $m->temporaryThumbnailUrl($thumbnailExpiresAt),
                 'conversionStatus' => $m->conversion_status,
             ];
@@ -241,9 +247,14 @@ class TrainingRecordController extends Controller
         // メディアセクションの初期データ（presigned サムネイル URL を含む）。
         // 5c-2 でモーダルから add 追加されるアイテムと同じ形を返す。
         $thumbnailExpiresAt = now()->addMinutes(MediaRecordController::PLAY_URL_EXPIRES_MINUTES);
-        // displayTitle は渡さない。編集画面グリッドの buildCard は種別ラベル（写真／動画）
-        // を type から自前で組み立てて img.alt に載せる（設計書 S-0401 / S-0404 セクション2
-        // メディア参照）。
+        // displayTitle も typeLabel も渡さない。編集画面グリッドの buildCard は
+        // 種別ラベル（写真／動画）を type から JS 側で組み立てて img.alt に載せる
+        // （設計書 S-0401 / S-0404 セクション2 メディア参照）。
+        // typeLabel をここに含めない理由：$mediaInitial は JS の mediaSelection.items
+        // に流し込まれる。items はアップロード完了経路（_upload-modal.blade.php から
+        // 流入する registeredMedia）と追加モーダル経路（buildModalCard 側の確定処理）
+        // からも add される。前者の生成元は変更禁止ファイルで typeLabel を含められ
+        // ないため、items 全体で type から組み立てる形に揃える。
         $mediaInitial = $trainingRecord->mediaRecords->map(function ($m) use ($thumbnailExpiresAt) {
             return [
                 'id' => $m->id,

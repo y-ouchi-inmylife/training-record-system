@@ -37,13 +37,16 @@ class TrainingRecordController extends Controller
         // 再生は /client/media/{id}/play を叩く（そちらでメディア単位の本人認可）。
         $thumbnailExpiresAt = now()->addMinutes(TrainerMediaRecordController::PLAY_URL_EXPIRES_MINUTES);
         // displayTitle は渡さない。お客様側の Blade は種別ラベル（写真／動画）を
-        // type から自前で組み立てて alt / aria-label / data-display-title に載せる
-        // （設計書 S-1404 セクション2 メディア参照。メディアの表示名・ファイル名は
-        // クライアント側に一切露出させない方針）。
+        // alt / aria-label / data-display-title に載せる（設計書 S-1404 セクション2
+        // メディア参照。メディアの表示名・ファイル名はクライアント側に一切露出させない方針）。
+        // typeLabel はコントローラで組み立てて渡す（Blade で `@php(...)` を使うと
+        // 直前の `@php ... @endphp` ブロックとパースが衝突する事故があったため、
+        // Blade 側の @php 使用を避けている）。photo / video の 2 分岐は DB CHECK 制約に対応。
         $mediaItems = $trainingRecord->mediaRecords->map(function ($m) use ($thumbnailExpiresAt) {
             return [
                 'id'               => $m->id,
                 'type'             => $m->type,
+                'typeLabel'        => $m->type === 'photo' ? '写真' : '動画',
                 'thumbnailUrl'     => $m->temporaryThumbnailUrl($thumbnailExpiresAt),
                 'conversionStatus' => $m->conversion_status,
             ];
