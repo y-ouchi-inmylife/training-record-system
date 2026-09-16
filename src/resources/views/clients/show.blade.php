@@ -238,11 +238,11 @@
                                 @endphp
                                 <a href="{{ route('training-records.show', $record) }}" class="record-block-link">
                                     <div class="record-block">
-                                        {{-- 1行目: 日付 + 時刻 + トレーニング内容バッジ + メディア件数
-                                             メディア件数は末尾に「メディア N 件」の素テキストで表示。
-                                             0 件のときは要素ごと非表示（担当行・本文行と同じ扱い。
-                                             設計書 S-0305 セクション2 タイムラインブロック 1 行目参照）。
-                                             件数は `withCount('mediaRecords')` で先読み済み（N+1 回避）。 --}}
+                                        {{-- 1行目: 日付 + 時刻 + トレーニング内容バッジ + 詳細
+                                             詳細（training_detail）はトレーニング内容バッジの直後に素の
+                                             <span> で表示。設計書 db-schema.md 上 VARCHAR(255) の 1 行
+                                             要約で、日付・時刻と同じ地色（record-block__line1 の既定色
+                                             #212529）を継承する。空欄なら要素ごと非表示。 --}}
                                         <div class="record-block__line1">
                                             <span @if($isFutureDate) class="text-primary" @endif>{{ $record->training_date->format('Y/m/d') }}</span>
                                             @if($record->training_time)
@@ -251,15 +251,25 @@
                                             @if($record->trainingType)
                                                 <span class="badge bg-light text-dark border">{{ $record->trainingType->name }}</span>
                                             @endif
-                                            @if($record->media_records_count > 0)
-                                                <span class="text-muted small">メディア{{ $record->media_records_count }}件</span>
+                                            @if($record->training_detail)
+                                                <span>{{ $record->training_detail }}</span>
                                             @endif
                                         </div>
                                         {{-- 2行目: 担当 --}}
                                         @if($trainerNames !== '')
                                             <div class="record-block__line2"><span class="text-muted">担当</span> {{ $trainerNames }}</div>
                                         @endif
-                                        {{-- 3行目: 記録本文 --}}
+                                        {{-- 3行目: メディア数（担当行と同じ「ラベル＋値」の構造）
+                                             件数は withCount('mediaRecords') で先読み済み（N+1 回避）。
+                                             見た目は担当行と揃えるため既存クラス record-block__line2 を
+                                             流用（このクラスの CSS は「補足情報行」の共通スタイル
+                                             color:#495057 / margin-top:4px / font-size:0.9em を提供して
+                                             おり、record-block__line3 と同じセレクタで一括定義されている）。
+                                             0 件のときは行ごと非表示（§2-4 に従い、担当行・本文行と同じ扱い）。 --}}
+                                        @if($record->media_records_count > 0)
+                                            <div class="record-block__line2"><span class="text-muted">メディア数</span> {{ $record->media_records_count }}</div>
+                                        @endif
+                                        {{-- 4行目: 記録本文 --}}
                                         @if($record->record_content)
                                             <div class="record-block__line3">{{ $record->record_content }}</div>
                                         @endif
