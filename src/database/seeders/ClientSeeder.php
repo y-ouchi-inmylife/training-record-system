@@ -17,6 +17,18 @@ use Illuminate\Database\Seeder;
  * - password は Client モデルの casts で 'hashed' 指定のため、プレーン文字列を渡せば自動 bcrypt 化される
  *
  * internal_id をユニークキーにして firstOrCreate で冪等に。重複実行しても増えない。
+ *
+ * ================================================================
+ * 【本番実行しないこと】
+ *
+ * このシーダーは DatabaseSeeder の $this->call([...]) に登録しない。
+ * 本番ではクライアントは登録案内フロー（`clients.email-registration-tokens.store` →
+ * S-1405 メールアドレス登録 → S-1403 初回設定）から入るため、シーダーで作らない。
+ * 開発環境でクライアントログインの動作確認等が必要なときのみ、明示指定で実行する：
+ *
+ *     php artisan db:seed --class=ClientSeeder
+ *
+ * ================================================================
  */
 class ClientSeeder extends Seeder
 {
