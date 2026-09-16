@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientInitialSetupRequest;
+use App\Mail\ClientSetupCompletedMail;
 use App\Models\ClientLoginLinkToken;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * クライアント初回設定コントローラ（S-1403）
@@ -76,32 +79,65 @@ class InitialSetupController extends Controller
 
         $validated = $request->validated();
 
-        DB::transaction(function () use ($validated, $tokenRecord) {
-            // パスワード・氏名・連絡先を更新（email は S-1405 で登録済みのため触らない）
-            $tokenRecord->client->update([
-                'password' => $validated['password'],
-                'last_name' => $validated['last_name'],
-                'first_name' => $validated['first_name'] ?? null,
-                'last_name_kana' => $validated['last_name_kana'] ?? null,
-                'first_name_kana' => $validated['first_name_kana'] ?? null,
-                'phone1' => $validated['phone1'],
-                'phone2' => $validated['phone2'] ?? null,
-                'postal_code' => $validated['postal_code'],
-                'address1' => $validated['address1'],
-                'address2' => $validated['address2'],
-                'address3' => $validated['address3'],
-                'address4' => $validated['address4'] ?? null,
+        // 案内するログインURL。現行リクエストのホストに追従させるため `url('/')` を使う
+        // （本番の CLIENT_HOST 制約下では `https://mikan.inmylife1965.com`、開発環境では
+        // localhost 等が入る）。`route('client-portal.login')` を使わない理由は、お客様に
+        // 案内する URL としてルート直下の方が短く、ログイン画面へは / から自動で誘導される
+        // ため。設計書：client-portal-design-plan.md §6-2 / 本コミット同梱の指示書 2-1。
+        //
+        // `url('/')` は末尾スラッシュを付けずに返る（Laravel 12 での実測。例：
+        // `http://localhost` / `https://mikan.inmylife1965.com`）。本文には
+        // 「ホスト + '/'」の形で見せたいため（トップ = ログイン画面に落ちることをお客様が
+        // 一目で読み取れるようにするため）、`rtrim` してから明示的に '/' を付ける。
+        $loginUrl = rtrim(url('/'), '/') . '/';
+
+        try {
+            DB::transaction(function () use ($validated, $tokenRecord, $loginUrl) {
+                // パスワード・氏名・連絡先を更新（email は S-1405 で登録済みのため触らない）
+                $tokenRecord->client->update([
+                    'password' => $validated['password'],
+                    'last_name' => $validated['last_name'],
+                    'first_name' => $validated['first_name'] ?? null,
+                    'last_name_kana' => $validated['last_name_kana'] ?? null,
+                    'first_name_kana' => $validated['first_name_kana'] ?? null,
+                    'phone1' => $validated['phone1'],
+                    'phone2' => $validated['phone2'] ?? null,
+                    'postal_code' => $validated['postal_code'],
+                    'address1' => $validated['address1'],
+                    'address2' => $validated['address2'],
+                    'address3' => $validated['address3'],
+                    'address4' => $validated['address4'] ?? null,
+                ]);
+
+                // ログイン用リンクを使い切りにする
+                $tokenRecord->update(['is_used' => true]);
+
+                // 対応するメールアドレス登録用トークン（未使用のもの）も使い切りにする。
+                // 全体の期限管理はこのタイミングで終了する。
+                $tokenRecord->client->emailRegistrationTokens()
+                    ->where('is_used', false)
+                    ->update(['is_used' => true]);
+
+                // 登録完了メールを登録アドレス宛に送信する。失敗時は全ロールバックし、
+                // ログイン用リンクは未使用のまま残る（同じ URL からやり直せる）。
+                // Client::update() は email に触らないため、更新前後で $client->email は同値。
+                Mail::to($tokenRecord->client->email)
+                    ->send(new ClientSetupCompletedMail($tokenRecord->client, $loginUrl));
+            });
+        } catch (\Throwable $e) {
+            // 全ロールバック済み。既存 5 通の Mailable 送信箇所はログを出していないが、
+            // 送信失敗がお客様側からは「初回設定が失敗しました」としか見えないため、
+            // 原因追跡のために [ClientSetupCompletedMail] のログを残す。メールアドレスは
+            // 個人情報のためログに残さず、client_id で追えるようにする。
+            Log::error('[ClientSetupCompletedMail] 初回設定完了メールの送信に失敗し、初回設定を全ロールバックしました: ' . $e->getMessage(), [
+                'client_id' => $tokenRecord->client_id,
+                'exception' => $e,
             ]);
 
-            // ログイン用リンクを使い切りにする
-            $tokenRecord->update(['is_used' => true]);
-
-            // 対応するメールアドレス登録用トークン（未使用のもの）も使い切りにする。
-            // 全体の期限管理はこのタイミングで終了する。
-            $tokenRecord->client->emailRegistrationTokens()
-                ->where('is_used', false)
-                ->update(['is_used' => true]);
-        });
+            return back()
+                ->withInput()
+                ->withErrors(['setup' => '初回設定を完了できませんでした。時間を置いて再度お試しください。改善しない場合は担当のトレーナーにご連絡ください。']);
+        }
 
         // 自動ログインは GET で完了している。そのままダッシュボードへ。
         return redirect()->route('client-portal.dashboard')
