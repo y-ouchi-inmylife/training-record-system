@@ -28,31 +28,42 @@
     @else
         {{-- レスポンシブグリッド（2列〜6列）。
              サムネイル生成済み（thumbnail_url あり）なら .ratio 内に <img>、
-             それ以外（未生成・生成中・失敗・3b-2 未対応の動画）は今まで通りプレースホルダ表示。 --}}
+             それ以外（未生成・生成中・失敗・3b-2 未対応の動画）は今まで通りプレースホルダ表示。
+
+             日付グループ見出し：登録日時の日付が変わるところに Y/m/d の見出しを 1 行フル幅で挿入する
+             （設計書 S-1302 メディア一覧参照）。実装は Paginator の getCollection() を groupBy して
+             2 段の @foreach にする。$mediaRecords は Paginator のまま維持し、下の $mediaRecords->links()
+             を無傷にする。@php ディレクティブは一切使わない（既存 @php ... @endphp ブロックの直後に
+             インライン @php(...) を置くとパースが破綻する事故が過去にあったため排除）。 --}}
         <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-3">
-            @foreach($mediaRecords as $media)
-                @php($thumbnailUrl = $mediaModalData[$media->id]['thumbnail_url'] ?? null)
-                <div class="col">
-                    <div class="card h-100 media-card" data-media-id="{{ $media->id }}" style="cursor: pointer;" role="button" tabindex="0">
-                        <div class="ratio ratio-1x1 bg-light d-flex align-items-center justify-content-center">
-                            @if($thumbnailUrl)
-                                <img src="{{ $thumbnailUrl }}" alt="{{ $media->display_title }}" class="img-fluid">
-                                {{-- 動画のときだけ中央に▶をオーバーレイ（写真・プレースホルダには出さない） --}}
-                                @if($media->type === \App\Models\MediaRecord::TYPE_VIDEO)
-                                    @include('media-records._video-play-overlay')
+            @foreach($mediaRecords->getCollection()->groupBy(fn($m) => $m->created_at->format('Y/m/d')) as $dateKey => $items)
+                <div class="col-12">
+                    <h6 class="text-muted mb-0">{{ $dateKey }}</h6>
+                </div>
+                @foreach($items as $media)
+                    <div class="col">
+                        <div class="card h-100 media-card" data-media-id="{{ $media->id }}" style="cursor: pointer;" role="button" tabindex="0">
+                            <div class="ratio ratio-1x1 bg-light d-flex align-items-center justify-content-center">
+                                @if($mediaModalData[$media->id]['thumbnail_url'] ?? null)
+                                    <img src="{{ $mediaModalData[$media->id]['thumbnail_url'] }}" alt="{{ $media->display_title }}" class="img-fluid">
+                                    {{-- 動画のときだけ中央に▶をオーバーレイ（写真・プレースホルダには出さない） --}}
+                                    @if($media->type === \App\Models\MediaRecord::TYPE_VIDEO)
+                                        @include('media-records._video-play-overlay')
+                                    @endif
+                                @else
+                                    <span class="text-muted">
+                                        {{ $media->type === \App\Models\MediaRecord::TYPE_PHOTO ? '写真' : '動画' }}
+                                    </span>
                                 @endif
-                            @else
-                                <span class="text-muted">
-                                    {{ $media->type === \App\Models\MediaRecord::TYPE_PHOTO ? '写真' : '動画' }}
-                                </span>
-                            @endif
-                        </div>
-                        <div class="card-body p-2 small">
-                            <div class="text-muted">{{ $media->created_at->format('Y/m/d H:i') }}</div>
-                            <div class="text-truncate" title="{{ $media->display_title }}">@if(empty($media->title))({{ $media->display_title }})@else{{ $media->display_title }}@endif</div>
+                            </div>
+                            <div class="card-body p-2 small">
+                                {{-- 時刻のみ（日付は上の日付見出しに集約） --}}
+                                <div class="text-muted">{{ $media->created_at->format('H:i') }}</div>
+                                <div class="text-truncate" title="{{ $media->display_title }}">@if(empty($media->title))({{ $media->display_title }})@else{{ $media->display_title }}@endif</div>
+                            </div>
                         </div>
                     </div>
-                </div>
+                @endforeach
             @endforeach
         </div>
 

@@ -885,7 +885,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderGrid(items) {
         grid.innerHTML = '';
-        items.forEach(function (m) { grid.appendChild(buildModalCard(m)); });
+        // 日付グループ見出し（設計書 S-0401-M02 / S-0404-M01 参照）。
+        // items は API から登録日時降順で来ており、日付が変わるところに Y/m/d の
+        // 見出しを 1 行フル幅（col-12）で挟む。ページ跨ぎで同じ日付の見出しが
+        // 複数ページに出るのは許容仕様（各ページ先頭で必ず見出しが出る）。
+        // 日付の取り出しは split(' ')[0] を使う：
+        //   - created_at はサーバ側で 'Y/m/d H:i' 形式（例：'2026/09/16 12:37'）
+        //   - substring(0, 10) はフォーマット依存でフォーマット変更時に静かに壊れる
+        //   - split(' ')[0] は「時刻の手前が日付」の意図がコードで読み取りやすく、
+        //     時刻の桁数が変わっても、時刻が抜けたフォーマットにも対応できる
+        var prevDateKey = null;
+        items.forEach(function (m) {
+            var dateKey = (m.created_at || '').split(' ')[0];
+            if (dateKey !== prevDateKey) {
+                var headerCol = document.createElement('div');
+                headerCol.className = 'col-12';
+                var h6 = document.createElement('h6');
+                h6.className = 'text-muted mb-0';
+                h6.textContent = dateKey;
+                headerCol.appendChild(h6);
+                grid.appendChild(headerCol);
+                prevDateKey = dateKey;
+            }
+            grid.appendChild(buildModalCard(m));
+        });
     }
 
     // 動画サムネイルの中央にオーバーレイする▶（半透明の黒丸 + 白い三角）を返す。
