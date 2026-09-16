@@ -36,11 +36,14 @@ class TrainingRecordController extends Controller
         // メディアグリッド用の表示データ（presigned サムネイル URL を含む）。
         // 再生は /client/media/{id}/play を叩く（そちらでメディア単位の本人認可）。
         $thumbnailExpiresAt = now()->addMinutes(TrainerMediaRecordController::PLAY_URL_EXPIRES_MINUTES);
+        // displayTitle は渡さない。お客様側の Blade は種別ラベル（写真／動画）を
+        // type から自前で組み立てて alt / aria-label / data-display-title に載せる
+        // （設計書 S-1404 セクション2 メディア参照。メディアの表示名・ファイル名は
+        // クライアント側に一切露出させない方針）。
         $mediaItems = $trainingRecord->mediaRecords->map(function ($m) use ($thumbnailExpiresAt) {
             return [
                 'id'               => $m->id,
                 'type'             => $m->type,
-                'displayTitle'     => $m->display_title,
                 'thumbnailUrl'     => $m->temporaryThumbnailUrl($thumbnailExpiresAt),
                 'conversionStatus' => $m->conversion_status,
             ];

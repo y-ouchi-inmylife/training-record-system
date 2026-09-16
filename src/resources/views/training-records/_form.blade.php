@@ -613,12 +613,16 @@ document.addEventListener('DOMContentLoaded', function () {
         removeWrap.appendChild(removeBtn);
         card.appendChild(removeWrap);
 
+        // 種別ラベル（img.alt に載せる。名前を出さない方針のため種別だけを入れる。
+        // 設計書 S-0401 / S-0404 セクション2 メディア参照）
+        const typeLabel = item.type === 'photo' ? '写真' : (item.type === 'video' ? '動画' : '');
+
         const ratio = document.createElement('div');
         ratio.className = 'ratio ratio-1x1 bg-light d-flex align-items-center justify-content-center';
         if (item.thumbnailUrl) {
             const img = document.createElement('img');
             img.src = item.thumbnailUrl;
-            img.alt = item.displayTitle || '';
+            img.alt = typeLabel;
             img.className = 'img-fluid';
             ratio.appendChild(img);
             // 動画のときだけ中央に▶オーバーレイ（写真・プレースホルダには付けない）
@@ -628,19 +632,13 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             const span = document.createElement('span');
             span.className = 'text-muted';
-            span.textContent = item.type === 'photo' ? '写真' : (item.type === 'video' ? '動画' : '');
+            span.textContent = typeLabel;
             ratio.appendChild(span);
         }
         card.appendChild(ratio);
 
-        const body = document.createElement('div');
-        body.className = 'card-body p-2 small';
-        const titleDiv = document.createElement('div');
-        titleDiv.className = 'text-truncate';
-        titleDiv.title = item.displayTitle || '';
-        titleDiv.textContent = item.displayTitle || '';
-        body.appendChild(titleDiv);
-        card.appendChild(body);
+        // サムネイル下の表示名ラベルは出さない（設計書 S-0401 / S-0404）。
+        // card-body ごと生成しない — カード内はサムネイル（ratio）のみで完結する。
 
         col.appendChild(card);
         return col;
@@ -734,8 +732,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 段2 新規登録して追加 → メディア登録モーダル（S-1302-M02）を開く。
     // 完了後、登録メディアを mediaSelection.add で仮状態紐づけ（[更新]で確定）。
-    // ※ partial の API は snake_case (thumbnail_url/display_title/conversion_status)、
+    // ※ partial の API は snake_case (thumbnail_url/conversion_status)、
     //   mediaSelection.items は camelCase。意図的にここで変換する。
+    //   display_title は編集画面グリッドの buildCard で使わなくなったため
+    //   items に含めない（設計書 S-0401 / S-0404 セクション2 メディア参照）。
     document.getElementById('mediaUploadOpenBtn')?.addEventListener('click', function () {
         window.mediaUploadModal.open({
             onComplete: function (registeredMedia) {
@@ -743,7 +743,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     window.mediaSelection.add({
                         id: m.id,
                         type: m.type,
-                        displayTitle: m.display_title,
                         thumbnailUrl: m.thumbnail_url,
                         conversionStatus: m.conversion_status,
                     });
@@ -820,9 +819,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // 確定 [追加]: 選択中メディアを mediaSelection.add に流す。
-    // ※ available-media JSON は snake_case (thumbnail_url / display_title / conversion_status)、
-    //    mediaSelection.items は camelCase (thumbnailUrl / displayTitle / conversionStatus) のため、
+    // ※ available-media JSON は snake_case (thumbnail_url / conversion_status)、
+    //    mediaSelection.items は camelCase (thumbnailUrl / conversionStatus) のため、
     //    API のキー名が異なる。意図的にここで変換する。
+    //    display_title は編集画面グリッドの buildCard で使わなくなったため
+    //    items に含めない（設計書 S-0401 / S-0404 セクション2 メディア参照）。
     confirmBtn.addEventListener('click', function () {
         currentPageData
             .filter(function (m) { return selectedIds.has(m.id); })
@@ -830,7 +831,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 window.mediaSelection.add({
                     id: m.id,
                     type: m.type,
-                    displayTitle: m.display_title,
                     thumbnailUrl: m.thumbnail_url,
                     conversionStatus: m.conversion_status,
                 });

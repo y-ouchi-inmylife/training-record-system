@@ -213,12 +213,14 @@ class TrainingRecordController extends Controller
 
         // 詳細画面メディアセクション用の表示データ（presigned サムネイル URL を含む）。
         $thumbnailExpiresAt = now()->addMinutes(MediaRecordController::PLAY_URL_EXPIRES_MINUTES);
+        // displayTitle / hasTitle は渡さない。S-0403 詳細画面のメディアカードは
+        // 種別ラベル（写真／動画）を type から自前で組み立てて alt / data-display-title
+        // に載せる（設計書 S-0403 セクション2 メディア参照。メディアの表示名・ファイル名は
+        // 記録側の画面に露出させない方針）。
         $mediaItems = $trainingRecord->mediaRecords->map(function ($m) use ($thumbnailExpiresAt) {
             return [
                 'id'               => $m->id,
                 'type'             => $m->type,
-                'displayTitle'     => $m->display_title,
-                'hasTitle'         => filled($m->title),
                 'thumbnailUrl'     => $m->temporaryThumbnailUrl($thumbnailExpiresAt),
                 'conversionStatus' => $m->conversion_status,
             ];
@@ -239,11 +241,13 @@ class TrainingRecordController extends Controller
         // メディアセクションの初期データ（presigned サムネイル URL を含む）。
         // 5c-2 でモーダルから add 追加されるアイテムと同じ形を返す。
         $thumbnailExpiresAt = now()->addMinutes(MediaRecordController::PLAY_URL_EXPIRES_MINUTES);
+        // displayTitle は渡さない。編集画面グリッドの buildCard は種別ラベル（写真／動画）
+        // を type から自前で組み立てて img.alt に載せる（設計書 S-0401 / S-0404 セクション2
+        // メディア参照）。
         $mediaInitial = $trainingRecord->mediaRecords->map(function ($m) use ($thumbnailExpiresAt) {
             return [
                 'id' => $m->id,
                 'type' => $m->type,
-                'displayTitle' => $m->display_title,
                 'thumbnailUrl' => $m->temporaryThumbnailUrl($thumbnailExpiresAt),
                 'conversionStatus' => $m->conversion_status,
             ];

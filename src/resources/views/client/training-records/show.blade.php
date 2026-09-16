@@ -56,21 +56,25 @@
             <p class="eyebrow" id="c-media-heading">写真と動画</p>
             <div class="c-session-media c-session-media--hero" data-media-grid>
                 @foreach($mediaItems as $m)
+                    @php($typeLabel = $m['type'] === 'photo' ? '写真' : '動画')
+                    {{-- 属性値にメディアの表示名・ファイル名は入れない（設計書 S-1404 セクション2 メディア）。
+                         alt / aria-label / data-display-title はいずれも種別（写真／動画）のみ。
+                         data-display-title は JS 経由で Lightbox の img.alt にセットされる。 --}}
                     <div class="c-media-thumb"
                          data-media-id="{{ $m['id'] }}"
                          data-media-type="{{ $m['type'] }}"
                          data-conversion-status="{{ $m['conversionStatus'] }}"
-                         data-display-title="{{ $m['displayTitle'] }}"
+                         data-display-title="{{ $typeLabel }}"
                          role="button"
                          tabindex="0"
-                         aria-label="{{ $m['type'] === 'photo' ? '写真を開く' : '動画を開く' }}: {{ $m['displayTitle'] }}">
+                         aria-label="{{ $m['type'] === 'photo' ? '写真を開く' : '動画を開く' }}">
                         @if($m['thumbnailUrl'])
-                            <img src="{{ $m['thumbnailUrl'] }}" alt="{{ $m['displayTitle'] }}">
+                            <img src="{{ $m['thumbnailUrl'] }}" alt="{{ $typeLabel }}">
                             @if($m['type'] === 'video')
                                 @include('media-records._video-play-overlay')
                             @endif
                         @else
-                            <span class="c-media-placeholder">{{ $m['type'] === 'photo' ? '写真' : '動画' }}</span>
+                            <span class="c-media-placeholder">{{ $typeLabel }}</span>
                         @endif
                         @if($m['conversionStatus'] !== 'not_required' && $m['conversionStatus'] !== 'done')
                             <span class="c-media-badge">準備中</span>

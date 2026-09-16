@@ -41,6 +41,10 @@ class DashboardController extends Controller
             TrainerMediaRecordController::PLAY_URL_EXPIRES_MINUTES
         );
 
+        // displayTitle は渡さない。お客様側の Blade は種別ラベル（写真／動画）を
+        // type から自前で組み立てて alt / aria-label / data-display-title に載せる
+        // （設計書 S-1402 メディアギャラリー節参照。メディアの表示名・ファイル名は
+        // クライアント側に一切露出させない方針）。
         $sessions = $records->map(function ($rec) use ($thumbnailExpiresAt) {
             return [
                 'record' => $rec,
@@ -48,7 +52,6 @@ class DashboardController extends Controller
                     return [
                         'id'               => $m->id,
                         'type'             => $m->type,
-                        'displayTitle'     => $m->display_title,
                         'thumbnailUrl'     => $m->temporaryThumbnailUrl($thumbnailExpiresAt),
                         'conversionStatus' => $m->conversion_status,
                     ];
