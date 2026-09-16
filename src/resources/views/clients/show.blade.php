@@ -238,7 +238,11 @@
                                 @endphp
                                 <a href="{{ route('training-records.show', $record) }}" class="record-block-link">
                                     <div class="record-block">
-                                        {{-- 1行目: 日付 + 時刻 + トレーニング内容バッジ --}}
+                                        {{-- 1行目: 日付 + 時刻 + トレーニング内容バッジ + メディア件数
+                                             メディア件数は末尾に「メディア N 件」の素テキストで表示。
+                                             0 件のときは要素ごと非表示（担当行・本文行と同じ扱い。
+                                             設計書 S-0305 セクション2 タイムラインブロック 1 行目参照）。
+                                             件数は `withCount('mediaRecords')` で先読み済み（N+1 回避）。 --}}
                                         <div class="record-block__line1">
                                             <span @if($isFutureDate) class="text-primary" @endif>{{ $record->training_date->format('Y/m/d') }}</span>
                                             @if($record->training_time)
@@ -246,6 +250,9 @@
                                             @endif
                                             @if($record->trainingType)
                                                 <span class="badge bg-light text-dark border">{{ $record->trainingType->name }}</span>
+                                            @endif
+                                            @if($record->media_records_count > 0)
+                                                <span class="text-muted small">メディア{{ $record->media_records_count }}件</span>
                                             @endif
                                         </div>
                                         {{-- 2行目: 担当 --}}
