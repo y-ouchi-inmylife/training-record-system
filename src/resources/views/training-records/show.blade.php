@@ -116,10 +116,10 @@
         </div>
     </div>
 
-    {{-- トレーニング記録 --}}
+    {{-- トレーナーからのノート --}}
     <div class="card mb-3">
         <div class="card-header">
-            <h6 class="mb-0">トレーニング記録 <span class="text-muted">（事実を客観的に記録）</span></h6>
+            <h6 class="mb-0">トレーナーからのノート</h6>
         </div>
         <div class="card-body">
             @if($trainingRecord->record_content)
