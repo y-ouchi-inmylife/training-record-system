@@ -305,7 +305,7 @@ erDiagram
 | trainer2_id | BIGINT UNSIGNED | YES | NULL | 担当2のトレーナーのID（外部キー） |
 | training_type_id | BIGINT UNSIGNED | YES | NULL | トレーニング内容マスタのID（外部キー） |
 | training_detail | VARCHAR(255) | YES | NULL | トレーニング内容の詳細（主旨を1行で要約） |
-| record_content | TEXT | YES | NULL | トレーニング記録（事実を客観的に記録、クライアント開示前提） |
+| record_content | TEXT | YES | NULL | トレーナーからのノート（事実を客観的に記録、クライアント開示前提） |
 | impression | TEXT | YES | NULL | 所感（トレーナー間共有、クライアント非開示） |
 | created_at | TIMESTAMP | YES | NULL | 作成日時 |
 | updated_at | TIMESTAMP | YES | NULL | 更新日時 |

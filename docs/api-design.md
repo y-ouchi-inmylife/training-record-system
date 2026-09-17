@@ -534,7 +534,7 @@ POST /clients と同じ項目。ただし internal_id は登録時と異なり�
 | training_detail | string | | nullable, string, max:255 | トレーニング内容の詳細 |
 | trainer1_id | integer | ● | required, exists:trainers,id | 担当1 |
 | trainer2_id | integer | | nullable, exists:trainers,id, different:trainer1_id | 担当2（担当1と異なること） |
-| record_content | text | | nullable, string | トレーニング記録 |
+| record_content | text | | nullable, string | トレーナーからのノート |
 | impression | text | | nullable, string | 所感 |
 | media_record_ids | array | | nullable, array | この記録に紐づけるメディアのID配列。**配列の順序が表示順**となる。空配列・未送信は紐づけなし |
 | media_record_ids.* | integer | | integer, distinct, exists:media_records,id | 各メディアID（重複不可、実在すること） |
@@ -1505,7 +1505,7 @@ POST /training-records に以下を追加する。
 
 **処理**:
 - 対象トレーニング記録が、ログイン中のクライアント自身のもの（記録の client_id がログイン中クライアントと一致）であることを確認する。本人のものでない場合は403
-- 記録の詳細（基本情報・トレーニング記録）を view に渡す。所感などクライアント非開示の情報は渡さない
+- 記録の詳細（基本情報・ノート）を view に渡す。所感などクライアント非開示の情報は渡さない
 - この記録に紐づくメディアを sort_order 順（昇順）で取得し、各メディアのサムネイルの署名付きURLを発行して view に渡す（閲覧用。再生は `GET /client-portal/media/{id}/play` を利用する）。本人の記録に紐づくメディアであることは記録レベルの本人認可により保証されるため、サムネイル発行に個別の認可は要しない
 
 **レスポンス**:
