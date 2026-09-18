@@ -16,6 +16,34 @@
          将来 Client に dog リレーションが入ったら hidden を外して差し込む。 --}}
     <div class="c-dog-placeholder" hidden></div>
 
+    {{-- 体重推移（設計書 S-1402 セクション「体重推移」・6-15-14、段階③）。
+         トレーニーごとに折れ線グラフを 1 枚描く。データはコントローラで
+         組み立て、`data-measurement-chart` 属性に JSON で載せる（既存の
+         `qrcode` が `data-qr-url` を使うのと同じ流儀）。線の色は client.scss
+         の :root で定義されている --c-brand-bright を JS 側で読み取る
+         （ハードコードしない）。 --}}
+    @if(!empty($weightCharts))
+        <section class="c-section" aria-labelledby="c-weight-heading">
+            <p class="eyebrow" id="c-weight-heading">体重推移</p>
+            @foreach($weightCharts as $chart)
+                <article class="c-session" style="margin-bottom: 1rem;">
+                    <div class="c-session-body">
+                        <div class="c-session-content">
+                            <h2 class="mb-2" style="font-size: 1.1rem;">{{ $chart['name'] }}ちゃんの体重推移</h2>
+                            <div style="position: relative; height: 240px;">
+                                <canvas data-measurement-chart="{{ json_encode([
+                                    'labels' => $chart['labels'],
+                                    'tooltips' => $chart['tooltips'],
+                                    'datasets' => $chart['datasets'],
+                                ], JSON_UNESCAPED_UNICODE) }}"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            @endforeach
+        </section>
+    @endif
+
     @if($sessions->isEmpty())
         {{-- 空状態（記録0件）— 設計書 §4-2。記録の種別にトレーニング以外
              （事前相談等）があるためラベル・本文とも「記録」（設計書 §6）。
@@ -195,6 +223,11 @@
 
 {{-- 原寸ライトボックス(写真拡大・動画再生) — S-1404 と共用の汎用 partial --}}
 @include('media-records._lightbox')
+
+{{-- 体重推移グラフ用スクリプト（Chart.js を npm でビルドに含める。段階③）。 --}}
+@if(!empty($weightCharts))
+    @vite('resources/js/measurement-chart.js')
+@endif
 @endsection
 
 @push('scripts')

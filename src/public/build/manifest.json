@@ -25,6 +25,12 @@
     "src": "resources/js/copy-registration-message.js",
     "isEntry": true
   },
+  "resources/js/measurement-chart.js": {
+    "file": "assets/measurement-chart-mJCVBWGw.js",
+    "name": "measurement-chart",
+    "src": "resources/js/measurement-chart.js",
+    "isEntry": true
+  },
   "resources/js/qr-code.js": {
     "file": "assets/qr-code-BgIumkyX.js",
     "name": "qr-code",

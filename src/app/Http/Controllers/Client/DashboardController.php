@@ -10,7 +10,8 @@ use Illuminate\Contracts\View\View;
  * クライアント閲覧機能（柱2）— ダッシュボードコントローラ
  *
  * ログイン中のクライアント自身のトレーニング記録を、セッションカード・
- * フィードとしてビューに渡す。
+ * フィードとしてビューに渡す。段階③でトレーニーの体重推移グラフ用の
+ * データも組み立てて渡す（設計書 §S-1402 の「体重推移」節、6-15-14）。
  *
  * 設計書 §8-1-1 の方針に従う：
  * - 既存クエリはそのまま（eager load / withCount / training_date 降順は不変）
@@ -23,11 +24,13 @@ class DashboardController extends Controller
 {
     public function index(): View
     {
+        $client = auth('client')->user();
+
         // 自分の記録を日付の新しい順（降順）で取得。
         // 一覧表示に使うリレーション（担当1・担当2）に加え、
         // メディアもカード内に埋め込むため mediaRecords を eager load（N+1回避）。
         // updatedBy はクライアント非表示のため意図的にロードしない。
-        $records = auth('client')->user()
+        $records = $client
             ->trainingRecords()
             ->with(['trainer1', 'trainer2', 'mediaRecords'])
             ->withCount('mediaRecords')
@@ -62,6 +65,112 @@ class DashboardController extends Controller
             ];
         });
 
-        return view('client.dashboard', compact('sessions'));
+        // 段階③：トレーニーごとの体重推移グラフ用データを組み立てる。
+        // Blade には完成した配列を渡す（Blade 内での再計算・並べ替えは行わない）。
+        $weightCharts = $this->buildWeightCharts($client);
+
+        return view('client.dashboard', compact('sessions', 'weightCharts'));
+    }
+
+    /**
+     * 体重推移グラフ用のデータをトレーニーごとに組み立てる。
+     *
+     * 返す配列の形（トレーニーごと。計測値 0 件のトレーニーは含めない）:
+     * [
+     *   [
+     *     'id'       => (int) トレーニーID,
+     *     'name'     => (string) トレーニー名,
+     *     'labels'   => ['M/D', 'M/D', ...],   // 昇順の日付ラベル（軸表示用）
+     *     'tooltips' => ['YYYY/M/D HH:MM', ...] // 対応するツールチップ用の日時
+     *     'datasets' => [                       // 分割された線のセグメントごと
+     *       ['data' => [x1, null, null, ...], ...],
+     *       ['data' => [null, null, x3, x4, ...], ...],
+     *     ],
+     *   ],
+     *   ...
+     * ]
+     *
+     * 分割の判定は「前回の計測日から `chart_gap_split_days` **日以上**空いたら分割」
+     * （設計書 6-15-14。閾値は architecture.md §3-3 の設定値、既定 14 日）。
+     */
+    private function buildWeightCharts($client): array
+    {
+        $threshold = (int) config('trainee_measurements.chart_gap_split_days');
+
+        // トレーニーは Trainee::trainees() で `id` 昇順（登録順）が既定。
+        // measurements は Trainee::measurements() で日時**降順**なので、
+        // グラフ用には昇順に並べ直す。
+        $trainees = $client->trainees()->with('measurements')->get();
+
+        $charts = [];
+        foreach ($trainees as $trainee) {
+            // 昇順にソート（日付 → 時刻の順）
+            $measurements = $trainee->measurements
+                ->sortBy([
+                    ['measured_date', 'asc'],
+                    ['measured_time', 'asc'],
+                ])
+                ->values();
+
+            if ($measurements->isEmpty()) {
+                // 計測値 0 件のトレーニーは、そのトレーニーのグラフを出さない（空チャートを描かない）
+                continue;
+            }
+
+            // ラベルとツールチップ用文字列を組み立てる。
+            // 軸ラベルは日付のみ（M/D）。同日 2 回計測がある場合も同じ表記が並ぶが、
+            // ツールチップに時刻まで含めるため区別できる。
+            $labels = [];
+            $tooltips = [];
+            foreach ($measurements as $m) {
+                $date = $m->measured_date;
+                $time = substr($m->measured_time, 0, 5); // 'HH:MM'
+                $labels[] = $date->format('n/j');
+                $tooltips[] = $date->format('Y/n/j') . ' ' . $time;
+            }
+
+            // 分割された各セグメントを別データセットとして渡す（すべての値がある位置以外は null）。
+            // 「前回の計測日からのカレンダー日数の差」で判定し、
+            // 差が閾値以上ならそこで新しいセグメントを開始する。
+            $segments = [];
+            $currentSegment = [];
+            $prevDate = null;
+            foreach ($measurements as $index => $m) {
+                if ($prevDate !== null) {
+                    $daysDiff = $prevDate->diffInDays($m->measured_date);
+                    if ($daysDiff >= $threshold) {
+                        // 閾値以上空いた → 前のセグメントを閉じ、新しいセグメントを開始
+                        $segments[] = $currentSegment;
+                        $currentSegment = [];
+                    }
+                }
+                $currentSegment[] = ['index' => $index, 'value' => (float) $m->weight_kg];
+                $prevDate = $m->measured_date;
+            }
+            if (! empty($currentSegment)) {
+                $segments[] = $currentSegment;
+            }
+
+            $total = $measurements->count();
+            $datasets = [];
+            foreach ($segments as $segment) {
+                // 全ラベルに対応する配列。値のある位置だけ数値を入れ、他は null。
+                $data = array_fill(0, $total, null);
+                foreach ($segment as $point) {
+                    $data[$point['index']] = $point['value'];
+                }
+                $datasets[] = ['data' => $data];
+            }
+
+            $charts[] = [
+                'id' => $trainee->id,
+                'name' => $trainee->name,
+                'labels' => $labels,
+                'tooltips' => $tooltips,
+                'datasets' => $datasets,
+            ];
+        }
+
+        return $charts;
     }
 }
