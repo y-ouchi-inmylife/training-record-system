@@ -15,9 +15,9 @@
             <h6 class="mb-0">基本情報</h6>
         </div>
         <div class="card-body">
-            {{-- 行1: クライアント --}}
+            {{-- 1段目: 会員 / 日付 / 時刻 --}}
             <div class="row g-3 mb-2">
-                {{-- クライアント（クライアント詳細からの遷移で確定：変更不可） --}}
+                {{-- 会員（クライアント詳細からの遷移で確定：変更不可） --}}
                 <div class="col-md-4">
                     <div class="row g-2 align-items-center">
                         <label class="col-md-auto col-form-label text-md-end form-label-fixed">会員 <span class="text-danger">*</span></label>
@@ -31,10 +31,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {{-- 行2: 日付 / 時刻 --}}
-            <div class="row g-3 mb-2">
                 {{-- 日付 --}}
                 <div class="col-md-4">
                     <div class="row g-2 align-items-center">
@@ -67,7 +64,7 @@
                 </div>
             </div>
 
-            {{-- 行4: 担当1 + 担当2 --}}
+            {{-- 2段目: 担当1 + 担当2 --}}
             <div class="row g-3">
                 <div class="col-md-7">
                     <div class="row g-2 align-items-center">
