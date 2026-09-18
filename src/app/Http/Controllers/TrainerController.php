@@ -162,7 +162,7 @@ class TrainerController extends Controller
         $primaryClientsCount = Client::where('primary_trainer_id', $trainer->id)->count();
         if ($primaryClientsCount > 0) {
             return redirect()->route('trainers.index')
-                ->with('error', "{$trainer->name} は {$primaryClientsCount} 件のクライアントの主担当トレーナーです。先に主担当を変更してから削除してください。");
+                ->with('error', "{$trainer->name} は {$primaryClientsCount} 人の会員の主担当トレーナーです。先に主担当を変更してから削除してください。");
         }
 
         // トレーニング記録の担当者になっているかチェック（担当者1・担当者2）

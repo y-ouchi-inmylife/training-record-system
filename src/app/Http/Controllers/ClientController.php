@@ -131,7 +131,7 @@ class ClientController extends Controller
 
         return redirect()
             ->route('clients.show', $client)
-            ->with('success', 'クライアントを登録しました。');
+            ->with('success', '会員を登録しました。');
     }
 
     /**
@@ -187,7 +187,7 @@ class ClientController extends Controller
 
         return redirect()
             ->route('clients.show', $client)
-            ->with('success', 'クライアント情報を更新しました。');
+            ->with('success', '会員情報を更新しました。');
     }
 
     /**
@@ -204,14 +204,14 @@ class ClientController extends Controller
         if ($client->trainingRecords()->exists()) {
             return redirect()
                 ->route('clients.show', $client)
-                ->with('error', 'このクライアントにはトレーニング記録が登録されているため削除できません。');
+                ->with('error', 'この会員にはトレーニング記録が登録されているため削除できません。');
         }
 
         $client->delete();
 
         return redirect()
             ->route('clients.index')
-            ->with('success', 'クライアントを削除しました。');
+            ->with('success', '会員を削除しました。');
     }
 
     /**

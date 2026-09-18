@@ -83,7 +83,7 @@
                 <tr>
                     <th class="text-nowrap align-middle">{{ $viewType === 'fiscal_year' ? '年度' : '年' }}</th>
                     <th class="text-end align-middle">のべ<br>トレーニング記録数</th>
-                    <th class="text-end align-middle">クライアント<br>実人数</th>
+                    <th class="text-end align-middle">会員<br>実人数</th>
                 </tr>
             </thead>
             <tbody>
@@ -135,7 +135,7 @@
                 <tr>
                     <th class="text-nowrap align-middle">月</th>
                     <th class="text-end align-middle">のべ<br>トレーニング記録数</th>
-                    <th class="text-end align-middle">クライアント<br>実人数</th>
+                    <th class="text-end align-middle">会員<br>実人数</th>
                 </tr>
             </thead>
             <tbody>

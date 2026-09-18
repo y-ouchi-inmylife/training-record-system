@@ -10,7 +10,7 @@
 
     {{-- サマリー情報: 主担当クライアント一覧 --}}
     <div class="d-flex justify-content-between align-items-baseline mb-3">
-        <h4 class="mb-0">主担当クライアント一覧</h4>
+        <h4 class="mb-0">主担当の会員一覧</h4>
         @if($myClientsTotal > 0)
             <span class="text-muted">
                 全{{ $myClientsTotal }}件
@@ -24,7 +24,7 @@
 
     @if($myClients->isEmpty())
         <div class="alert alert-secondary">
-            主担当のクライアントはありません
+            主担当の会員はいません
         </div>
     @else
         <div class="table-responsive">

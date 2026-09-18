@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'クライアント編集')
+@section('title', '会員編集')
 
 @section('content')
     @include('clients._form', [
@@ -10,6 +10,6 @@
         'method'      => 'PUT',
         'submitLabel' => '更新',
         'cancelUrl'   => route('clients.show', $client),
-        'pageTitle'   => 'クライアント編集',
+        'pageTitle'   => '会員編集',
     ])
 @endsection

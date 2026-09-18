@@ -52,11 +52,11 @@
                         {{-- 通常のトレーナー（system_admin以外） --}}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle {{ request()->is('clients*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
-                                クライアント
+                                会員
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{{ route('clients.index') }}">クライアント一覧</a></li>
-                                <li><a class="dropdown-item" href="{{ route('clients.create') }}">クライアント登録</a></li>
+                                <li><a class="dropdown-item" href="{{ route('clients.index') }}">会員一覧</a></li>
+                                <li><a class="dropdown-item" href="{{ route('clients.create') }}">会員の新規登録</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">

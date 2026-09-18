@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'クライアント詳細')
+@section('title', '会員詳細')
 
 @push('styles')
 <style>
@@ -113,7 +113,7 @@
         {{-- 1段目: 上部の操作ボタン列（右寄せ）。クライアント自体の操作だけ。
              メールアドレス関連は 3 段目のバッジ隣に置く（設計書 S-0305「操作ボタンの配置」）。 --}}
         <div class="d-flex justify-content-end gap-2 mb-2">
-            <a href="{{ route('clients.index') }}" class="btn btn-outline-secondary">&laquo; クライアント一覧に戻る</a>
+            <a href="{{ route('clients.index') }}" class="btn btn-outline-secondary">&laquo; 会員一覧に戻る</a>
             <a href="{{ route('clients.edit', $client) }}" class="btn btn-primary">編集</a>
             @if(auth()->user()->isAdmin())
                 <form method="POST" action="{{ route('clients.destroy', $client) }}" class="d-inline"
@@ -125,10 +125,10 @@
                 <script>
                 function confirmDelete() {
                     @if($client->trainingRecords->count() > 0)
-                        alert('このクライアントにはトレーニング記録が登録されているため削除できません。');
+                        alert('この会員にはトレーニング記録が登録されているため削除できません。');
                         return false;
                     @else
-                        return confirm('このクライアントを削除しますか？');
+                        return confirm('この会員を削除しますか？');
                     @endif
                 }
                 </script>
@@ -351,7 +351,7 @@
                          状態で分岐させると保守対象が増えるため一本化 --}}
                     <p class="mb-0">
                         登録されたメールアドレスが削除され、マイページを使えなくなります。<br>
-                        クライアント情報とトレーニング記録は残ります。
+                        会員情報とトレーニング記録は残ります。
                     </p>
                 </div>
                 <div class="modal-footer">

@@ -30,10 +30,10 @@ class AccessLog extends Model
         return [
             'login' => 'ログイン',
             'logout' => 'ログアウト',
-            'view_client' => 'クライアント詳細',
-            'edit_client' => 'クライアント編集',
-            'create_client' => 'クライアント登録',
-            'delete_client' => 'クライアント削除',
+            'view_client' => '会員詳細',
+            'edit_client' => '会員編集',
+            'create_client' => '会員の新規登録',
+            'delete_client' => '会員削除',
             'view_training_record' => 'トレーニング記録詳細',
             'edit_training_record' => 'トレーニング記録編集',
             'create_training_record' => 'トレーニング記録登録',
@@ -50,7 +50,7 @@ class AccessLog extends Model
     public static function targetLabels(): array
     {
         return [
-            'Client' => 'クライアント',
+            'Client' => '会員',
             'TrainingRecord' => 'トレーニング記録',
         ];
     }

@@ -103,7 +103,7 @@
                                         @endphp
                                         <form method="POST" action="{{ route('trainers.destroy', $trainer) }}"
                                               class="d-inline"
-                                              onsubmit="@if($isOnlyAdmin) alert('管理者は最低1名必要です。削除できません。'); return false; @elseif($hasPrimaryClients) alert('{{ $trainer->name }} は {{ $trainer->primary_clients_count }} 件のクライアントの主担当トレーナーです。先に主担当を変更してから削除してください。'); return false; @elseif($hasRecords) alert('{{ $trainer->name }} はトレーニング記録の担当者です。削除できません。'); return false; @else return confirm('「{{ $trainer->name }}」を削除しますか？\nこの操作は取り消せません。'); @endif">
+                                              onsubmit="@if($isOnlyAdmin) alert('管理者は最低1名必要です。削除できません。'); return false; @elseif($hasPrimaryClients) alert('{{ $trainer->name }} は {{ $trainer->primary_clients_count }} 人の会員の主担当トレーナーです。先に主担当を変更してから削除してください。'); return false; @elseif($hasRecords) alert('{{ $trainer->name }} はトレーニング記録の担当者です。削除できません。'); return false; @else return confirm('「{{ $trainer->name }}」を削除しますか？\nこの操作は取り消せません。'); @endif">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-outline-danger btn-sm">削除</button>

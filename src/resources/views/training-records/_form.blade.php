@@ -20,7 +20,7 @@
                 {{-- クライアント（クライアント詳細からの遷移で確定：変更不可） --}}
                 <div class="col-md-4">
                     <div class="row g-2 align-items-center">
-                        <label class="col-md-auto col-form-label text-md-end form-label-fixed">クライアント <span class="text-danger">*</span></label>
+                        <label class="col-md-auto col-form-label text-md-end form-label-fixed">会員 <span class="text-danger">*</span></label>
                         <div class="col-12 col-md">
                             @php $fixedClient = $selectedClient ?? $record->client; @endphp
                             <input type="text" class="form-control bg-light"
@@ -194,7 +194,7 @@
     {{-- 所感 --}}
     <div class="card mb-3">
         <div class="card-header">
-            <h6 class="mb-0">所感 <span class="text-muted">（クライアント非開示）</span></h6>
+            <h6 class="mb-0">所感 <span class="text-muted">（会員には非開示）</span></h6>
         </div>
         <div class="card-body">
             <textarea name="impression" id="impression" rows="4"
@@ -248,13 +248,13 @@ document.addEventListener('DOMContentLoaded', function() {
             var clientErrorDiv = form.querySelector('.client-id-error');
             if (!clientSelect.value) {
                 if (clientErrorDiv) clientErrorDiv.style.display = 'block';
-                errors.push('クライアントを選択してください。');
+                errors.push('会員を選択してください。');
                 if (!firstInvalidElement) firstInvalidElement = clientSelect.closest('.col-md-6');
             } else {
                 if (clientErrorDiv) clientErrorDiv.style.display = 'none';
             }
         } else if (!clientHidden) {
-            errors.push('クライアントを選択してください。');
+            errors.push('会員を選択してください。');
         }
 
         // 2. 日付

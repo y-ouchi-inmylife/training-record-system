@@ -134,13 +134,13 @@ class TrainingRecordController extends Controller
 
         if (!$selectedClientId) {
             return redirect()->route('clients.index')
-                ->with('error', 'トレーニング記録を登録するクライアントを選択してください');
+                ->with('error', 'トレーニング記録を登録する会員を選択してください');
         }
 
         $selectedClient = Client::find($selectedClientId);
         if (!$selectedClient) {
             return redirect()->route('clients.index')
-                ->with('error', '指定されたクライアントが見つかりません');
+                ->with('error', '指定された会員が見つかりません');
         }
 
         $trainingTypes = TrainingType::orderBy('sort_order')->get();

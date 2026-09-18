@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'クライアント一覧')
+@section('title', '会員一覧')
 
 @section('content')
 <div class="container">
     {{-- ヘッダー --}}
-    <h2 class="mb-4">クライアント一覧</h2>
+    <h2 class="mb-4">会員一覧</h2>
 
     {{-- 検索フォーム --}}
     <div class="card mb-4">
@@ -140,7 +140,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="text-center text-muted py-4">該当するクライアントがありません。</td>
+                        <td colspan="6" class="text-center text-muted py-4">該当する会員がいません。</td>
                     </tr>
                 @endforelse
             </tbody>

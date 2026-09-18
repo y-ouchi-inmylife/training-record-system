@@ -32,7 +32,7 @@ class ClientEmailController extends Controller
         // UI 側でも同じ条件でボタン・モーダルを出しているため通常は到達しないが、
         // 直接呼ばれた場合の防御として 409 を返す。
         if ($client->email === null) {
-            abort(409, 'メールアドレスが登録されているクライアントのみ削除できます');
+            abort(409, 'メールアドレスが登録されている会員のみ削除できます');
         }
 
         DB::transaction(function () use ($client) {
