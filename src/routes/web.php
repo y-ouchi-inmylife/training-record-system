@@ -21,6 +21,7 @@ use App\Http\Controllers\RecordingV2Controller;
 use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\SummaryPromptController;
 use App\Http\Controllers\TraineeController;
+use App\Http\Controllers\TraineeMeasurementController;
 use App\Http\Controllers\UsageStatsController;
 use Illuminate\Support\Facades\Route;
 
@@ -102,6 +103,15 @@ Route::domain(config('subdomain.trainer_host'))->middleware('check-ip')->group(f
                 ->name('trainees.update');
             Route::delete('trainees/{trainee}', [TraineeController::class, 'destroy'])
                 ->name('trainees.destroy');
+
+            // 計測値（D-0800、段階②）。create / edit / show の画面遷移は持たない
+            // （モーダル内で登録・編集するため。設計書 S-0309）
+            Route::post('trainees/{trainee}/measurements', [TraineeMeasurementController::class, 'store'])
+                ->name('trainee-measurements.store');
+            Route::put('trainee-measurements/{measurement}', [TraineeMeasurementController::class, 'update'])
+                ->name('trainee-measurements.update');
+            Route::delete('trainee-measurements/{measurement}', [TraineeMeasurementController::class, 'destroy'])
+                ->name('trainee-measurements.destroy');
 
             Route::resource('training-records', TrainingRecordController::class);
 

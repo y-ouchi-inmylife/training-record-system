@@ -41,6 +41,9 @@ class AccessLog extends Model
             'create_trainee' => 'トレーニー登録',
             'edit_trainee' => 'トレーニー編集',
             'delete_trainee' => 'トレーニー削除',
+            'create_trainee_measurement' => '計測値登録',
+            'edit_trainee_measurement' => '計測値編集',
+            'delete_trainee_measurement' => '計測値削除',
         ];
     }
 
@@ -56,6 +59,7 @@ class AccessLog extends Model
             'Client' => '会員',
             'TrainingRecord' => 'トレーニング記録',
             'Trainee' => 'トレーニー',
+            'TraineeMeasurement' => '計測値',
         ];
     }
 

@@ -63,6 +63,19 @@ class Trainee extends Model
     }
 
     /**
+     * 計測値（D-0800）
+     *
+     * 並び順は計測日時の降順（新しい順）。トレーニー詳細（S-0309）で
+     * この並び順のまま表示する。
+     */
+    public function measurements(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TraineeMeasurement::class)
+            ->orderBy('measured_date', 'desc')
+            ->orderBy('measured_time', 'desc');
+    }
+
+    /**
      * 最終更新者（トレーナー）
      */
     public function updatedBy(): BelongsTo

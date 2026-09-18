@@ -6,6 +6,7 @@ use App\Http\Requests\TraineeRequest;
 use App\Models\Client;
 use App\Models\Trainee;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
 /**
@@ -47,13 +48,29 @@ class TraineeController extends Controller
     /**
      * トレーニー詳細画面（S-0309）
      *
-     * 段階①では基本情報のみ表示。計測値の一覧・新規登録は段階②で追加する。
+     * 段階②で計測値の一覧・登録・編集・削除も本画面に含める。登録・編集は
+     * モーダル（`_measurement-modal.blade.php`）で行うため、`create` / `edit` の
+     * 画面遷移は持たない。
      */
     public function show(Trainee $trainee): View
     {
-        $trainee->load('client');
+        $trainee->load(['client', 'measurements']);
 
-        return view('trainees.show', compact('trainee'));
+        // 削除確認ダイアログに件数を含めるため、コントローラで数えて渡す。
+        $measurementCount = $trainee->measurements->count();
+
+        // モーダルの新規登録時の初期値（今日の日付・現在時刻）。Blade 内で now() を
+        // 直接呼ばず、コントローラで組み立てて渡す（設計書のガイダンスに沿う）。
+        $now = Carbon::now();
+        $defaultMeasuredDate = $now->format('Y-m-d');
+        $defaultMeasuredTime = $now->format('H:i');
+
+        return view('trainees.show', compact(
+            'trainee',
+            'measurementCount',
+            'defaultMeasuredDate',
+            'defaultMeasuredTime'
+        ));
     }
 
     /**

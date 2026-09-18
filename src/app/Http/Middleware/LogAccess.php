@@ -26,6 +26,10 @@ class LogAccess
         'trainees.store' => 'create_trainee',
         'trainees.update' => 'edit_trainee',
         'trainees.destroy' => 'delete_trainee',
+        // トレーニー計測値（D-0800、段階②）。参照は view_client に含めるため view_trainee_measurement は作らない。
+        'trainee-measurements.store' => 'create_trainee_measurement',
+        'trainee-measurements.update' => 'edit_trainee_measurement',
+        'trainee-measurements.destroy' => 'delete_trainee_measurement',
     ];
 
     public function handle(Request $request, Closure $next): Response
@@ -55,9 +59,18 @@ class LogAccess
         $targetType = null;
         $targetId = null;
 
-        // trainee の分岐は client の分岐より前に置く（'trainee' は 'client' を含まないため
-        // 実際には衝突しないが、意図を明確にするため）。
-        if (str_contains($action, 'trainee')) {
+        // より限定的な条件を先に判定する必要がある：
+        //   'create_trainee_measurement' は 'trainee' も含むため、
+        //   trainee_measurement を先に判定しないと trainee の分岐に落ちる。
+        if (str_contains($action, 'trainee_measurement')) {
+            $targetType = 'TraineeMeasurement';
+            // store のとき URL パラメータは `trainee`（親）で、
+            // update / destroy のときは `measurement`。store 時点では作成した
+            // レコードのIDを取れないため（ミドルウェアはレスポンス後に動く）、
+            // target_id は null にする（既存の create_training_record などと同じ扱い）。
+            $param = $request->route('measurement');
+            $targetId = is_object($param) ? $param->id : $param;
+        } elseif (str_contains($action, 'trainee')) {
             $targetType = 'Trainee';
             $param = $request->route('trainee');
             $targetId = is_object($param) ? $param->id : $param;
