@@ -1,4 +1,4 @@
-// クライアントポータル専用スタイル
+﻿// クライアントポータル専用スタイル
 // トレーナー側の app.scss とは独立したエントリ。
 // 設計書 docs/client-portal-design-plan.md §2・§2-0・§2-1・§3 を実装する。
 // 段階2（改訂版・書体差し戻し後）: アルバム方向・新パレット・Web フォント不採用。
@@ -13,7 +13,7 @@
 // 使用箇所を絞っても減らない。モバイル読者・週1回訪問という前提と釣り合わない。
 //
 // 見出しと本文の階層は書体差ではなく、ウェイト・サイズ・letter-spacing・色
-// （見出しに terracotta）で作る（設計書 §3 型スケール参照）。
+// （見出しに brand-deep）で作る（設計書 §3 型スケール参照）。
 // -----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
@@ -25,8 +25,8 @@
 $paper:        #FAF7F0; // ページ背景（薄い warm off-white）
 $mat:          #FFFFFF; // カード面・写真の周辺・入力欄の面
 $ink:          #0F1A2E; // 本文・見出しのインク・細線・フォーカスリング外側
-$terracotta:   #C2410C; // 暗いオレンジ：ヘッダー帯・リンク・H1/H2/Display の色
-$orange-bright: #EC6812; // 明るいオレンジ：主要ボタン・日付ブロック帯（面 + mat 文字）
+$brand-deep:   #162D66; // 深い紺：ヘッダー帯・H1/H2/Display の色・成功トースト
+$brand-bright: #2A4A94; // 明るい紺：主要ボタン・日付ブロック帯（面 + mat 文字）およびリンクの文字色
 $madder:       #7F1D1D; // エラー・破棄アクション（mat 面上のみ）
 $driftwood:    #6B6155; // 補助アクション面（$secondary）
 
@@ -35,10 +35,10 @@ $driftwood:    #6B6155; // 補助アクション面（$secondary）
 // -----------------------------------------------------------------------------
 
 // テーマカラー
-$primary:   $terracotta;
+$primary:   $brand-deep;
 $secondary: $driftwood; // 補助アクション（.badge.bg-secondary / .btn-outline-secondary）— 暖色グレーで基調と調和
 $danger:    $madder;
-$success:   $terracotta; // 設計書: 成功メッセージは terracotta 面 + mat 文字
+$success:   $brand-deep; // 設計書: 成功メッセージは brand-deep 面 + mat 文字
 
 // 面
 $body-bg:    $paper;
@@ -105,14 +105,18 @@ $card-shadow:       0 1px 4px rgba(15, 26, 46, 0.06), 0 6px 20px rgba(15, 26, 46
 // カードホバー時の 2 段影（.c-session:hover）
 $card-shadow-hover: 0 2px 8px rgba(15, 26, 46, 0.09), 0 12px 28px rgba(15, 26, 46, 0.07);
 
-// リンク
-$link-color:       $terracotta;
+// リンク（設計書 §2「リンクの文字色に $brand-bright を採用した理由」）
+// $ink（本文）× $brand-deep のコントラスト比は 1.33:1 と低く、リンクを $brand-deep に
+// すると本文と色で区別できない。$brand-bright（本文との差 2.07:1）を採用し、色相の近い
+// 紺同士でも階層を付ける。色だけに頼らないよう、本文中のリンクは下線を併用する前提。
+// hover 時は $ink に落として本文と同じ濃さで反応を示す。
+$link-color:       $brand-bright;
 $link-hover-color: $ink;
 
 // フォーカスリング（設計書 §2-1 の定義そのまま）
 // mat 3px 内リング + ink 2px 外リングの二重輪郭。
 // - 明色地（paper / mat）では外側 ink が 15:1 以上で可視
-// - vivid 面（terracotta / $orange-bright / madder / driftwood）では内側 mat が 3.21〜10.02:1 で可視
+// - vivid 面（brand-deep / $brand-bright / madder / driftwood）では内側 mat が 6.06〜13.11:1 で可視
 // Bootstrap 5.3: input/button の focus は $input-btn-focus-box-shadow を、
 // .focus-ring ユーティリティは $focus-ring-* を使う。両方に反映する。
 $input-btn-focus-box-shadow: 0 0 0 3px $mat, 0 0 0 5px $ink;
@@ -139,7 +143,7 @@ $headings-font-weight:   700;
 // - H1 = 1.5rem、H2 = 1.5rem、H3 = 1.125rem
 // - Bootstrap 既定（h1=2.5, h2=2, h3=1.75）を全て下方修正
 // - 見出しの色は $headings-color ではなく、Bootstrap import 後に h1/h2 に対して
-//   直接 terracotta を当てる（H3 は ink のまま残すため。詳細は下記の「見出し色」節）
+//   直接 brand-deep を当てる（H3 は ink のまま残すため。詳細は下記の「見出し色」節）
 // - H1 は当初 2rem。実機確認で挨拶が eyebrow（セクション見出し）より
 //   大きく目立ちすぎていたため 1.5rem に縮小（設計書 §3）。H2 と同値に
 //   なるが、H1 の実使用はダッシュボードの挨拶のみ、H2 は現時点で
@@ -178,8 +182,8 @@ $headings-line-height: 1.4;
     --c-paper:         #{$paper};
     --c-mat:           #{$mat};
     --c-ink:           #{$ink};
-    --c-terracotta:    #{$terracotta};
-    --c-orange-bright: #{$orange-bright};
+    --c-brand-deep:    #{$brand-deep};
+    --c-brand-bright:  #{$brand-bright};
     --c-madder:        #{$madder};
     --c-driftwood:     #{$driftwood};
 }
@@ -187,18 +191,18 @@ $headings-line-height: 1.4;
 // -----------------------------------------------------------------------------
 // 見出しの色と letter-spacing（設計書 §3 型スケール表）
 //
-// - H1 / H2 / .display-hero は terracotta（palette 内で「構造の色」として統一）
-// - H3 以下は ink のまま（terracotta にするとカード内で鮮色が 2 種並び、
-//   §2-1「鮮色同士の隣接禁止」に抵触するリスクがある。terracotta × $orange-bright = 1.63）
+// - H1 / H2 / .display-hero は brand-deep（palette 内で「構造の色」として統一）
+// - H3 以下は ink のまま（brand-deep にするとカード内で鮮色が 2 種並び、
+//   §2-1「鮮色同士の隣接禁止」に抵触するリスクがある。brand-deep × $brand-bright = 1.63）
 // - letter-spacing は日本語でも軽く効かせて存在感を作る（過度は不可）
 // -----------------------------------------------------------------------------
 h1, .h1 {
-    color: $terracotta;
+    color: $brand-deep;
     letter-spacing: 0.01em;
 }
 
 h2, .h2 {
-    color: $terracotta;
+    color: $brand-deep;
     letter-spacing: 0.01em;
 }
 
@@ -209,7 +213,7 @@ h2, .h2 {
     font-weight: 700;
     line-height: 1.3;
     letter-spacing: 0.02em;
-    color: $terracotta;
+    color: $brand-deep;
 }
 
 // Meta（時刻・件数・キャプション、ink 65%）
@@ -269,30 +273,29 @@ h2, .h2 {
 }
 
 // -----------------------------------------------------------------------------
-// お客様側の主要ボタン（.btn-primary）を明るいオレンジに振る
+// お客様側の主要ボタン（.btn-primary）を明るい紺に振る
 //
-// お客様側の画面は暗いオレンジ（$terracotta = ヘッダー帯）と明るいオレンジ
-// （$orange-bright = ボタン・日付ブロック）の二色で構成する（設計書 §2）。
-// $primary（$terracotta）はリンク・見出し・帯の役割を維持し、ボタンだけを
-// Bootstrap 5.3 の `.btn-primary` 用 CSS カスタムプロパティ（--bs-btn-*）で
-// 上書きすることで、リンク・見出し・帯・成功アラートに影響を出さない。
+// お客様側の画面は深い紺（$brand-deep = ヘッダー帯・見出し・成功トースト）と
+// 明るい紺（$brand-bright = ボタン・日付ブロック・リンク文字色）の二色で
+// 構成する（設計書 §2）。$primary（$brand-deep）は見出し・帯の役割を維持し、
+// ボタンだけを Bootstrap 5.3 の `.btn-primary` 用 CSS カスタムプロパティ
+// （--bs-btn-*）で上書きすることで、見出し・帯・成功アラートに影響を出さない。
 //
-// hover / active は Bootstrap 慣習の 15% / 20% shade（black で mix）。
+// hover / active は Bootstrap 慣習の 15% / 20% shade を `shade-color()` 関数で
+// 求める。ベース色（$brand-bright）を差し替えれば hover / active も自動追随する。
 //
-// **コントラスト**：mat（白）on $orange-bright = 3.21:1。WCAG 2.2 の AA
-// テキスト基準（4.5:1）は未達、大文字基準（3.0:1）はかろうじて満たす。
-// ボタンラベルは太字・短文で使うため実用上は読めると判断し、明るさを優先した
-// （日付ブロックにも同じ組み合わせを適用。詳細は設計書 §2）。
+// **コントラスト**：mat（白）on $brand-bright = 8.38:1。WCAG 2.2 の AA / AAA
+// テキスト基準をいずれも通過する。
 // -----------------------------------------------------------------------------
 .btn-primary {
-    --bs-btn-bg:                    #{$orange-bright};
-    --bs-btn-border-color:          #{$orange-bright};
-    --bs-btn-hover-bg:              #C8580F; // 15% shade
-    --bs-btn-hover-border-color:    #C8580F;
-    --bs-btn-active-bg:             #BD530E; // 20% shade
-    --bs-btn-active-border-color:   #BD530E;
-    --bs-btn-disabled-bg:           #{$orange-bright};
-    --bs-btn-disabled-border-color: #{$orange-bright};
+    --bs-btn-bg:                    #{$brand-bright};
+    --bs-btn-border-color:          #{$brand-bright};
+    --bs-btn-hover-bg:              #{shade-color($brand-bright, 15%)};
+    --bs-btn-hover-border-color:    #{shade-color($brand-bright, 15%)};
+    --bs-btn-active-bg:             #{shade-color($brand-bright, 20%)};
+    --bs-btn-active-border-color:   #{shade-color($brand-bright, 20%)};
+    --bs-btn-disabled-bg:           #{$brand-bright};
+    --bs-btn-disabled-border-color: #{$brand-bright};
     --bs-btn-color:                 #{$mat};
     --bs-btn-hover-color:           #{$mat};
     --bs-btn-active-color:          #{$mat};
@@ -325,14 +328,14 @@ h2, .h2 {
 
 // -----------------------------------------------------------------------------
 // 成功系メッセージ（設計書 §2-1）
-// Bootstrap の .alert-success は $success（terracotta）の tint / shade から
+// Bootstrap の .alert-success は $success（brand-deep）の tint / shade から
 // 自動生成されるため、そのままだと「薄い青の面 + 濃い青の文字」になる。
-// 設計書は「terracotta 面 + mat 文字」を求めているため明示上書きする。
+// 設計書は「brand-deep 面 + mat 文字」を求めているため明示上書きする。
 // -----------------------------------------------------------------------------
 .alert-success {
-    background-color: $terracotta;
+    background-color: $brand-deep;
     color: $mat;
-    border-color: $terracotta;
+    border-color: $brand-deep;
 
     // 閉じるボタン（× アイコン）は SVG 背景で黒基調のため、白に反転させる
     .btn-close {
@@ -345,14 +348,14 @@ h2, .h2 {
 //
 // ログイン前後で見た目を揃えるため、`layouts.client`（認証後 + login）と
 // `layouts.client-public`（その他 pre-auth）の両方で使用する共通スタイル。
-// 帯の色は $terracotta、文字・リンクは帯の上で読める $mat（白）で統一。
+// 帯の色は $brand-deep、文字・リンクは帯の上で読める $mat（白）で統一。
 //
 // pre-auth ではヘッダー帯の中に左のブランド（テキストまたはロゴ画像）だけを出す。
 // post-auth では加えて右側に「登録情報」「ログアウト」の 2 リンクを出す。
 // -----------------------------------------------------------------------------
 .c-nav {
-    background-color: $terracotta;
-    // 帯下端の境界。terracotta 面上に濃い ink 線を引くと沈むため、
+    background-color: $brand-deep;
+    // 帯下端の境界。brand-deep 面上に濃い ink 線を引くと沈むため、
     // mat の 20% で軽い明側の輪郭を作る（沈ませず、面の縁を保つ）
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 
@@ -377,7 +380,7 @@ h2, .h2 {
     }
 
     // navbar 内の btn-link（「登録情報」「ログアウト」）は
-    // 既定で $link-color（terracotta）になるため、帯の上で沈まないよう mat に上書き
+    // 既定で $link-color（brand-deep）になるため、帯の上で沈まないよう mat に上書き
     .btn-link {
         color: $mat;
         &:hover, &:focus {
@@ -415,7 +418,7 @@ h2, .h2 {
 // タップ領域の高さ 44px 相当を確保する（設計書 §4-3・§7-17 と同じ基準）。
 .c-footer-home {
     display: inline-block;
-    color: $terracotta;
+    color: $brand-deep;
     font-size: 0.875rem;
     font-weight: 700;
     letter-spacing: 0.04em;
@@ -458,17 +461,17 @@ input[type="tel"] {
 // 【解いていること】
 // - カード内スクロールを一切持たない（ページ全体のスクロールのみ）
 // - 独立したメディアギャラリー廃止、写真は各記録カード内に統合
-// - 日付ブロック（$orange-bright 帯）が各カード左端で共通のシグネチャー要素
+// - 日付ブロック（$brand-bright 帯）が各カード左端で共通のシグネチャー要素
 // - hero（先頭1件）は写真を大きく、feed（残り）はサムネイル数枚
 //
 // 【§2-1 の禁止事項の遵守】
-// - 日付ブロック帯（$orange-bright 面）の文字は mat（白）で統一
+// - 日付ブロック帯（$brand-bright 面）の文字は mat（白）で統一
 // - カードは罫線（$border-color = ink 8%）と box-shadow 2 段影の両方を持つ
 // - vivid 面はカード内に配置しない
 //   （training-type タグは §4-2 のワイヤーフレームに無いため廃止した）
 // -----------------------------------------------------------------------------
 
-// あいさつ（H1 のグローバルスタイル: color=terracotta, weight=700, letter-spacing=0.01em
+// あいさつ（H1 のグローバルスタイル: color=brand-deep, weight=700, letter-spacing=0.01em
 // はすでに適用済み。ここでは余白のみ調整）
 .c-greeting {
     margin-bottom: 0.5rem;
@@ -525,13 +528,13 @@ input[type="tel"] {
 }
 
 // 日付ブロック（シグネチャー・§5）
-// 明るいオレンジ帯（$orange-bright）の縦組み日本語。数字は 700 で 2rem、hero では 2.75rem。
-// 文字は mat（白）。mat on $orange-bright = 3.21:1 で AA テキスト（4.5:1）は未達だが、
+// 明るい紺帯（$brand-bright）の縦組み日本語。数字は 700 で 2rem、hero では 2.75rem。
+// 文字は mat（白）。mat on $brand-bright = 3.21:1 で AA テキスト（4.5:1）は未達だが、
 // ボタンと同じ組み合わせで統一する（詳細は設計書 §2 の二色方針）。
 .c-date-block {
     flex: 0 0 auto;
     width: 4.5rem;
-    background-color: $orange-bright;
+    background-color: $brand-bright;
     color: $mat;
     display: flex;
     flex-direction: column;
@@ -679,7 +682,7 @@ input[type="tel"] {
 }
 .c-media-more:hover {
     background-color: rgba(15, 26, 46, 0.08);
-    color: $terracotta;
+    color: $brand-deep;
 }
 .c-media-more:focus-visible {
     outline: none;
@@ -696,7 +699,7 @@ input[type="tel"] {
 // 「続きを読む →」CTA
 .c-session-cta {
     align-self: flex-start;
-    color: $terracotta;
+    color: $brand-deep;
     font-weight: 700;
     text-decoration: none;
 }
@@ -709,15 +712,15 @@ input[type="tel"] {
     border-radius: 2px;
 }
 
-// トースト（成功系メッセージ規約に準拠: terracotta 面 + mat 文字）
+// トースト（成功系メッセージ規約に準拠: brand-deep 面 + mat 文字）
 .c-toast {
-    background-color: $terracotta;
+    background-color: $brand-deep;
     color: $mat;
 }
 
 // モバイル(576px 未満、Bootstrap の sm ブレークポイント境界)
-// 設計書 §5-1「表示形態の分岐」に従い、日付ブロックを $orange-bright 縦帯から
-// カード上部の $orange-bright 横帯へ切り替える。
+// 設計書 §5-1「表示形態の分岐」に従い、日付ブロックを $brand-bright 縦帯から
+// カード上部の $brand-bright 横帯へ切り替える。
 // - モバイル幅では写真が 2 列以上に折り返しカードが縦に伸びる
 // - 縦帯だと date-block も追随して間延びし、「日付が視覚のリズムを作る」
 //   意図が「青い柱が並ぶ装飾」に変質する(§5-2)
@@ -795,7 +798,7 @@ input[type="tel"] {
 // 戻る導線: 「戻る」ではなく行き先を書く（設計書 §6）
 .c-detail-back {
     display: inline-block;
-    color: $terracotta;
+    color: $brand-deep;
     font-weight: 700;
     text-decoration: none;
     margin-bottom: 1rem;
@@ -810,7 +813,7 @@ input[type="tel"] {
 }
 
 // 詳細タイトル: 日付主体の大見出し
-// h1 グローバルスタイル(color: terracotta, letter-spacing: 0.01em)より
+// h1 グローバルスタイル(color: brand-deep, letter-spacing: 0.01em)より
 // 大きな値で上書きされるようクラスで完全指定する
 // 当初 2.5rem(sm 未満で 1.75rem に上書き)。実機確認で大きすぎると
 //   判断され、全幅 1.75rem に統一してブレークポイントの上書きを
@@ -821,7 +824,7 @@ input[type="tel"] {
     font-weight: 700;
     line-height: 1.3;
     letter-spacing: 0.01em;
-    color: $terracotta;
+    color: $brand-deep;
     margin-bottom: 0.5rem;
 }
 
@@ -956,7 +959,7 @@ input[type="tel"] {
     font-weight: 700;
     line-height: 1.4;
     letter-spacing: 0.01em;
-    color: $terracotta;
+    color: $brand-deep;
     margin: 0 0 0.75rem;
 }
 
@@ -970,7 +973,7 @@ input[type="tel"] {
     overflow-wrap: anywhere;
 }
 
-// メールアドレスの強調(<strong>)。ink を使う(terracotta にすると
+// メールアドレスの強調(<strong>)。ink を使う(brand-deep にすると
 // カード内の primary CTA と鮮色隣接になり得る可能性を回避)
 .c-auth-email {
     font-weight: 700;
@@ -980,7 +983,7 @@ input[type="tel"] {
 // プライバシーポリシー同意文（送信ボタン手前に置く控えめな案内）
 // お客様が最初に個人情報を預ける画面（S-1405・S-1403）で表示する。
 // 本文より小さく、色を落として入力の主役を邪魔しない。
-// リンクだけは terracotta で目に入る（$link-color の既定に合わせる）。
+// リンクだけは brand-deep で目に入る（$link-color の既定に合わせる）。
 .c-consent-note {
     font-size: 0.8125rem;             // 本文 1rem より小さく（13px 相当）
     line-height: 1.6;
@@ -996,7 +999,7 @@ input[type="tel"] {
 // 「次にできること」ブロックのスタイル。$title / $message はコントローラから
 // 渡される変数を器（.c-login シェル + .card）に流し込むだけ。
 // この画面は「エラー(飼い主の落ち度)」ではなく「状況の説明」なので、
-// madder(エラー色)は使わず terracotta 基調の見出しで柔らかく伝える。
+// madder(エラー色)は使わず brand-deep 基調の見出しで柔らかく伝える。
 // -----------------------------------------------------------------------------
 
 // カード内で $message の下に置く「次にできること」ブロック
