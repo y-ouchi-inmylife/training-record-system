@@ -39,15 +39,17 @@
         <span class="num-tabular">{{ $rec->training_date->month }}</span>月<span class="num-tabular">{{ $rec->training_date->day }}</span>日（{{ $weekdaysJp[$rec->training_date->dayOfWeek] }}）の記録
     </h1>
 
-    {{-- メタ情報(トレーナー / 時刻)。値がある行だけ出す。無い行は「—」を
-         出さずに要素ごと省略する(設計書 §6 空値の扱い)。 --}}
+    {{-- メタ情報(時刻 / トレーナー)。タイトルの日付に続けて時刻を置き、
+         「いつ(日付・時刻)→ 誰が(トレーナー)」の順で読めるようにする
+         (2026-09 ユーザーレビュー・§4-4)。値がある行だけ出す。無い行は
+         「—」を出さずに要素ごと省略する(設計書 §6 空値の扱い)。 --}}
     @if($trainerNames->isNotEmpty() || $trainingTime)
         <div class="c-detail-meta meta">
-            @if($trainerNames->isNotEmpty())
-                <div>{{ $trainerNames->join(' ／ ') }}</div>
-            @endif
             @if($trainingTime)
                 <div class="num-tabular">{{ $trainingTime }}</div>
+            @endif
+            @if($trainerNames->isNotEmpty())
+                <div>{{ $trainerNames->join(' ／ ') }}</div>
             @endif
         </div>
     @endif
