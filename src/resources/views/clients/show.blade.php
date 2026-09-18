@@ -239,12 +239,13 @@
                                     <div class="record-block">
                                         {{-- 見出し行: 日付・時刻・担当・メディア件数を横並び
                                              （record-block__line1 の flex-wrap で狭い幅では自然に折り返す）。
-                                             日付だけを太字（fw-bold）にして各ブロックの先頭で「いつの記録か」を
-                                             ひと目で分かるようにする（未来日付の text-primary と併用可）。 --}}
+                                             日付と時刻を太字（fw-bold）にして各ブロックの先頭で「いつの記録か」を
+                                             ひと目で分かるようにする。未来日付の text-primary は日付だけに付け
+                                             （時刻には色を付けない）、太字と併用する。 --}}
                                         <div class="record-block__line1">
                                             <span class="fw-bold @if($isFutureDate) text-primary @endif">{{ $record->training_date->format('Y/m/d') }}</span>
                                             @if($record->training_time)
-                                                <span>{{ substr($record->training_time, 0, 5) }}</span>
+                                                <span class="fw-bold">{{ substr($record->training_time, 0, 5) }}</span>
                                             @endif
                                             @if($trainerNames !== '')
                                                 <span><span class="text-muted">担当：</span>{{ $trainerNames }}</span>
@@ -266,9 +267,13 @@
                                         @endif
                                         {{-- 所感: 小見出し + 本文（改行を保持）。
                                              会員には非開示のため S-0305（トレーナー専用画面）のみで表示する
-                                             （会員向け画面 S-14xx には出さない）。空欄なら小見出しごと非表示。 --}}
+                                             （会員向け画面 S-14xx には出さない）。空欄なら小見出しごと非表示。
+                                             小見出しは training-records/_form.blade.php・show.blade.php の
+                                             所感カード（所感 <span class="text-muted">（会員には非開示）</span>）と
+                                             同じ表記・作りにそろえる。親 div が fw-bold・text-body なので、
+                                             注記部分は fw-normal と text-muted を明示して太字と本文色を打ち消す。 --}}
                                         @if($record->impression)
-                                            <div class="small fw-bold mt-2 text-body">所感</div>
+                                            <div class="small fw-bold mt-2 text-body">所感 <span class="text-muted fw-normal">（会員には非開示）</span></div>
                                             <div class="record-block__line3">{{ $record->impression }}</div>
                                         @endif
                                     </div>
