@@ -99,17 +99,8 @@ erDiagram
         bigint client_id FK
         bigint trainer1_id FK
         bigint trainer2_id FK
-        bigint training_type_id FK
         date training_date
     }
-
-    training_types {
-        bigint id PK
-        string name
-        integer sort_order
-    }
-
-    training_types ||--|| training_records : "分類する"
 
 
     media_records {
@@ -303,8 +294,6 @@ erDiagram
 | training_time | TIME | YES | NULL | 時刻（トレーニング記録の実施時刻。HH:MM形式） |
 | trainer1_id | BIGINT UNSIGNED | NO | — | 担当1のトレーナーのID（外部キー） |
 | trainer2_id | BIGINT UNSIGNED | YES | NULL | 担当2のトレーナーのID（外部キー） |
-| training_type_id | BIGINT UNSIGNED | YES | NULL | トレーニング内容マスタのID（外部キー） |
-| training_detail | VARCHAR(255) | YES | NULL | トレーニング内容の詳細（主旨を1行で要約） |
 | record_content | TEXT | YES | NULL | トレーナーからのノート（事実を客観的に記録、クライアント開示前提） |
 | impression | TEXT | YES | NULL | 所感（トレーナー間共有、クライアント非開示） |
 | created_at | TIMESTAMP | YES | NULL | 作成日時 |
@@ -320,7 +309,6 @@ erDiagram
 | training_records_date_idx | training_date | INDEX | 日付による検索・ソート |
 | training_records_trainer1_idx | trainer1_id | INDEX | 担当1による検索 |
 | training_records_trainer2_idx | trainer2_id | INDEX | 担当2による検索 |
-| training_records_type_idx | training_type_id | INDEX | トレーニング内容による絞り込み検索 |
 | training_records_updated_by_foreign | updated_by | INDEX | 最終更新者による検索。外部キー制約に伴い自動付与 |
 
 ##### 制約
@@ -330,7 +318,6 @@ erDiagram
 | training_records_client_id_foreign | FOREIGN KEY | client_id → clients(id) | CASCADE | クライアント削除時にトレーニング記録も削除 |
 | training_records_trainer1_id_foreign | FOREIGN KEY | trainer1_id → trainers(id) | RESTRICT | 担当1があるトレーナーは削除不可 |
 | training_records_trainer2_id_foreign | FOREIGN KEY | trainer2_id → trainers(id) | SET NULL | 担当2が削除された場合はNULLにする |
-| training_records_training_type_id_foreign | FOREIGN KEY | training_type_id → training_types(id) | SET NULL | トレーニング内容マスタ削除時はNULLにする |
 | training_records_updated_by_foreign | FOREIGN KEY | updated_by → trainers(id) | SET NULL | トレーナー削除時は最終更新者をNULLにする |
 
 
@@ -512,29 +499,7 @@ erDiagram
 
 #### DM-0200 training_types（トレーニング内容）
 
-##### カラム定義
-
-| カラム名 | 型 | NULL | デフォルト | 説明 |
-|---------|-----|------|----------|------|
-| id | BIGINT UNSIGNED | NO | auto_increment | 主キー |
-| name | VARCHAR(50) | NO | — | トレーニング内容の名称。重複不可 |
-| sort_order | INTEGER | NO | 0 | 表示順序。小さい値が先に表示される |
-| created_at | TIMESTAMP | YES | NULL | 作成日時 |
-| updated_at | TIMESTAMP | YES | NULL | 更新日時 |
-
-##### インデックス
-
-| インデックス名 | カラム | 種類 | 目的 |
-|---------------|--------|------|------|
-| PRIMARY | id | PRIMARY KEY | 主キー |
-| training_types_name_unique | name | UNIQUE | 名称の重複を防ぐ |
-| training_types_order_idx | sort_order | INDEX | 表示順でのソート |
-
-##### 制約
-
-| 制約名 | 種類 | 条件 | 説明 |
-|--------|------|------|------|
-| training_types_sort_check | CHECK | sort_order >= 0 | 表示順序は0以上 |
+（2026-09 削除。欠番）ユーザーレビューでトレーナーが「トレーニング内容」の分類は不要と判断したため、テーブルごと廃止。マスタ ID は振り直さない。
 
 
 ---
@@ -966,8 +931,7 @@ erDiagram
 | 1 | trainers | なし |
 | 2 | login_attempts | trainers |
 | 3 | clients | trainers |
-| 4 | training_types | なし |
-| 5 | training_records | clients, trainers, training_types |
+| 5 | training_records | clients, trainers |
 | 6 | media_records | trainers |
 | 7 | media_record_training_record | media_records, training_records |
 | 8 | audio_records | clients, trainers |
@@ -987,9 +951,8 @@ erDiagram
 
 | ファイル名 | 内容 | 実行タイミング |
 |-----------|------|---------------|
-| `DatabaseSeeder.php` | 全シーダーの呼び出し元。**`TrainerSeeder` / `TrainingTypeSeeder` / `SystemSettingSeeder` の 3 種を順に実行する**（`ClientSeeder` は本番では実行しないため呼び出し対象外） | `php artisan db:seed` |
+| `DatabaseSeeder.php` | 全シーダーの呼び出し元。**`TrainerSeeder` / `SystemSettingSeeder` の 2 種を順に実行する**（`ClientSeeder` は本番では実行しないため呼び出し対象外） | `php artisan db:seed` |
 | `TrainerSeeder.php` | 初期トレーナー **2 名**（システム管理者 1 名 + 管理者 1 名。詳細は 7.2.1 参照） | 本番／開発の初回セットアップ時 |
-| `TrainingTypeSeeder.php` | トレーニング内容マスタの初期データ（7.2.2参照） | 本番／開発の初回セットアップ時 |
 | `SystemSettingSeeder.php` | システム設定の初期データ（7.2.4参照） | 本番／開発の初回セットアップ時 |
 | `ClientSeeder.php` | 開発環境用のサンプルクライアント 1 件。**`DatabaseSeeder` からは呼ばれない**。開発環境でクライアントログインの動作確認等が必要なとき、`php artisan db:seed --class=ClientSeeder` として明示実行する | 開発時に必要に応じて |
 | `TrainingRecordDemoSeeder.php` | 開発・デモ用のトレーニング記録 18 件（クライアントポータル検証用）。`DatabaseSeeder` からは呼ばれない。**本番実行禁止** | 開発・デモ検証時のみ |
@@ -1011,11 +974,7 @@ erDiagram
 
 #### DM-0200 training_types（トレーニング内容）
 
-| id | name | sort_order |
-|----|------|--------|
-| 1 | 事前相談 | 1 |
-| 2 | トレーニング | 2 |
-| 3 | その他 | 3 |
+（2026-09 削除。欠番）§4-1 の DM-0200 廃止に伴い、初期データも廃止。
 
 #### DS-0100 system_settings（システム設定）
 

@@ -104,12 +104,6 @@ IP アドレス制限は、**トレーナー用サブドメイン（内部）の
 | トレーナー管理 | S-0804 パスワードリセット画面 | GET | `/trainers/{id}/reset-password` | パスワードリセット画面を表示する | auth | 管理者、システム管理者 |
 | トレーナー管理 | S-0804 パスワードリセット画面 | PUT | `/trainers/{id}/reset-password` | パスワードをリセットする | auth | 管理者、システム管理者 |
 | トレーナー管理 | S-0805 トレーナー操作履歴画面 | GET | `/access-logs` | トレーナー操作履歴画面を表示する | auth | 管理者 |
-| マスタ管理 | S-0902 トレーニング内容マスタ画面 | GET | `/master/training-types` | トレーニング内容マスタ管理画面を表示する | auth | 管理者 |
-| マスタ管理 | S-0902 トレーニング内容マスタ画面 | POST | `/master/training-types` | トレーニング内容の選択肢を追加する | auth | 管理者 |
-| マスタ管理 | S-0902 トレーニング内容マスタ画面 | PATCH | `/master/training-types/{id}/move-up` | トレーニング内容の表示順を上に移動する | auth | 管理者 |
-| マスタ管理 | S-0902 トレーニング内容マスタ画面 | PATCH | `/master/training-types/{id}/move-down` | トレーニング内容の表示順を下に移動する | auth | 管理者 |
-| マスタ管理 | S-0902 トレーニング内容マスタ画面 | PUT | `/master/training-types/{id}` | トレーニング内容の選択肢を更新する | auth | 管理者 |
-| マスタ管理 | S-0902 トレーニング内容マスタ画面 | DELETE | `/master/training-types/{id}` | トレーニング内容の選択肢を削除する | auth | 管理者 |
 | セキュリティ設定 | S-1002 IPアドレス制限画面 | GET | `/settings/ip-restriction` | IPアドレス制限画面を表示する | auth | システム管理者 |
 | セキュリティ設定 | S-1002 IPアドレス制限画面 | PUT | `/settings/ip-restriction` | IPアドレス制限設定を更新する | auth | システム管理者 |
 | レポート | S-1101 トレーニング記録数推移画面 | GET | `/statistics/clients` | トレーニング記録数推移画面を表示する | auth | 管理者、一般 |
@@ -530,8 +524,6 @@ POST /clients と同じ項目。ただし internal_id は登録時と異なり�
 | client_id | integer | ● | required, exists:clients,id | クライアントID |
 | training_date | date | ● | required, date | 日付（過去・未来日付とも入力可） |
 | training_time | time | | nullable, date_format:H:i | 時刻 |
-| training_type_id | integer | | nullable, exists:training_types,id | トレーニング内容マスタID |
-| training_detail | string | | nullable, string, max:255 | トレーニング内容の詳細 |
 | trainer1_id | integer | ● | required, exists:trainers,id | 担当1 |
 | trainer2_id | integer | | nullable, exists:trainers,id, different:trainer1_id | 担当2（担当1と異なること） |
 | record_content | text | | nullable, string | トレーナーからのノート |
@@ -567,7 +559,7 @@ POST /clients と同じ項目。ただし internal_id は登録時と異なり�
 | date_from | date | 日付（開始日） |
 | date_to | date | 日付（終了日） |
 | trainer_id | integer | 担当トレーナーID（担当1・担当2のいずれかに一致） |
-| keyword | string | 記録内容・所感・トレーニング内容詳細を対象としたキーワード検索（部分一致でOR検索） |
+| keyword | string | 記録内容・所感を対象としたキーワード検索（部分一致でOR検索） |
 | sort | string | ソートカラム（training_date, internal_id, client_name, created_at）。未指定時は training_date。internal_idは数値順、client_nameは画面表示上の氏名で五十音順 |
 | direction | string | ソート方向（asc, desc）。asc以外はdesc |
 
@@ -1107,81 +1099,11 @@ POST /training-records に以下を追加する。
 
 #### 4-1-9. マスタ管理
 
+（2026-09 削除。欠番）唯一のマスタだったトレーニング内容マスタを廃止したため、マスタ管理配下の全エンドポイント（`/master/training-types` 系）を廃止した。節番号は振り直さない。
+
 ##### S-0902 トレーニング内容マスタ画面
 
-###### GET /master/training-types
-
-**概要**: トレーニング内容マスタ管理画面を表示する。
-
-**処理**:
-- トレーニング内容の一覧を表示順で表示する（各トレーニング内容を参照しているトレーニング記録数を含む）
-
-**レスポンス**:
-- view `master.training-types.index`
-
-
-###### POST /master/training-types
-
-**概要**: トレーニング内容の選択肢を追加する。
-
-**リクエスト**:
-
-| パラメータ | 型 | 必須 | バリデーション | 説明 |
-|-----------|-----|------|---------------|------|
-| name | string | ● | required, string, max:50, unique:training_types | トレーニング内容名 |
-
-**処理**:
-- 表示順は末尾に自動で付番する
-
-**レスポンス**:
-- `redirect('/master/training-types')`
-
-
-###### PUT /master/training-types/{id}
-
-**概要**: トレーニング内容の選択肢を更新する。
-
-**リクエスト**:
-
-| パラメータ | 型 | 必須 | バリデーション | 説明 |
-|-----------|-----|------|---------------|------|
-| name | string | ● | required, string, max:50, unique:training_types（自身を除く） | トレーニング内容名 |
-
-**レスポンス**:
-- `redirect('/master/training-types')`
-
-
-###### DELETE /master/training-types/{id}
-
-**概要**: トレーニング内容の選択肢を削除する。
-
-**処理**:
-- このトレーニング内容を参照しているトレーニング記録がある場合は削除できない（物理削除）
-
-**レスポンス**:
-- `redirect('/master/training-types')`
-
-
-###### PATCH /master/training-types/{id}/move-up
-
-**概要**: トレーニング内容の表示順を上に移動する。
-
-**処理**:
-- 表示順で、ひとつ上のトレーニング内容と表示順を入れ替える
-
-**レスポンス**:
-- `redirect('/master/training-types')`
-
-
-###### PATCH /master/training-types/{id}/move-down
-
-**概要**: トレーニング内容の表示順を下に移動する。
-
-**処理**:
-- 表示順で、ひとつ下のトレーニング内容と表示順を入れ替える
-
-**レスポンス**:
-- `redirect('/master/training-types')`
+（2026-09 削除。欠番）画面と関連する 6 エンドポイントは廃止。画面 ID は振り直さない。
 
 ---
 
