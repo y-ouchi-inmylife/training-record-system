@@ -64,7 +64,6 @@
     gap: 8px;
     color: #212529;
 }
-.record-block__line2,
 .record-block__line3 {
     color: #495057;
     margin-top: 4px;
