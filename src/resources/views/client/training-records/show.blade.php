@@ -39,12 +39,14 @@
         <span class="num-tabular">{{ $rec->training_date->month }}</span>月<span class="num-tabular">{{ $rec->training_date->day }}</span>日（{{ $weekdaysJp[$rec->training_date->dayOfWeek] }}）の記録
     </h1>
 
-    {{-- メタ情報(時刻 / トレーナー)。タイトルの日付に続けて時刻を置き、
-         「いつ(日付・時刻)→ 誰が(トレーナー)」の順で読めるようにする
-         (2026-09 ユーザーレビュー・§4-4)。値がある行だけ出す。無い行は
-         「—」を出さずに要素ごと省略する(設計書 §6 空値の扱い)。 --}}
+    {{-- メタ情報(時刻 / トレーナー)。時刻と担当を 1 行に並べ、狭い幅では
+         折り返す(§4-4「タイトル下の並び」)。間は記号を入れず 8px の余白
+         (Bootstrap の column-gap-2 = 0.5rem)で区切る — 担当どうしの
+         区切りの「／」と区別するため。時刻が未登録なら時刻を、担当が
+         未登録なら担当を出さず、両方無ければ行ごと出さない(§6 空値
+         の扱い)。 --}}
     @if($trainerNames->isNotEmpty() || $trainingTime)
-        <div class="c-detail-meta meta">
+        <div class="c-detail-meta meta d-flex flex-wrap column-gap-2">
             @if($trainingTime)
                 <div class="num-tabular">{{ $trainingTime }}</div>
             @endif
