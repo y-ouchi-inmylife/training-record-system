@@ -109,3 +109,16 @@ npm run dev
 - 設計書を無視して独自の仕様で実装しない
 - 設計書を勝手に変更しない（変更はユーザーの承認を得てから）
 - テーブルやカラムの命名をDB設計書の命名規則と異なるものにしない
+
+## PowerShell でファイルを書き換えるときの注意（BOM）
+
+- Windows PowerShell 5.1 の `Set-Content -Encoding UTF8` / `Out-File -Encoding UTF8` / `Add-Content -Encoding UTF8` は、ファイル先頭に UTF-8 BOM（`EF BB BF`）を付けて書き込む。PHP ファイルに BOM が付くと構文エラーになる（`namespace` が先頭の文ではなくなる）。
+- **これらのコマンドでファイルを書き込まないこと。** 一括置換などでファイルを書き込むときは、BOM なし UTF-8 を明示する：
+
+  ```powershell
+  [System.IO.File]::WriteAllText($path, $content, (New-Object System.Text.UTF8Encoding($false)))
+  ```
+
+- 読み込みは `[System.IO.File]::ReadAllText($path, [System.Text.Encoding]::UTF8)` を使う（`Get-Content` は改行の扱いが変わるため、全文置換には使わない）。
+- 書き込み後は、先頭 3 バイトが `EF BB BF` でないことを確認する。
+- 経緯：2026-09 に、この副作用で設計書 3 件（`docs/requirements.md` / `docs/screen-design.md` / `docs/client-portal-design-plan.md`）・`src/resources/sass/client.scss`・`src/database/seeders/TrainingRecordDemoSeeder.php` に BOM が混入した（`TrainingRecordDemoSeeder.php` は構文エラーになった）。
