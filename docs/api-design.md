@@ -147,7 +147,6 @@ IP アドレス制限は、**トレーナー用サブドメイン（内部）の
 | クライアント閲覧 | S-1407 クライアントパスワード再設定申し込み画面 | POST | `/client-portal/password-reset` | メールアドレスを受け取り、該当が「利用中」なら再設定リンクを送信する（該当しない場合も同じ画面・同じ文言を返す） | public | - |
 | クライアント閲覧 | S-1408 クライアントパスワード再設定画面 | GET | `/client-portal/password-reset/{token}` | パスワード再設定画面を表示する（トークン検証） | public | - |
 | クライアント閲覧 | S-1408 クライアントパスワード再設定画面 | POST | `/client-portal/password-reset/{token}` | 新しいパスワードを保存し、ログイン画面へ遷移する | public | - |
-| クライアント閲覧 | S-1412 クライアントトレーニー体重推移画面 | GET | `/client-portal/trainees/weight-chart` | 会員自身のトレーニーの体重推移を折れ線グラフで表示する（閲覧のみ。トレーニー・計測値ともに 0 件のときは S-1402 側でリンクを出さない） | auth:client | クライアント |
 | クライアント管理 | S-0305 クライアント詳細画面 | POST | `/clients/{client}/email-registration-tokens` | マイページ登録案内を発行する（未発行時の発行と再発行を同じエンドポイントで扱う。トークン自体は「メールアドレス登録用 URL」で、URL パスもそのまま） | auth | 管理者、一般 |
 | 内部API | - | GET | `/api/clients/search` | クライアントを検索する | auth | 管理者、一般 |
 | 内部API | - | POST | `/api/training-records/auto-create` | 音声記録の要約からトレーニング記録を作成する | auth | 管理者、一般 |
