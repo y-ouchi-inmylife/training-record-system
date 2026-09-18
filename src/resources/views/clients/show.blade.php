@@ -238,9 +238,11 @@
                                 <a href="{{ route('training-records.show', $record) }}" class="record-block-link">
                                     <div class="record-block">
                                         {{-- 見出し行: 日付・時刻・担当・メディア件数を横並び
-                                             （record-block__line1 の flex-wrap で狭い幅では自然に折り返す） --}}
+                                             （record-block__line1 の flex-wrap で狭い幅では自然に折り返す）。
+                                             日付だけを太字（fw-bold）にして各ブロックの先頭で「いつの記録か」を
+                                             ひと目で分かるようにする（未来日付の text-primary と併用可）。 --}}
                                         <div class="record-block__line1">
-                                            <span @if($isFutureDate) class="text-primary" @endif>{{ $record->training_date->format('Y/m/d') }}</span>
+                                            <span class="fw-bold @if($isFutureDate) text-primary @endif">{{ $record->training_date->format('Y/m/d') }}</span>
                                             @if($record->training_time)
                                                 <span>{{ substr($record->training_time, 0, 5) }}</span>
                                             @endif
