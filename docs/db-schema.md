@@ -157,6 +157,27 @@ erDiagram
     trainers ||--o{ client_email_registration_tokens : "発行"
     clients ||--o{ client_email_change_tokens : "メールアドレス変更"
     clients ||--o{ client_password_reset_tokens : "パスワード再設定"
+
+
+    trainees {
+        bigint id PK
+        bigint client_id FK
+        string name
+        string breed
+        string sex
+        date birth_date
+    }
+
+    trainee_measurements {
+        bigint id PK
+        bigint trainee_id FK
+        date measured_date
+        time measured_time
+        decimal weight_kg
+    }
+
+    clients ||--o{ trainees : "トレーニングを受ける対象を持つ"
+    trainees ||--o{ trainee_measurements : "計測される"
 ```
 
 ※ER図はテーブル間の関連と主要カラム（主キー・ユニークキー・外部キー・主な業務識別/区分カラム）のみを示す。`created_at`/`updated_at`/`updated_by` 等の共通カラムおよび非識別カラムは省略しているため、全カラムは4章のテーブル定義を参照。clientsテーブルは7カテゴリー50業務項目＋共通カラムで構成され、ER図には代表カラムのみ掲載している。
@@ -500,6 +521,89 @@ erDiagram
 #### DM-0200 training_types（トレーニング内容）
 
 （2026-09 削除。欠番）ユーザーレビューでトレーナーが「トレーニング内容」の分類は不要と判断したため、テーブルごと廃止。マスタ ID は振り直さない。
+
+
+---
+
+#### D-0700 trainees（トレーニー）
+
+##### カラム定義
+
+| カラム名 | 型 | NULL | デフォルト | 説明 |
+|---------|-----|------|----------|------|
+| id | BIGINT UNSIGNED | NO | auto_increment | 主キー |
+| client_id | BIGINT UNSIGNED | NO | — | 会員のID（外部キー） |
+| name | VARCHAR(50) | NO | — | 名前。犬の名前はひらがな・カタカナが多く、よみ（かな）は持たない |
+| breed | VARCHAR(100) | YES | NULL | 犬種。自由入力（「ミックス」等の表記に対応するためマスタは持たない） |
+| sex | VARCHAR(20) | YES | NULL | 性別。値は 5-20. 参照 |
+| birth_date | DATE | YES | NULL | 誕生日。保護犬等で正確な生年月日が不明な場合があるため NULL 許容（推定の場合は note に記載） |
+| note | TEXT | YES | NULL | 備考 |
+| created_at | TIMESTAMP | YES | NULL | 作成日時 |
+| updated_at | TIMESTAMP | YES | NULL | 更新日時 |
+| updated_by | BIGINT UNSIGNED | YES | NULL | 最終更新者のトレーナーのid（外部キー） |
+
+##### インデックス
+
+| インデックス名 | カラム | 種類 | 目的 |
+|---------------|--------|------|------|
+| PRIMARY | id | PRIMARY KEY | 主キー |
+| trainees_client_id_idx | client_id | INDEX | 会員による検索・逆引き（会員詳細でのトレーニー一覧表示） |
+| trainees_updated_by_foreign | updated_by | INDEX | 最終更新者による検索。外部キー制約に伴い自動付与 |
+
+##### 制約
+
+| 制約名 | 種類 | 条件 | ON DELETE | 説明 |
+|--------|------|------|-----------|------|
+| trainees_client_id_foreign | FOREIGN KEY | client_id → clients(id) | CASCADE | 会員削除時はトレーニーも削除。ただしアプリ側では**トレーニーが存在する会員の削除を拒否**する（既存のトレーニング記録と同じ二層構え。CASCADE は誤操作・整合性のための最終防壁） |
+| trainees_updated_by_foreign | FOREIGN KEY | updated_by → trainers(id) | SET NULL | トレーナー削除時は最終更新者をNULLにする |
+| trainees_sex_check | CHECK | sex IN ('male', 'female', 'unknown') | — | 性別の値制限（5-20. 参照） |
+
+##### 注記
+
+- `display_order` は持たない。複数頭は稀であり、並び順は登録順（`id` 昇順）とする
+- 年齢カラムは持たない。`birth_date` から算出して表示する（`birth_date` が NULL のときは年齢表示なし）
+- 将来的にトレーニングの対象を犬以外（人間等）に広げる可能性を見据え、テーブル名・カラム名は犬に限定しない命名としている。ただし `breed` は犬固有の項目であり、対象を広げる際は使用しないカラムとして残すか別テーブルへの切り出しを検討する
+- `created_by` は持たない（`training_records` 等の既存テーブルと同様、`updated_by` のみ）
+
+
+---
+
+#### D-0800 trainee_measurements（トレーニー計測値）
+
+##### カラム定義
+
+| カラム名 | 型 | NULL | デフォルト | 説明 |
+|---------|-----|------|----------|------|
+| id | BIGINT UNSIGNED | NO | auto_increment | 主キー |
+| trainee_id | BIGINT UNSIGNED | NO | — | トレーニーのID（外部キー） |
+| measured_date | DATE | NO | — | 計測日 |
+| measured_time | TIME | NO | — | 計測時刻（HH:MM形式）。1日2回の計測に対応するため保持し、**NOT NULL とする**（NULL を許容するとユニーク制約が機能しないため） |
+| weight_kg | DECIMAL(5,2) | NO | — | 体重（kg） |
+| note | VARCHAR(255) | YES | NULL | 備考 |
+| created_at | TIMESTAMP | YES | NULL | 作成日時 |
+| updated_at | TIMESTAMP | YES | NULL | 更新日時 |
+| updated_by | BIGINT UNSIGNED | YES | NULL | 最終更新者のトレーナーのid（外部キー） |
+
+##### インデックス
+
+| インデックス名 | カラム | 種類 | 目的 |
+|---------------|--------|------|------|
+| PRIMARY | id | PRIMARY KEY | 主キー |
+| trainee_measurements_trainee_date_unique | trainee_id, measured_date, measured_time | UNIQUE（複合） | 同一トレーニー・同一日時の二重登録を防ぐ。時系列の検索・ソートにも使用 |
+| trainee_measurements_updated_by_foreign | updated_by | INDEX | 最終更新者による検索。外部キー制約に伴い自動付与 |
+
+##### 制約
+
+| 制約名 | 種類 | 条件 | ON DELETE | 説明 |
+|--------|------|------|-----------|------|
+| trainee_measurements_trainee_id_foreign | FOREIGN KEY | trainee_id → trainees(id) | CASCADE | トレーニー削除時は計測値も削除（計測値は日々増えるため削除拒否方式は採らない） |
+| trainee_measurements_updated_by_foreign | FOREIGN KEY | updated_by → trainers(id) | SET NULL | トレーナー削除時は最終更新者をNULLにする |
+| trainee_measurements_weight_kg_check | CHECK | weight_kg > 0 AND weight_kg <= 999.99 | — | 体重の値制限（正値、`DECIMAL(5,2)` の上限） |
+
+##### 設計ポリシー
+
+- **計測項目は横持ち（項目ごとにカラム）とする**。現状の計測項目は体重のみ。将来項目が増える可能性はあるが、内容が未知であり数値以外になる可能性もあるため、項目マスタ＋値カラムの縦持ち方式は採らない（縦持ちにすると値カラムの型を固定できず、入力検証と集計が破綻する）。項目追加時はカラム追加で対応する
+- 計測は `training_records` とは紐付けない独立データとする。トレーニング記録と突き合わせて表示する必要が生じた場合は日付で結合する
 
 
 ---
@@ -871,6 +975,14 @@ erDiagram
 | create_training_record | トレーニング記録登録 |
 | edit_training_record | トレーニング記録編集 |
 | delete_training_record | トレーニング記録削除 |
+| create_trainee | トレーニー登録 |
+| edit_trainee | トレーニー編集 |
+| delete_trainee | トレーニー削除 |
+| create_trainee_measurement | トレーニー計測値登録 |
+| edit_trainee_measurement | トレーニー計測値編集 |
+| delete_trainee_measurement | トレーニー計測値削除 |
+
+`target_type` には短縮クラス名を格納する（例：会員は `'Client'`、トレーニング記録は `'TrainingRecord'`、トレーニーは `'Trainee'`、計測値は `'TraineeMeasurement'`）。トレーニーは詳細画面が会員詳細（S-0305）内に置かれるため、参照の操作種別（`view_trainee`）は持たない（トレーニーの参照は `view_client` に含める。計測値も同様）。
 
 ### 5-17. メディア種別
 
@@ -897,6 +1009,16 @@ erDiagram
 | processing | 生成中。サムネイルの生成処理を実行している状態 |
 | done | 生成完了。サムネイルが生成され、thumbnail_path に保存された状態 |
 | error | エラー。サムネイル生成処理中にエラーが発生した状態 |
+
+### 5-20. 性別
+
+D-0700 `trainees.sex` の値。犬以外への対象拡張時にも共通で使えるよう、値は「male / female / unknown」の 3 値とする。日本語表示は画面設計書に委ねる（雄／雌／不明）。
+
+| 値 | 説明 |
+|----|------|
+| male | オス |
+| female | メス |
+| unknown | 不明。保護犬等で性別が不明な場合、または未確認の場合 |
 
 
 ---
@@ -942,6 +1064,8 @@ erDiagram
 | 13 | client_email_registration_tokens | clients |
 | 14 | client_email_change_tokens | clients |
 | 15 | client_password_reset_tokens | clients |
+| 16 | trainees | clients, trainers |
+| 17 | trainee_measurements | trainees, trainers |
 
 ---
 

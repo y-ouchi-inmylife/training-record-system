@@ -67,6 +67,15 @@ IP アドレス制限は、**トレーナー用サブドメイン（内部）の
 | クライアント管理 | S-0307 メールアドレス登録用 URL 印刷画面 | GET | `/clients/{client}/email-registration-tokens/print` | メールアドレス登録用 URL の印刷用ページを表示する | auth | 管理者、一般 |
 | クライアント管理 | S-0305 クライアント詳細画面 | DELETE | `/clients/{client}/email-registration-tokens` | マイページ登録案内を取り消す（未使用のメールアドレス登録用トークンを物理削除する。6-3-7） | auth | 管理者、一般 |
 | クライアント管理 | S-0305 クライアント詳細画面 | DELETE | `/clients/{client}/email` | クライアントのメールアドレスとパスワードを削除し、送信済みのメールアドレス登録用 URL・ログイン用リンクを無効化する（6-3-8） | auth | 管理者、一般 |
+| トレーニー管理 | S-0308 トレーニー登録画面 | GET | `/clients/{client}/trainees/create` | トレーニー登録画面を表示する（会員は URL パラメータから取得。ルート名 `trainees.create`） | auth | 管理者、一般 |
+| トレーニー管理 | S-0308 トレーニー登録画面 | POST | `/clients/{client}/trainees` | トレーニーを登録する（ルート名 `trainees.store`） | auth | 管理者、一般 |
+| トレーニー管理 | S-0309 トレーニー詳細画面 | GET | `/trainees/{trainee}` | トレーニー詳細画面を表示する（ルート名 `trainees.show`） | auth | 管理者、一般 |
+| トレーニー管理 | S-0310 トレーニー編集画面 | GET | `/trainees/{trainee}/edit` | トレーニー編集画面を表示する（ルート名 `trainees.edit`） | auth | 管理者、一般 |
+| トレーニー管理 | S-0310 トレーニー編集画面 | PUT | `/trainees/{trainee}` | トレーニーを更新する（ルート名 `trainees.update`） | auth | 管理者、一般 |
+| トレーニー管理 | S-0309 トレーニー詳細画面 | DELETE | `/trainees/{trainee}` | トレーニーを削除する（物理削除。CASCADE で計測値も削除される。ルート名 `trainees.destroy`。**管理者のみ**、コントローラ内で `auth()->user()->isAdmin()` チェック） | auth | 管理者 |
+| トレーニー管理 | S-0309 トレーニー詳細画面 | POST | `/trainees/{trainee}/measurements` | 計測値を登録する（ルート名 `trainee-measurements.store`） | auth | 管理者、一般 |
+| トレーニー管理 | S-0309 トレーニー詳細画面 | PUT | `/trainee-measurements/{measurement}` | 計測値を更新する（ルート名 `trainee-measurements.update`） | auth | 管理者、一般 |
+| トレーニー管理 | S-0309 トレーニー詳細画面 | DELETE | `/trainee-measurements/{measurement}` | 計測値を削除する（物理削除。ルート名 `trainee-measurements.destroy`。**管理者のみ**、コントローラ内で `isAdmin()` チェック） | auth | 管理者 |
 | トレーニング記録管理 | S-0401 トレーニング記録登録画面 | GET | `/training-records/create` | トレーニング記録登録画面を表示する | auth | 管理者、一般 |
 | トレーニング記録管理 | S-0401 トレーニング記録登録画面 | POST | `/training-records` | トレーニング記録を新規登録する | auth | 管理者、一般 |
 | トレーニング記録管理 | S-0402 トレーニング記録一覧画面 | GET | `/training-records` | トレーニング記録一覧画面を表示する | auth | 管理者、一般 |
@@ -138,6 +147,7 @@ IP アドレス制限は、**トレーナー用サブドメイン（内部）の
 | クライアント閲覧 | S-1407 クライアントパスワード再設定申し込み画面 | POST | `/client-portal/password-reset` | メールアドレスを受け取り、該当が「利用中」なら再設定リンクを送信する（該当しない場合も同じ画面・同じ文言を返す） | public | - |
 | クライアント閲覧 | S-1408 クライアントパスワード再設定画面 | GET | `/client-portal/password-reset/{token}` | パスワード再設定画面を表示する（トークン検証） | public | - |
 | クライアント閲覧 | S-1408 クライアントパスワード再設定画面 | POST | `/client-portal/password-reset/{token}` | 新しいパスワードを保存し、ログイン画面へ遷移する | public | - |
+| クライアント閲覧 | S-1412 クライアントトレーニー体重推移画面 | GET | `/client-portal/trainees/weight-chart` | 会員自身のトレーニーの体重推移を折れ線グラフで表示する（閲覧のみ。トレーニー・計測値ともに 0 件のときは S-1402 側でリンクを出さない） | auth:client | クライアント |
 | クライアント管理 | S-0305 クライアント詳細画面 | POST | `/clients/{client}/email-registration-tokens` | マイページ登録案内を発行する（未発行時の発行と再発行を同じエンドポイントで扱う。トークン自体は「メールアドレス登録用 URL」で、URL パスもそのまま） | auth | 管理者、一般 |
 | 内部API | - | GET | `/api/clients/search` | クライアントを検索する | auth | 管理者、一般 |
 | 内部API | - | POST | `/api/training-records/auto-create` | 音声記録の要約からトレーニング記録を作成する | auth | 管理者、一般 |
