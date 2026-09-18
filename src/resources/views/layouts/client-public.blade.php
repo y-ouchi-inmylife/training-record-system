@@ -9,7 +9,7 @@
     <link rel="icon" href="/icons/favicon-client.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon-client.png">
     <link rel="manifest" href="/manifest-client.json">
-    <meta name="theme-color" content="#D85A30">
+    <meta name="theme-color" content="#162D66">
     <title>@hasSection('title')@yield('title') - @endif{{ config('app.client_portal_name', 'トレーニング記録') }}</title>
     @vite(['resources/sass/client.scss', 'resources/js/app.js'])
     @stack('styles')

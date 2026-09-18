@@ -10,10 +10,10 @@
 
 ## 色
 
-- クライアント用: `#D85A30`（現行 `favicon.svg` の色をそのまま流用）
+- クライアント用: `#162D66`（`$brand-deep`。会員向け画面のヘッダー帯・見出しと同色。旧値 `#D85A30` から変更）
 - トレーナー用: `#0a4fa8`（`resources/sass/app.scss` L17/L22 で既に使われている濃い青）
 
-`favicon-trainer.svg` は `favicon-client.svg` の `#D85A30` を `#0a4fa8` に 2 箇所（背景矩形と時計の針）置換したもの。
+`favicon-trainer.svg` は 2 箇所（背景矩形と時計の針）の色が `#0a4fa8` になっており、`favicon-client.svg`（現状 `#162D66`）とはこの 2 箇所の色だけが異なる。
 
 ## 生成コマンド
 
