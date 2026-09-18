@@ -93,7 +93,16 @@ function renderChart(canvas, data) {
             scales: {
                 y: {
                     // 縦軸の範囲は Chart.js の既定（データに合わせた自動調整）に任せる。
-                    title: { display: true, text: 'kg' },
+                    // 目盛りは詰まりすぎないように maxTicksLimit で本数を抑え、
+                    // 各目盛りに単位「kg」を付ける（縦書きの軸ラベル title は廃止）。
+                    ticks: {
+                        maxTicksLimit: 5,
+                        // 小数点以下 1 桁で揃える。実測値は 2 桁まで持つが軸目盛りは
+                        // 1 桁で十分（詳細な値はツールチップ側に 2 桁で出す）。
+                        callback(value) {
+                            return `${Number(value).toFixed(1)} kg`;
+                        },
+                    },
                 },
                 x: {
                     ticks: {

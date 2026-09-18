@@ -4,6 +4,9 @@
     // 曜日の日本語表記（Carbon の dayOfWeek は 0=日 〜 6=土）
     $weekdaysJp = ['日', '月', '火', '水', '木', '金', '土'];
     $hero = $sessions->first();
+    // 体重推移グラフ 1 枚あたりの高さ（暫定値）。値をここで一元管理し、
+    // 各 canvas の親要素のインラインスタイルで使い回す。
+    $weightChartHeight = '180px';
 @endphp
 
 @section('content')
@@ -30,7 +33,7 @@
                     <div class="c-session-body">
                         <div class="c-session-content">
                             <h2 class="mb-2" style="font-size: 1.1rem;">{{ $chart['name'] }}ちゃんの体重推移</h2>
-                            <div style="position: relative; height: 240px;">
+                            <div style="position: relative; height: {{ $weightChartHeight }};">
                                 <canvas data-measurement-chart="{{ json_encode([
                                     'labels' => $chart['labels'],
                                     'tooltips' => $chart['tooltips'],
