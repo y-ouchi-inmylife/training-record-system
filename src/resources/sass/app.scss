@@ -7,12 +7,7 @@
 // flatpickr（日付入力）
 @import 'flatpickr/dist/flatpickr.css';
 
-// クライアント閲覧ポータル用ナビバー背景（トレーナー側 bg-primary と区別するためのオレンジ）
-.bg-client-nav {
-    background-color: #fd7e14 !important;
-}
-
-// トレーナー側ナビバー背景（クライアント側 .bg-client-nav のオレンジと区別する紺）
+// トレーナー側ナビバー背景（bg-primary との識別のために用意している紺）
 .bg-trainer-nav {
     background-color: #0a4fa8 !important;
 }
