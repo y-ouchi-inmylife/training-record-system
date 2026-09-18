@@ -416,13 +416,16 @@ h2, .h2 {
 
 // HOME リンク。フッターの文字は小さいため、上下 padding で
 // タップ領域の高さ 44px 相当を確保する（設計書 §4-3・§7-17 と同じ基準）。
+// 単独で置かれる文字リンクは、本文中リンクと同じ手がかり
+// （brand-bright + 常時下線・hover 時 ink）で識別を担保する
+// （設計書 §2-1「リンクの規約」）。
 .c-footer-home {
     display: inline-block;
-    color: $brand-deep;
+    color: $brand-bright;
     font-size: 0.875rem;
     font-weight: 700;
     letter-spacing: 0.04em;
-    text-decoration: none;
+    text-decoration: underline;
     padding: 0.75rem 1rem;
 }
 .c-footer-home:hover {
@@ -697,14 +700,17 @@ input[type="tel"] {
 }
 
 // 「続きを読む →」CTA
+// カード末尾に単独で置く文字リンクは、本文中リンクと同じ手がかり
+// （brand-bright + 常時下線・hover 時 ink）で識別を担保する
+// （設計書 §2-1「リンクの規約」）。
 .c-session-cta {
     align-self: flex-start;
-    color: $brand-deep;
+    color: $brand-bright;
     font-weight: 700;
-    text-decoration: none;
+    text-decoration: underline;
 }
 .c-session-cta:hover {
-    text-decoration: underline;
+    color: $ink;
 }
 .c-session-cta:focus-visible {
     outline: none;
@@ -795,16 +801,19 @@ input[type="tel"] {
 //   タイトルサイズも 1 段下がる
 // -----------------------------------------------------------------------------
 
-// 戻る導線: 「戻る」ではなく行き先を書く（設計書 §6）
+// 戻る導線: 「戻る」ではなく行き先を書く（設計書 §6）。
+// 詳細画面上部に単独で置く文字リンクは、本文中リンクと同じ手がかり
+// （brand-bright + 常時下線・hover 時 ink）で識別を担保する
+// （設計書 §2-1「リンクの規約」）。
 .c-detail-back {
     display: inline-block;
-    color: $brand-deep;
+    color: $brand-bright;
     font-weight: 700;
-    text-decoration: none;
+    text-decoration: underline;
     margin-bottom: 1rem;
 }
 .c-detail-back:hover {
-    text-decoration: underline;
+    color: $ink;
 }
 .c-detail-back:focus-visible {
     outline: none;
