@@ -246,26 +246,28 @@
                                                 <span>{{ substr($record->training_time, 0, 5) }}</span>
                                             @endif
                                             @if($trainerNames !== '')
-                                                <span><span class="text-muted">担当</span> {{ $trainerNames }}</span>
+                                                <span><span class="text-muted">担当：</span>{{ $trainerNames }}</span>
                                             @endif
                                             @if($record->media_records_count > 0)
-                                                <span><span class="text-muted">メディア</span> {{ $record->media_records_count }}件</span>
+                                                <span><span class="text-muted">メディア：</span>{{ $record->media_records_count }}件</span>
                                             @endif
                                         </div>
                                         {{-- トレーナーからのノート: 小見出し + 本文（改行を保持）。
                                              空欄なら小見出しごと非表示（設計書 S-0305 セクション2）。
-                                             小見出しは同画面の他のラベル（初回日／主担当など）と同じ
-                                             text-muted small で書式を揃える。本文は既存の
-                                             record-block__line3（white-space:pre-wrap / 0.9em / #495057）を流用。 --}}
+                                             小見出しは本文より濃い太字（small fw-bold に本文の標準色）にする
+                                             — text-muted small では本文の record-block__line3（#495057・0.9em）
+                                             より薄く見えて見出しとして読めなかったため（2026-09 実機確認）。
+                                             本文は既存の record-block__line3（white-space:pre-wrap / 0.9em /
+                                             #495057）を流用。 --}}
                                         @if($record->record_content)
-                                            <div class="text-muted small mt-2">トレーナーからのノート</div>
+                                            <div class="small fw-bold mt-2 text-body">トレーナーからのノート</div>
                                             <div class="record-block__line3">{{ $record->record_content }}</div>
                                         @endif
                                         {{-- 所感: 小見出し + 本文（改行を保持）。
                                              会員には非開示のため S-0305（トレーナー専用画面）のみで表示する
                                              （会員向け画面 S-14xx には出さない）。空欄なら小見出しごと非表示。 --}}
                                         @if($record->impression)
-                                            <div class="text-muted small mt-2">所感</div>
+                                            <div class="small fw-bold mt-2 text-body">所感</div>
                                             <div class="record-block__line3">{{ $record->impression }}</div>
                                         @endif
                                     </div>
