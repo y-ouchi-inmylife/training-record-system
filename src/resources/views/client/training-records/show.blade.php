@@ -24,10 +24,12 @@
 @section('content')
 <div class="container py-4 c-detail">
     {{-- 戻る導線: 「戻る」ではなく行き先を書く(設計書 §6)。
-         ラベルはフッターの HOME と統一（設計書 §4-0・§6）。
-         矢印は「上の階層へ戻る」文脈のため残す。 --}}
+         ラベルはフッターの HOME と同じ「HOME」で、矢印は付けない。
+         矢印は「一つ前の画面へ戻る」方向を示す記号として「← 戻る」だけに
+         使い(S-1409/S-1410/S-1411 の .c-detail-back)、HOME は行き先を
+         名指しするリンクなので付けない(設計書 §4-0・§4-10)。 --}}
     <a href="{{ route('client-portal.dashboard') }}" class="c-detail-back">
-        <span aria-hidden="true">←</span> HOME
+        HOME
     </a>
 
     {{-- 詳細タイトル: 「トレーニング記録詳細」ではなく日付主体(§6・§4-4)。
