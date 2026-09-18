@@ -126,6 +126,9 @@
                     @if($client->trainingRecords->count() > 0)
                         alert('この会員にはトレーニング記録が登録されているため削除できません。');
                         return false;
+                    @elseif($client->trainees->count() > 0)
+                        alert('この会員にはトレーニーが登録されているため削除できません。');
+                        return false;
                     @else
                         return confirm('この会員を削除しますか？');
                     @endif
@@ -289,15 +292,29 @@
             </div>
         </div>
 
-        {{-- 右カラム: 予備カード --}}
+        {{-- 右カラム: トレーニー一覧（設計書 S-0305 セクション3、段階①）
+             既存のトレーニング記録カード（左カラム）のヘッダーと同じ作りにする。
+             行全体がクリック可能で、押下でトレーニー詳細（S-0309）へ遷移。 --}}
         <div class="col-lg-4">
             <div class="card mb-3">
-                <div class="card-header">
-                    <h6 class="mb-0">（未定）</h6>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">トレーニー（{{ $client->trainees->count() }}件）</h6>
+                    <a href="{{ route('trainees.create', $client) }}" class="btn btn-primary">新規登録</a>
                 </div>
-                <div class="card-body">
-                    <p class="text-muted mb-0">（将来の拡張用）</p>
-                </div>
+                @if($client->trainees->count() > 0)
+                    <ul class="list-group list-group-flush">
+                        @foreach($client->trainees as $trainee)
+                            <a href="{{ route('trainees.show', $trainee) }}"
+                               class="list-group-item list-group-item-action">
+                                {{ $trainee->name }}@if($trainee->breed)<span class="text-muted">（{{ $trainee->breed }}）</span>@endif
+                            </a>
+                        @endforeach
+                    </ul>
+                @else
+                    <div class="card-body">
+                        <p class="text-muted mb-0">トレーニーは登録されていません</p>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

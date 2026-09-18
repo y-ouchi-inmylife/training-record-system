@@ -20,6 +20,7 @@ use App\Http\Controllers\AudioRecordController;
 use App\Http\Controllers\RecordingV2Controller;
 use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\SummaryPromptController;
+use App\Http\Controllers\TraineeController;
 use App\Http\Controllers\UsageStatsController;
 use Illuminate\Support\Facades\Route;
 
@@ -85,6 +86,23 @@ Route::domain(config('subdomain.trainer_host'))->middleware('check-ip')->group(f
             // メールアドレスの削除（6-3-8、段階 4-2）
             Route::delete('clients/{client}/email', [ClientEmailController::class, 'destroy'])
                 ->name('client-email.destroy');
+
+            // トレーニー（D-0700、段階①）。会員詳細（S-0305）の中だけに置くため
+            // Route::resource は使わず個別に定義する。登録・store は会員 URL 配下、
+            // それ以外はフラット URL とする（設計書 api-design.md 参照）。
+            Route::get('clients/{client}/trainees/create', [TraineeController::class, 'create'])
+                ->name('trainees.create');
+            Route::post('clients/{client}/trainees', [TraineeController::class, 'store'])
+                ->name('trainees.store');
+            Route::get('trainees/{trainee}', [TraineeController::class, 'show'])
+                ->name('trainees.show');
+            Route::get('trainees/{trainee}/edit', [TraineeController::class, 'edit'])
+                ->name('trainees.edit');
+            Route::put('trainees/{trainee}', [TraineeController::class, 'update'])
+                ->name('trainees.update');
+            Route::delete('trainees/{trainee}', [TraineeController::class, 'destroy'])
+                ->name('trainees.destroy');
+
             Route::resource('training-records', TrainingRecordController::class);
 
             // 旧録音画面 → 録音【改良版】にリダイレクト

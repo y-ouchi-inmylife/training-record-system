@@ -145,6 +145,17 @@ class Client extends Authenticatable
     }
 
     /**
+     * トレーニー（D-0700）
+     *
+     * 並び順は登録順（`id` 昇順）。トレーニーは複数頭が稀で `display_order` を
+     * 持たないため、登録順で足りる（設計書 requirements.md 6-16、db-schema.md D-0700 注記）。
+     */
+    public function trainees(): HasMany
+    {
+        return $this->hasMany(Trainee::class)->orderBy('id');
+    }
+
+    /**
      * メールアドレス登録用トークン（DS-0700）
      */
     public function emailRegistrationTokens(): HasMany

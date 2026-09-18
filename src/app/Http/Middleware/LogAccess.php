@@ -22,6 +22,10 @@ class LogAccess
         'training-records.store' => 'create_training_record',
         'training-records.update' => 'edit_training_record',
         'training-records.destroy' => 'delete_training_record',
+        // トレーニー（D-0700、段階①）。参照は view_client に含めるため view_trainee は作らない。
+        'trainees.store' => 'create_trainee',
+        'trainees.update' => 'edit_trainee',
+        'trainees.destroy' => 'delete_trainee',
     ];
 
     public function handle(Request $request, Closure $next): Response
@@ -51,7 +55,13 @@ class LogAccess
         $targetType = null;
         $targetId = null;
 
-        if (str_contains($action, 'client')) {
+        // trainee の分岐は client の分岐より前に置く（'trainee' は 'client' を含まないため
+        // 実際には衝突しないが、意図を明確にするため）。
+        if (str_contains($action, 'trainee')) {
+            $targetType = 'Trainee';
+            $param = $request->route('trainee');
+            $targetId = is_object($param) ? $param->id : $param;
+        } elseif (str_contains($action, 'client')) {
             $targetType = 'Client';
             $param = $request->route('client');
             $targetId = is_object($param) ? $param->id : $param;

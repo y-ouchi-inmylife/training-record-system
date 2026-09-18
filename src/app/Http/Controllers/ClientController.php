@@ -144,7 +144,7 @@ class ClientController extends Controller
                 ->withCount('mediaRecords')
                 ->orderBy('training_date', 'desc')
                 ->orderBy('training_time', 'desc');
-        }]);
+        }, 'trainees']);
 
         // 状態バッジ（4 状態＋期限切れ）判定に必要な派生値を先読みする。
         // 状態別ボタン（「登録案内を発行」／「登録案内を表示」／「登録案内を取消」／
@@ -205,6 +205,13 @@ class ClientController extends Controller
             return redirect()
                 ->route('clients.show', $client)
                 ->with('error', 'この会員にはトレーニング記録が登録されているため削除できません。');
+        }
+
+        // トレーニーが登録されている場合も削除不可（設計書 6-3-5、段階① で追加）
+        if ($client->trainees()->exists()) {
+            return redirect()
+                ->route('clients.show', $client)
+                ->with('error', 'この会員にはトレーニーが登録されているため削除できません。');
         }
 
         $client->delete();

@@ -38,6 +38,9 @@ class AccessLog extends Model
             'edit_training_record' => 'トレーニング記録編集',
             'create_training_record' => 'トレーニング記録登録',
             'delete_training_record' => 'トレーニング記録削除',
+            'create_trainee' => 'トレーニー登録',
+            'edit_trainee' => 'トレーニー編集',
+            'delete_trainee' => 'トレーニー削除',
         ];
     }
 
@@ -52,6 +55,7 @@ class AccessLog extends Model
         return [
             'Client' => '会員',
             'TrainingRecord' => 'トレーニング記録',
+            'Trainee' => 'トレーニー',
         ];
     }
 
