@@ -31,7 +31,7 @@
                     <thead class="table-light">
                         <tr>
                             <th>日時</th>
-                            <th>クライアント</th>
+                            <th>会員</th>
                             <th>表示名</th>
                             <th>登録者</th>
                             <th>再生</th>

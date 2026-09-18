@@ -18,11 +18,11 @@
         {{-- クライアント --}}
         <div class="mb-3">
             <label for="upload_client_id" class="form-label">
-                クライアント <span class="text-danger">*</span>
+                会員 <span class="text-danger">*</span>
             </label>
             <select name="client_id" id="upload_client_id"
                     class="form-select select2-client-upload @error('client_id') is-invalid @enderror">
-                <option value="">クライアントを検索...</option>
+                <option value="">会員を検索...</option>
             </select>
             @error('client_id')
                 <div class="invalid-feedback">{{ $message }}</div>
@@ -58,7 +58,7 @@
 $(document).ready(function() {
     $('.select2-client-upload').select2({
         theme: 'bootstrap-5',
-        placeholder: 'クライアントを検索（内部ID、名前、かな）',
+        placeholder: '会員を検索（内部ID、名前、かな）',
         allowClear: true,
         width: '100%',
         ajax: {
@@ -76,7 +76,7 @@ $(document).ready(function() {
         minimumInputLength: 1,
         language: {
             inputTooShort: function () { return '1文字以上入力してください'; },
-            noResults: function () { return '該当するクライアントが見つかりません'; },
+            noResults: function () { return '該当する会員が見つかりません'; },
             searching: function () { return '検索中...'; }
         }
     });

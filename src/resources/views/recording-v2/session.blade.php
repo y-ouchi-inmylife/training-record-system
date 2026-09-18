@@ -213,7 +213,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">クライアント</label>
+                        <label class="form-label">会員</label>
                         <input type="text" class="form-control bg-light" id="record-client-name" readonly>
                     </div>
 

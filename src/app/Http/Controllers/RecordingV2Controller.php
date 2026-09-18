@@ -28,8 +28,8 @@ class RecordingV2Controller extends Controller
         $request->validate([
             'client_id' => 'required|exists:clients,id',
         ], [
-            'client_id.required' => 'クライアントを選択してください',
-            'client_id.exists' => '選択されたクライアントは存在しません',
+            'client_id.required' => '会員を選択してください',
+            'client_id.exists' => '選択された会員は存在しません',
         ]);
 
         // セッションに client_id を保存して /session にリダイレクト（PRG パターン）
@@ -50,13 +50,13 @@ class RecordingV2Controller extends Controller
 
         if (!$clientId) {
             return redirect()->route('recording-v2.index')
-                ->with('error', 'クライアントを選択してください');
+                ->with('error', '会員を選択してください');
         }
 
         $client = Client::find($clientId);
         if (!$client) {
             return redirect()->route('recording-v2.index')
-                ->with('error', '指定されたクライアントが見つかりません');
+                ->with('error', '指定された会員が見つかりません');
         }
 
         return view('recording-v2.session', compact('client'));

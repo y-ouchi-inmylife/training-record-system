@@ -70,8 +70,8 @@ class AudioRecordController extends Controller
                 'max:' . (AudioRecord::MAX_FILE_SIZE / 1024), // KB単位
             ],
         ], [
-            'client_id.required' => 'クライアントを選択してください。',
-            'client_id.exists' => '選択されたクライアントが存在しません。',
+            'client_id.required' => '会員を選択してください。',
+            'client_id.exists' => '選択された会員が存在しません。',
             'file.required' => '音声ファイルを選択してください。',
             'file.file' => '有効なファイルをアップロードしてください。',
             'file.max' => 'ファイルサイズは500MB以下にしてください。',
@@ -128,8 +128,8 @@ class AudioRecordController extends Controller
                 'max:' . (AudioRecord::MAX_FILE_SIZE / 1024), // KB単位
             ],
         ], [
-            'client_id.required' => 'クライアントを選択してください。',
-            'client_id.exists' => '選択されたクライアントが存在しません。',
+            'client_id.required' => '会員を選択してください。',
+            'client_id.exists' => '選択された会員が存在しません。',
             'file.required' => '音声ファイルを選択してください。',
             'file.file' => '有効なファイルをアップロードしてください。',
             'file.max' => 'ファイルサイズは500MB以下にしてください。',
@@ -197,8 +197,8 @@ class AudioRecordController extends Controller
             'title' => 'required|string|max:255',
             'transcription_text' => 'required|string',
         ], [
-            'client_id.required' => 'クライアントを選択してください。',
-            'client_id.exists' => '選択されたクライアントが存在しません。',
+            'client_id.required' => '会員を選択してください。',
+            'client_id.exists' => '選択された会員が存在しません。',
             'title.required' => '表示名を入力してください。',
             'title.max' => '表示名は255文字以内で入力してください。',
             'transcription_text.required' => '文字起こしテキストを入力してください。',
@@ -431,8 +431,8 @@ class AudioRecordController extends Controller
         $request->validate([
             'client_id' => 'required|exists:clients,id',
         ], [
-            'client_id.required' => 'クライアントを指定してください。',
-            'client_id.exists' => '選択されたクライアントが存在しません。',
+            'client_id.required' => '会員を指定してください。',
+            'client_id.exists' => '選択された会員が存在しません。',
         ]);
 
         $query = AudioRecord::where('trainer_id', Auth::id())
