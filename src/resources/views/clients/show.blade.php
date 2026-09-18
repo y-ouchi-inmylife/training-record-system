@@ -238,30 +238,35 @@
                                 @endphp
                                 <a href="{{ route('training-records.show', $record) }}" class="record-block-link">
                                     <div class="record-block">
-                                        {{-- 1行目: 日付 + 時刻 --}}
+                                        {{-- 見出し行: 日付・時刻・担当・メディア件数を横並び
+                                             （record-block__line1 の flex-wrap で狭い幅では自然に折り返す） --}}
                                         <div class="record-block__line1">
                                             <span @if($isFutureDate) class="text-primary" @endif>{{ $record->training_date->format('Y/m/d') }}</span>
                                             @if($record->training_time)
                                                 <span>{{ substr($record->training_time, 0, 5) }}</span>
                                             @endif
+                                            @if($trainerNames !== '')
+                                                <span><span class="text-muted">担当</span> {{ $trainerNames }}</span>
+                                            @endif
+                                            @if($record->media_records_count > 0)
+                                                <span><span class="text-muted">メディア</span> {{ $record->media_records_count }}件</span>
+                                            @endif
                                         </div>
-                                        {{-- 2行目: 担当 --}}
-                                        @if($trainerNames !== '')
-                                            <div class="record-block__line2"><span class="text-muted">担当</span> {{ $trainerNames }}</div>
-                                        @endif
-                                        {{-- 3行目: メディア数（担当行と同じ「ラベル＋値」の構造）
-                                             件数は withCount('mediaRecords') で先読み済み（N+1 回避）。
-                                             見た目は担当行と揃えるため既存クラス record-block__line2 を
-                                             流用（このクラスの CSS は「補足情報行」の共通スタイル
-                                             color:#495057 / margin-top:4px / font-size:0.9em を提供して
-                                             おり、record-block__line3 と同じセレクタで一括定義されている）。
-                                             0 件のときは行ごと非表示（§2-4 に従い、担当行・本文行と同じ扱い）。 --}}
-                                        @if($record->media_records_count > 0)
-                                            <div class="record-block__line2"><span class="text-muted">メディア数</span> {{ $record->media_records_count }}</div>
-                                        @endif
-                                        {{-- 4行目: 記録本文 --}}
+                                        {{-- トレーナーからのノート: 小見出し + 本文（改行を保持）。
+                                             空欄なら小見出しごと非表示（設計書 S-0305 セクション2）。
+                                             小見出しは同画面の他のラベル（初回日／主担当など）と同じ
+                                             text-muted small で書式を揃える。本文は既存の
+                                             record-block__line3（white-space:pre-wrap / 0.9em / #495057）を流用。 --}}
                                         @if($record->record_content)
+                                            <div class="text-muted small mt-2">トレーナーからのノート</div>
                                             <div class="record-block__line3">{{ $record->record_content }}</div>
+                                        @endif
+                                        {{-- 所感: 小見出し + 本文（改行を保持）。
+                                             会員には非開示のため S-0305（トレーナー専用画面）のみで表示する
+                                             （会員向け画面 S-14xx には出さない）。空欄なら小見出しごと非表示。 --}}
+                                        @if($record->impression)
+                                            <div class="text-muted small mt-2">所感</div>
+                                            <div class="record-block__line3">{{ $record->impression }}</div>
                                         @endif
                                     </div>
                                 </a>
