@@ -27,12 +27,12 @@
          （ハードコードしない）。 --}}
     @if(!empty($weightCharts))
         <section class="c-section" aria-labelledby="c-weight-heading">
-            <p class="eyebrow" id="c-weight-heading">体重推移</p>
+            <p class="eyebrow" id="c-weight-heading">体重</p>
             @foreach($weightCharts as $chart)
                 <article class="c-session" style="margin-bottom: 1rem;">
                     <div class="c-session-body">
                         <div class="c-session-content">
-                            <h2 class="mb-2" style="font-size: 1.1rem;">{{ $chart['name'] }}ちゃんの体重推移</h2>
+                            <h2 class="mb-2" style="font-size: 1.1rem;">{{ $chart['name'] }}ちゃん</h2>
                             <div style="position: relative; height: {{ $weightChartHeight }};">
                                 <canvas data-measurement-chart="{{ json_encode([
                                     'labels' => $chart['labels'],
