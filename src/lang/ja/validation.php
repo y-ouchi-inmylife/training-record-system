@@ -221,7 +221,6 @@ return [
         'trainer2_id' => '担当2',
         'training_date' => '日付',
         'training_time' => '時刻',
-        'training_type_id' => 'トレーニング内容',
         'internal_id' => '内部ID',
     ],
 

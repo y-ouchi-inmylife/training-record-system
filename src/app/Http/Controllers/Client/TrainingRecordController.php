@@ -31,7 +31,7 @@ class TrainingRecordController extends Controller
         // 表示に必要なリレーションのみロードする。
         // updatedBy は意図的にロードしない（非開示）。mediaRecords は
         // belongsToMany 側で orderByPivot('sort_order') 済み＝sort_order 昇順で並ぶ。
-        $trainingRecord->load(['client', 'trainingType', 'trainer1', 'trainer2', 'mediaRecords']);
+        $trainingRecord->load(['client', 'trainer1', 'trainer2', 'mediaRecords']);
 
         // メディアグリッド用の表示データ（presigned サムネイル URL を含む）。
         // 再生は /client/media/{id}/play を叩く（そちらでメディア単位の本人認可）。

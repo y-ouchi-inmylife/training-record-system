@@ -97,15 +97,6 @@
         </section>
     @endif
 
-    {{-- やったこと(training_detail): 空ならブロックごと出さない(§4-4)。
-         見出しは「今日やったこと」から「やったこと」へ変更(過去記録を見る
-         飼い主に対して「今日」は成立しないため、日を主語にしない) --}}
-    @if($rec->training_detail)
-        <section class="c-detail-section" aria-labelledby="c-training-detail-heading">
-            <p class="eyebrow" id="c-training-detail-heading">やったこと</p>
-            <div class="c-detail-body">{{ $rec->training_detail }}</div>
-        </section>
-    @endif
 </div>
 
 {{-- インライン通知(「準備中」等) 用の Bootstrap Toast。

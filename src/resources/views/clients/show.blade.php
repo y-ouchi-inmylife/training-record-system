@@ -238,21 +238,11 @@
                                 @endphp
                                 <a href="{{ route('training-records.show', $record) }}" class="record-block-link">
                                     <div class="record-block">
-                                        {{-- 1行目: 日付 + 時刻 + トレーニング内容バッジ + 詳細
-                                             詳細（training_detail）はトレーニング内容バッジの直後に素の
-                                             <span> で表示。設計書 db-schema.md 上 VARCHAR(255) の 1 行
-                                             要約で、日付・時刻と同じ地色（record-block__line1 の既定色
-                                             #212529）を継承する。空欄なら要素ごと非表示。 --}}
+                                        {{-- 1行目: 日付 + 時刻 --}}
                                         <div class="record-block__line1">
                                             <span @if($isFutureDate) class="text-primary" @endif>{{ $record->training_date->format('Y/m/d') }}</span>
                                             @if($record->training_time)
                                                 <span>{{ substr($record->training_time, 0, 5) }}</span>
-                                            @endif
-                                            @if($record->trainingType)
-                                                <span class="badge bg-light text-dark border">{{ $record->trainingType->name }}</span>
-                                            @endif
-                                            @if($record->training_detail)
-                                                <span>{{ $record->training_detail }}</span>
                                             @endif
                                         </div>
                                         {{-- 2行目: 担当 --}}

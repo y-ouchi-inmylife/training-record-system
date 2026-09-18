@@ -60,14 +60,6 @@
         @endphp
         <div class="row g-3 mt-2 pt-2 border-top">
             <div class="col-md-3">
-                <div class="text-muted small">トレーニング内容</div>
-                <div style="min-height: 1.5rem;">{{ $trainingRecord->trainingType?->name }}</div>
-            </div>
-            <div class="col-md-3">
-                <div class="text-muted small">詳細</div>
-                <div style="min-height: 1.5rem;">{{ $trainingRecord->training_detail }}</div>
-            </div>
-            <div class="col-md-3">
                 <div class="text-muted small">担当</div>
                 <div style="min-height: 1.5rem;">{{ $trainerNames }}</div>
             </div>

@@ -97,7 +97,7 @@
                     @if(Auth::user()->isAdmin())
                         {{-- 管理者メニュー（admin+system_admin。トレーナー管理はsystem_adminにも表示、他はadminのみ） --}}
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle {{ request()->is('trainers*') || request()->is('access-logs*') || request()->is('settings/summary-prompts*') || request()->is('master*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
+                            <a class="nav-link dropdown-toggle {{ request()->is('trainers*') || request()->is('access-logs*') || request()->is('settings/summary-prompts*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown">
                                 【管理者】
                             </a>
                             <ul class="dropdown-menu">
@@ -106,9 +106,6 @@
                                     <li><a class="dropdown-item" href="{{ route('access-logs.index') }}">トレーナー操作履歴</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="{{ route('settings.summary-prompts.edit') }}">要約プロンプト</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><h6 class="dropdown-header">マスタ管理</h6></li>
-                                    <li><a class="dropdown-item" href="{{ route('master.training-types.index') }}">トレーニング内容</a></li>
                                 @endif
                             </ul>
                         </li>

@@ -10,7 +10,6 @@ use App\Http\Controllers\Client\LogoutController as ClientLogoutController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientEmailController;
 use App\Http\Controllers\ClientEmailRegistrationTokenController;
-use App\Http\Controllers\TrainingTypeController;
 use App\Http\Controllers\TrainingRecordController;
 use App\Http\Controllers\TrainerController;
 use App\Http\Controllers\DashboardController;
@@ -135,18 +134,6 @@ Route::domain(config('subdomain.trainer_host'))->middleware('check-ip')->group(f
 
             // トレーナー操作履歴
             Route::get('access-logs', [AccessLogController::class, 'index'])->name('access-logs.index');
-
-            // マスタ管理
-            Route::prefix('master')->name('master.')->group(function () {
-                // トレーニング内容マスタ
-                Route::get('training-types', [TrainingTypeController::class, 'index'])->name('training-types.index');
-                Route::post('training-types', [TrainingTypeController::class, 'store'])->name('training-types.store');
-                Route::put('training-types/{trainingType}', [TrainingTypeController::class, 'update'])->name('training-types.update');
-                Route::delete('training-types/{trainingType}', [TrainingTypeController::class, 'destroy'])->name('training-types.destroy');
-                Route::patch('training-types/{trainingType}/move-up', [TrainingTypeController::class, 'moveUp'])->name('training-types.move-up');
-                Route::patch('training-types/{trainingType}/move-down', [TrainingTypeController::class, 'moveDown'])->name('training-types.move-down');
-
-            });
         });
 
         /*

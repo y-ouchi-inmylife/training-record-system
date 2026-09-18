@@ -24,12 +24,12 @@ class DashboardController extends Controller
     public function index(): View
     {
         // 自分の記録を日付の新しい順（降順）で取得。
-        // 一覧表示に使うリレーション（担当1・担当2・トレーニング内容）に加え、
+        // 一覧表示に使うリレーション（担当1・担当2）に加え、
         // メディアもカード内に埋め込むため mediaRecords を eager load（N+1回避）。
         // updatedBy はクライアント非表示のため意図的にロードしない。
         $records = auth('client')->user()
             ->trainingRecords()
-            ->with(['trainer1', 'trainer2', 'trainingType', 'mediaRecords'])
+            ->with(['trainer1', 'trainer2', 'mediaRecords'])
             ->withCount('mediaRecords')
             ->orderByDesc('training_date')
             ->get();

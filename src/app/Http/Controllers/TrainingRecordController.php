@@ -6,7 +6,6 @@ use App\Http\Controllers\MediaRecordController;
 use App\Models\AudioRecord;
 use App\Models\Client;
 use App\Models\MediaRecord;
-use App\Models\TrainingType;
 use App\Models\Trainer;
 use App\Models\TrainingRecord;
 use Illuminate\Http\JsonResponse;
@@ -34,7 +33,7 @@ class TrainingRecordController extends Controller
             ]
         );
 
-        $query = TrainingRecord::with(['client', 'trainingType', 'trainer1', 'trainer2'])
+        $query = TrainingRecord::with(['client', 'trainer1', 'trainer2'])
             ->withCount('mediaRecords');
 
         // 内部ID（部分一致）
@@ -80,8 +79,7 @@ class TrainingRecordController extends Controller
             $keyword = $request->input('keyword');
             $query->where(function ($q) use ($keyword) {
                 $q->where('record_content', 'like', "%{$keyword}%")
-                  ->orWhere('impression', 'like', "%{$keyword}%")
-                  ->orWhere('training_detail', 'like', "%{$keyword}%");
+                  ->orWhere('impression', 'like', "%{$keyword}%");
             });
         }
 
@@ -115,10 +113,9 @@ class TrainingRecordController extends Controller
         $query->orderBy('training_time', $sortDir);
 
         $records = $query->paginate(20)->withQueryString();
-        $trainingTypes = TrainingType::orderBy('sort_order')->get();
         $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
 
-        return view('training-records.index', compact('records', 'trainingTypes', 'trainers'));
+        return view('training-records.index', compact('records', 'trainers'));
     }
 
     /**
@@ -143,13 +140,12 @@ class TrainingRecordController extends Controller
                 ->with('error', '指定された会員が見つかりません');
         }
 
-        $trainingTypes = TrainingType::orderBy('sort_order')->get();
         $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
 
         $audioRecordId = $request->input('audio_record_id');
 
         return view('training-records.create', compact(
-            'trainingTypes', 'trainers', 'selectedClientId', 'selectedClient', 'audioRecordId'
+            'trainers', 'selectedClientId', 'selectedClient', 'audioRecordId'
         ));
     }
 
@@ -207,7 +203,7 @@ class TrainingRecordController extends Controller
         // mediaRecords は belongsToMany 側で orderByPivot('sort_order') 済みのため、
         // sort_order 昇順で取得される（詳細画面メディアセクションの閲覧用）
         $trainingRecord->load([
-            'client', 'trainingType', 'trainer1', 'trainer2',
+            'client', 'trainer1', 'trainer2',
             'mediaRecords',
         ]);
 
@@ -264,11 +260,10 @@ class TrainingRecordController extends Controller
             ];
         })->values()->all();
 
-        $trainingTypes = TrainingType::orderBy('sort_order')->get();
         $trainers = Trainer::practitioners()->orderBy('display_order')->orderBy('name')->get();
 
         return view('training-records.edit', compact(
-            'trainingRecord', 'trainingTypes', 'trainers', 'mediaInitial'
+            'trainingRecord', 'trainers', 'mediaInitial'
         ));
     }
 
@@ -457,8 +452,6 @@ class TrainingRecordController extends Controller
             'client_id' => 'required|exists:clients,id',
             'training_date' => 'required|date',
             'training_time' => 'nullable|date_format:H:i',
-            'training_type_id' => 'nullable|exists:training_types,id',
-            'training_detail' => 'nullable|string|max:255',
             'trainer1_id' => 'required|exists:trainers,id',
             'trainer2_id' => 'nullable|exists:trainers,id|different:trainer1_id',
             'record_content' => 'nullable|string',

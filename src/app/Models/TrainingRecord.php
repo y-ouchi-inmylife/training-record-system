@@ -16,7 +16,6 @@ class TrainingRecord extends Model
 
     protected $fillable = [
         'client_id', 'training_date', 'training_time',
-        'training_type_id', 'training_detail',
         'trainer1_id', 'trainer2_id',
         'record_content', 'impression',
         // 最終更新者
@@ -33,11 +32,6 @@ class TrainingRecord extends Model
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
-    }
-
-    public function trainingType(): BelongsTo
-    {
-        return $this->belongsTo(TrainingType::class);
     }
 
     public function trainer1(): BelongsTo

@@ -67,46 +67,6 @@
                 </div>
             </div>
 
-            {{-- 行3: トレーニング内容 / 詳細 --}}
-            <div class="row g-3 mb-2">
-                {{-- トレーニング内容 --}}
-                <div class="col-md-4">
-                    <div class="row g-2 align-items-center">
-                        <label for="training_type_id" class="col-md-auto col-form-label text-md-end form-label-fixed">トレーニング内容</label>
-                        <div class="col-12 col-md">
-                            <select name="training_type_id" id="training_type_id" class="form-select @error('training_type_id') is-invalid @enderror">
-                                <option value=""></option>
-                                @foreach($trainingTypes as $type)
-                                    <option value="{{ $type->id }}"
-                                        {{ old('training_type_id', $record?->training_type_id) == $type->id ? 'selected' : '' }}>
-                                        {{ $type->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('training_type_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-
-                {{-- 詳細 --}}
-                <div class="col-md-8">
-                    <div class="row g-2 align-items-center">
-                        <label for="training_detail" class="col-md-auto col-form-label text-md-end form-label-fixed">詳細</label>
-                        <div class="col-12 col-md">
-                            <input type="text" name="training_detail" id="training_detail"
-                                class="form-control @error('training_detail') is-invalid @enderror"
-                                inputmode="text" value="{{ old('training_detail', $record?->training_detail) }}"
-                                maxlength="255">
-                            @error('training_detail')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             {{-- 行4: 担当1 + 担当2 --}}
             <div class="row g-3">
                 <div class="col-md-7">

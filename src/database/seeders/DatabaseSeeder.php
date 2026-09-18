@@ -12,7 +12,7 @@ class DatabaseSeeder extends Seeder
     /**
      * 全シーダーの実行
      *
-     * 本番／開発の初回セットアップで実行する 3 種。
+     * 本番／開発の初回セットアップで実行する 2 種。
      * ClientSeeder は開発環境用のサンプルクライアント（佐藤 太郎、client@example.com）で、
      * ここからは呼ばれない。開発環境で必要なとき：
      *
@@ -25,8 +25,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             TrainerSeeder::class,        // 1. トレーナー2名（system_admin + admin ロールのトレーナー本人）
-            TrainingTypeSeeder::class,   // 2. トレーニング内容マスタ3件
-            SystemSettingSeeder::class,  // 3. システム設定2件
+            SystemSettingSeeder::class,  // 2. システム設定2件
         ]);
     }
 }
