@@ -26,8 +26,11 @@
          の :root で定義されている --c-brand-bright を JS 側で読み取る
          （ハードコードしない）。 --}}
     @if(!empty($weightCharts))
-        <section class="c-section" aria-labelledby="c-weight-heading">
-            <p class="eyebrow" id="c-weight-heading">体重</p>
+        {{-- eyebrow は置かず、「体重」の語はグラフの縦軸ラベル（縦書き）に載せる
+             （2026-09 変更。詳細は screen-design.md S-1402「体重推移」節参照）。
+             セクションの意味は aria-label で伝える（削除した見出しに向いていた
+             aria-labelledby の参照先が失われるため、aria-label に切り替えた）。 --}}
+        <section class="c-section" aria-label="体重">
             @foreach($weightCharts as $chart)
                 <article class="c-session" style="margin-bottom: 1rem;">
                     <div class="c-session-body">

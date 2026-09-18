@@ -94,7 +94,10 @@ function renderChart(canvas, data) {
                 y: {
                     // 縦軸の範囲は Chart.js の既定（データに合わせた自動調整）に任せる。
                     // 目盛りは詰まりすぎないように maxTicksLimit で本数を抑え、
-                    // 各目盛りに単位「kg」を付ける（縦書きの軸ラベル title は廃止）。
+                    // 各目盛りに単位「kg」を付ける。縦軸ラベルには「体重」を縦書きで
+                    // 表示し、セクションの eyebrow は置かない
+                    // （2026-09 変更。詳細は screen-design.md S-1402「体重推移」節参照）。
+                    title: { display: true, text: '体重' },
                     ticks: {
                         maxTicksLimit: 5,
                         // 小数点以下 1 桁で揃える。実測値は 2 桁まで持つが軸目盛りは
