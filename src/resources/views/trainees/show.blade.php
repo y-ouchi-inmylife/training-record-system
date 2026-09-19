@@ -45,21 +45,25 @@
             </div>
         </div>
 
-        {{-- 3段目: セパレータ下の属性。犬種・性別・誕生日は x-detail-cell で 3 列、
-             備考は同じ row の 2 段目に col-12 で全幅に置く。基本情報カードは介さない
+        {{-- 3段目: セパレータ下の属性。犬種・性別・誕生日・備考を md 以上で 4 列・
+             モバイルで 2 列（col-6 col-md-3）に並べる。基本情報カードは介さない
              （設計書 S-0309「設計方針」参照）。誕生日は「Y/m/d（N歳）」に集約
-             （年齢は Trainee モデルの age アクセサで算出。誕生日が未登録なら「—」のみ）。 --}}
+             （年齢は Trainee モデルの age アクセサで算出。誕生日が未登録なら「—」のみ）。
+             備考は改行保持（white-space: pre-wrap）が必要なため x-detail-cell を使わず
+             自前で書く。x-detail-cell の cols 既定値（col-6 col-md-4）は会員詳細
+             （S-0305 の連絡先セクション）向けの現状値。呼び出し側で col-6 col-md-3 を渡し、
+             会員詳細への影響を出さないようにする。 --}}
         <div class="row g-3 mt-2 pt-2 border-top">
-            <x-detail-cell label="犬種" :value="$trainee->breed ?: '—'" />
-            <x-detail-cell label="性別" :value="$trainee->sex_label ?: '—'" />
-            <x-detail-cell label="誕生日">
+            <x-detail-cell label="犬種" :value="$trainee->breed ?: '—'" cols="col-6 col-md-3" />
+            <x-detail-cell label="性別" :value="$trainee->sex_label ?: '—'" cols="col-6 col-md-3" />
+            <x-detail-cell label="誕生日" cols="col-6 col-md-3">
                 @if($trainee->birth_date)
                     {{ $trainee->birth_date->format('Y/m/d') }}（{{ $trainee->age }}歳）
                 @else
                     —
                 @endif
             </x-detail-cell>
-            <div class="col-12">
+            <div class="col-6 col-md-3">
                 <div class="text-muted small mb-1">備考</div>
                 <div style="min-height: 1.5rem; white-space: pre-wrap;">{{ $trainee->note ?: '—' }}</div>
             </div>
