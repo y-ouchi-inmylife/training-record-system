@@ -85,6 +85,7 @@
                                    class="form-control @error('weight_kg') is-invalid @enderror"
                                    id="weight_kg" name="weight_kg"
                                    value="{{ old('weight_kg') }}"
+                                   placeholder="例: 12.35"
                                    required autocomplete="off">
                             @error('weight_kg') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
