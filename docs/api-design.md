@@ -1386,7 +1386,7 @@ POST /training-records に以下を追加する。
 
 ###### POST /client-portal/setup/{token}
 
-**概要**: 初回設定を保存する（パスワード＋基本情報）。
+**概要**: 初回設定を保存する（パスワード＋基本情報＋**愛犬（トレーニー）の情報**）。
 
 **リクエスト**:
 
@@ -1405,16 +1405,24 @@ POST /training-records に以下を追加する。
 | address2 | string | ● | required, string, max:50 | 市区町村 |
 | address3 | string | ● | required, string, max:100 | 町名・番地 |
 | address4 | string | | nullable, string, max:100 | 建物名・部屋番号 |
+| trainee_name | string | ● | required, string, max:50 | 愛犬の名前（トレーニー） |
+| trainee_breed | string | | nullable, string, max:100 | 愛犬の犬種 |
+| trainee_sex | string | | nullable, in:male,female,unknown | 愛犬の性別 |
+| trainee_birth_date | string | | nullable, date, before_or_equal:today | 愛犬の誕生日（未来日不可） |
+| trainee_note | string | | nullable, string | 愛犬の備考 |
 
 **処理**:
 - トークンの有効性を再チェック（無効ならエラー画面）
 - **初回設定を送信した時点で使用済み化する**（GET では使用済みにしない）
 - 以下を1つのトランザクションで実行する：
   - 対象クライアントの password・氏名・連絡先を更新する
+  - **愛犬（トレーニー）の情報を登録・更新する**：既存のトレーニーが 1 件以上あれば `id` 昇順の先頭（1 頭目）を更新、なければ新規作成する。**2 頭目以降のレコードには一切手を触れない**（削除も更新もしない）。詳細は requirements.md 6-15-5 / 6-16 参照
   - トークンを使用済み（is_used=true）にする
   - 対応するメールアドレス登録用トークン（`client_email_registration_tokens`）を使用済み（is_used=true）にする — **初回設定完了時に使い切り化**
   - 登録完了メール（`ClientSetupCompletedMail`）を登録アドレス宛に送信する（ログインURLの案内）。**送信はトークン使い切り化と同一トランザクション内で行い、送信失敗時は全ロールバックする**（ログイン用リンクは未使用のまま残るため、お客様は同じURLからやり直せる）
 - 対象クライアントで client guard にログインした状態を保つ
+
+**トレーニーの登録・更新に別エンドポイントを設けない理由**: 会員向けにトレーニーを扱うエンドポイントを新設すると、`trainees.*` の `practitioners` ミドルウェアで保護している運用と競合する（トレーナー限定の CRUD を会員側に開放しない方針。requirements.md 6-16 参照）。初回設定の POST 内で処理を完結させることで、既存のトレーナー向けルート・ミドルウェアには一切影響しない
 
 **二重開封時の挙動**:
 - 複数の端末・タブでリンクを開いた場合、GET は使用済みにしないため両方でフォームを表示できる
