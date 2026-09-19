@@ -22,7 +22,7 @@
 @php
     // 計測値フォームに関するエラーがあるかを Blade 側で判定してから JS に渡す。
     // トレーニー本体のエラー（トレーニー編集フォームで発生）とは区別する。
-    $measurementFieldNames = ['measured_date', 'measured_time', 'weight_kg', 'note'];
+    $measurementFieldNames = ['measured_date', 'measured_time', 'weight_kg'];
     $hasMeasurementError = $errors->hasAny($measurementFieldNames);
     // 編集で失敗した場合は old('_measurement_id') に対象レコードの id が入る。
     // route() で update URL を再構築できるよう Blade から渡す。
@@ -88,13 +88,6 @@
                                    required autocomplete="off">
                             @error('weight_kg') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
-                        <div class="col-12">
-                            <label for="measurement_note" class="form-label">備考</label>
-                            <input type="text" class="form-control @error('note') is-invalid @enderror"
-                                   id="measurement_note" name="note" maxlength="255"
-                                   value="{{ old('note') }}" autocomplete="off">
-                            @error('note') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        </div>
                     </div>
                 </div>
 
@@ -130,7 +123,6 @@
     let dateInput = null;
     let timeInput = null;
     let weightInput = null;
-    let noteInput = null;
 
     function initRefs() {
         if (modalEl) return;
@@ -145,7 +137,6 @@
         dateInput = document.getElementById('measured_date');
         timeInput = document.getElementById('measured_time');
         weightInput = document.getElementById('weight_kg');
-        noteInput = document.getElementById('measurement_note');
     }
 
     function openForCreate() {
@@ -159,12 +150,11 @@
         dateInput.value = DEFAULT_MEASURED_DATE;
         timeInput.value = DEFAULT_MEASURED_TIME;
         weightInput.value = '';
-        noteInput.value = '';
         modal.show();
     }
 
     function openForEdit(data) {
-        // data: { id, measuredDate, measuredTime, weightKg, note }
+        // data: { id, measuredDate, measuredTime, weightKg }
         //   ボタンの dataset から渡す（data-* 属性はキャメルケースになる）
         initRefs();
         if (!modal) return;
@@ -176,7 +166,6 @@
         dateInput.value = data.measuredDate || '';
         timeInput.value = data.measuredTime || '';
         weightInput.value = data.weightKg || '';
-        noteInput.value = data.note || '';
         modal.show();
     }
 

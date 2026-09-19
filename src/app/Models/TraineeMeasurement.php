@@ -19,7 +19,6 @@ class TraineeMeasurement extends Model
         'measured_date',
         'measured_time',
         'weight_kg',
-        'note',
         'updated_by',
     ];
 

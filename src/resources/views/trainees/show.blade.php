@@ -88,7 +88,6 @@
                             <th>計測日</th>
                             <th>計測時刻</th>
                             <th class="text-end">体重（kg）</th>
-                            <th>備考</th>
                             <th class="text-end" style="min-width: 120px;">操作</th>
                         </tr>
                     </thead>
@@ -98,14 +97,12 @@
                                 <td>{{ $m->measured_date->format('Y/m/d') }}</td>
                                 <td>{{ substr($m->measured_time, 0, 5) }}</td>
                                 <td class="text-end">{{ number_format((float) $m->weight_kg, 2) }}</td>
-                                <td>{{ $m->note }}</td>
                                 <td class="text-end">
                                     <button type="button" class="btn btn-sm btn-outline-primary"
                                             data-id="{{ $m->id }}"
                                             data-measured-date="{{ $m->measured_date->format('Y-m-d') }}"
                                             data-measured-time="{{ substr($m->measured_time, 0, 5) }}"
                                             data-weight-kg="{{ $m->weight_kg }}"
-                                            data-note="{{ $m->note }}"
                                             onclick="window.measurementModal.openForEdit(this.dataset)">編集</button>
                                     <form method="POST" action="{{ route('trainee-measurements.destroy', $m) }}"
                                           class="d-inline"

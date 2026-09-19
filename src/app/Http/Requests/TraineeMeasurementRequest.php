@@ -29,7 +29,6 @@ class TraineeMeasurementRequest extends FormRequest
             // 既存 training_records.training_time と同じ書き方（H:i）に合わせる。
             'measured_time' => 'required|date_format:H:i',
             'weight_kg' => 'required|numeric|gt:0|max:999.99|decimal:0,2',
-            'note' => 'nullable|string|max:255',
             // 同一トレーニー・同一日時の二重登録を防ぐ（DB のユニーク制約と併せて二層で担保）。
             // 実装は withValidator でルート引数に応じて動的に組み立てる。
         ];
@@ -79,7 +78,6 @@ class TraineeMeasurementRequest extends FormRequest
             'measured_date' => '計測日',
             'measured_time' => '計測時刻',
             'weight_kg' => '体重',
-            'note' => '備考',
         ];
     }
 

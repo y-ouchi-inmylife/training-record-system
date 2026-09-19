@@ -15,7 +15,6 @@ return new class extends Migration
             $table->date('measured_date')->comment('計測日');
             $table->time('measured_time')->comment('計測時刻（HH:MM 形式。1日2回の計測に対応するため NOT NULL）');
             $table->decimal('weight_kg', 5, 2)->comment('体重（kg）');
-            $table->string('note', 255)->nullable()->comment('備考');
             $table->timestamps();
             $table->unsignedBigInteger('updated_by')->nullable();
 
