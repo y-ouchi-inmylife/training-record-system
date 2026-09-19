@@ -10,15 +10,15 @@
         <div class="d-flex gap-2">
             <a href="{{ route('trainees.edit', $trainee) }}" class="btn btn-primary">編集</a>
             @if(auth()->user()->isAdmin())
-                {{-- 削除確認の文言：計測値の件数が 1 件以上あるときは件数と一緒に警告する。
-                     0 件のときは段階①の簡潔な文言のまま。件数はコントローラで数えて渡す。 --}}
-                @php
-                    $deleteConfirmMessage = $measurementCount > 0
-                        ? 'このトレーニーには ' . $measurementCount . ' 件の計測値が登録されています。トレーニーを削除すると計測値も一緒に削除されます。削除しますか？'
-                        : 'このトレーニーを削除しますか？';
-                @endphp
+                {{-- 削除確認の文言はコントローラ側で組み立てて渡す（$deleteConfirmMessage）。
+                     Blade 内で @json() を使って onsubmit 属性に埋め込む形にすると、
+                     @json() が出力する "..." が onsubmit="..." のダブルクォート境界と
+                     競合して confirm() が発火せず、確認なしで削除される不具合が
+                     発生した（2026-09 修正）。他の onsubmit="return confirm('...')"
+                     箇所と揃えて、シングルクォート内で {{ }} で出力する素直な形に
+                     している。文言にシングルクォート・改行を含めないこと。 --}}
                 <form method="POST" action="{{ route('trainees.destroy', $trainee) }}" class="d-inline"
-                      onsubmit="return confirm(@json($deleteConfirmMessage))">
+                      onsubmit="return confirm('{{ $deleteConfirmMessage }}')">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger">削除</button>

@@ -59,6 +59,17 @@ class TraineeController extends Controller
         // 削除確認ダイアログに件数を含めるため、コントローラで数えて渡す。
         $measurementCount = $trainee->measurements->count();
 
+        // 削除確認ダイアログの文言はコントローラ側で組み立てて Blade に渡す
+        // （$deleteConfirmMessage）。Blade 内で @json() を使って onsubmit 属性に
+        // 埋め込む形にすると、@json() が出力する "..." が onsubmit="..." の
+        // ダブルクォート境界と競合して confirm() が発火せず、確認なしで削除される
+        // 不具合が発生したため（2026-09）。他の onsubmit="return confirm('...')" と
+        // 同じシングルクォート形式で埋め込む。**文言にシングルクォート・改行を
+        // 含めないこと**（含めると onsubmit 内の JS 文字列リテラルが壊れる）。
+        $deleteConfirmMessage = $measurementCount > 0
+            ? "このトレーニーには {$measurementCount} 件の計測値が登録されています。トレーニーを削除すると計測値も一緒に削除されます。削除しますか？"
+            : 'このトレーニーを削除しますか？';
+
         // モーダルの新規登録時の初期値（今日の日付・現在時刻）。Blade 内で now() を
         // 直接呼ばず、コントローラで組み立てて渡す（設計書のガイダンスに沿う）。
         $now = Carbon::now();
@@ -68,6 +79,7 @@ class TraineeController extends Controller
         return view('trainees.show', compact(
             'trainee',
             'measurementCount',
+            'deleteConfirmMessage',
             'defaultMeasuredDate',
             'defaultMeasuredTime'
         ));
