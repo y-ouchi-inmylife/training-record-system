@@ -227,12 +227,17 @@
                     </select>
                     @error('trainee_sex') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
+                {{-- 誕生日は type="date"（ブラウザ標準の日付入力）を使う。会員側レイアウト
+                     （layouts.client-public）には Flatpickr の CSS が読み込まれていないため、
+                     `.datepicker` クラスで Flatpickr を呼び出すとレイアウトが崩れる
+                     （2026-09 に発生した不具合の修正）。トレーナー側は Flatpickr の CSS を
+                     読み込む layouts.app を使うのでそちらは変えない。会員側で日付入力を追加する
+                     場合は type="date" を使うこと。 --}}
                 <div class="mb-2">
                     <label for="trainee_birth_date" class="form-label">誕生日</label>
-                    <input type="text" class="form-control datepicker @error('trainee_birth_date') is-invalid @enderror"
+                    <input type="date" class="form-control @error('trainee_birth_date') is-invalid @enderror"
                            id="trainee_birth_date" name="trainee_birth_date"
                            value="{{ old('trainee_birth_date', $existingTrainee?->birth_date?->format('Y-m-d')) }}"
-                           placeholder="例: 2020-05-01" pattern="\d{4}-\d{2}-\d{2}" maxlength="10"
                            autocomplete="off">
                     @error('trainee_birth_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
