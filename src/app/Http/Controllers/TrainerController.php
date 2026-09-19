@@ -48,7 +48,7 @@ class TrainerController extends Controller
     }
 
     /**
-     * トレーナー新規登録画面
+     * トレーナー登録画面
      */
     public function create(): View
     {

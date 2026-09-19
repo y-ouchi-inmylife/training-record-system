@@ -104,7 +104,7 @@ class ClientController extends Controller
     }
 
     /**
-     * クライアント新規登録画面（S-0301 ステップ形式ウィザード）
+     * 会員登録画面（S-0301 ステップ形式ウィザード）
      */
     public function create(): View
     {
@@ -159,7 +159,7 @@ class ClientController extends Controller
     }
 
     /**
-     * クライアント編集画面
+     * 会員編集画面
      */
     public function edit(Client $client): View
     {
