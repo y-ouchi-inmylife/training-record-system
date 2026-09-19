@@ -56,7 +56,7 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="{{ route('clients.index') }}">会員一覧</a></li>
-                                <li><a class="dropdown-item" href="{{ route('clients.create') }}">会員の新規登録</a></li>
+                                <li><a class="dropdown-item" href="{{ route('clients.create') }}">会員登録</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">

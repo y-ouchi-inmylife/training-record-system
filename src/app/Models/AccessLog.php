@@ -32,7 +32,7 @@ class AccessLog extends Model
             'logout' => 'ログアウト',
             'view_client' => '会員詳細',
             'edit_client' => '会員編集',
-            'create_client' => '会員の新規登録',
+            'create_client' => '会員登録',
             'delete_client' => '会員削除',
             'view_training_record' => 'トレーニング記録詳細',
             'edit_training_record' => 'トレーニング記録編集',

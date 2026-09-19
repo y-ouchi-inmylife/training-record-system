@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'トレーニーの新規登録')
+@section('title', 'トレーニー登録')
 
 @section('content')
     @include('trainees._form', [
@@ -10,6 +10,6 @@
         'method'      => 'POST',
         'submitLabel' => '登録',
         'cancelUrl'   => route('clients.show', $client),
-        'pageTitle'   => 'トレーニーの新規登録',
+        'pageTitle'   => 'トレーニー登録',
     ])
 @endsection
