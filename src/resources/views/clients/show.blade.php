@@ -293,12 +293,10 @@
         </div>
 
         {{-- 右カラム: トレーニー一覧（設計書 S-0305 セクション3）。
-             1 トレーニー = 1 カード。カード本体クリックで S-0309（詳細）、
-             カード内「編集」ボタンで S-0310（編集）へ遷移する。
-             リンクの入れ子を避けるため、名前リンクに Bootstrap の stretched-link を
-             付けてカード全体を疑似的にクリック可能にし、編集ボタンには
-             position-relative を付けて stretched-link のクリック領域から除外する
-             （設計書「設計方針」参照）。未登録項目は「—」を表示し行ごと消さない。 --}}
+             1 トレーニー = 1 カード。カード全体クリックで S-0309（トレーニー詳細）へ
+             遷移する。編集は S-0309 の「編集」ボタンから行う（カード内には編集ボタンを
+             置かない。撤回の経緯は設計書「設計方針」参照）。
+             未登録項目は「—」を表示し行ごと消さない。 --}}
         <div class="col-lg-4">
             <div class="card mb-3">
                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -306,19 +304,11 @@
                     <a href="{{ route('trainees.create', $client) }}" class="btn btn-primary">新規登録</a>
                 </div>
                 @if($client->trainees->count() > 0)
-                    <ul class="list-group list-group-flush">
+                    <div class="list-group list-group-flush">
                         @foreach($client->trainees as $trainee)
-                            <li class="list-group-item position-relative">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h6 class="mb-0">
-                                        <a href="{{ route('trainees.show', $trainee) }}"
-                                           class="stretched-link text-decoration-none text-body">
-                                            {{ $trainee->name }}
-                                        </a>
-                                    </h6>
-                                    <a href="{{ route('trainees.edit', $trainee) }}"
-                                       class="btn btn-sm btn-outline-primary position-relative">編集</a>
-                                </div>
+                            <a href="{{ route('trainees.show', $trainee) }}"
+                               class="list-group-item list-group-item-action text-decoration-none">
+                                <h6 class="mb-2">{{ $trainee->name }}</h6>
                                 {{-- ラベル＋値の並び。dl.row でラベル幅を col-4 に固定して
                                      値を右側に揃える。備考は改行を保持（S-0309 と同じ）。
                                      x-detail-cell は使わない（3 列グリッド前提のコンポーネントで
@@ -339,9 +329,9 @@
                                     <dt class="col-4 fw-normal text-muted">備考</dt>
                                     <dd class="col-8 mb-0" style="white-space: pre-wrap;">{{ $trainee->note ?: '—' }}</dd>
                                 </dl>
-                            </li>
+                            </a>
                         @endforeach
-                    </ul>
+                    </div>
                 @else
                     <div class="card-body">
                         <p class="text-muted mb-0">トレーニーは登録されていません</p>
