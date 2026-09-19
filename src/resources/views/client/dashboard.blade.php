@@ -13,7 +13,7 @@
 <div class="container py-4 c-dashboard">
     {{-- 挨拶（設計書 §6: 「ようこそ」→「こんにちは」に変更）。
          呼称は「様」（飼い主はサービスの顧客のため。設計書 §6）。 --}}
-    <h1 class="c-greeting">{{ auth('client')->user()->full_name }} 様、こんにちは</h1>
+    <h1 class="c-greeting" style="font-size: 1.1rem;">{{ auth('client')->user()->full_name }} 様、こんにちは</h1>
 
     {{-- 犬の名前・写真の予約領域（設計書 §8-4）。
          将来 Client に dog リレーションが入ったら hidden を外して差し込む。 --}}
