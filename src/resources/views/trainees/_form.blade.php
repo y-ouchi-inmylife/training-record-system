@@ -50,9 +50,12 @@
                     </div>
                 </div>
 
-                {{-- 行2: 名前 + 犬種 --}}
+                {{-- 行2: 名前 + 犬種。各項目のまとまり幅（ラベル+入力欄）は
+                     内容量に合わせて col-md-4 に絞る（右側に余白ができる。会員フォーム
+                     clients/_form.blade.php の項目ごとの幅調整と同じ慣例）。md 未満では
+                     col-12 相当で全幅（Bootstrap の grid 既定挙動）。 --}}
                 <div class="row g-3 mb-2">
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <div class="row g-2 align-items-center">
                             <label for="name" class="col-md-auto col-form-label text-md-end form-label-fixed">
                                 名前 <span class="text-danger">*</span>
@@ -65,7 +68,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <div class="row g-2 align-items-center">
                             <label for="breed" class="col-md-auto col-form-label text-md-end form-label-fixed">犬種</label>
                             <div class="col-12 col-md">
@@ -78,9 +81,10 @@
                     </div>
                 </div>
 
-                {{-- 行3: 性別 + 誕生日 --}}
+                {{-- 行3: 性別 + 誕生日。性別（オス/メス/不明）は最も短いので col-md-3、
+                     誕生日は Y-m-d 表示相当で col-md-4 にする。 --}}
                 <div class="row g-3 mb-2">
-                    <div class="col-md-5">
+                    <div class="col-md-3">
                         <div class="row g-2 align-items-center">
                             <label for="sex" class="col-md-auto col-form-label text-md-end form-label-fixed">性別</label>
                             <div class="col-12 col-md">
@@ -97,7 +101,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <div class="row g-2 align-items-center">
                             <label for="birth_date" class="col-md-auto col-form-label text-md-end form-label-fixed">誕生日</label>
                             <div class="col-12 col-md">
