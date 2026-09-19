@@ -50,12 +50,14 @@
                     </div>
                 </div>
 
-                {{-- 行2: 名前を単独の段に置く（col-md-4）。名前は必須項目で他の任意項目より
-                     目立たせたい・右側に余白は残るが値が短いので入力欄を広げても間延びする、
-                     という判断（会員フォーム clients/_form.blade.php の項目ごとの幅調整と同じ慣例）。
+                {{-- 行2: 名前を単独の段に置く（col-md-5）。幅は行3 の先頭（犬種、col-md-5）と
+                     揃え、1 段目と 2 段目で左端の項目の入力欄の右端が縦に揃うようにする。
+                     名前は必須項目で他の任意項目より目立たせたく、値が短い（犬名はひらがな
+                     数文字程度）ため単独段でも入力欄が間延びしすぎない。
+                     会員フォーム clients/_form.blade.php の項目ごとの幅調整と同じ慣例。
                      md 未満では col-12 相当で全幅（Bootstrap の grid 既定挙動）。 --}}
                 <div class="row g-3 mb-2">
-                    <div class="col-md-4">
+                    <div class="col-md-5">
                         <div class="row g-2 align-items-center">
                             <label for="name" class="col-md-auto col-form-label text-md-end form-label-fixed">
                                 名前 <span class="text-danger">*</span>
