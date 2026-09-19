@@ -309,7 +309,7 @@
                     <ul class="list-group list-group-flush">
                         @foreach($client->trainees as $trainee)
                             <li class="list-group-item position-relative">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
                                     <h6 class="mb-0">
                                         <a href="{{ route('trainees.show', $trainee) }}"
                                            class="stretched-link text-decoration-none text-body">
