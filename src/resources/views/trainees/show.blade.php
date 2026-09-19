@@ -4,10 +4,14 @@
 
 @section('content')
 <div class="container">
-    {{-- ヘッダー: 戻る + 操作ボタン --}}
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <a href="{{ route('clients.show', $trainee->client) }}" class="btn btn-outline-secondary">&laquo; 会員詳細へ戻る</a>
-        <div class="d-flex gap-2">
+    {{-- ヘッダーサマリー — 会員詳細（S-0305）と同じ 3 段構成に揃える
+         （1 段目: 操作ボタン列（右寄せ）／ 2 段目: 名前 + 会員リンク + 内部ID ／
+          3 段目: セパレータ下に犬種・性別・誕生日を x-detail-cell で並べ、
+                備考は同じ row の col-12 に置く）。詳細は設計書 S-0309 参照。 --}}
+    <div class="mb-4">
+        {{-- 1段目: 操作ボタン列（右寄せ）。従前の「« 会員詳細へ戻る」は廃止し、
+             戻り導線は 2 段目の会員名リンクに一本化した（設計書 S-0309「設計方針」参照）。 --}}
+        <div class="d-flex justify-content-end gap-2 mb-2">
             <a href="{{ route('trainees.edit', $trainee) }}" class="btn btn-primary">編集</a>
             @if(auth()->user()->isAdmin())
                 {{-- 削除確認の文言はコントローラ側で組み立てて渡す（$deleteConfirmMessage）。
@@ -25,42 +29,47 @@
                 </form>
             @endif
         </div>
-    </div>
 
-    {{-- 会員名（トレーニーは会員に紐づくため上部に対象会員を明示） --}}
-    <div class="mb-3">
-        <span class="text-muted small">会員</span>
-        <span class="ms-2">{{ $trainee->client->full_name }}</span>
-    </div>
+        {{-- 2段目: トレーニー名 + 会員（S-0305 リンク）+ 内部ID
+             書式は S-0305 の氏名見出し行と同じ（h2 の右横に text-muted small ラベル +
+             font-monospace fs-5 値）。会員名は S-0305 へのリンクで、これが戻り導線を兼ねる。 --}}
+        <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+            <h2 class="mb-0">{{ $trainee->name }}</h2>
+            <div class="d-flex align-items-baseline gap-2 ms-3">
+                <span class="text-muted small">会員</span>
+                <a href="{{ route('clients.show', $trainee->client) }}">{{ $trainee->client->full_name }}</a>
+            </div>
+            <div class="d-flex align-items-baseline gap-2 ms-3">
+                <span class="text-muted small">内部ID</span>
+                <span class="font-monospace fs-5">{{ $trainee->client->internal_id }}</span>
+            </div>
+        </div>
 
-    {{-- 氏名見出し --}}
-    <h2 class="mb-3">{{ $trainee->name }}</h2>
+        {{-- 3段目: セパレータ下の属性。犬種・性別・誕生日は x-detail-cell で 3 列、
+             備考は同じ row の 2 段目に col-12 で全幅に置く。基本情報カードは介さない
+             （設計書 S-0309「設計方針」参照）。誕生日は「Y/m/d（N歳）」に集約
+             （年齢は Trainee モデルの age アクセサで算出。誕生日が未登録なら「—」のみ）。 --}}
+        <div class="row g-3 mt-2 pt-2 border-top">
+            <x-detail-cell label="犬種" :value="$trainee->breed ?: '—'" />
+            <x-detail-cell label="性別" :value="$trainee->sex_label ?: '—'" />
+            <x-detail-cell label="誕生日">
+                @if($trainee->birth_date)
+                    {{ $trainee->birth_date->format('Y/m/d') }}（{{ $trainee->age }}歳）
+                @else
+                    —
+                @endif
+            </x-detail-cell>
+            <div class="col-12">
+                <div class="text-muted small mb-1">備考</div>
+                <div style="min-height: 1.5rem; white-space: pre-wrap;">{{ $trainee->note ?: '—' }}</div>
+            </div>
+        </div>
+    </div>
 
     {{-- 完了メッセージ（登録・更新・削除後） --}}
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
-
-    {{-- 基本情報カード --}}
-    <div class="card mb-3">
-        <div class="card-header"><h6 class="mb-0">基本情報</h6></div>
-        <div class="card-body">
-            <div class="row g-3">
-                <x-detail-cell label="犬種" :value="$trainee->breed ?: '—'" />
-                <x-detail-cell label="性別" :value="$trainee->sex_label ?: '—'" />
-                <x-detail-cell label="誕生日" :value="$trainee->birth_date ? $trainee->birth_date->format('Y/m/d') : '—'" />
-                @if($trainee->age !== null)
-                    <x-detail-cell label="年齢" :value="$trainee->age . '歳'" />
-                @endif
-            </div>
-            @if($trainee->note)
-                <div class="mt-3">
-                    <div class="text-muted small mb-1">備考</div>
-                    <div style="white-space: pre-wrap;">{{ $trainee->note }}</div>
-                </div>
-            @endif
-        </div>
-    </div>
 
     {{-- 計測値カード（S-0309 セクション「計測値の登録・編集・削除」）
          毎日入力する運用で 1 年で数百件になり得るため、既存の
