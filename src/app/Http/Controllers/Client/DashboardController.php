@@ -75,20 +75,26 @@ class DashboardController extends Controller
     /**
      * 体重推移グラフ用のデータをトレーニーごとに組み立てる。
      *
-     * 返す配列の形（トレーニーごと。計測値 0 件のトレーニーは含めない）:
+     * 返す配列の形（トレーニーごと。**計測値 0 件のトレーニーも含める**が、その場合は
+     * labels / tooltips / datasets が空配列。Blade 側で `empty($chart['labels'])` を
+     * 判定して「まだ計測値がありません」の案内に切り替える。詳細は
+     * screen-design.md S-1402「体重推移」設計方針の 2026-09 変更参照）:
      * [
      *   [
      *     'id'       => (int) トレーニーID,
      *     'name'     => (string) トレーニー名,
-     *     'labels'   => ['M/D', 'M/D', ...],   // 昇順の日付ラベル（軸表示用）
-     *     'tooltips' => ['YYYY/M/D HH:MM', ...] // 対応するツールチップ用の日時
-     *     'datasets' => [                       // 分割された線のセグメントごと
+     *     'labels'   => ['M/D', 'M/D', ...],   // 昇順の日付ラベル（軸表示用）。0 件時は []
+     *     'tooltips' => ['YYYY/M/D HH:MM', ...] // 対応するツールチップ用の日時。0 件時は []
+     *     'datasets' => [                       // 分割された線のセグメントごと。0 件時は []
      *       ['data' => [x1, null, null, ...], ...],
      *       ['data' => [null, null, x3, x4, ...], ...],
      *     ],
      *   ],
      *   ...
      * ]
+     *
+     * トレーニー 0 頭の会員では空配列を返し、Blade で `@if(!empty($weightCharts))` により
+     * ブロックごと非表示になる（この挙動は変更なし）。
      *
      * 分割の判定は「前回の計測日から `chart_gap_split_days` **日以上**空いたら分割」
      * （設計書 6-15-14。閾値は architecture.md §3-3 の設定値、既定 14 日）。
@@ -113,7 +119,16 @@ class DashboardController extends Controller
                 ->values();
 
             if ($measurements->isEmpty()) {
-                // 計測値 0 件のトレーニーは、そのトレーニーのグラフを出さない（空チャートを描かない）
+                // 計測値 0 件のトレーニーもカードを出す（Blade で空判定して
+                // 「まだ計測値がありません」を表示。空のグラフは描かない）。
+                // 設計書 S-1402「体重推移」設計方針の 2026-09 変更参照。
+                $charts[] = [
+                    'id' => $trainee->id,
+                    'name' => $trainee->name,
+                    'labels' => [],
+                    'tooltips' => [],
+                    'datasets' => [],
+                ];
                 continue;
             }
 

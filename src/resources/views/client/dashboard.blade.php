@@ -36,13 +36,25 @@
                     <div class="c-session-body">
                         <div class="c-session-content">
                             <h2 class="mb-2" style="font-size: 1.1rem;">{{ $chart['name'] }}ちゃん</h2>
-                            <div style="position: relative; height: {{ $weightChartHeight }};">
-                                <canvas data-measurement-chart="{{ json_encode([
-                                    'labels' => $chart['labels'],
-                                    'tooltips' => $chart['tooltips'],
-                                    'datasets' => $chart['datasets'],
-                                ], JSON_UNESCAPED_UNICODE) }}"></canvas>
-                            </div>
+                            @if(empty($chart['labels']))
+                                {{-- 計測値 0 件のトレーニー（2026-09 追加）。空のグラフ（軸だけ）を
+                                     描くと意味のない目盛りが出て不具合に見えるため、canvas を出さず
+                                     案内文を表示する。高さは通常のグラフ（180px）と揃え、複数
+                                     トレーニーが並んだときのカード高さの一貫性を保つ。詳細は
+                                     screen-design.md S-1402「体重推移」設計方針参照。 --}}
+                                <div class="d-flex align-items-center justify-content-center text-muted"
+                                     style="height: {{ $weightChartHeight }};">
+                                    まだ計測値がありません
+                                </div>
+                            @else
+                                <div style="position: relative; height: {{ $weightChartHeight }};">
+                                    <canvas data-measurement-chart="{{ json_encode([
+                                        'labels' => $chart['labels'],
+                                        'tooltips' => $chart['tooltips'],
+                                        'datasets' => $chart['datasets'],
+                                    ], JSON_UNESCAPED_UNICODE) }}"></canvas>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </article>
