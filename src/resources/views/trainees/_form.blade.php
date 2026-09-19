@@ -50,10 +50,10 @@
                     </div>
                 </div>
 
-                {{-- 行2: 名前 + 犬種。各項目のまとまり幅（ラベル+入力欄）は
-                     内容量に合わせて col-md-4 に絞る（右側に余白ができる。会員フォーム
-                     clients/_form.blade.php の項目ごとの幅調整と同じ慣例）。md 未満では
-                     col-12 相当で全幅（Bootstrap の grid 既定挙動）。 --}}
+                {{-- 行2: 名前を単独の段に置く（col-md-4）。名前は必須項目で他の任意項目より
+                     目立たせたい・右側に余白は残るが値が短いので入力欄を広げても間延びする、
+                     という判断（会員フォーム clients/_form.blade.php の項目ごとの幅調整と同じ慣例）。
+                     md 未満では col-12 相当で全幅（Bootstrap の grid 既定挙動）。 --}}
                 <div class="row g-3 mb-2">
                     <div class="col-md-4">
                         <div class="row g-2 align-items-center">
@@ -68,7 +68,15 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                </div>
+
+                {{-- 行3: 犬種 + 性別 + 誕生日 を 1 段に並べる。合計 12 で余白なく埋まる。
+                     犬種は自由入力で幅を確保したいので col-md-5、性別は最も短いので col-md-3、
+                     誕生日は Y-m-d 相当で col-md-4。ラベルは各項目内で form-label-fixed の
+                     140px 固定枠に右寄せされる（各項目のまとまり幅が異なるため、
+                     3 項目のラベル位置が同じ縦線に揃うわけではない）。 --}}
+                <div class="row g-3 mb-2">
+                    <div class="col-md-5">
                         <div class="row g-2 align-items-center">
                             <label for="breed" class="col-md-auto col-form-label text-md-end form-label-fixed">犬種</label>
                             <div class="col-12 col-md">
@@ -79,11 +87,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-                {{-- 行3: 性別 + 誕生日。性別（オス/メス/不明）は最も短いので col-md-3、
-                     誕生日は Y-m-d 表示相当で col-md-4 にする。 --}}
-                <div class="row g-3 mb-2">
                     <div class="col-md-3">
                         <div class="row g-2 align-items-center">
                             <label for="sex" class="col-md-auto col-form-label text-md-end form-label-fixed">性別</label>
