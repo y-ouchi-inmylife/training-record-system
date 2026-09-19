@@ -139,12 +139,18 @@ class ClientController extends Controller
      */
     public function show(Client $client): View
     {
+        // trainees は id 昇順（Client::trainees() の既定）で並び、
+        // 各 trainee の measurements を eager load することで、
+        // トレーニーカードの「最終計測」表示で N+1 を起こさない。
+        // measurements は Trainee::measurements() で計測日時降順に並ぶため、
+        // Trainee::latest_measurement アクセサが `first()` で最新 1 件を取り出せる
+        // （設計書 S-0305 セクション3「最終計測」参照）。
         $client->load(['primaryTrainer', 'trainingRecords' => function ($query) {
             $query->with(['trainer1', 'trainer2'])
                 ->withCount('mediaRecords')
                 ->orderBy('training_date', 'desc')
                 ->orderBy('training_time', 'desc');
-        }, 'trainees']);
+        }, 'trainees.measurements']);
 
         // 状態バッジ（4 状態＋期限切れ）判定に必要な派生値を先読みする。
         // 状態別ボタン（「登録案内を発行」／「登録案内を表示」／「登録案内を取消」／

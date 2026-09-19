@@ -327,7 +327,19 @@
                                         @endif
                                     </dd>
                                     <dt class="col-4 fw-normal text-muted">備考</dt>
-                                    <dd class="col-8 mb-0" style="white-space: pre-wrap;">{{ $trainee->note ?: '—' }}</dd>
+                                    <dd class="col-8 mb-1" style="white-space: pre-wrap;">{{ $trainee->note ?: '—' }}</dd>
+                                    {{-- 最終計測（設計書 S-0305 セクション3「最終計測」参照）。
+                                         最新 1 件は Trainee::latest_measurement アクセサ経由で取り出し、
+                                         「Y/m/d（N.NNkg）」で表示。0 件は「—」。N+1 回避のため
+                                         ClientController::show で trainees.measurements を eager load 済み。 --}}
+                                    <dt class="col-4 fw-normal text-muted">最終計測</dt>
+                                    <dd class="col-8 mb-0">
+                                        @if($trainee->latest_measurement)
+                                            {{ $trainee->latest_measurement->measured_date->format('Y/m/d') }}（{{ number_format((float) $trainee->latest_measurement->weight_kg, 2) }}kg）
+                                        @else
+                                            —
+                                        @endif
+                                    </dd>
                                 </dl>
                             </a>
                         @endforeach

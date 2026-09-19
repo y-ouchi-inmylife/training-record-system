@@ -99,4 +99,18 @@ class Trainee extends Model
     {
         return $this->birth_date?->age;
     }
+
+    /**
+     * 最新の計測値（計測日時の降順で先頭）。計測値が 0 件なら null。
+     *
+     * `measurements()` リレーションが計測日時降順で並ぶ既定を利用し、
+     * `first()` で先頭 1 件を取り出す。会員詳細（S-0305）のトレーニーカードで
+     * 「最終計測」の表示に使う。呼び出し側は `trainees.measurements` を
+     * eager load しておくこと（`ClientController::show()` 参照）。
+     * 詳細は screen-design.md S-0305 セクション3「最終計測」参照。
+     */
+    public function getLatestMeasurementAttribute(): ?TraineeMeasurement
+    {
+        return $this->measurements->first();
+    }
 }
