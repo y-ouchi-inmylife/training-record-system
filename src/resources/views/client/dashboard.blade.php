@@ -44,7 +44,7 @@
                                      screen-design.md S-1402「体重推移」設計方針参照。 --}}
                                 <div class="d-flex align-items-center justify-content-center text-muted"
                                      style="height: {{ $weightChartHeight }};">
-                                    まだ計測値がありません
+                                    まだ計測値がありません。
                                 </div>
                             @else
                                 <div style="position: relative; height: {{ $weightChartHeight }};">

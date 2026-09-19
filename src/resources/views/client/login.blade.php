@@ -70,7 +70,7 @@
         <a href="{{ route('client-portal.password-reset.request.show') }}" class="btn btn-link btn-sm">パスワードを忘れた方</a>
     </p>
 
-    <p class="c-login-help">初めてご利用の方は、担当トレーナーから受け取った URL からお進みください</p>
+    <p class="c-login-help">初めてご利用の方は、担当トレーナーから受け取った URL からお進みください。</p>
 
     {{-- フッター(会社名/年): config('app.client_portal_company') が未設定なら
          ブロックごと出力しない(設計書 §9-2)。カードの位置は上余白基準なので、
