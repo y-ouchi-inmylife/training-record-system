@@ -189,11 +189,62 @@
                            id="address3" name="address3" required maxlength="100"
                            value="{{ old('address3', $client->address3) }}">
                 </div>
-                <div class="mb-3">
+                {{-- 建物名・部屋番号は「ご連絡先」まとまりの最終要素。次の「愛犬の情報」まとまりとの
+                     境目に区切り線③を引く（設計書 S-1403 / client-portal-design-plan.md §4-7 参照）。
+                     pb-3 は罫線と入力欄下端の間隔、mb-3 は罫線と次のまとまりとの間隔。 --}}
+                <div class="mb-3 pb-3 border-bottom">
                     <label for="address4" class="form-label">建物名・部屋番号</label>
                     <input type="text" class="form-control @error('address4') is-invalid @enderror"
                            id="address4" name="address4" maxlength="100"
                            value="{{ old('address4', $client->address4) }}">
+                </div>
+
+                {{-- 「愛犬の情報」小見出し。位置と装飾の考え方は「お名前」「ご連絡先」小見出しと同じ
+                     （<h2 fs-6> の理由・fs-6 を外さない旨は上のコメント参照）。**fs-6 を外さないこと**。 --}}
+                <h2 class="fs-6 fw-bold mb-2">愛犬の情報</h2>
+                <div class="mb-2">
+                    <label for="trainee_name" class="form-label">名前 <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control @error('trainee_name') is-invalid @enderror"
+                           id="trainee_name" name="trainee_name" required maxlength="50"
+                           value="{{ old('trainee_name', $existingTrainee?->name) }}">
+                    @error('trainee_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+                <div class="mb-2">
+                    <label for="trainee_breed" class="form-label">犬種</label>
+                    <input type="text" class="form-control @error('trainee_breed') is-invalid @enderror"
+                           id="trainee_breed" name="trainee_breed" maxlength="100"
+                           value="{{ old('trainee_breed', $existingTrainee?->breed) }}">
+                    @error('trainee_breed') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+                <div class="mb-2">
+                    <label for="trainee_sex" class="form-label">性別</label>
+                    <select class="form-select @error('trainee_sex') is-invalid @enderror"
+                            id="trainee_sex" name="trainee_sex">
+                        <option value=""></option>
+                        @foreach(\App\Models\Trainee::sexLabels() as $value => $label)
+                            <option value="{{ $value }}" @selected(old('trainee_sex', $existingTrainee?->sex) === $value)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    @error('trainee_sex') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+                <div class="mb-2">
+                    <label for="trainee_birth_date" class="form-label">誕生日</label>
+                    <input type="text" class="form-control datepicker @error('trainee_birth_date') is-invalid @enderror"
+                           id="trainee_birth_date" name="trainee_birth_date"
+                           value="{{ old('trainee_birth_date', $existingTrainee?->birth_date?->format('Y-m-d')) }}"
+                           placeholder="例: 2020-05-01" pattern="\d{4}-\d{2}-\d{2}" maxlength="10"
+                           autocomplete="off">
+                    @error('trainee_birth_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+                {{-- 備考：ラベル下（.form-text）に多頭飼い向けの案内を出す。
+                     設計書 S-1403 の「多頭飼いの運用」参照。備考の下には区切り線を引かない
+                     （愛犬の情報が最終まとまりで、カード枠が外周を担当するため）。 --}}
+                <div class="mb-3">
+                    <label for="trainee_note" class="form-label">備考</label>
+                    <textarea class="form-control @error('trainee_note') is-invalid @enderror"
+                              id="trainee_note" name="trainee_note" rows="3">{{ old('trainee_note', $existingTrainee?->note) }}</textarea>
+                    <div class="form-text">2頭目以降がいる場合も、こちらにご記入ください</div>
+                    @error('trainee_note') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
 
                 @include('layouts.partials.privacy-consent')

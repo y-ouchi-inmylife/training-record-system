@@ -43,6 +43,15 @@ class ClientInitialSetupRequest extends FormRequest
             'address2' => 'required|string|max:50',
             'address3' => 'required|string|max:100',
             'address4' => 'nullable|string|max:100',
+
+            // 愛犬（トレーニー）— TraineeRequest と同じルール（S-0308 と揃える）。
+            // フィールド名の `trainee_` プレフィックスは、会員自身の項目
+            // （last_name など）と区別するため（api-design.md 参照）。
+            'trainee_name' => 'required|string|max:50',
+            'trainee_breed' => 'nullable|string|max:100',
+            'trainee_sex' => 'nullable|in:male,female,unknown',
+            'trainee_birth_date' => 'nullable|date|before_or_equal:today',
+            'trainee_note' => 'nullable|string',
         ];
     }
 
@@ -61,6 +70,23 @@ class ClientInitialSetupRequest extends FormRequest
             'address1.required' => '都道府県を選択してください。',
             'address2.required' => '市区町村を入力してください。',
             'address3.required' => '町名・番地を入力してください。',
+            'trainee_name.required' => '愛犬の名前を入力してください。',
+        ];
+    }
+
+    /**
+     * 属性名の日本語ラベル。既存の messages() で個別文言を書いている項目には
+     * ここは効かないが、`in` / `date` / `before_or_equal` などの汎用ルールで
+     * 自動生成されるメッセージ内の `:attribute` を日本語にするために定義する。
+     */
+    public function attributes(): array
+    {
+        return [
+            'trainee_name' => '愛犬の名前',
+            'trainee_breed' => '犬種',
+            'trainee_sex' => '性別',
+            'trainee_birth_date' => '誕生日',
+            'trainee_note' => '備考',
         ];
     }
 }
