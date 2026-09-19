@@ -579,7 +579,6 @@ erDiagram
 | measured_date | DATE | NO | — | 計測日 |
 | measured_time | TIME | NO | — | 計測時刻（HH:MM形式）。1日2回の計測に対応するため保持し、**NOT NULL とする**（NULL を許容するとユニーク制約が機能しないため） |
 | weight_kg | DECIMAL(5,2) | NO | — | 体重（kg） |
-| note | VARCHAR(255) | YES | NULL | 備考 |
 | created_at | TIMESTAMP | YES | NULL | 作成日時 |
 | updated_at | TIMESTAMP | YES | NULL | 更新日時 |
 | updated_by | BIGINT UNSIGNED | YES | NULL | 最終更新者のトレーナーのid（外部キー） |
