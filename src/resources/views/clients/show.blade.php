@@ -337,23 +337,25 @@
                                          「Y/m/d（N.NNkg）」で表示。0 件は「—」。N+1 回避のため
                                          ClientController::show で trainees.measurements を eager load 済み。 --}}
                                     <dt class="col-4 fw-normal text-muted">最終計測</dt>
-                                    <dd class="col-8 mb-0">
-                                        @if($trainee->latest_measurement)
-                                            {{ $trainee->latest_measurement->measured_date->format('Y/m/d') }}（{{ number_format((float) $trainee->latest_measurement->weight_kg, 2) }}kg）
-                                        @else
-                                            —
-                                        @endif
+                                    {{-- 値と「計測を追加」ボタンを横並びで表示（設計書 S-0305
+                                         セクション3「『計測を追加』ボタンの位置を最終計測の値の横に」参照）。
+                                         当初はカード下部の独立した行に置いていたが、位置が中途半端で
+                                         カードが縦に間延びしたため値の右横に移動した。flex-wrap を明示：
+                                         狭いときはボタンが下に折り返す（今回は折り返しを防ぐ工夫は入れない）。
+                                         値が「—」（計測値 0 件）でもボタンは表示する
+                                         （まだ計測がないトレーニーにこそ追加したいため）。 --}}
+                                    <dd class="col-8 mb-0 d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                        <span>
+                                            @if($trainee->latest_measurement)
+                                                {{ $trainee->latest_measurement->measured_date->format('Y/m/d') }}（{{ number_format((float) $trainee->latest_measurement->weight_kg, 2) }}kg）
+                                            @else
+                                                —
+                                            @endif
+                                        </span>
+                                        <button type="button" class="btn btn-sm btn-outline-primary flex-shrink-0"
+                                                onclick="window.measurementModals[{{ $trainee->id }}].openForCreate()">計測を追加</button>
                                     </dd>
                                 </dl>
-                                {{-- 「計測を追加」ボタン（設計書 S-0305 セクション3
-                                     「『計測を追加』ボタンをカード内に置く／カード全体クリックを廃止」参照）。
-                                     カード下部・右寄せ、`btn-sm btn-outline-primary` で
-                                     「トレーニーを追加」と揃える。クリックで該当トレーニーの
-                                     モーダルを開く（モーダルはこの card の外側に @include で配置）。 --}}
-                                <div class="text-end mt-2">
-                                    <button type="button" class="btn btn-sm btn-outline-primary"
-                                            onclick="window.measurementModals[{{ $trainee->id }}].openForCreate()">計測を追加</button>
-                                </div>
                             </div>
                         @endforeach
                     </div>
