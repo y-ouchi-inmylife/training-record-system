@@ -29,7 +29,7 @@ import {
     Filler,
 } from 'chart.js';
 import 'chartjs-adapter-date-fns';
-import { format } from 'date-fns';
+import { format, addDays, parseISO } from 'date-fns';
 
 Chart.register(
     LineController,
@@ -74,6 +74,30 @@ function renderChart(canvas, data) {
         borderWidth: 2,
         tension: 0, // 直線で結ぶ（スプライン補間しない）
     }));
+
+    // 横軸の範囲をデータに合わせる（設計書 S-1402「横軸の範囲をデータに合わせる」参照）。
+    // Chart.js の自動範囲だと、（1）計測値 1 件のとき目盛りが出ず点だけ浮く、
+    // （2）2 件以上でも最初の目盛りが最初の計測日にならない、という問題が発生する
+    // ため、min / max を明示する。
+    //
+    // 決め方（1 件のときも複数のときも**同じロジック**で扱える）：
+    //   - min = 最初の計測日の 0:00
+    //   - max = 最後の計測日の**翌日** 0:00
+    //   - 1 件のときは最初と最後が同じ点なので「その日の 0:00 〜 翌日の 0:00」の
+    //     1 日範囲になる（点は左端に来る）
+    //
+    // タイムゾーン：data.x と同じ naive な ISO 8601 文字列
+    // （'YYYY-MM-DDTHH:mm:ss'、タイムゾーン指定なし）で min/max を作る。UTC の 'Z'
+    // や '+HH:MM' オフセットを付けると date-fns アダプタの解釈がずれて、意図した
+    // 位置と違う場所に軸境界が来てしまう。format() のフォーマット文字列も同形式で
+    // 統一する（`HH:mm:ss` は 00:00:00 固定）。
+    const points = data.datasets[0].data;
+    const firstX = points[0].x;              // 'YYYY-MM-DDTHH:mm:ss'
+    const lastX = points[points.length - 1].x;
+    const xMinDate = parseISO(`${firstX.substring(0, 10)}T00:00:00`);
+    const xMaxDate = addDays(parseISO(`${lastX.substring(0, 10)}T00:00:00`), 1);
+    const xMin = format(xMinDate, "yyyy-MM-dd'T'HH:mm:ss");
+    const xMax = format(xMaxDate, "yyyy-MM-dd'T'HH:mm:ss");
 
     new Chart(canvas, {
         type: 'line',
@@ -126,6 +150,10 @@ function renderChart(canvas, data) {
                     // date-fns アダプタが naive な ISO 8601 文字列を**ローカル時間として解釈**する
                     // ため、コントローラ側で UTC の 'Z' や '+HH:MM' オフセットは付けない。
                     type: 'time',
+                    // 横軸の範囲をデータに合わせる（詳細な理由は renderChart 内の xMin/xMax の
+                    // 計算箇所と、設計書 S-1402「横軸の範囲をデータに合わせる」参照）。
+                    min: xMin,
+                    max: xMax,
                     time: {
                         // ツールチップ表示用の書式（date-fns のトークン）。
                         // 「2026/9/14 08:00」の形。yyyy=4桁年、M=1〜2桁月、d=1〜2桁日、HH=2桁時、mm=2桁分。
