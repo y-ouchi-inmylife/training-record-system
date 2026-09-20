@@ -218,8 +218,9 @@
     </div>
 
     <div class="row g-3">
-        {{-- 左カラム: トレーニング記録（タイムライン） --}}
-        <div class="col-lg-8">
+        {{-- 左カラム: トレーニング記録（タイムライン）。col-lg-7（2026-09 変更で 8→7 に狭めた。
+             詳細は screen-design.md S-0305 設計方針「2カラム本体の幅を 8:4 から 7:5 に」参照）。 --}}
+        <div class="col-lg-7">
             <div class="card mb-3">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="mb-0">トレーニング記録（{{ $client->trainingRecords->count() }}件）</h6>
@@ -299,7 +300,9 @@
              セクション3 設計方針「『計測を追加』ボタンをカード内に置く／カード全体クリックを
              廃止」参照）。編集は名前リンクで S-0309 へ遷移してから「編集」ボタンで行う。
              未登録項目は「—」を表示し行ごと消さない。 --}}
-        <div class="col-lg-4">
+        {{-- 右カラム: トレーニー一覧。col-lg-5（2026-09 変更で 4→5 に広げた。詳細は
+             screen-design.md S-0305 設計方針「2カラム本体の幅を 8:4 から 7:5 に」参照）。 --}}
+        <div class="col-lg-5">
             <div class="card mb-3">
                 <div class="card-header">
                     <h6 class="mb-0">トレーニー（{{ $client->trainees->count() }}件）</h6>
@@ -316,7 +319,7 @@
                                 {{-- ラベル＋値の並び。dl.row でラベル幅を col-4 に固定して
                                      値を右側に揃える。備考は改行を保持（S-0309 と同じ）。
                                      x-detail-cell は使わない（3 列グリッド前提のコンポーネントで
-                                     右カラム col-lg-4 の中の縦並び表示には合わないため）。 --}}
+                                     右カラム col-lg-5 の中の縦並び表示には合わないため）。 --}}
                                 <dl class="row mb-0 small">
                                     <dt class="col-4 fw-normal text-muted">犬種</dt>
                                     <dd class="col-8 mb-1">{{ $trainee->breed ?: '—' }}</dd>
