@@ -906,17 +906,19 @@ input[type="tel"] {
         max-width: 40rem;
     }
 
-    // まとまりの区切り線を ink 15% に濃くする（2026-09、設計書 §4-7 経緯 6）。
+    // まとまりの区切り線を ink 20% に濃くする（2026-09、設計書 §4-7 経緯 6）。
     // Bootstrap の .border-bottom は $border-color = ink 8%（カードの罫線と同じ）
     // を使うが、S-1403 のような入力欄が多い画面ではまとまりの境目としての強度が
     // 弱く、「区切りが分かりにくい」という指摘があった。S-1403 に限って濃くする。
+    // 濃さは 8% → 15% → 20% と 2 段階で調整（15% でもまだ切れ目として弱かった。
+    // 20% に上げて着地）。paper 上のコントラスト比: 1.10:1 → 1.22:1 → 1.34:1。
     // - .c-login--wide のスコープに閉じるため、他画面（ログイン・パスワード再設定等）
     //   の border-bottom や、カードの罫線（$border-color）、入力欄枠（$input-border-color）
     //   には影響しない。
     // - Bootstrap の .border-bottom は !important 付きで宣言されているため、上書きにも
     //   !important が必要。
     .border-bottom {
-        border-bottom-color: rgba(15, 26, 46, 0.15) !important;
+        border-bottom-color: rgba(15, 26, 46, 0.20) !important;
     }
 }
 
