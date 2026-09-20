@@ -2,9 +2,17 @@
  * トレーニー体重推移グラフの描画（S-1402 ダッシュボード）。
  *
  * Blade から `<canvas data-measurement-chart="...">` を配置し、その属性値に
- * JSON.stringify したチャートデータ（labels / tooltips / datasets）を載せる。
+ * JSON.stringify したチャートデータ（datasets）を載せる。
  * このスクリプトは DOM 読み込み後、該当する canvas をすべて拾って Chart.js
  * で折れ線を描く。
+ *
+ * ## 横軸は時間軸（2026-09 変更、設計書 S-1402「横軸を時間軸に変更した経緯」参照）
+ *
+ * 従前はカテゴリ軸で計測日を等間隔に並べていたが、間隔が違う計測点が同じ幅で
+ * 表示される問題があったため、時間軸（`type: 'time'`）に変更した。時間軸には
+ * date アダプタが**別途必要**なため、`chartjs-adapter-date-fns` を import している
+ * （import しないと `TypeError: Cannot read properties of undefined (reading 'time')`
+ * のようなエラーで描画が失敗する。Chart.js 4.x の典型的なハマりどころ）。
  *
  * バンドルサイズ抑制のため、必要な Chart.js コンポーネントだけを register する
  * ツリーシェイク前提の import 形式を採る（Chart.js の推奨形。
@@ -16,17 +24,18 @@ import {
     LineElement,
     PointElement,
     LinearScale,
-    CategoryScale,
+    TimeScale,
     Tooltip,
     Filler,
 } from 'chart.js';
+import 'chartjs-adapter-date-fns';
 
 Chart.register(
     LineController,
     LineElement,
     PointElement,
     LinearScale,
-    CategoryScale,
+    TimeScale,
     Tooltip,
     Filler,
 );
@@ -46,12 +55,13 @@ function resolveLineColor(canvas) {
  * 単一の canvas に対してチャートを描画する。
  *
  * @param {HTMLCanvasElement} canvas
- * @param {{labels: string[], tooltips: string[], datasets: {data:(number|null)[]}[]}} data
+ * @param {{datasets: {data: {x: string, y: number}[]}[]}} data
  */
 function renderChart(canvas, data) {
     const color = resolveLineColor(canvas);
 
-    // 各セグメントは同じ色で描画。凡例は不要（線は 1 本の推移を表す）。
+    // 線は 1 本の連続した折れ線（線の分割は廃止）。凡例は不要。
+    // spanGaps は使わない（null 埋めが無くなったため）。
     const datasets = data.datasets.map((seg) => ({
         data: seg.data,
         borderColor: color,
@@ -62,27 +72,23 @@ function renderChart(canvas, data) {
         pointHoverRadius: 5,
         borderWidth: 2,
         tension: 0, // 直線で結ぶ（スプライン補間しない）
-        spanGaps: false, // null は繋がない（分割の視覚化）
     }));
 
     new Chart(canvas, {
         type: 'line',
         data: {
-            labels: data.labels,
             datasets,
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { display: false }, // 分割セグメントを凡例で並べない
+                legend: { display: false },
                 tooltip: {
-                    // タイトルに日時、本文に「体重 X.XX kg」を出す。
+                    // タイトルは Chart.js の time スケールが `x` を自動整形する
+                    // （下の scales.x.time.tooltipFormat で書式を指定）。
+                    // 本文は「体重 X.XX kg」を出す。
                     callbacks: {
-                        title(items) {
-                            const idx = items[0]?.dataIndex;
-                            return idx != null ? data.tooltips[idx] : '';
-                        },
                         label(item) {
                             const v = item.parsed?.y;
                             return v == null ? '' : `体重 ${Number(v).toFixed(2)} kg`;
@@ -115,9 +121,20 @@ function renderChart(canvas, data) {
                     },
                 },
                 x: {
+                    // 時間軸。data の各点は {x: 'YYYY-MM-DDTHH:MM:SS' (ローカル time), y: 体重}。
+                    // date-fns アダプタが naive な ISO 8601 文字列を**ローカル時間として解釈**する
+                    // ため、コントローラ側で UTC の 'Z' や '+HH:MM' オフセットは付けない。
+                    type: 'time',
+                    time: {
+                        // ツールチップ表示用の書式（date-fns のトークン）。
+                        // 「2026/9/14 08:00」の形。yyyy=4桁年、M=1〜2桁月、d=1〜2桁日、HH=2桁時、mm=2桁分。
+                        // 秒は表示しない（分精度で十分）。
+                        tooltipFormat: 'yyyy/M/d HH:mm',
+                        // time.unit は指定しない（Chart.js の自動選定に任せる。
+                        // データの範囲に応じて日単位・月単位などが選ばれる）。
+                    },
                     ticks: {
-                        // 計測があった日付のみをカテゴリとして並べているため、
-                        // 密なときは自動で間引く（`autoSkip` は既定 true）。
+                        // 目盛りが密なときは自動で間引く。ラベルは回転させない。
                         autoSkip: true,
                         maxRotation: 0,
                     },
@@ -134,7 +151,7 @@ function renderAllMeasurementCharts() {
         if (!raw) return;
         try {
             const data = JSON.parse(raw);
-            if (!data.labels || !data.datasets) return;
+            if (!data.datasets || data.datasets.length === 0) return;
             renderChart(canvas, data);
         } catch (err) {
             console.error('measurement chart render failed:', err);

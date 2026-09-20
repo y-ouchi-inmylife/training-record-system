@@ -108,21 +108,24 @@
                                      flex-grow-1 と min-width: 0 を付ける。min-width: 0 は
                                      flex 子要素の canvas が親幅を超えて突き抜けるのを防ぐ定石）。 --}}
                                 <div class="flex-grow-1 w-100" style="min-width: 0;">
-                                    @if(empty($chart['labels']))
+                                    @if(empty($chart['datasets']))
                                         {{-- 計測値 0 件のトレーニー（2026-09 追加）。空のグラフ（軸だけ）を
                                              描くと意味のない目盛りが出て不具合に見えるため、canvas を出さず
                                              案内文を表示する。高さは通常のグラフ（180px）と揃え、複数
-                                             トレーニーが並んだときのカード高さの一貫性を保つ。詳細は
-                                             screen-design.md S-1402「体重推移」設計方針参照。 --}}
+                                             トレーニーが並んだときのカード高さの一貫性を保つ。空判定のキーは
+                                             かつて `labels` だったが、時間軸への変更で `labels` を廃止したため
+                                             `datasets` の空判定に切り替えた（2026-09 変更。詳細は
+                                             screen-design.md S-1402「体重推移」設計方針参照）。 --}}
                                         <div class="d-flex align-items-center justify-content-center text-muted"
                                              style="height: {{ $weightChartHeight }};">
                                             まだ計測値がありません。
                                         </div>
                                     @else
+                                        {{-- data-measurement-chart は datasets のみを渡す（2026-09 変更。
+                                             時間軸化で labels / tooltips の別配列は廃止し、Chart.js は
+                                             各点の {x, y} オブジェクトから軸・ツールチップを組み立てる）。 --}}
                                         <div style="position: relative; height: {{ $weightChartHeight }};">
                                             <canvas data-measurement-chart="{{ json_encode([
-                                                'labels' => $chart['labels'],
-                                                'tooltips' => $chart['tooltips'],
                                                 'datasets' => $chart['datasets'],
                                             ], JSON_UNESCAPED_UNICODE) }}"></canvas>
                                         </div>

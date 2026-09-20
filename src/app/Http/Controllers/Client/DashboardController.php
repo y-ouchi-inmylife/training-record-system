@@ -76,18 +76,22 @@ class DashboardController extends Controller
      * 体重推移グラフ用のデータをトレーニーごとに組み立てる。
      *
      * 返す配列の形（トレーニーごと。**計測値 0 件のトレーニーも含める**が、その場合は
-     * labels / tooltips / datasets が空配列。Blade 側で `empty($chart['labels'])` を
-     * 判定して「まだ計測値がありません」の案内に切り替える。詳細は
-     * screen-design.md S-1402「体重推移」設計方針の 2026-09 変更参照）:
+     * datasets が空配列。Blade 側で `empty($chart['datasets'])` を判定して
+     * 「まだ計測値がありません」の案内に切り替える。詳細は screen-design.md S-1402
+     * 「体重推移」設計方針の 2026-09 変更参照）:
      * [
      *   [
      *     'id'       => (int) トレーニーID,
      *     'name'     => (string) トレーニー名,
-     *     'labels'   => ['M/D', 'M/D', ...],   // 昇順の日付ラベル（軸表示用）。0 件時は []
-     *     'tooltips' => ['YYYY/M/D HH:MM', ...] // 対応するツールチップ用の日時。0 件時は []
-     *     'datasets' => [                       // 分割された線のセグメントごと。0 件時は []
-     *       ['data' => [x1, null, null, ...], ...],
-     *       ['data' => [null, null, x3, x4, ...], ...],
+     *     'photoUrl' => (?string) 写真の presigned URL または null,
+     *     'datasets' => [                          // 常に 0 or 1 本（線の分割を廃止）
+     *       [
+     *         'data' => [                          // {x, y} オブジェクト配列（Chart.js の時間軸形式）
+     *           ['x' => '2026-09-14T08:00:00', 'y' => 4.50],
+     *           ['x' => '2026-09-14T18:00:00', 'y' => 4.55],
+     *           ...
+     *         ],
+     *       ],
      *     ],
      *   ],
      *   ...
@@ -96,13 +100,24 @@ class DashboardController extends Controller
      * トレーニー 0 頭の会員では空配列を返し、Blade で `@if(!empty($weightCharts))` により
      * ブロックごと非表示になる（この挙動は変更なし）。
      *
-     * 分割の判定は「前回の計測日から `chart_gap_split_days` **日以上**空いたら分割」
-     * （設計書 6-15-14。閾値は architecture.md §3-3 の設定値、既定 14 日）。
+     * ## 横軸の扱い（2026-09 変更、設計書 S-1402「横軸を時間軸に変更した経緯」参照）
+     *
+     * 従前は「計測があった日付をカテゴリとして等間隔に並べ、一定日数以上空いたら
+     * 線を分割する」方式だったが、間隔が違う計測点が同じ幅で表示される問題のほうが
+     * 重大だったため、時間軸（`type: 'time'`）に変更した。線は 1 本の連続した折れ線で
+     * 結ぶ（分割ロジック・`chart_gap_split_days` 設定値・null 埋め処理はすべて廃止）。
+     *
+     * ## タイムゾーンの扱い
+     *
+     * `measured_date`（Y-m-d）と `measured_time`（HH:MM:SS）を naive な ISO 8601
+     * 文字列（`YYYY-MM-DDTHH:MM:SS`、タイムゾーン指定なし）に連結する。UTC の `Z` や
+     * `+HH:MM` オフセットは付けない。ブラウザ側の date-fns/Chart.js は naive 文字列を
+     * **ローカル時間として解釈**するため、DB 上の値（アプリタイムゾーン基準で入っている）
+     * がそのままの見た目で表示される。Carbon 経由で toIso8601String() 等を使うと
+     * UTC 変換や `+09:00` オフセットが混入するため、あえて `format()` で手組みする。
      */
     private function buildWeightCharts($client): array
     {
-        $threshold = (int) config('trainee_measurements.chart_gap_split_days');
-
         // トレーニーは Trainee::trainees() で `id` 昇順（登録順）が既定。
         // measurements は Trainee::measurements() で日時**降順**なので、
         // グラフ用には昇順に並べ直す。
@@ -126,56 +141,21 @@ class DashboardController extends Controller
                     'id' => $trainee->id,
                     'name' => $trainee->name,
                     'photoUrl' => $trainee->photo_url,
-                    'labels' => [],
-                    'tooltips' => [],
                     'datasets' => [],
                 ];
                 continue;
             }
 
-            // ラベルとツールチップ用文字列を組み立てる。
-            // 軸ラベルは日付のみ（M/D）。同日 2 回計測がある場合も同じ表記が並ぶが、
-            // ツールチップに時刻まで含めるため区別できる。
-            $labels = [];
-            $tooltips = [];
+            // 各計測を {x: ISO8601 ローカル, y: 体重} に変換する。
+            // measured_time は 'HH:MM:SS' で保存されているため、substr(0, 8) で HH:MM:SS を
+            // 抜き出す。Chart.js の tooltipFormat 側で「Y/n/j HH:mm」まで丸めて表示する
+            // （表示形式は measurement-chart.js で指定）。
+            $points = [];
             foreach ($measurements as $m) {
-                $date = $m->measured_date;
-                $time = substr($m->measured_time, 0, 5); // 'HH:MM'
-                $labels[] = $date->format('n/j');
-                $tooltips[] = $date->format('Y/n/j') . ' ' . $time;
-            }
-
-            // 分割された各セグメントを別データセットとして渡す（すべての値がある位置以外は null）。
-            // 「前回の計測日からのカレンダー日数の差」で判定し、
-            // 差が閾値以上ならそこで新しいセグメントを開始する。
-            $segments = [];
-            $currentSegment = [];
-            $prevDate = null;
-            foreach ($measurements as $index => $m) {
-                if ($prevDate !== null) {
-                    $daysDiff = $prevDate->diffInDays($m->measured_date);
-                    if ($daysDiff >= $threshold) {
-                        // 閾値以上空いた → 前のセグメントを閉じ、新しいセグメントを開始
-                        $segments[] = $currentSegment;
-                        $currentSegment = [];
-                    }
-                }
-                $currentSegment[] = ['index' => $index, 'value' => (float) $m->weight_kg];
-                $prevDate = $m->measured_date;
-            }
-            if (! empty($currentSegment)) {
-                $segments[] = $currentSegment;
-            }
-
-            $total = $measurements->count();
-            $datasets = [];
-            foreach ($segments as $segment) {
-                // 全ラベルに対応する配列。値のある位置だけ数値を入れ、他は null。
-                $data = array_fill(0, $total, null);
-                foreach ($segment as $point) {
-                    $data[$point['index']] = $point['value'];
-                }
-                $datasets[] = ['data' => $data];
+                $points[] = [
+                    'x' => $m->measured_date->format('Y-m-d') . 'T' . substr($m->measured_time, 0, 8),
+                    'y' => (float) $m->weight_kg,
+                ];
             }
 
             $charts[] = [
@@ -186,9 +166,12 @@ class DashboardController extends Controller
                 // 追加のクエリは走らない（N+1 は発生しない。$client->trainees()->with('measurements')
                 // で既にトレーニー本体は取得済みで、photo_path はそのカラム値を使うだけ）。
                 'photoUrl' => $trainee->photo_url,
-                'labels' => $labels,
-                'tooltips' => $tooltips,
-                'datasets' => $datasets,
+                // datasets は常に 1 本のみ（線の分割を廃止したため。設計書 S-1402
+                // 「横軸を時間軸に変更した経緯」参照）。0 件のトレーニーは上の isEmpty
+                // 早期リターンで datasets: [] を返しているためここには来ない。
+                'datasets' => [
+                    ['data' => $points],
+                ],
             ];
         }
 
