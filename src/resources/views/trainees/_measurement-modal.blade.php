@@ -1,30 +1,55 @@
-{{-- 計測値の登録・編集モーダル（S-0309 で使用、登録と編集で共用）。
+{{-- 計測値の登録・編集モーダル（登録と編集で共用、S-0305 / S-0309 の両方で使う汎用部品）。
      登録・編集で 1 つのモーダルを使い、JavaScript でフォームの `action` /
      `_method` / 各入力値を差し替える。
 
-     利用方法:
-       @include('trainees._measurement-modal')
+     利用方法（S-0309 = 単一トレーニー画面）:
+       @include('trainees._measurement-modal', ['trainee' => $trainee])
        // ボタン側:
-       //   新規登録: onclick="window.measurementModal.openForCreate()"
-       //   編集   : onclick="window.measurementModal.openForEdit(this.dataset)"
+       //   新規登録: onclick="window.measurementModals[{{ $trainee->id }}].openForCreate()"
+       //   編集   : onclick="window.measurementModals[{{ $trainee->id }}].openForEdit(this.dataset)"
+
+     利用方法（S-0305 = 会員詳細、複数トレーニーが並ぶ画面）:
+       for-each の中で
+         include('trainees._measurement-modal', ['trainee' => $trainee, 'returnTo' => 'client'])
+       を呼ぶ形。実装例は resources/views/clients/show.blade.php を参照
 
      期待する変数:
-       - $trainee : App\Models\Trainee   親トレーニー（store URL 生成に使う）
+       - $trainee  : App\Models\Trainee 親トレーニー（store URL 生成・ID の一意化に使う）
+       - $returnTo : string ('trainee' | 'client')
+                     成功時のリダイレクト先を判別する hidden。既定は 'trainee'（S-0309 との後方互換）。
+                     S-0305 では 'client' を渡して会員詳細に戻す。詳細は
+                     api-design.md 「計測値エンドポイントの `return_to` 仕様」参照。
 
-     **新規登録の初期日時はコントローラから渡さない**（設計書 S-0309「新規登録時の
-     初期値」参照）。以前はコントローラの `now()` で組み立てた値を `$defaultMeasuredDate`
-     / `$defaultMeasuredTime` として渡していたが、ページ読み込み時に確定するため
-     「画面を開いたまま時間が経ってからモーダルを開くと古い日時が入る」不具合が
-     発生した。JavaScript の `new Date()` で `openForCreate()` の中で現在時刻を
-     組み立てる形に変更した（**モーダルを開いた瞬間のブラウザ時刻**を使う）。
+     ## 複数トレーニーに対応する ID の一意化（2026-09 変更、設計書 S-0305 セクション3 参照）
 
-     バリデーションエラー時：Laravel は back で redirect し、old() と $errors が
-     セッションに載る。以下の順で再描画時にモーダルを自動で開き直す：
+     以前は固定 ID（`measurementModal` / `measurementForm` / `measured_date` など）を
+     使っていたが、S-0305 は 1 会員に複数トレーニーが並ぶため重複違反になる。
+     モーダル・フォーム・入力欄のすべての ID に `-{{ $trainee->id }}` を付けて
+     トレーニーごとに一意化する。あわせて `window.measurementModal` の単一
+     オブジェクトを `window.measurementModals[traineeId]` の辞書に変更した。
+     S-0309 も同じ形（辞書経由）に揃える（詳細は screen-design.md S-0309
+     「計測値モーダルの共用（S-0305 との）」参照）。
+
+     ## 新規登録時の初期日時（変更なし、設計書 S-0309「新規登録時の初期値」参照）
+
+     コントローラの `now()` は使わず、JavaScript の `new Date()` で `openForCreate()`
+     の中で組み立てる（**モーダルを開いた瞬間のブラウザ時刻**を使う）。
+
+     ## バリデーションエラー時の復帰
+
+     Laravel は `back()` で redirect し old() と $errors がセッションに載る。
+     再描画時にモーダルを自動で開き直す判定は以下：
        1. 計測値フィールドに関するエラーがあるか（$errors->hasAny([...]) で判定）
-       2. old('_measurement_id') の有無で「編集モードで開き直す」か「登録モードで開き直す」を分岐
+       2. old('_trainee_id') が現在のトレーニーの ID と一致するか（S-0305 のような
+          複数トレーニー画面で、該当トレーニーのモーダルだけを開き直すため）
+       3. old('_measurement_id') の有無で「編集モードで開き直す」か「登録モードで
+          開き直す」を分岐
 --}}
 
 @php
+    // returnTo の既定値。S-0309 側は引数なしで include するため、ここでフォールバックを設定する。
+    $returnTo = $returnTo ?? 'trainee';
+
     // 計測値フォームに関するエラーがあるかを Blade 側で判定してから JS に渡す。
     // トレーニー本体のエラー（トレーニー編集フォームで発生）とは区別する。
     $measurementFieldNames = ['measured_date', 'measured_time', 'weight_kg'];
@@ -32,29 +57,43 @@
     // 編集で失敗した場合は old('_measurement_id') に対象レコードの id が入る。
     // route() で update URL を再構築できるよう Blade から渡す。
     $oldMeasurementId = old('_measurement_id');
+    // 複数トレーニーが並ぶ画面（S-0305）で、どのトレーニーのモーダルを開き直すかの判別に使う。
+    $shouldReopen = $hasMeasurementError && (int) old('_trainee_id') === (int) $trainee->id;
     $storeUrl = route('trainee-measurements.store', $trainee);
 @endphp
 
-<div class="modal fade" id="measurementModal" tabindex="-1" aria-labelledby="measurementModalLabel" aria-hidden="true">
+<div class="modal fade" id="measurementModal-{{ $trainee->id }}" tabindex="-1" aria-labelledby="measurementModalLabel-{{ $trainee->id }}" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form id="measurementForm" method="POST" action="{{ $storeUrl }}">
+            <form id="measurementForm-{{ $trainee->id }}" method="POST" action="{{ $storeUrl }}">
                 @csrf
                 {{-- _method は JavaScript で「（空）」と 'PUT' を切り替える。
                      `@method('PUT')` の代わりに hidden input を JS で操作する。 --}}
-                <input type="hidden" name="_method" id="measurementFormMethodInput" value="">
+                <input type="hidden" name="_method" id="measurementFormMethodInput-{{ $trainee->id }}" value="">
                 {{-- 編集時は対象レコードの id をここに載せる。バリデーションエラーで
                      再描画されたときに、old('_measurement_id') から編集モードで開き直す判定に使う。 --}}
-                <input type="hidden" name="_measurement_id" id="measurementFormIdInput" value="">
+                <input type="hidden" name="_measurement_id" id="measurementFormIdInput-{{ $trainee->id }}" value="">
+                {{-- どのトレーニーのモーダルからの送信かを判別する。バリデーションエラー時に
+                     old('_trainee_id') と各モーダルの $trainee->id を比較して該当モーダル
+                     だけを開き直す。TraineeMeasurementRequest は _trainee_id をルールに
+                     持たないため validated() に混入しない。 --}}
+                <input type="hidden" name="_trainee_id" value="{{ $trainee->id }}">
+                {{-- 成功時のリダイレクト先を送信元から示す（api-design.md「計測値エンドポイントの
+                     `return_to` 仕様」参照）。値は 'client' / 'trainee' のみ。URL は渡さない
+                     （open redirect の回避）。 --}}
+                <input type="hidden" name="return_to" value="{{ $returnTo }}">
 
                 <div class="modal-header">
-                    <h5 class="modal-title" id="measurementModalLabel">計測値の登録</h5>
+                    <h5 class="modal-title" id="measurementModalLabel-{{ $trainee->id }}">計測値の登録</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
                 </div>
 
                 <div class="modal-body">
-                    {{-- エラーサマリ：バリデーションエラーの内容を上部に一覧表示 --}}
-                    @if($hasMeasurementError)
+                    {{-- エラーサマリ：バリデーションエラーの内容を上部に一覧表示。
+                         複数モーダルが並ぶ場合、@error は共有セッションのエラーバッグを
+                         見るため全モーダルに同じエラーが表示されうるが、実際に開き直す
+                         のは該当トレーニーのモーダルのみ（下の $shouldReopen 参照）。 --}}
+                    @if($shouldReopen)
                         <div class="alert alert-danger">
                             <ul class="mb-0">
                                 @foreach($measurementFieldNames as $field)
@@ -68,38 +107,44 @@
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label for="measured_date" class="form-label">計測日 <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control datepicker @error('measured_date') is-invalid @enderror"
-                                   id="measured_date" name="measured_date"
-                                   value="{{ old('measured_date') }}"
+                            <label for="measured_date-{{ $trainee->id }}" class="form-label">計測日 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control datepicker @if($shouldReopen) @error('measured_date') is-invalid @enderror @endif"
+                                   id="measured_date-{{ $trainee->id }}" name="measured_date"
+                                   value="{{ $shouldReopen ? old('measured_date') : '' }}"
                                    placeholder="例: 2026-09-15" pattern="\d{4}-\d{2}-\d{2}" maxlength="10"
                                    required autocomplete="off">
-                            @error('measured_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            @if($shouldReopen)
+                                @error('measured_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            @endif
                         </div>
                         <div class="col-md-6">
-                            <label for="measured_time" class="form-label">計測時刻 <span class="text-danger">*</span></label>
-                            <input type="time" class="form-control @error('measured_time') is-invalid @enderror"
-                                   id="measured_time" name="measured_time"
-                                   value="{{ old('measured_time') }}"
+                            <label for="measured_time-{{ $trainee->id }}" class="form-label">計測時刻 <span class="text-danger">*</span></label>
+                            <input type="time" class="form-control @if($shouldReopen) @error('measured_time') is-invalid @enderror @endif"
+                                   id="measured_time-{{ $trainee->id }}" name="measured_time"
+                                   value="{{ $shouldReopen ? old('measured_time') : '' }}"
                                    required autocomplete="off">
-                            @error('measured_time') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            @if($shouldReopen)
+                                @error('measured_time') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            @endif
                         </div>
                         <div class="col-md-6">
-                            <label for="weight_kg" class="form-label">体重（kg） <span class="text-danger">*</span></label>
+                            <label for="weight_kg-{{ $trainee->id }}" class="form-label">体重（kg） <span class="text-danger">*</span></label>
                             <input type="number" step="0.01" min="0.01" max="999.99"
-                                   class="form-control @error('weight_kg') is-invalid @enderror"
-                                   id="weight_kg" name="weight_kg"
-                                   value="{{ old('weight_kg') }}"
+                                   class="form-control @if($shouldReopen) @error('weight_kg') is-invalid @enderror @endif"
+                                   id="weight_kg-{{ $trainee->id }}" name="weight_kg"
+                                   value="{{ $shouldReopen ? old('weight_kg') : '' }}"
                                    placeholder="例: 12.35"
                                    required autocomplete="off">
-                            @error('weight_kg') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            @if($shouldReopen)
+                                @error('weight_kg') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            @endif
                         </div>
                     </div>
                 </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
-                    <button type="submit" class="btn btn-success" id="measurementSubmitBtn">登録</button>
+                    <button type="submit" class="btn btn-success" id="measurementSubmitBtn-{{ $trainee->id }}">登録</button>
                 </div>
             </form>
         </div>
@@ -109,8 +154,14 @@
 @push('scripts')
 <script>
 (function () {
-    // 二重登録防止（部品として複数箇所から include された場合の保険）。
-    if (window.measurementModal && typeof window.measurementModal.openForCreate === 'function') return;
+    // トレーニー ID を IIFE のクロージャに捕捉（Blade の foreach で複数回 include
+    // されるため、各インスタンスが自分の trainee_id を保持する必要がある）。
+    const traineeId = @json((int) $trainee->id);
+
+    // 辞書の初期化。二重登録防止：同じトレーニー ID で既に登録済みなら早期リターン
+    // （Blade の include の重複ケースなど、想定外の二重呼び出しからの保険）。
+    if (!window.measurementModals) window.measurementModals = {};
+    if (window.measurementModals[traineeId] && typeof window.measurementModals[traineeId].openForCreate === 'function') return;
 
     // Blade から埋め込む定数
     const STORE_URL = @json($storeUrl);
@@ -148,17 +199,17 @@
 
     function initRefs() {
         if (modalEl) return;
-        modalEl = document.getElementById('measurementModal');
+        modalEl = document.getElementById('measurementModal-' + traineeId);
         if (!modalEl) return;
         modal = new bootstrap.Modal(modalEl);
-        formEl = document.getElementById('measurementForm');
-        methodInput = document.getElementById('measurementFormMethodInput');
-        idInput = document.getElementById('measurementFormIdInput');
-        submitBtn = document.getElementById('measurementSubmitBtn');
-        titleEl = document.getElementById('measurementModalLabel');
-        dateInput = document.getElementById('measured_date');
-        timeInput = document.getElementById('measured_time');
-        weightInput = document.getElementById('weight_kg');
+        formEl = document.getElementById('measurementForm-' + traineeId);
+        methodInput = document.getElementById('measurementFormMethodInput-' + traineeId);
+        idInput = document.getElementById('measurementFormIdInput-' + traineeId);
+        submitBtn = document.getElementById('measurementSubmitBtn-' + traineeId);
+        titleEl = document.getElementById('measurementModalLabel-' + traineeId);
+        dateInput = document.getElementById('measured_date-' + traineeId);
+        timeInput = document.getElementById('measured_time-' + traineeId);
+        weightInput = document.getElementById('weight_kg-' + traineeId);
     }
 
     function openForCreate() {
@@ -192,13 +243,15 @@
         modal.show();
     }
 
-    window.measurementModal = { openForCreate: openForCreate, openForEdit: openForEdit };
+    window.measurementModals[traineeId] = { openForCreate: openForCreate, openForEdit: openForEdit };
 
     // バリデーションエラーで再描画されたときにモーダルを自動で開き直す。
-    // Blade 側で hasMeasurementError を判定して JS に渡している。
+    // Blade 側で $shouldReopen （$hasMeasurementError かつ old('_trainee_id') が
+    // 自分の ID と一致）を判定して JS に渡している。複数トレーニーが並ぶ S-0305 でも、
+    // エラーが起きたトレーニーのモーダルだけが開く。
     document.addEventListener('DOMContentLoaded', function () {
         initRefs();
-        @if($hasMeasurementError)
+        @if($shouldReopen)
             const oldMeasurementId = @json($oldMeasurementId);
             if (oldMeasurementId) {
                 // 編集モードで開き直す。入力値は old() で既に埋まっているので、

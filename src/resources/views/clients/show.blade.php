@@ -293,9 +293,11 @@
         </div>
 
         {{-- 右カラム: トレーニー一覧（設計書 S-0305 セクション3）。
-             1 トレーニー = 1 カード。カード全体クリックで S-0309（トレーニー詳細）へ
-             遷移する。編集は S-0309 の「編集」ボタンから行う（カード内には編集ボタンを
-             置かない。撤回の経緯は設計書「設計方針」参照）。
+             1 トレーニー = 1 カード。**カード全体クリックは廃止し、名前だけをリンク**にする
+             （2026-09 変更。カード内に「計測を追加」ボタンを置くにあたり、913c31e で発生した
+             stretched-link とボタンの共存問題を根本的に回避するため。設計書 S-0305
+             セクション3 設計方針「『計測を追加』ボタンをカード内に置く／カード全体クリックを
+             廃止」参照）。編集は名前リンクで S-0309 へ遷移してから「編集」ボタンで行う。
              未登録項目は「—」を表示し行ごと消さない。 --}}
         <div class="col-lg-4">
             <div class="card mb-3">
@@ -305,9 +307,12 @@
                 @if($client->trainees->count() > 0)
                     <div class="list-group list-group-flush">
                         @foreach($client->trainees as $trainee)
-                            <a href="{{ route('trainees.show', $trainee) }}"
-                               class="list-group-item list-group-item-action text-decoration-none">
-                                <h6 class="mb-2">{{ $trainee->name }}</h6>
+                            {{-- カード（list-group-item）は <div> にし、list-group-item-action は付けない。
+                                 ホバー時の背景色変化は失われるが、下の名前リンクの下線で
+                                 「クリック可能」を伝える（Bootstrap の <a> 既定の下線を維持する
+                                 ため text-decoration-none は付けない）。 --}}
+                            <div class="list-group-item">
+                                <h6 class="mb-2"><a href="{{ route('trainees.show', $trainee) }}">{{ $trainee->name }}</a></h6>
                                 {{-- ラベル＋値の並び。dl.row でラベル幅を col-4 に固定して
                                      値を右側に揃える。備考は改行を保持（S-0309 と同じ）。
                                      x-detail-cell は使わない（3 列グリッド前提のコンポーネントで
@@ -340,7 +345,16 @@
                                         @endif
                                     </dd>
                                 </dl>
-                            </a>
+                                {{-- 「計測を追加」ボタン（設計書 S-0305 セクション3
+                                     「『計測を追加』ボタンをカード内に置く／カード全体クリックを廃止」参照）。
+                                     カード下部・右寄せ、`btn-sm btn-outline-primary` で
+                                     「トレーニーを追加」と揃える。クリックで該当トレーニーの
+                                     モーダルを開く（モーダルはこの card の外側に @include で配置）。 --}}
+                                <div class="text-end mt-2">
+                                    <button type="button" class="btn btn-sm btn-outline-primary"
+                                            onclick="window.measurementModals[{{ $trainee->id }}].openForCreate()">計測を追加</button>
+                                </div>
+                            </div>
                         @endforeach
                     </div>
                 @else
@@ -358,6 +372,19 @@
                     <a href="{{ route('trainees.create', $client) }}" class="btn btn-sm btn-outline-primary">トレーニーを追加</a>
                 </div>
             </div>
+
+            {{-- 計測値モーダル（トレーニーごとに 1 個、カードの外側に配置）。
+                 カード内の「計測を追加」ボタンから開く。トレーナー側の .card は
+                 hover 時の transform 変化を持たないため子要素として置いても機能は
+                 するが、Bootstrap のモーダルは position: fixed のオーバーレイで
+                 「表示上のカードの一部」ではないため、DOM ツリーでも兄弟として
+                 分離しておく（役割の分離）。設計書 S-0309「計測値モーダルの共用
+                 （S-0305 との）」参照。$returnTo='client' で成功時に S-0305 に戻す。 --}}
+            @if($client->trainees->count() > 0)
+                @foreach($client->trainees as $trainee)
+                    @include('trainees._measurement-modal', ['trainee' => $trainee, 'returnTo' => 'client'])
+                @endforeach
+            @endif
         </div>
     </div>
 

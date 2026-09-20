@@ -78,7 +78,7 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <h6 class="mb-0">計測値（{{ $measurementCount }}件）</h6>
             <button type="button" class="btn btn-primary"
-                    onclick="window.measurementModal.openForCreate()">新規登録</button>
+                    onclick="window.measurementModals[{{ $trainee->id }}].openForCreate()">新規登録</button>
         </div>
         @if($measurementCount > 0)
             <div class="table-responsive" style="max-height: 60vh; overflow-y: auto;">
@@ -103,7 +103,7 @@
                                             data-measured-date="{{ $m->measured_date->format('Y-m-d') }}"
                                             data-measured-time="{{ substr($m->measured_time, 0, 5) }}"
                                             data-weight-kg="{{ $m->weight_kg }}"
-                                            onclick="window.measurementModal.openForEdit(this.dataset)">編集</button>
+                                            onclick="window.measurementModals[{{ $trainee->id }}].openForEdit(this.dataset)">編集</button>
                                     <form method="POST" action="{{ route('trainee-measurements.destroy', $m) }}"
                                           class="d-inline"
                                           onsubmit="return confirm('この計測値を削除しますか？')">
@@ -124,7 +124,10 @@
         @endif
     </div>
 
-    {{-- 計測値の登録・編集モーダル（登録・編集で共用） --}}
-    @include('trainees._measurement-modal')
+    {{-- 計測値の登録・編集モーダル（登録・編集で共用）。
+         $returnTo は明示せず既定値 'trainee' を使う（S-0309 内で登録・編集した後は
+         そのまま S-0309 に戻る、従来動作）。ID を一意化した辞書形式に揃えた経緯は
+         設計書 S-0309「計測値モーダルの共用（S-0305 との）」参照。 --}}
+    @include('trainees._measurement-modal', ['trainee' => $trainee])
 </div>
 @endsection
