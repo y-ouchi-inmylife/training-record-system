@@ -242,13 +242,3 @@ flowchart TD
 - 将来「利用規約」など同じ扱いの URL を追加する場合、`client_portal_terms_url` の形で並べて増やせる
 - **メール系の設定値**（`client_portal_company` の表示名利用、`client_portal_reply_to`）は共通ヘルパー `App\Mail\ClientMailEnvelope::build($topic): Envelope` に集約されており、5 通のお客様向け Mail クラスすべてが 1 か所の変更で追随する
 
-### 3-3. トレーニー計測値
-
-| 設定キー | 値 | 用途 |
-|---|---|---|
-| `trainee_measurements.chart_gap_split_days` | 14 | トレーニー体重推移グラフで、**前回の計測からこの日数以上空いた場合に線を分割する**閾値（日数）。4日間・8日間コースなど預かり期間ごとに計測日が飛ぶ運用で、実距離で空白を空けるのではなく、線を切って「別の期間」として表示するため（詳細は glossary.md No.25「コース」・screen-design.md S-1402「体重推移」節参照） |
-
-**取り扱い**：
-- `config/trainee_measurements.php` に定数として保持し、コントローラ・Blade からは `config('trainee_measurements.chart_gap_split_days')` で参照する
-- 値の変更は運用中に生じ得るため、ハードコードしない
-- 「コース」概念をシステムに持ち込まないための代替措置であり、今後コース期間を持たせる要件が出た場合は本閾値と併存させるか置き換えるかを再検討する
