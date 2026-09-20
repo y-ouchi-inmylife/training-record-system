@@ -299,9 +299,8 @@
              未登録項目は「—」を表示し行ごと消さない。 --}}
         <div class="col-lg-4">
             <div class="card mb-3">
-                <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="card-header">
                     <h6 class="mb-0">トレーニー（{{ $client->trainees->count() }}件）</h6>
-                    <a href="{{ route('trainees.create', $client) }}" class="btn btn-primary">新規登録</a>
                 </div>
                 @if($client->trainees->count() > 0)
                     <div class="list-group list-group-flush">
@@ -349,6 +348,15 @@
                         <p class="text-muted mb-0">トレーニーは登録されていません</p>
                     </div>
                 @endif
+                {{-- カード下部の「トレーニーを追加」ボタン（設計書 S-0305 セクション3
+                     設計方針「『トレーニーを追加』ボタンの位置と文言を変更」参照）。
+                     以前はカードヘッダー右上に「新規登録」ボタンを置いていたが、
+                     トレーニング記録カードの「新規登録」と同列に並び誤操作の危険が
+                     あったため、位置と文言を変えた。btn-sm btn-outline-primary で
+                     視覚重量を落とし、日常操作ではないことを示す。 --}}
+                <div class="card-footer text-end">
+                    <a href="{{ route('trainees.create', $client) }}" class="btn btn-sm btn-outline-primary">トレーニーを追加</a>
+                </div>
             </div>
         </div>
     </div>
