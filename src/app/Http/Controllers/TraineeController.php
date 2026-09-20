@@ -6,7 +6,6 @@ use App\Http\Requests\TraineeRequest;
 use App\Models\Client;
 use App\Models\Trainee;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
 /**
@@ -70,18 +69,18 @@ class TraineeController extends Controller
             ? "このトレーニーには {$measurementCount} 件の計測値が登録されています。トレーニーを削除すると計測値も一緒に削除されます。削除しますか？"
             : 'このトレーニーを削除しますか？';
 
-        // モーダルの新規登録時の初期値（今日の日付・現在時刻）。Blade 内で now() を
-        // 直接呼ばず、コントローラで組み立てて渡す（設計書のガイダンスに沿う）。
-        $now = Carbon::now();
-        $defaultMeasuredDate = $now->format('Y-m-d');
-        $defaultMeasuredTime = $now->format('H:i');
+        // 計測値モーダルの新規登録時の初期日時はここでは渡さない。
+        // モーダルを開いた瞬間のブラウザ時刻を JavaScript でセットする
+        // （設計書 S-0309「新規登録時の初期値」参照）。以前はここで
+        // Carbon::now() から $defaultMeasuredDate / $defaultMeasuredTime を
+        // 組み立てて渡していたが、ページ読み込み時に確定するため画面を
+        // 開いたまま時間が経つと古い日時が入る不具合があった。JS に一本化
+        // することで日時管理の二重化も解消する。
 
         return view('trainees.show', compact(
             'trainee',
             'measurementCount',
-            'deleteConfirmMessage',
-            'defaultMeasuredDate',
-            'defaultMeasuredTime'
+            'deleteConfirmMessage'
         ));
     }
 

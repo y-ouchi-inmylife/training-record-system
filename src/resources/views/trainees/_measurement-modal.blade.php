@@ -9,9 +9,14 @@
        //   編集   : onclick="window.measurementModal.openForEdit(this.dataset)"
 
      期待する変数:
-       - $trainee               : App\Models\Trainee   親トレーニー（store URL 生成に使う）
-       - $defaultMeasuredDate   : string ('Y-m-d')    新規登録時の初期値
-       - $defaultMeasuredTime   : string ('H:i')      新規登録時の初期値
+       - $trainee : App\Models\Trainee   親トレーニー（store URL 生成に使う）
+
+     **新規登録の初期日時はコントローラから渡さない**（設計書 S-0309「新規登録時の
+     初期値」参照）。以前はコントローラの `now()` で組み立てた値を `$defaultMeasuredDate`
+     / `$defaultMeasuredTime` として渡していたが、ページ読み込み時に確定するため
+     「画面を開いたまま時間が経ってからモーダルを開くと古い日時が入る」不具合が
+     発生した。JavaScript の `new Date()` で `openForCreate()` の中で現在時刻を
+     組み立てる形に変更した（**モーダルを開いた瞬間のブラウザ時刻**を使う）。
 
      バリデーションエラー時：Laravel は back で redirect し、old() と $errors が
      セッションに載る。以下の順で再描画時にモーダルを自動で開き直す：
@@ -66,7 +71,7 @@
                             <label for="measured_date" class="form-label">計測日 <span class="text-danger">*</span></label>
                             <input type="text" class="form-control datepicker @error('measured_date') is-invalid @enderror"
                                    id="measured_date" name="measured_date"
-                                   value="{{ old('measured_date', $defaultMeasuredDate) }}"
+                                   value="{{ old('measured_date') }}"
                                    placeholder="例: 2026-09-15" pattern="\d{4}-\d{2}-\d{2}" maxlength="10"
                                    required autocomplete="off">
                             @error('measured_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -75,7 +80,7 @@
                             <label for="measured_time" class="form-label">計測時刻 <span class="text-danger">*</span></label>
                             <input type="time" class="form-control @error('measured_time') is-invalid @enderror"
                                    id="measured_time" name="measured_time"
-                                   value="{{ old('measured_time', $defaultMeasuredTime) }}"
+                                   value="{{ old('measured_time') }}"
                                    required autocomplete="off">
                             @error('measured_time') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
@@ -111,8 +116,24 @@
     const STORE_URL = @json($storeUrl);
     // 編集時の URL テンプレート。プレースホルダを実 ID で置換する。
     const UPDATE_URL_TEMPLATE = @json(route('trainee-measurements.update', ['measurement' => '__ID__']));
-    const DEFAULT_MEASURED_DATE = @json($defaultMeasuredDate);
-    const DEFAULT_MEASURED_TIME = @json($defaultMeasuredTime);
+
+    // 新規登録時の初期日時は `openForCreate()` 内で **`new Date()` から組み立てる**
+    // （設計書 S-0309「新規登録時の初期値」参照）。以前は $defaultMeasuredDate /
+    // $defaultMeasuredTime としてコントローラから渡していたが、ページ読み込み時に
+    // 値が確定するため画面を開いたまま時間が経つと古い日時が入る不具合があった。
+    // モーダルを開く瞬間の**ブラウザ時刻**を使うため、JS 側でその都度組み立てる。
+    function pad2(n) { return String(n).padStart(2, '0'); }
+    function nowDateString() {
+        // 'YYYY-MM-DD' を返す（ブラウザのローカル時刻）。ゼロ埋め必須
+        // （「2026-9-5」ではなく「2026-09-05」）。
+        const d = new Date();
+        return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+    }
+    function nowTimeString() {
+        // 'HH:MM' を返す（ブラウザのローカル時刻）。ゼロ埋め必須（「9:5」ではなく「09:05」）。
+        const d = new Date();
+        return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+    }
 
     let modalEl = null;
     let modal = null;
@@ -148,8 +169,9 @@
         idInput.value = '';
         titleEl.textContent = '計測値の登録';
         submitBtn.textContent = '登録';
-        dateInput.value = DEFAULT_MEASURED_DATE;
-        timeInput.value = DEFAULT_MEASURED_TIME;
+        // モーダルを開いた瞬間の日時を初期値にする（設計書 S-0309 参照）。
+        dateInput.value = nowDateString();
+        timeInput.value = nowTimeString();
         weightInput.value = '';
         modal.show();
     }
