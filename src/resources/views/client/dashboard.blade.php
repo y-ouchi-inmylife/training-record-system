@@ -144,9 +144,11 @@
                                     <h5 class="modal-title" id="trainee-photo-modal-label-{{ $chart['id'] }}">{{ $chart['name'] }}ちゃんの写真</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
                                 </div>
-                                <div class="modal-body">
-                                    <p class="mb-0">この写真を変更または削除します。</p>
-                                </div>
+                                {{-- modal-body は置かない（設計書 S-1402「操作モーダルの構成と経緯」の
+                                     「本文を置かない理由」参照）。タイトル + フッターの 3 ボタンで情報が足り、
+                                     本文は重複する説明になるため。空の modal-body を残すと不要な余白が
+                                     生まれるので、要素ごと削除する（Bootstrap は modal-header と
+                                     modal-footer だけの構成でも成立する）。 --}}
                                 <div class="modal-footer">
                                     {{-- キャンセル：モーダルを閉じるだけ --}}
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
