@@ -29,6 +29,7 @@ import {
     Filler,
 } from 'chart.js';
 import 'chartjs-adapter-date-fns';
+import { format } from 'date-fns';
 
 Chart.register(
     LineController,
@@ -134,30 +135,41 @@ function renderChart(canvas, data) {
                         // 日単位に固定した経緯」参照）。当初は unit 未指定で Chart.js の
                         // 自動選定に任せていたが、データ点が少ないと時単位が選ばれ
                         // 「12PM / 6PM / 12AM…」の目盛りが並び日付が読めなくなったため、
-                        // 日単位に固定した。
+                        // 日単位に固定した。**time.unit は残しておく必要がある**：これは
+                        // tick 生成の粒度を決める設定で、外すと時単位に戻り日付が読めない
+                        // 問題が再発する（下の ticks.callback は「生成されたティックの
+                        // 描画方法」を変えるだけで、生成の粒度には影響しない）。
                         // 点の位置は raw x の値（時刻を含む日時）で決まる Chart.js の仕様
                         // どおりのため、同じ日に朝・夕の 2 回計測した 2 点は目盛りが日単位
-                        // でも時刻分だけ横に離れて表示される（time.unit は tick 生成の
-                        // 粒度を制御するのみで、データ点の座標には影響しない）。
+                        // でも時刻分だけ横に離れて表示される。
                         //
-                        // displayFormats.day を「M/d H:mm」にして「9/15 0:00」の形で表示する
-                        // （設計書 S-1402「横軸ラベルに時刻を含める理由」参照）。目盛りは
-                        // 1 日の始まり（0:00）に置かれるため、「9/15」だけだと目盛りが 1 日の
-                        // どこを指すか読み取れない。「9/15 0:00」と時刻を出すことで
-                        // 「その日はここから始まる」ことを明示できる。H:mm（先頭ゼロ埋めなし）
-                        // にする理由：日本語圏では「0:00」の表記が自然で、HH:mm の「00:00」
-                        // より短く収まるため。ツールチップ（tooltipFormat: 'yyyy/M/d HH:mm'）
-                        // は分単位まで見せる場所なので HH:mm のまま桁を揃える（目盛りとは
-                        // 役割が違う）。
+                        // **displayFormats.day は指定しない**：下の ticks.callback で
+                        // 描画書式を配列で返しており、`callback` を指定すると `displayFormats`
+                        // は Chart.js 内部で無視される仕様のため。残しておくと「使われている」
+                        // と誤解を招くので削除した（設計書「横軸ラベルを 2 行にした経緯」参照）。
                         unit: 'day',
-                        displayFormats: {
-                            day: 'M/d H:mm',
-                        },
                     },
                     ticks: {
                         // 目盛りが密なときは自動で間引く。ラベルは回転させない。
                         autoSkip: true,
                         maxRotation: 0,
+                        // 日付と時刻を 2 行に分けて表示する（設計書 S-1402「横軸ラベルを
+                        // 2 行にした経緯」参照）。当初は displayFormats.day を「M/d H:mm」に
+                        // して 1 行で「9/15 0:00」を出していたが、ラベルが横に長く読みにくかった
+                        // ため、日付（M/d）と時刻（H:mm）で改行する形にした。Chart.js は
+                        // callback から配列を返すと各要素を別の行として描画する。
+                        //
+                        // 書式は date-fns の format を直接使う：既に chartjs-adapter-date-fns
+                        // 経由で date-fns が入っており、アダプタと同じ書式トークンで表記を
+                        // 揃えられるため（素の Date.toLocaleString より意図が明確）。
+                        // `value` はタイムスタンプ（ミリ秒）で渡ってくる Chart.js の仕様。
+                        //
+                        // ツールチップには影響しない：`tooltipFormat: 'yyyy/M/d HH:mm'` は
+                        // 別系統で有効なままで、ツールチップは「2026/9/15 08:00」の 1 行表示。
+                        callback(value) {
+                            const d = new Date(value);
+                            return [format(d, 'M/d'), format(d, 'H:mm')];
+                        },
                     },
                 },
             },
