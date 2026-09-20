@@ -166,9 +166,27 @@ function renderChart(canvas, data) {
                         //
                         // ツールチップには影響しない：`tooltipFormat: 'yyyy/M/d HH:mm'` は
                         // 別系統で有効なままで、ツールチップは「2026/9/15 08:00」の 1 行表示。
-                        callback(value) {
+                        //
+                        // **時刻の 2 行目は最初の目盛り（index === 0）のみに出す**：全目盛りに
+                        // 「0:00」が並ぶと目立ちすぎるため、日付を読むときのノイズを減らす。
+                        // 「目盛りが 1 日の始まりを指す」ことは左端で 1 回示せば伝わる。
+                        // 他の目盛りは日付だけ（1 要素の配列 `['9/15']`）で、文字列ではなく
+                        // 配列で返す理由は縦位置を統一するため：Chart.js の縦位置計算は
+                        // 軸領域全体の行数と各 tick 自身の行数で分岐がある場合があり、
+                        // 配列で明示することで先頭ティックと他ティックの日付ラベルの縦位置が
+                        // 揃う。
+                        // autoSkip との関係：callback は tick 生成直後（autoSkip 前）に全 tick
+                        // に対して呼ばれ、`index` は生成された全 tick 配列における通し番号な
+                        // ので autoSkip の影響を受けない。autoSkip はレンダリング時に一部の
+                        // tick を非表示にするが、**最初と最後の tick は原則保持**されるため、
+                        // 日数が多くても左端の時刻ラベルは表示され続ける。
+                        callback(value, index) {
                             const d = new Date(value);
-                            return [format(d, 'M/d'), format(d, 'H:mm')];
+                            const dateLabel = format(d, 'M/d');
+                            if (index === 0) {
+                                return [dateLabel, format(d, 'H:mm')];
+                            }
+                            return [dateLabel];
                         },
                     },
                 },
