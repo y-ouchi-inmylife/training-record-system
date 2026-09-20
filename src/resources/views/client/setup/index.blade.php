@@ -257,7 +257,7 @@
                     <label for="trainee_note" class="form-label">備考</label>
                     <textarea class="form-control @error('trainee_note') is-invalid @enderror"
                               id="trainee_note" name="trainee_note" rows="3">{{ old('trainee_note', $existingTrainee?->note) }}</textarea>
-                    <div class="form-text">2頭目以降がいる場合も、こちらにご記入ください。</div>
+                    <div class="form-text">2頭目以降がいらっしゃる場合は、こちらにご記入ください。</div>
                     @error('trainee_note') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
 
