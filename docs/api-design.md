@@ -129,6 +129,8 @@ IP アドレス制限は、**トレーナー用サブドメイン（内部）の
 | クライアント閲覧 | S-1401 クライアントログイン画面 | POST | `/client-portal/login` | クライアントとしてログインする | guest:client | - |
 | クライアント閲覧 | - | POST | `/client-portal/logout` | クライアントとしてログアウトする | auth:client | クライアント |
 | クライアント閲覧 | S-1402 クライアントダッシュボード画面 | GET | `/client-portal/dashboard` | クライアントダッシュボード画面を表示する | auth:client | クライアント |
+| クライアント閲覧 | S-1402 クライアントダッシュボード画面 | POST | `/client-portal/trainees/{trainee}/photo` | トレーニー写真をアップロードする（サーバ経由の multipart POST。サーバ側で長辺 400px にリサイズ・JPEG 変換して保存） | auth:client | クライアント |
+| クライアント閲覧 | S-1402 クライアントダッシュボード画面 | DELETE | `/client-portal/trainees/{trainee}/photo` | トレーニー写真を削除する（DB の `photo_path` を NULL に戻し、実ファイルもストレージから削除） | auth:client | クライアント |
 | クライアント閲覧 | S-1403 クライアント初回設定画面 | GET | `/client-portal/setup/{token}` | 初回設定画面を表示する（トークン検証、自動ログイン） | public | - |
 | クライアント閲覧 | S-1403 クライアント初回設定画面 | POST | `/client-portal/setup/{token}` | 初回設定（パスワード＋基本情報）を保存する | public | - |
 | クライアント閲覧 | S-1404 クライアントトレーニング記録詳細画面 | GET | `/client-portal/training-records/{id}` | クライアントが自分のトレーニング記録の詳細を表示する | auth:client | クライアント |
@@ -1359,9 +1361,55 @@ POST /training-records に以下を追加する。
 
 **処理**:
 - ログイン中のクライアント自身のトレーニング記録の一覧を、日付の新しい順（降順）で取得し、view に渡す
+- トレーニーごとの体重推移データ（6-15-14）と、**トレーニー写真の表示用 URL**（6-15-15）も view に渡す。写真 URL は `Storage::disk('media')->temporaryUrl($trainee->photo_path, ...)` で発行する（`photo_path` が NULL のトレーニーは URL を渡さず、Blade で「写真を登録」の案内に切り替える）
 
 **レスポンス**:
 - view `client.dashboard`
+
+---
+
+###### POST /client-portal/trainees/{trainee}/photo
+
+**概要**: トレーニー写真をアップロード（新規登録・差し替え）する（**2026-09 追加**、要件定義書 6-15-15）。**サーバ経由の multipart POST**方式で、署名付き URL の直アップロードは使わない（詳細は screen-design.md S-1402「検討して採らなかった案」#2 参照）。
+
+**リクエスト**:
+
+| パラメータ | 型 | 必須 | バリデーション | 説明 |
+|-----------|-----|------|---------------|------|
+| photo | file | ● | required, file, image, mimes:jpg,jpeg,png,heic,heif, max:20480 | 画像ファイル。JPEG / PNG / HEIC / HEIF を受け付け、サーバ側で JPEG に変換して保存する。上限 20MB（既存メディアの写真上限 `MediaRecord::MAX_PHOTO_SIZE` に揃える） |
+
+**処理**:
+- 経路の `{trainee}` の所有権を検証する（`$trainee->client_id === auth('client')->id()` でなければ 403）
+- 一時ディレクトリに multipart ファイルを保存し、`magick`（ImageMagick CLI）を子プロセスで呼ぶ：
+  - `-auto-orient`（EXIF orientation を焼き込み、iPhone の縦撮り写真の横倒しを防ぐ）
+  - `-resize 400x400\>`（長辺 400px、拡大はしない）
+  - `-quality 85`
+  - 出力は `.jpg` に強制
+- ストレージキー `trainees/YYYYMM/{uuid}.jpg` を採番し、`Storage::disk('media')->put()` で保存する
+- 既存の `photo_path` があれば**新ファイル保存後に旧ファイルを削除**する（順序：新ファイル PUT → DB カラム更新 → 旧ファイル削除。途中で失敗しても孤児ファイルにならないよう新ファイルを先に確定させる）
+- `trainees.photo_path` を新しいキーに更新する。`updated_by` は**触らない**（会員操作のため、トレーナー更新の追跡カラムを汚さない）
+- 一時ファイルは finally で必ず削除する（成功時・失敗時とも）
+
+**レスポンス**:
+- 成功：S-1402 ダッシュボードへリダイレクト＋完了メッセージ（またはページ内非同期更新で写真差し替え）
+- バリデーションエラー：エラーメッセージを付けてリダイレクトバック（画像でない・上限超え等）
+- 変換失敗：500 相当、ログにサーバ側で `magick` の stderr を UTF-8 化して残す（既存 `MediaThumbnailService::toUtf8` と同型）
+
+---
+
+###### DELETE /client-portal/trainees/{trainee}/photo
+
+**概要**: トレーニー写真を削除する（**2026-09 追加**、要件定義書 6-15-15）。
+
+**処理**:
+- 経路の `{trainee}` の所有権を検証する（`$trainee->client_id === auth('client')->id()` でなければ 403）
+- `trainees.photo_path` が NULL なら 404 相当（削除対象が存在しないため）
+- 実ファイルを `Storage::disk('media')->delete($trainee->photo_path)` で削除する
+- 削除成功後に `trainees.photo_path` を NULL に更新する（順序：ファイル先削除 → DB カラム NULL 化。既存の `MediaRecordController::destroy` と同型）
+- `updated_by` は**触らない**（会員操作のため）
+
+**レスポンス**:
+- 成功：S-1402 ダッシュボードへリダイレクト＋完了メッセージ
 
 ---
 
