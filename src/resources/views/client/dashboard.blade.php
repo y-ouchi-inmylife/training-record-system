@@ -45,32 +45,16 @@
                             <div class="d-flex flex-column flex-sm-row gap-3 align-items-start">
                                 {{-- 左：トレーニー写真 --}}
                                 <div style="flex-shrink: 0;">
-                                    {{-- 写真の枠（180px 四方）。<label> で <input type="file"> を囲むことで、
-                                         枠クリックでファイル選択ダイアログが開く（キーボードでも Space で開く）。
-                                         写真がある場合は img を、無い場合は「写真を登録」の案内を出す。 --}}
+                                    {{-- アップロード用フォーム：隠しファイル入力のみを持つ。
+                                         写真ありの場合はモーダル内「変更」ボタンから、写真なしの場合は
+                                         <label for="..."> から <input> をクリックさせる。form は
+                                         見た目の <label>/<button> の外側に置き、CSRF・enctype を保つ。 --}}
                                     <form action="{{ route('client-portal.trainee-photo.store', $chart['id']) }}"
                                           method="POST"
                                           enctype="multipart/form-data"
                                           id="trainee-photo-form-{{ $chart['id'] }}"
-                                          style="margin: 0;">
+                                          style="margin: 0; display: contents;">
                                         @csrf
-                                        <label for="trainee-photo-input-{{ $chart['id'] }}"
-                                               class="d-flex align-items-center justify-content-center"
-                                               style="width: 180px; height: 180px; background-color: #ffffff; border: 1px solid rgba(15, 26, 46, 0.08); border-radius: 0.5rem; cursor: pointer; overflow: hidden; margin: 0;"
-                                               title="{{ $chart['photoUrl'] ? '写真を差し替えます' : '写真を登録します' }}"
-                                               aria-label="{{ $chart['name'] }}ちゃんの写真を{{ $chart['photoUrl'] ? '差し替える' : '登録する' }}">
-                                            @if($chart['photoUrl'])
-                                                {{-- 縦横比を保ったまま枠内に収める（切り抜きはしない）。
-                                                     max-width/height 100% で枠を超えず、object-fit: contain で
-                                                     余白は枠の背景色（白）で埋まる（設計書「トレーニー写真」の
-                                                     切り抜きしない方針）。 --}}
-                                                <img src="{{ $chart['photoUrl'] }}"
-                                                     alt="{{ $chart['name'] }}ちゃんの写真"
-                                                     style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;">
-                                            @else
-                                                <span class="text-muted" style="font-size: 0.875rem;">写真を登録</span>
-                                            @endif
-                                        </label>
                                         {{-- 非表示のファイル入力。選択即送信（JavaScript で form.submit()）。
                                              accept は MIME と拡張子の両方を列挙（HEIC は iOS 側で MIME が空に
                                              なるケースがあるため拡張子も入れる。既存メディア機能と同じ考え方）。 --}}
@@ -82,19 +66,34 @@
                                                onchange="document.getElementById('trainee-photo-form-{{ $chart['id'] }}').submit();">
                                     </form>
 
-                                    {{-- 削除リンク。写真があるときだけ表示（未登録時は「削除」の見た目だけが
-                                         残ることを避ける）。onsubmit で確認ダイアログを出す（既存慣例）。 --}}
+                                    {{-- 写真枠（180px 四方）。クリック時の挙動は写真の有無で分かれる
+                                         （設計書 S-1402「トレーニー写真」の 2026-09 変更参照）：
+                                         - 写真あり : <button> でモーダルを開く（データ属性で Bootstrap にトリガー）
+                                         - 写真なし : <label> でファイル選択を直接開く（1 クリック少ない）
+                                         見た目（枠のサイズ・色・角丸・境界）は両方で完全に同じ。 --}}
                                     @if($chart['photoUrl'])
-                                        <form action="{{ route('client-portal.trainee-photo.destroy', $chart['id']) }}"
-                                              method="POST"
-                                              onsubmit="return confirm('{{ $chart['name'] }}ちゃんの写真を削除しますか?');"
-                                              style="margin-top: 0.5rem; text-align: center;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                    class="btn btn-link btn-sm p-0"
-                                                    style="text-decoration: underline;">削除</button>
-                                        </form>
+                                        <button type="button"
+                                                class="d-flex align-items-center justify-content-center p-0"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#trainee-photo-modal-{{ $chart['id'] }}"
+                                                style="width: 180px; height: 180px; background-color: #ffffff; border: 1px solid rgba(15, 26, 46, 0.08); border-radius: 0.5rem; cursor: pointer; overflow: hidden; margin: 0;"
+                                                aria-label="{{ $chart['name'] }}ちゃんの写真を操作する">
+                                            {{-- 縦横比を保ったまま枠内に収める（切り抜きはしない）。
+                                                 max-width/height 100% で枠を超えず、object-fit: contain で
+                                                 余白は枠の背景色（白）で埋まる（設計書「トレーニー写真」の
+                                                 切り抜きしない方針）。 --}}
+                                            <img src="{{ $chart['photoUrl'] }}"
+                                                 alt="{{ $chart['name'] }}ちゃんの写真"
+                                                 style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;">
+                                        </button>
+                                    @else
+                                        <label for="trainee-photo-input-{{ $chart['id'] }}"
+                                               class="d-flex align-items-center justify-content-center"
+                                               style="width: 180px; height: 180px; background-color: #ffffff; border: 1px solid rgba(15, 26, 46, 0.08); border-radius: 0.5rem; cursor: pointer; overflow: hidden; margin: 0;"
+                                               title="写真を登録します"
+                                               aria-label="{{ $chart['name'] }}ちゃんの写真を登録する">
+                                            <span class="text-muted" style="font-size: 0.875rem;">写真を登録</span>
+                                        </label>
                                     @endif
                                 </div>
 
@@ -126,6 +125,54 @@
                         </div>
                     </div>
                 </article>
+
+                {{-- トレーニー写真の操作モーダル（写真あり時のみ、設計書 S-1402 「操作モーダルの構成と経緯」参照）。
+                     トレーニーごとに 1 個ずつ配置する（複数トレーニーは稀・DOM コスト軽微・共有モーダルで
+                     必要な JS 状態管理が不要になるため。同判断の詳細は設計書参照）。
+                     モーダルは意図的に .c-session の外側（同階層）に置く：.c-session は :hover 時に
+                     transform: translateY(-1px) を持ち、これが子孫の position: fixed の containing block を
+                     作るため、モーダルを .c-session の内部に置くと overflow: hidden でクリップされる罠がある。 --}}
+                @if($chart['photoUrl'])
+                    <div class="modal fade"
+                         id="trainee-photo-modal-{{ $chart['id'] }}"
+                         tabindex="-1"
+                         aria-labelledby="trainee-photo-modal-label-{{ $chart['id'] }}"
+                         aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="trainee-photo-modal-label-{{ $chart['id'] }}">{{ $chart['name'] }}ちゃんの写真</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p class="mb-0">この写真を変更または削除します。</p>
+                                </div>
+                                <div class="modal-footer">
+                                    {{-- キャンセル：モーダルを閉じるだけ --}}
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                                    {{-- 削除：即実行（追加の confirm() は出さない。モーダルで選ぶこと自体が意思確認、
+                                         設計書「操作モーダルの構成と経緯」参照）。btn-danger で他の削除操作と揃える。 --}}
+                                    <form action="{{ route('client-portal.trainee-photo.destroy', $chart['id']) }}"
+                                          method="POST"
+                                          style="margin: 0;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger">削除</button>
+                                    </form>
+                                    {{-- 変更：モーダルを閉じつつファイル選択ダイアログを開く。
+                                         data-bs-dismiss で Bootstrap のモーダル閉じアニメーションを開始し、
+                                         onclick で隠しファイル入力を .click() でトリガーする（両者はクリック
+                                         イベントの中で同時に発火する）。選択後は input の onchange から
+                                         form.submit() で自動送信（変更ハンドラは上のフォーム側にある）。 --}}
+                                    <button type="button"
+                                            class="btn btn-primary"
+                                            data-bs-dismiss="modal"
+                                            onclick="document.getElementById('trainee-photo-input-{{ $chart['id'] }}').click();">変更</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             @endforeach
         </section>
     @endif
