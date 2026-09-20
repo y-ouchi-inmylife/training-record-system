@@ -73,9 +73,9 @@ IP アドレス制限は、**トレーナー用サブドメイン（内部）の
 | トレーニー管理 | S-0310 トレーニー編集画面 | GET | `/trainees/{trainee}/edit` | トレーニー編集画面を表示する（ルート名 `trainees.edit`） | auth | 管理者、一般 |
 | トレーニー管理 | S-0310 トレーニー編集画面 | PUT | `/trainees/{trainee}` | トレーニーを更新する（ルート名 `trainees.update`） | auth | 管理者、一般 |
 | トレーニー管理 | S-0309 トレーニー詳細画面 | DELETE | `/trainees/{trainee}` | トレーニーを削除する（物理削除。CASCADE で計測値も削除される。ルート名 `trainees.destroy`。**管理者のみ**、コントローラ内で `auth()->user()->isAdmin()` チェック） | auth | 管理者 |
-| トレーニー管理 | S-0309 トレーニー詳細画面 | POST | `/trainees/{trainee}/measurements` | 計測値を登録する（ルート名 `trainee-measurements.store`） | auth | 管理者、一般 |
-| トレーニー管理 | S-0309 トレーニー詳細画面 | PUT | `/trainee-measurements/{measurement}` | 計測値を更新する（ルート名 `trainee-measurements.update`） | auth | 管理者、一般 |
-| トレーニー管理 | S-0309 トレーニー詳細画面 | DELETE | `/trainee-measurements/{measurement}` | 計測値を削除する（物理削除。ルート名 `trainee-measurements.destroy`） | auth | 管理者、一般 |
+| トレーニー管理 | S-0309 トレーニー詳細画面 / S-0305 会員詳細画面 | POST | `/trainees/{trainee}/measurements` | 計測値を登録する（ルート名 `trainee-measurements.store`）。**送信元は S-0305 または S-0309**（2026-09 追加、S-0305 のトレーニーカードからも登録可能）。リダイレクト先は hidden `return_to` で判別（詳細は下の「計測値エンドポイントの `return_to` 仕様」参照） | auth | 管理者、一般 |
+| トレーニー管理 | S-0309 トレーニー詳細画面 | PUT | `/trainee-measurements/{measurement}` | 計測値を更新する（ルート名 `trainee-measurements.update`）。**編集の送信元は現在 S-0309 のみ**だが、コントローラは将来 S-0305 からも呼ばれる可能性を考えて `return_to` を受け付ける（同上） | auth | 管理者、一般 |
+| トレーニー管理 | S-0309 トレーニー詳細画面 | DELETE | `/trainee-measurements/{measurement}` | 計測値を削除する（物理削除。ルート名 `trainee-measurements.destroy`）。**削除の送信元は現在 S-0309 のみ**だが、コントローラは将来 S-0305 からも呼ばれる可能性を考えて `return_to` を受け付ける（同上） | auth | 管理者、一般 |
 | トレーニング記録管理 | S-0401 トレーニング記録登録画面 | GET | `/training-records/create` | トレーニング記録登録画面を表示する | auth | 管理者、一般 |
 | トレーニング記録管理 | S-0401 トレーニング記録登録画面 | POST | `/training-records` | トレーニング記録を新規登録する | auth | 管理者、一般 |
 | トレーニング記録管理 | S-0402 トレーニング記録一覧画面 | GET | `/training-records` | トレーニング記録一覧画面を表示する | auth | 管理者、一般 |
@@ -165,6 +165,16 @@ IP アドレス制限は、**トレーナー用サブドメイン（内部）の
 
 ※ 認証列は実装のミドルウェア区分を示す。`public`＝認証不要（誰でもアクセス可）、`guest`＝未認証ユーザー向け（ログイン済みはホーム画面へリダイレクト）、`auth`＝要認証（ログイン済みのトレーナー）。（クライアント閲覧機能では guard を明示し、`guest:client`＝未認証のクライアント向け（ログイン済みはクライアントダッシュボードへリダイレクト）、`auth:client`＝要認証（ログイン済みのクライアント）を用いる。）
 ※ 権限列は認証後のロール制限を示す。`-`＝認証不要のため対象外、`全員`＝ログイン済みの全トレーナー（システム管理者を含む）、`管理者、一般`＝システム管理者を除く実務トレーナー、`管理者`＝管理者のみ、`システム管理者`＝システム管理者のみ、`管理者、システム管理者`＝管理者とシステム管理者のみ（一般トレーナーを除く）。`クライアント`＝ログイン済みのクライアント（飼い主）。
+
+**計測値エンドポイントの `return_to` 仕様**（**2026-09 追加**）：`POST /trainees/{trainee}/measurements` / `PUT /trainee-measurements/{measurement}` / `DELETE /trainee-measurements/{measurement}` の 3 メソッドは、リクエストボディの hidden フィールド `return_to` で**送信元を判別**し、成功時のリダイレクト先を切り替える。
+
+- **値の種類**：
+  - `return_to=client`：送信元が S-0305 会員詳細画面。コントローラは `redirect()->route('clients.show', $trainee->client_id)` で S-0305 に戻す
+  - `return_to=trainee`（**既定**）：送信元が S-0309 トレーニー詳細画面。コントローラは `redirect()->route('trainees.show', $trainee)` で S-0309 に戻す（従来動作）
+  - 上記以外の値、または欠落時は `trainee` として扱う（安全側のフォールバック）
+- **URL そのものは渡さない**：hidden `return_to` はルート名を決めるための**識別子**（`client` / `trainee` の 2 値）であり、リダイレクト URL 文字列そのものは受け付けない。**open redirect（未検証 URL でユーザを外部サイトへ飛ばす攻撃）を回避**するため、リダイレクト先はコントローラ側で **ルート名 → URL 生成**の形に限定する
+- **バリデーションエラー時**：Laravel の `back()` が送信元 URL に自動で戻すため、`return_to` はエラー時のリダイレクト先には影響しない（`return_to` は**成功時のリダイレクト先決定**のみに使う）。エラー画面での該当モーダル復元は hidden `_trainee_id` で行う（詳細は screen-design.md S-0309「計測値モーダルの共用（S-0305 との）」参照）
+- **今回のスコープでは `store` のみが S-0305 から呼ばれる**（S-0305 では計測値の登録のみ、編集・削除は S-0309 のみ）が、**`update` / `destroy` にも同じ `return_to` 仕組みを実装しておく**。将来 S-0305 から編集・削除もできるようにする可能性を残すため（今回のコード追加コストは各メソッドで if 分岐 1 段のみで小さい。3 メソッドで同じパターンにする方がコードの一貫性が保たれる）
 
 ---
 
