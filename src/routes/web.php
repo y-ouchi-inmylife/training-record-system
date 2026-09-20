@@ -269,6 +269,14 @@ Route::domain(config('subdomain.client_host'))->group(function () {
                 ->name('training-records.show');
             Route::get('/media/{mediaRecord}/play', [\App\Http\Controllers\Client\MediaRecordController::class, 'play'])
                 ->name('media.play');
+            // トレーニー写真（S-1402、6-15-15）— 会員がダッシュボードから登録・削除する
+            // サーバ経由の multipart POST 方式（署名付き URL 直アップロードは使わない）。
+            // trainees.* ルート（トレーナー向け CRUD）は practitioners ミドルウェアで
+            // 保護されたままで、会員には開放しない。会員側は本エンドポイントを専用に持つ。
+            Route::post('/trainees/{trainee}/photo', [\App\Http\Controllers\Client\TraineePhotoController::class, 'store'])
+                ->name('trainee-photo.store');
+            Route::delete('/trainees/{trainee}/photo', [\App\Http\Controllers\Client\TraineePhotoController::class, 'destroy'])
+                ->name('trainee-photo.destroy');
             // 登録情報（S-1406）— 確認画面
             Route::get('/profile', [\App\Http\Controllers\Client\SettingsController::class, 'show'])
                 ->name('profile.show');

@@ -125,6 +125,7 @@ class DashboardController extends Controller
                 $charts[] = [
                     'id' => $trainee->id,
                     'name' => $trainee->name,
+                    'photoUrl' => $trainee->photo_url,
                     'labels' => [],
                     'tooltips' => [],
                     'datasets' => [],
@@ -180,6 +181,11 @@ class DashboardController extends Controller
             $charts[] = [
                 'id' => $trainee->id,
                 'name' => $trainee->name,
+                // トレーニー写真の presigned URL（写真未登録なら null）。
+                // photo_url アクセサは trainee 1 件で 1 回だけ presigned URL を発行するため、
+                // 追加のクエリは走らない（N+1 は発生しない。$client->trainees()->with('measurements')
+                // で既にトレーニー本体は取得済みで、photo_path はそのカラム値を使うだけ）。
+                'photoUrl' => $trainee->photo_url,
                 'labels' => $labels,
                 'tooltips' => $tooltips,
                 'datasets' => $datasets,

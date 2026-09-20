@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * トレーニーモデル（D-0700）
@@ -37,6 +38,16 @@ class Trainee extends Model
         ];
     }
 
+    // 写真保存先の Filesystem ディスク名。
+    // 既存メディアと同じ `media` ディスク（S3 互換）を共用し、キーの名前空間だけ
+    // `trainees/` に分けて保存する（詳細は db-schema.md D-0700 注記「トレーニー写真の扱い」参照）。
+    // MediaRecord::STORAGE_DISK と同じ流儀の定数として明示する。
+    const STORAGE_DISK = 'media';
+
+    // トレーニー写真の presigned 表示 URL の有効期限（分）
+    // 既存の MediaRecordController::PLAY_URL_EXPIRES_MINUTES と揃える。
+    const PHOTO_URL_EXPIRES_MINUTES = 15;
+
     protected $fillable = [
         'client_id',
         'name',
@@ -44,6 +55,7 @@ class Trainee extends Model
         'sex',
         'birth_date',
         'note',
+        'photo_path',
         'updated_by',
     ];
 
@@ -112,5 +124,25 @@ class Trainee extends Model
     public function getLatestMeasurementAttribute(): ?TraineeMeasurement
     {
         return $this->measurements->first();
+    }
+
+    /**
+     * トレーニー写真の presigned 表示 URL を返す。
+     *
+     * `photo_path` が NULL のとき（写真未登録）は null。
+     * それ以外は media ディスクの temporaryUrl で署名付き URL を発行する。
+     * 期限は呼び出し側で有効期限をこの場で決めるより、モデルに固定値
+     * （PHOTO_URL_EXPIRES_MINUTES）を持たせて Blade で毎回書かなくても済むようにする。
+     * 既存の MediaRecord::temporaryThumbnailUrl(DateTimeInterface) は呼び出し側で
+     * 期限を渡す設計だが、あちらは一覧で複数メディアの期限を揃える運用のため。
+     * こちらはトレーニーごとに 1 枚で運用差が生じないため、モデル側で完結させる。
+     */
+    public function getPhotoUrlAttribute(): ?string
+    {
+        if (! $this->photo_path) {
+            return null;
+        }
+        return Storage::disk(self::STORAGE_DISK)
+            ->temporaryUrl($this->photo_path, now()->addMinutes(self::PHOTO_URL_EXPIRES_MINUTES));
     }
 }

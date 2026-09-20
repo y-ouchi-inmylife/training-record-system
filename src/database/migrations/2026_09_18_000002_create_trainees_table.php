@@ -17,6 +17,10 @@ return new class extends Migration
             $table->string('sex', 20)->nullable()->comment('性別（5-20 参照）');
             $table->date('birth_date')->nullable()->comment('誕生日。不明な場合があるため NULL 許容');
             $table->text('note')->nullable()->comment('備考');
+            // 会員がダッシュボード（S-1402）から登録・差し替え・削除する写真の保存キー
+            // （6-15-15、D-0700 注記「トレーニー写真の扱い」参照）。キー形式は
+            // trainees/YYYYMM/{uuid}.jpg 固定（サーバ側で必ず JPEG に変換して保存）
+            $table->string('photo_path', 500)->nullable()->comment('トレーニー写真の保存パス（キー）。写真未登録は NULL。リサイズ済み JPEG 1 枚のみ');
             $table->timestamps();
             $table->unsignedBigInteger('updated_by')->nullable();
 

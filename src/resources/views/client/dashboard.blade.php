@@ -36,25 +36,93 @@
                     <div class="c-session-body">
                         <div class="c-session-content">
                             <h2 class="mb-2" style="font-size: 1.1rem;">{{ $chart['name'] }}ちゃん</h2>
-                            @if(empty($chart['labels']))
-                                {{-- 計測値 0 件のトレーニー（2026-09 追加）。空のグラフ（軸だけ）を
-                                     描くと意味のない目盛りが出て不具合に見えるため、canvas を出さず
-                                     案内文を表示する。高さは通常のグラフ（180px）と揃え、複数
-                                     トレーニーが並んだときのカード高さの一貫性を保つ。詳細は
-                                     screen-design.md S-1402「体重推移」設計方針参照。 --}}
-                                <div class="d-flex align-items-center justify-content-center text-muted"
-                                     style="height: {{ $weightChartHeight }};">
-                                    まだ計測値がありません。
+
+                            {{-- 写真とグラフの横並びラッパー（2026-09 追加、要件定義書 6-15-15）。
+                                 モバイル（<576px）は縦積み（flex-column）、sm 以上は横並び（flex-sm-row）。
+                                 gap は写真とグラフの間の余白。align-items-start で上端揃え。
+                                 SCSS は触らず、Bootstrap の flex ユーティリティとインラインで組む
+                                 （設計書 S-1402「トレーニー写真」設計方針参照）。 --}}
+                            <div class="d-flex flex-column flex-sm-row gap-3 align-items-start">
+                                {{-- 左：トレーニー写真 --}}
+                                <div style="flex-shrink: 0;">
+                                    {{-- 写真の枠（180px 四方）。<label> で <input type="file"> を囲むことで、
+                                         枠クリックでファイル選択ダイアログが開く（キーボードでも Space で開く）。
+                                         写真がある場合は img を、無い場合は「写真を登録」の案内を出す。 --}}
+                                    <form action="{{ route('client-portal.trainee-photo.store', $chart['id']) }}"
+                                          method="POST"
+                                          enctype="multipart/form-data"
+                                          id="trainee-photo-form-{{ $chart['id'] }}"
+                                          style="margin: 0;">
+                                        @csrf
+                                        <label for="trainee-photo-input-{{ $chart['id'] }}"
+                                               class="d-flex align-items-center justify-content-center"
+                                               style="width: 180px; height: 180px; background-color: #ffffff; border: 1px solid rgba(15, 26, 46, 0.08); border-radius: 0.5rem; cursor: pointer; overflow: hidden; margin: 0;"
+                                               title="{{ $chart['photoUrl'] ? '写真を差し替えます' : '写真を登録します' }}"
+                                               aria-label="{{ $chart['name'] }}ちゃんの写真を{{ $chart['photoUrl'] ? '差し替える' : '登録する' }}">
+                                            @if($chart['photoUrl'])
+                                                {{-- 縦横比を保ったまま枠内に収める（切り抜きはしない）。
+                                                     max-width/height 100% で枠を超えず、object-fit: contain で
+                                                     余白は枠の背景色（白）で埋まる（設計書「トレーニー写真」の
+                                                     切り抜きしない方針）。 --}}
+                                                <img src="{{ $chart['photoUrl'] }}"
+                                                     alt="{{ $chart['name'] }}ちゃんの写真"
+                                                     style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;">
+                                            @else
+                                                <span class="text-muted" style="font-size: 0.875rem;">写真を登録</span>
+                                            @endif
+                                        </label>
+                                        {{-- 非表示のファイル入力。選択即送信（JavaScript で form.submit()）。
+                                             accept は MIME と拡張子の両方を列挙（HEIC は iOS 側で MIME が空に
+                                             なるケースがあるため拡張子も入れる。既存メディア機能と同じ考え方）。 --}}
+                                        <input type="file"
+                                               name="photo"
+                                               id="trainee-photo-input-{{ $chart['id'] }}"
+                                               accept="image/jpeg,image/png,image/heic,image/heif,.jpg,.jpeg,.png,.heic,.heif"
+                                               style="display: none;"
+                                               onchange="document.getElementById('trainee-photo-form-{{ $chart['id'] }}').submit();">
+                                    </form>
+
+                                    {{-- 削除リンク。写真があるときだけ表示（未登録時は「削除」の見た目だけが
+                                         残ることを避ける）。onsubmit で確認ダイアログを出す（既存慣例）。 --}}
+                                    @if($chart['photoUrl'])
+                                        <form action="{{ route('client-portal.trainee-photo.destroy', $chart['id']) }}"
+                                              method="POST"
+                                              onsubmit="return confirm('{{ $chart['name'] }}ちゃんの写真を削除しますか?');"
+                                              style="margin-top: 0.5rem; text-align: center;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                    class="btn btn-link btn-sm p-0"
+                                                    style="text-decoration: underline;">削除</button>
+                                        </form>
+                                    @endif
                                 </div>
-                            @else
-                                <div style="position: relative; height: {{ $weightChartHeight }};">
-                                    <canvas data-measurement-chart="{{ json_encode([
-                                        'labels' => $chart['labels'],
-                                        'tooltips' => $chart['tooltips'],
-                                        'datasets' => $chart['datasets'],
-                                    ], JSON_UNESCAPED_UNICODE) }}"></canvas>
+
+                                {{-- 右：体重推移グラフ（既存の作りを維持し、横並び対応のため
+                                     flex-grow-1 と min-width: 0 を付ける。min-width: 0 は
+                                     flex 子要素の canvas が親幅を超えて突き抜けるのを防ぐ定石）。 --}}
+                                <div class="flex-grow-1 w-100" style="min-width: 0;">
+                                    @if(empty($chart['labels']))
+                                        {{-- 計測値 0 件のトレーニー（2026-09 追加）。空のグラフ（軸だけ）を
+                                             描くと意味のない目盛りが出て不具合に見えるため、canvas を出さず
+                                             案内文を表示する。高さは通常のグラフ（180px）と揃え、複数
+                                             トレーニーが並んだときのカード高さの一貫性を保つ。詳細は
+                                             screen-design.md S-1402「体重推移」設計方針参照。 --}}
+                                        <div class="d-flex align-items-center justify-content-center text-muted"
+                                             style="height: {{ $weightChartHeight }};">
+                                            まだ計測値がありません。
+                                        </div>
+                                    @else
+                                        <div style="position: relative; height: {{ $weightChartHeight }};">
+                                            <canvas data-measurement-chart="{{ json_encode([
+                                                'labels' => $chart['labels'],
+                                                'tooltips' => $chart['tooltips'],
+                                                'datasets' => $chart['datasets'],
+                                            ], JSON_UNESCAPED_UNICODE) }}"></canvas>
+                                        </div>
+                                    @endif
                                 </div>
-                            @endif
+                            </div>
                         </div>
                     </div>
                 </article>
