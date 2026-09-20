@@ -31,7 +31,10 @@ class ClientController extends Controller
             ]
         );
 
-        $query = Client::with(['primaryTrainer'])
+        // trainees は一覧の「トレーニー」列の表示（Client::trainees_label アクセサ）で使う。
+        // paginate(20) の 20 行分をまとめて 1 クエリで取ることで N+1 を回避（設計書
+        // S-0304 設計方針「N+1 対策」参照）。
+        $query = Client::with(['primaryTrainer', 'trainees'])
             ->withStatusData()
             ->addSelect([
                 'last_training_date' => TrainingRecord::select('training_date')
@@ -79,7 +82,10 @@ class ClientController extends Controller
         // ソート
         $sortBy = $request->input('sort', 'created_at');
         $sortDir = $request->input('direction', 'desc');
-        $allowedSorts = ['internal_id', 'last_name', 'last_name_kana', 'created_at'];
+        // かな列は 2026-09 に UI から撤去したため、ソートキーからも除外する。
+        // 古いブックマーク（?sort=last_name_kana）は allowedSorts 判定で既定値
+        // （created_at）にフォールバックし、エラーにはならない。
+        $allowedSorts = ['internal_id', 'last_name', 'created_at'];
         if (! in_array($sortBy, $allowedSorts)) {
             $sortBy = 'created_at';
         }
@@ -90,9 +96,6 @@ class ClientController extends Controller
         } elseif ($sortBy === 'last_name') {
             // 日本語照合順序で姓順に並べる
             $query->orderByRaw('last_name COLLATE utf8mb4_ja_0900_as_cs '.$sortDir);
-        } elseif ($sortBy === 'last_name_kana') {
-            // 日本語照合順序で姓かな順に並べる
-            $query->orderByRaw('last_name_kana COLLATE utf8mb4_ja_0900_as_cs '.$sortDir);
         } else {
             $query->orderBy($sortBy, $sortDir);
         }

@@ -129,6 +129,34 @@ class Client extends Authenticatable
     }
 
     /**
+     * 会員一覧（S-0304）のトレーニー列の表示文字列を組み立てる。
+     *
+     * 形式：「名前（犬種、性別）」。犬種・性別が両方あれば「、」で区切る。
+     * 片方のみなら単独で括弧内に置く。両方未登録なら括弧ごと省略して名前だけ。
+     * 複数頭は「／」で区切る（括弧内の「、」との入れ子を避けるため別記号を採る）。
+     * 例：「アイ（トイプードル、メス）／エマ（プードル、メス）」／「モモ（ミックス）」／「ハナ」／（0 頭は空文字）
+     *
+     * N+1 を避けるため呼び出し側で `trainees` を eager load しておくこと
+     * （`ClientController::index()` で `with(['primaryTrainer', 'trainees'])`）。
+     * 性別の日本語化は `Trainee::sex_label` アクセサに委譲する。
+     *
+     * 詳細は screen-design.md S-0304 設計方針「『トレーニー』列を追加」参照。
+     */
+    public function getTraineesLabelAttribute(): string
+    {
+        return $this->trainees->map(function ($trainee) {
+            // 犬種と性別（日本語ラベル）を空でないものだけに絞る。
+            // 「アイ（—）」のような空の括弧を作らないため、未登録の要素は落とす。
+            $parts = array_filter([$trainee->breed, $trainee->sex_label]);
+            if (empty($parts)) {
+                // 犬種も性別もなし → 括弧ごと省略して名前だけ
+                return $trainee->name;
+            }
+            return $trainee->name . '（' . implode('、', $parts) . '）';
+        })->implode('／');
+    }
+
+    /**
      * 主担当トレーナー
      */
     public function primaryTrainer(): BelongsTo

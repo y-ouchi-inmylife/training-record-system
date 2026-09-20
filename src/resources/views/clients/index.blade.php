@@ -111,17 +111,13 @@
                             @endif
                         </a>
                     </th>
-                    <th>
-                        <a href="{{ route('clients.index', array_merge(request()->query(), ['sort' => 'last_name_kana', 'direction' => request('sort') === 'last_name_kana' && request('direction') === 'asc' ? 'desc' : 'asc'])) }}" class="text-decoration-none text-dark">
-                            かな
-                            @if(request('sort') === 'last_name_kana')
-                                {{ request('direction') === 'asc' ? '▲' : '▼' }}
-                            @endif
-                        </a>
-                    </th>
                     {{-- メールアドレス列：状態バッジのみ表示（値は出さない）。カラムを持たない導出値のためソート不可（設計書 §S-0304）--}}
                     <th>メールアドレス</th>
                     <th>主担当</th>
+                    {{-- トレーニー列（2026-09 追加、設計書 S-0304 設計方針参照）。
+                         複合値のためソート対象外。表示文字列は Client::trainees_label アクセサで組み立てる
+                         （犬種・性別の省略ルールと「／」区切りは Blade に条件式を書き散らかないためモデル側に集約）。 --}}
+                    <th>トレーニー</th>
                     <th>最終記録日</th>
                 </tr>
             </thead>
@@ -133,9 +129,9 @@
                     <tr style="cursor: pointer;" onclick="location.href='{{ route('clients.show', $client) }}'">
                         <td>{{ $client->internal_id }}</td>
                         <td>{{ $client->display_name }}</td>
-                        <td class="text-muted">{{ $client->display_name_kana }}</td>
                         <td><span class="badge {{ $badge['class'] }}">{{ $badge['label'] }}</span></td>
                         <td>{{ $client->primaryTrainer?->name }}</td>
+                        <td>{{ $client->trainees_label }}</td>
                         <td>{{ $client->last_training_date ? \Carbon\Carbon::parse($client->last_training_date)->format('Y/m/d') : '' }}</td>
                     </tr>
                 @empty
