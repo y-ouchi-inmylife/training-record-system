@@ -43,8 +43,15 @@
                                  SCSS は触らず、Bootstrap の flex ユーティリティとインラインで組む
                                  （設計書 S-1402「トレーニー写真」設計方針参照）。 --}}
                             <div class="d-flex flex-column flex-sm-row gap-3 align-items-start">
-                                {{-- 左：トレーニー写真 --}}
-                                <div style="flex-shrink: 0;">
+                                {{-- 左：トレーニー写真。
+                                     モバイル（<576px、親が flex-column）では**中央寄せ**、sm 以上
+                                     （親が flex-sm-row）では**上端揃え**にする。親の align-items-start
+                                     は cross 軸に対する既定で、flex-column では横方向・flex-sm-row では
+                                     縦方向の意味が入れ替わる。photo は sm 未満で中央、sm 以上で先頭
+                                     という個別要望のため、この要素だけ align-self でオーバーライドする
+                                     （align-self は align-items より個別指定として優先される。Bootstrap
+                                     の align-self-* は !important 付きで確実に上書きされる）。 --}}
+                                <div class="align-self-center align-self-sm-start" style="flex-shrink: 0;">
                                     {{-- アップロード用フォーム：隠しファイル入力のみを持つ。
                                          写真ありの場合はモーダル内「変更」ボタンから、写真なしの場合は
                                          <label for="..."> から <input> をクリックさせる。form は
