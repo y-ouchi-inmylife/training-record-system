@@ -37,22 +37,29 @@
         <div class="table-responsive mb-4">
             <table class="table table-hover">
                 <thead class="table-light">
+                    {{-- 列構成は S-0402 と同じ 7 列（内部ID / 名前 / トレーニー / トレーニング日 / 担当1 / 担当2 / メディア）。
+                         ダッシュボードは並べ替えなし（トレーニング日の新しい順で固定）のため、列見出しはリンクにしない。
+                         詳細な設計方針は screen-design.md S-0201「設計方針」参照。 --}}
                     <tr>
-                        <th>トレーニング日</th>
+                        <th>内部ID</th>
                         <th>名前</th>
                         <th>トレーニー</th>
+                        <th>トレーニング日</th>
                         <th>担当1</th>
                         <th>担当2</th>
+                        <th>メディア</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($recentRecords as $record)
                         <tr style="cursor: pointer;" onclick="location.href='{{ route('training-records.show', $record) }}'">
-                            <td>{{ $record->training_date->format('Y/m/d') }}</td>
+                            <td>{{ $record->client->internal_id ?? '—' }}</td>
                             <td>{{ $record->client->display_name ?? '—' }}</td>
                             <td>{{ $record->client->trainees_label ?? '' }}</td>
+                            <td>{{ $record->training_date->format('Y/m/d') }}</td>
                             <td>{{ $record->trainer1->name ?? '—' }}</td>
                             <td>{{ $record->trainer2->name ?? '—' }}</td>
+                            <td>{{ $record->media_records_count > 0 ? $record->media_records_count : '—' }}</td>
                         </tr>
                     @endforeach
                 </tbody>

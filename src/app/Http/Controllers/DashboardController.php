@@ -25,6 +25,7 @@ class DashboardController extends Controller
         $recentFilter = $request->query('recent') === 'primary' ? 'primary' : 'all';
 
         $recentQuery = TrainingRecord::with(['client.trainees', 'trainer1', 'trainer2'])
+            ->withCount('mediaRecords')
             ->whereBetween('training_date', [$recentFrom->toDateString(), $recentTo->toDateString()]);
 
         if ($recentFilter === 'primary') {
