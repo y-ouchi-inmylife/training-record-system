@@ -35,8 +35,8 @@
         </div>
     @else
         <div class="table-responsive mb-4">
-            <table class="table table-striped table-hover">
-                <thead>
+            <table class="table table-hover">
+                <thead class="table-light">
                     <tr>
                         <th>日付</th>
                         <th>名前</th>
