@@ -299,7 +299,7 @@ Laravelのセッション認証（Cookie + CSRF）で保護する。
   - 期間：`training_date` が今日の 6 日前〜今日（今日を含む 7 日間、未来日は含めない）
   - 並び順：トレーニング日の新しい順（同日内は S-0402 と同じ既定に合わせる）
   - `recent=primary` のときは `whereHas('client', fn ($q) => $q->where('primary_trainer_id', auth()->id()))` で絞る
-  - ページングなし。`with(['client.trainees', 'trainer1', 'trainer2'])` で eager load（S-0402 と同じ）
+  - ページングなし。`with(['client.trainees', 'trainer1', 'trainer2'])` で eager load、さらに `withCount('mediaRecords')` でメディア件数を集計（S-0402 と同じ構え）
 
 **レスポンス**:
 - view `dashboard`
