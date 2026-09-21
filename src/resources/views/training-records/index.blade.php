@@ -51,11 +51,11 @@
                     </div>
                 </div>
 
-                {{-- 行2: 日付（範囲） + キーワード --}}
+                {{-- 行2: トレーニング日（範囲） + キーワード --}}
                 <div class="row g-3">
                     <div class="col-md-5">
                         <div class="row g-2 align-items-center">
-                            <label class="col-md-auto col-form-label text-md-end form-label-fixed">日付</label>
+                            <label class="col-md-auto col-form-label text-md-end form-label-fixed">トレーニング日</label>
                             <div class="col">
                                 <input type="text" class="form-control datepicker" id="date_from" name="date_from"
                                        value="{{ old('date_from', request('date_from')) }}"
@@ -124,7 +124,7 @@
                     <th>トレーニー</th>
                     <th>
                         <a href="{{ route('training-records.index', array_merge(request()->query(), ['sort' => 'training_date', 'direction' => request('sort') === 'training_date' && request('direction', 'desc') === 'desc' ? 'asc' : 'desc'])) }}" class="text-decoration-none text-dark">
-                            日付
+                            トレーニング日
                             @if(request('sort', 'training_date') === 'training_date')
                                 {{ request('direction', 'desc') === 'desc' ? '▼' : '▲' }}
                             @endif

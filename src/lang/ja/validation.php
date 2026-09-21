@@ -219,7 +219,7 @@ return [
         'primary_trainer_id' => '主担当',
         'trainer1_id' => '担当1',
         'trainer2_id' => '担当2',
-        'training_date' => '日付',
+        'training_date' => 'トレーニング日',
         'training_time' => '時刻',
         'internal_id' => '内部ID',
     ],

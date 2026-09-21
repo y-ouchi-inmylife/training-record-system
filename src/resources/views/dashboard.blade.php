@@ -38,7 +38,7 @@
             <table class="table table-hover">
                 <thead class="table-light">
                     <tr>
-                        <th>日付</th>
+                        <th>トレーニング日</th>
                         <th>名前</th>
                         <th>トレーニー</th>
                         <th>担当1</th>

@@ -52,11 +52,11 @@
                     </div>
                 </div>
 
-                {{-- 行2: 最終記録日（範囲） --}}
+                {{-- 行2: 最終トレーニング日（範囲） --}}
                 <div class="row g-3">
                     <div class="col-md-5">
                         <div class="row g-2 align-items-center">
-                            <label class="col-md-auto col-form-label text-md-end form-label-fixed">最終記録日</label>
+                            <label class="col-md-auto col-form-label text-md-end form-label-fixed">最終トレーニング日</label>
                             <div class="col">
                                 <input type="text" class="form-control datepicker" id="date_from" name="date_from"
                                        value="{{ old('date_from', request('date_from')) }}"
@@ -118,7 +118,7 @@
                          複合値のためソート対象外。表示文字列は Client::trainees_label アクセサで組み立てる
                          （犬種・性別の省略ルールと「／」区切りは Blade に条件式を書き散らかないためモデル側に集約）。 --}}
                     <th>トレーニー</th>
-                    <th>最終記録日</th>
+                    <th>最終トレーニング日</th>
                 </tr>
             </thead>
             <tbody>

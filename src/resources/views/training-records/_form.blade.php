@@ -15,7 +15,7 @@
             <h6 class="mb-0">基本情報</h6>
         </div>
         <div class="card-body">
-            {{-- 1段目: 会員 / 日付 / 時刻 --}}
+            {{-- 1段目: 会員 / トレーニング日 / 時刻 --}}
             <div class="row g-3 mb-2">
                 {{-- 会員（クライアント詳細からの遷移で確定：変更不可） --}}
                 <div class="col-md-4">
@@ -32,10 +32,10 @@
                     </div>
                 </div>
 
-                {{-- 日付 --}}
+                {{-- トレーニング日 --}}
                 <div class="col-md-4">
                     <div class="row g-2 align-items-center">
-                        <label for="training_date" class="col-md-auto col-form-label text-md-end form-label-fixed">日付 <span class="text-danger">*</span></label>
+                        <label for="training_date" class="col-md-auto col-form-label text-md-end form-label-fixed">トレーニング日 <span class="text-danger">*</span></label>
                         <div class="col-12 col-md">
                             <input type="text" name="training_date" id="training_date"
                                 class="form-control datepicker @error('training_date') is-invalid @enderror"
@@ -214,8 +214,8 @@ document.addEventListener('DOMContentLoaded', function() {
             errors.push('会員を選択してください。');
         }
 
-        // 2. 日付
-        checkRequired('training_date', '日付を入力してください。');
+        // 2. トレーニング日
+        checkRequired('training_date', 'トレーニング日を入力してください。');
 
         // 4. 担当1
         checkRequired('trainer1_id', '担当1を選択してください。');
