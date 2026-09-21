@@ -70,6 +70,63 @@
         </div>
     </div>
 
+    {{-- 写真＋体重推移グラフ（2026-09 追加、S-0309 設計方針「トレーナー側にも写真と
+         体重推移グラフを表示する」参照）。
+         位置：属性の下・計測値カードの上。見出しはカード内に置かない（画面上部に
+         トレーニー名 h2 があるため、二重見出しを避ける）。
+         内側骨格は会員側 client/dashboard.blade.php と揃える：モバイル（<576px）は
+         縦積み・sm 以上は横並び、写真は sm 未満で中央寄せ・sm 以上で上端揃え。
+         .c-session 等の client.scss クラスは使わない（app.scss に定義がないため）。 --}}
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex flex-column flex-sm-row gap-3 align-items-start">
+                {{-- 左：トレーニー写真（180px 四方、縦横比を保つ）。
+                     トレーナー側は登録・変更・削除の操作を置かない（要件定義書
+                     6-15-15 は会員の機能）。クリックしても何も起きない静的な枠にする。 --}}
+                <div class="align-self-center align-self-sm-start" style="flex-shrink: 0;">
+                    <div class="d-flex align-items-center justify-content-center"
+                         style="width: 180px; height: 180px; background-color: #ffffff; border: 1px solid rgba(15, 26, 46, 0.08); border-radius: 0.5rem; overflow: hidden;">
+                        @if($weightChart['photoUrl'])
+                            {{-- object-fit: contain で枠を超えず、余白は白で埋まる（切り抜かない）。
+                                 会員側 S-1402 と同じ扱い。 --}}
+                            <img src="{{ $weightChart['photoUrl'] }}"
+                                 alt="{{ $trainee->name }}の写真"
+                                 style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;">
+                        @else
+                            {{-- 写真なしのプレースホルダ。会員側は「写真を登録」（登録操作への案内）
+                                 だが、トレーナー側は登録操作をしないため文言を「写真なし」に変える。 --}}
+                            <span class="text-muted" style="font-size: 0.875rem;">写真なし</span>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- 右：体重推移グラフ。min-width: 0 は flex 子要素の canvas が
+                     親幅を超えて突き抜けるのを防ぐ定石（会員側と同じ）。 --}}
+                <div class="flex-grow-1 w-100" style="min-width: 0;">
+                    @if(empty($weightChart['datasets']))
+                        {{-- 計測値 0 件（会員側と同じ扱い）。空のグラフを描くと意味のない
+                             目盛りが出て不具合に見えるため、canvas を出さず案内文を表示する。
+                             高さは通常のグラフ（180px）と揃える。 --}}
+                        <div class="d-flex align-items-center justify-content-center text-muted"
+                             style="height: 180px;">
+                            まだ計測値がありません。
+                        </div>
+                    @else
+                        {{-- data-measurement-chart は datasets のみを渡す（会員側と同じ形）。
+                             線の色：--c-brand-bright は client.scss にしか定義がなく、
+                             トレーナー側は measurement-chart.js のフォールバック #2A4A94
+                             （$brand-bright と同色）が使われる。 --}}
+                        <div style="position: relative; height: 180px;">
+                            <canvas data-measurement-chart="{{ json_encode([
+                                'datasets' => $weightChart['datasets'],
+                            ], JSON_UNESCAPED_UNICODE) }}"></canvas>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- 計測値カード（S-0309 セクション「計測値の登録・編集・削除」）
          毎日入力する運用で 1 年で数百件になり得るため、既存の
          「トレーニング記録」カード（S-0305 セクション2）と同じく
@@ -130,4 +187,10 @@
          設計書 S-0309「計測値モーダルの共用（S-0305 との）」参照。 --}}
     @include('trainees._measurement-modal', ['trainee' => $trainee])
 </div>
+
+{{-- 体重推移グラフ用スクリプト（Chart.js を npm でビルドに含める。会員側 S-1402 と同じ
+     条件付きの書き方。計測値が 0 件なら canvas を出さないため、スクリプトも読ませない）。 --}}
+@if(!empty($weightChart['datasets']))
+    @vite('resources/js/measurement-chart.js')
+@endif
 @endsection

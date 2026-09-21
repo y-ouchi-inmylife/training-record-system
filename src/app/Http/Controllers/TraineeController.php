@@ -58,6 +58,12 @@ class TraineeController extends Controller
         // 削除確認ダイアログに件数を含めるため、コントローラで数えて渡す。
         $measurementCount = $trainee->measurements->count();
 
+        // 写真＋体重推移グラフの表示データ（2026-09 追加、S-0309 設計方針参照）。
+        // 会員側 Client\DashboardController::buildWeightCharts() と同じ形（id / name /
+        // photoUrl / datasets）を Trainee::getWeightChartDataAttribute() から取る。
+        // measurements は上の $trainee->load(['client', 'measurements']) で既に読み込み済み。
+        $weightChart = $trainee->weight_chart_data;
+
         // 削除確認ダイアログの文言はコントローラ側で組み立てて Blade に渡す
         // （$deleteConfirmMessage）。Blade 内で @json() を使って onsubmit 属性に
         // 埋め込む形にすると、@json() が出力する "..." が onsubmit="..." の
@@ -80,7 +86,8 @@ class TraineeController extends Controller
         return view('trainees.show', compact(
             'trainee',
             'measurementCount',
-            'deleteConfirmMessage'
+            'deleteConfirmMessage',
+            'weightChart'
         ));
     }
 
