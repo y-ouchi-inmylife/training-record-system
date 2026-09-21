@@ -111,13 +111,16 @@
                             @endif
                         </a>
                     </th>
-                    {{-- メールアドレス列：状態バッジのみ表示（値は出さない）。カラムを持たない導出値のためソート不可（設計書 §S-0304）--}}
-                    <th>メールアドレス</th>
-                    <th>主担当</th>
                     {{-- トレーニー列（2026-09 追加、設計書 S-0304 設計方針参照）。
                          複合値のためソート対象外。表示文字列は Client::trainees_label アクセサで組み立てる
                          （犬種・性別の省略ルールと「／」区切りは Blade に条件式を書き散らかないためモデル側に集約）。 --}}
                     <th>トレーニー</th>
+                    {{-- 初回日列（2026-09 追加、設計書 S-0304 設計方針「列の並べ替えと『初回日』の追加」参照）。
+                         列見出しでの並べ替えは付けない。未設定は空欄（§2-4 参照）。 --}}
+                    <th>初回日</th>
+                    <th>主担当</th>
+                    {{-- メールアドレス列：状態バッジのみ表示（値は出さない）。カラムを持たない導出値のためソート不可（設計書 §S-0304）--}}
+                    <th>メールアドレス</th>
                     <th>最終トレーニング日</th>
                 </tr>
             </thead>
@@ -129,14 +132,15 @@
                     <tr style="cursor: pointer;" onclick="location.href='{{ route('clients.show', $client) }}'">
                         <td>{{ $client->internal_id }}</td>
                         <td>{{ $client->display_name }}</td>
-                        <td><span class="badge {{ $badge['class'] }}">{{ $badge['label'] }}</span></td>
-                        <td>{{ $client->primaryTrainer?->name }}</td>
                         <td>{{ $client->trainees_label }}</td>
+                        <td>{{ $client->initial_consultation_date?->format('Y/m/d') }}</td>
+                        <td>{{ $client->primaryTrainer?->name }}</td>
+                        <td><span class="badge {{ $badge['class'] }}">{{ $badge['label'] }}</span></td>
                         <td>{{ $client->last_training_date ? \Carbon\Carbon::parse($client->last_training_date)->format('Y/m/d') : '' }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="text-center text-muted py-4">該当する会員がいません。</td>
+                        <td colspan="7" class="text-center text-muted py-4">該当する会員がいません。</td>
                     </tr>
                 @endforelse
             </tbody>
