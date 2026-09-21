@@ -144,7 +144,7 @@
                         <td>{{ $record->training_date->format('Y/m/d') }}</td>
                         <td>{{ $record->trainer1->name ?? '—' }}</td>
                         <td>{{ $record->trainer2->name ?? '—' }}</td>
-                        <td>{{ $record->media_records_count > 0 ? $record->media_records_count : '—' }}</td>
+                        <td>{{ $record->media_records_count }}</td>
                     </tr>
                 @empty
                     <tr>
