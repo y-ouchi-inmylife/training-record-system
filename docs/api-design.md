@@ -297,7 +297,7 @@ Laravelのセッション認証（Cookie + CSRF）で保護する。
 **処理**:
 - **最近のトレーニング記録**を取得（**2026-09 追加**、従来の「主担当のクライアント一覧の取得」処理は本画面から削除。詳細は screen-design.md S-0201 設計方針「『主担当の会員一覧』ブロックを削除」参照）
   - 期間：`training_date` が今日の 6 日前〜今日（今日を含む 7 日間、未来日は含めない）
-  - 並び順：日付の新しい順（同日内は S-0402 と同じ既定に合わせる）
+  - 並び順：トレーニング日の新しい順（同日内は S-0402 と同じ既定に合わせる）
   - `recent=primary` のときは `whereHas('client', fn ($q) => $q->where('primary_trainer_id', auth()->id()))` で絞る
   - ページングなし。`with(['client.trainees', 'trainer1', 'trainer2'])` で eager load（S-0402 と同じ）
 
@@ -359,8 +359,8 @@ Laravelのセッション認証（Cookie + CSRF）で保護する。
 | internal_id | string | 内部ID（部分一致） |
 | keyword | string | 氏名・かなの複合検索（クライアントの姓名およびそのかな、計4項目を部分一致でOR検索） |
 | primary_trainer_id | integer | 主担当トレーナーID |
-| date_from | date | 最終記録日（開始日） |
-| date_to | date | 最終記録日（終了日） |
+| date_from | date | 最終トレーニング日（開始日）。呼び方は screen-design.md §2-6 参照 |
+| date_to | date | 最終トレーニング日（終了日） |
 | sort | string | ソートカラム（internal_id, last_name, last_name_kana, created_at）。未指定時は created_at。internal_idは数値順、last_name・last_name_kanaは画面表示上の氏名で五十音順 |
 | direction | string | ソート方向（asc, desc）。asc以外はdesc |
 | page | integer | ページ番号 |
@@ -552,7 +552,7 @@ POST /clients と同じ項目。ただし internal_id は登録時と異なり�
 | パラメータ | 型 | 必須 | バリデーション | 説明 |
 |-----------|-----|------|---------------|------|
 | client_id | integer | ● | required, exists:clients,id | クライアントID |
-| training_date | date | ● | required, date | 日付（過去・未来日付とも入力可） |
+| training_date | date | ● | required, date | トレーニング日（過去・未来日付とも入力可）。呼び方は screen-design.md §2-6 参照 |
 | training_time | time | | nullable, date_format:H:i | 時刻 |
 | trainer1_id | integer | ● | required, exists:trainers,id | 担当1 |
 | trainer2_id | integer | | nullable, exists:trainers,id, different:trainer1_id | 担当2（担当1と異なること） |
@@ -586,8 +586,8 @@ POST /clients と同じ項目。ただし internal_id は登録時と異なり�
 |-----------|-----|------|
 | internal_id | string | クライアントの内部ID（部分一致） |
 | name | string | クライアントの氏名（姓名およびそのかな、計4項目を部分一致でOR検索） |
-| date_from | date | 日付（開始日） |
-| date_to | date | 日付（終了日） |
+| date_from | date | トレーニング日（開始日）。呼び方は screen-design.md §2-6 参照 |
+| date_to | date | トレーニング日（終了日） |
 | trainer_id | integer | 担当トレーナーID（担当1・担当2のいずれかに一致） |
 | keyword | string | 記録内容・所感を対象としたキーワード検索（部分一致でOR検索） |
 | sort | string | ソートカラム（training_date, internal_id, client_name, created_at）。未指定時は training_date。internal_idは数値順、client_nameは画面表示上の氏名で五十音順 |

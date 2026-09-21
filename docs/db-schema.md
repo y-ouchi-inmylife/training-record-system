@@ -311,7 +311,7 @@ erDiagram
 |---------|-----|------|----------|------|
 | id | BIGINT UNSIGNED | NO | auto_increment | 主キー |
 | client_id | BIGINT UNSIGNED | NO | — | クライアントのID（外部キー） |
-| training_date | DATE | NO | — | 日付（トレーニング記録の実施日） |
+| training_date | DATE | NO | — | トレーニング日（トレーニング記録の実施日）。呼び方は screen-design.md §2-6 参照。**マイグレーションのカラムコメント（`->comment('日付')`）は据置**（変更するには migration が必要で、コメントは画面に露出しないため実害がない） |
 | training_time | TIME | YES | NULL | 時刻（トレーニング記録の実施時刻。HH:MM形式） |
 | trainer1_id | BIGINT UNSIGNED | NO | — | 担当1のトレーナーのID（外部キー） |
 | trainer2_id | BIGINT UNSIGNED | YES | NULL | 担当2のトレーナーのID（外部キー） |
