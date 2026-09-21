@@ -138,7 +138,7 @@
 
     {{-- 最終更新 --}}
     <div class="text-end text-muted small mb-3">
-        最終更新: {{ $trainingRecord->updated_at->format('Y/m/d H:i') }} {{ $trainingRecord->updatedBy?->name ?? '—' }}
+        最終更新: {{ $trainingRecord->updated_at->format('Y/m/d H:i') }}@if($trainingRecord->updatedBy?->name) {{ $trainingRecord->updatedBy->name }}@endif
     </div>
 </div>
 

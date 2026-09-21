@@ -299,7 +299,7 @@
              stretched-link とボタンの共存問題を根本的に回避するため。設計書 S-0305
              セクション3 設計方針「『計測を追加』ボタンをカード内に置く／カード全体クリックを
              廃止」参照）。編集は名前リンクで S-0309 へ遷移してから「編集」ボタンで行う。
-             未登録項目は「—」を表示し行ごと消さない。 --}}
+             未登録項目は値を空欄にし行ごと消さない（§2-4 参照）。 --}}
         {{-- 右カラム: トレーニー一覧。col-lg-5（2026-09 変更で 4→5 に広げた。詳細は
              screen-design.md S-0305 設計方針「2カラム本体の幅を 8:4 から 7:5 に」参照）。 --}}
         <div class="col-lg-5">
@@ -322,37 +322,33 @@
                                      右カラム col-lg-5 の中の縦並び表示には合わないため）。 --}}
                                 <dl class="row mb-0 small">
                                     <dt class="col-4 fw-normal text-muted">犬種</dt>
-                                    <dd class="col-8 mb-1">{{ $trainee->breed ?: '—' }}</dd>
+                                    <dd class="col-8 mb-1">{{ $trainee->breed }}</dd>
                                     <dt class="col-4 fw-normal text-muted">性別</dt>
-                                    <dd class="col-8 mb-1">{{ $trainee->sex_label ?: '—' }}</dd>
+                                    <dd class="col-8 mb-1">{{ $trainee->sex_label }}</dd>
                                     <dt class="col-4 fw-normal text-muted">誕生日</dt>
                                     <dd class="col-8 mb-1">
                                         @if($trainee->birth_date)
                                             {{ $trainee->birth_date->format('Y/m/d') }}（{{ $trainee->age }}歳）
-                                        @else
-                                            —
                                         @endif
                                     </dd>
                                     <dt class="col-4 fw-normal text-muted">備考</dt>
-                                    <dd class="col-8 mb-1" style="white-space: pre-wrap;">{{ $trainee->note ?: '—' }}</dd>
+                                    <dd class="col-8 mb-1" style="white-space: pre-wrap;">{{ $trainee->note }}</dd>
                                     {{-- 最終計測（設計書 S-0305 セクション3「最終計測」参照）。
                                          最新 1 件は Trainee::latest_measurement アクセサ経由で取り出し、
-                                         「Y/m/d（N.NNkg）」で表示。0 件は「—」。N+1 回避のため
-                                         ClientController::show で trainees.measurements を eager load 済み。 --}}
+                                         「Y/m/d（N.NNkg）」で表示。0 件は空欄（§2-4 参照）。
+                                         N+1 回避のため ClientController::show で trainees.measurements を eager load 済み。 --}}
                                     <dt class="col-4 fw-normal text-muted">最終計測</dt>
                                     {{-- 値と「計測を追加」ボタンを横並びで表示（設計書 S-0305
                                          セクション3「『計測を追加』ボタンの位置を最終計測の値の横に」参照）。
                                          当初はカード下部の独立した行に置いていたが、位置が中途半端で
                                          カードが縦に間延びしたため値の右横に移動した。flex-wrap を明示：
                                          狭いときはボタンが下に折り返す（今回は折り返しを防ぐ工夫は入れない）。
-                                         値が「—」（計測値 0 件）でもボタンは表示する
+                                         値が空欄（計測値 0 件）でもボタンは表示する
                                          （まだ計測がないトレーニーにこそ追加したいため）。 --}}
                                     <dd class="col-8 mb-0 d-flex flex-wrap align-items-center justify-content-between gap-2">
                                         <span>
                                             @if($trainee->latest_measurement)
                                                 {{ $trainee->latest_measurement->measured_date->format('Y/m/d') }}（{{ number_format((float) $trainee->latest_measurement->weight_kg, 2) }}kg）
-                                            @else
-                                                —
                                             @endif
                                         </span>
                                         <button type="button" class="btn btn-sm btn-outline-primary flex-shrink-0"
@@ -422,7 +418,7 @@
 
     {{-- 最終更新 --}}
     <div class="text-end text-muted small mb-3">
-        最終更新: {{ $client->updated_at->format('Y/m/d H:i') }} {{ $client->updatedBy?->name ?: '—' }}
+        最終更新: {{ $client->updated_at->format('Y/m/d H:i') }}@if($client->updatedBy?->name) {{ $client->updatedBy->name }}@endif
     </div>
 
     {{-- メールアドレス削除確認モーダル（S-0305-M02、段階 4-2）。

@@ -53,12 +53,12 @@
                 <tbody>
                     @foreach($recentRecords as $record)
                         <tr style="cursor: pointer;" onclick="location.href='{{ route('training-records.show', $record) }}'">
-                            <td>{{ $record->client->internal_id ?? '—' }}</td>
-                            <td>{{ $record->client->display_name ?? '—' }}</td>
+                            <td>{{ $record->client->internal_id ?? '' }}</td>
+                            <td>{{ $record->client->display_name ?? '' }}</td>
                             <td>{{ $record->client->trainees_label ?? '' }}</td>
                             <td>{{ $record->training_date->format('Y/m/d') }}</td>
-                            <td>{{ $record->trainer1->name ?? '—' }}</td>
-                            <td>{{ $record->trainer2->name ?? '—' }}</td>
+                            <td>{{ $record->trainer1->name ?? '' }}</td>
+                            <td>{{ $record->trainer2->name ?? '' }}</td>
                             <td>{{ $record->media_records_count }}</td>
                         </tr>
                     @endforeach

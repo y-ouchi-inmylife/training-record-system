@@ -71,7 +71,8 @@
                             <td>{{ $trainer->created_at?->format('Y/m/d') }}</td>
                             <td class="text-end">
                                 @if($trainer->isSystemAdmin())
-                                    <span class="text-muted">—</span>
+                                    {{-- システム管理者行の操作列は空欄（§2-4「未入力値の表示」参照）。
+                                         同じ行に他のセル（名前・権限など）に文字があるため行高は保たれる。 --}}
                                 @else
                                 <div class="d-flex gap-1 justify-content-end flex-wrap">
                                     {{-- 編集・PWリセット・ロック解除・無効化/有効化・削除（自分自身には非表示） --}}

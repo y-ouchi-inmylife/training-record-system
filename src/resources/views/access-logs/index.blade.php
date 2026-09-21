@@ -95,13 +95,11 @@
                     @forelse($logs as $log)
                         <tr>
                             <td>{{ $log->created_at->format('Y/m/d H:i:s') }}</td>
-                            <td>{{ $log->trainer?->name ?? '—' }}</td>
+                            <td>{{ $log->trainer?->name }}</td>
                             <td>{{ $log->action_label }}</td>
                             <td>
                                 @if($log->target_type && $log->target_id)
                                     {{ $log->target_label }} #{{ $log->target_id }}
-                                @else
-                                    —
                                 @endif
                             </td>
                             <td class="text-muted">{{ $log->ip_address }}</td>
