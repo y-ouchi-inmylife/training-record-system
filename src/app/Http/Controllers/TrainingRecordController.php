@@ -33,7 +33,10 @@ class TrainingRecordController extends Controller
             ]
         );
 
-        $query = TrainingRecord::with(['client', 'trainer1', 'trainer2'])
+        // client.trainees は S-0402 のトレーニー列の表示（Client::trainees_label アクセサ）で使う。
+        // paginate(20) の 20 行分をまとめて 1 クエリで取ることで N+1 を回避（設計書
+        // S-0402 設計方針「N+1 対策」参照）。
+        $query = TrainingRecord::with(['client.trainees', 'trainer1', 'trainer2'])
             ->withCount('mediaRecords');
 
         // 内部ID（部分一致）

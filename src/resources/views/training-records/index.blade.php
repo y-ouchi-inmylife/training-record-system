@@ -119,6 +119,9 @@
                             @endif
                         </a>
                     </th>
+                    {{-- トレーニー列（2026-09 追加、設計書 S-0402 設計方針参照）。
+                         複合値のためソート対象外。表示文字列は Client::trainees_label アクセサ（S-0304 で導入済み）を共用する。 --}}
+                    <th>トレーニー</th>
                     <th>
                         <a href="{{ route('training-records.index', array_merge(request()->query(), ['sort' => 'training_date', 'direction' => request('sort') === 'training_date' && request('direction', 'desc') === 'desc' ? 'asc' : 'desc'])) }}" class="text-decoration-none text-dark">
                             日付
@@ -137,6 +140,7 @@
                     <tr style="cursor: pointer;" onclick="location.href='{{ route('training-records.show', $record) }}'">
                         <td>{{ $record->client->internal_id ?? '—' }}</td>
                         <td>{{ $record->client->display_name ?? '—' }}</td>
+                        <td>{{ $record->client->trainees_label ?? '' }}</td>
                         <td>{{ $record->training_date->format('Y/m/d') }}</td>
                         <td>{{ $record->trainer1->name ?? '—' }}</td>
                         <td>{{ $record->trainer2->name ?? '—' }}</td>
@@ -144,7 +148,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="text-center text-muted py-4">該当するトレーニング記録がありません。</td>
+                        <td colspan="7" class="text-center text-muted py-4">該当するトレーニング記録がありません。</td>
                     </tr>
                 @endforelse
             </tbody>
