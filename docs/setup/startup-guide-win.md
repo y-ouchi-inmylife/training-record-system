@@ -51,7 +51,7 @@ docker run --name training-mysql `
 
 ### 3. JavaScript・CSSのビルド（初回および resources/ 変更時のみ）
 ```powershell
-cd ~\workspace\dev\training-record-system\src
+cd ~\workspace\dev\training-record-system-01\src
 npm install
 npm run build
 ```
@@ -60,7 +60,7 @@ npm run build
 
 ### 4. 開発サーバーを起動
 ```powershell
-cd ~\workspace\dev\training-record-system\src
+cd ~\workspace\dev\training-record-system-01\src
 php -S 127.0.0.1:8080 -t public
 ```
 
@@ -164,7 +164,7 @@ docker stop training-mysql
 
 ## 参考情報
 
-- **プロジェクトディレクトリ**: `C:\Users\y-ouchi\workspace\dev\training-record-system\src`
+- **プロジェクトディレクトリ**: `C:\Users\y-ouchi\workspace\dev\training-record-system-01\src`
 - **データベース名**: `training_record`
 - **データベースユーザー**: `laravel`
 - **データベースパスワード**: `laravel`
