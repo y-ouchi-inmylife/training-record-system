@@ -1067,6 +1067,7 @@ POST /training-records に以下を追加する。
 | role | string | ● | required, in:admin,staff | 権限 |
 
 **処理**:
+- システム管理者は編集できない
 - 自分自身は編集できない
 - 最後の管理者を一般に変更することはできない
 
