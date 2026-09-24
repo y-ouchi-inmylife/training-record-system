@@ -111,6 +111,11 @@ class TrainerController extends Controller
      */
     public function update(Request $request, Trainer $trainer): RedirectResponse
     {
+        if ($trainer->isSystemAdmin()) {
+            return redirect()->route('trainers.index')
+                ->with('error', 'システム管理者アカウントは編集できません。');
+        }
+
         // 自分自身は編集不可
         if ($trainer->id === auth()->id()) {
             return redirect()->route('trainers.index')
