@@ -1062,10 +1062,12 @@ POST /training-records に以下を追加する。
 
 | パラメータ | 型 | 必須 | バリデーション | 説明 |
 |-----------|-----|------|---------------|------|
+| login_id | string | ● | required, string, max:50, regex:`/^[a-zA-Z0-9_]+$/`, unique:trainers（自分自身は除く） | ログインID（半角英数字とアンダースコア） |
 | name | string | ● | required, string, max:100 | 氏名 |
 | role | string | ● | required, in:admin,staff | 権限 |
 
 **処理**:
+- 自分自身は編集できない
 - 最後の管理者を一般に変更することはできない
 
 **レスポンス**:
