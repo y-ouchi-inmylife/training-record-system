@@ -96,6 +96,12 @@ class TrainerController extends Controller
                 ->with('error', 'システム管理者アカウントは編集できません。');
         }
 
+        // 自分自身は編集不可
+        if ($trainer->id === auth()->id()) {
+            return redirect()->route('trainers.index')
+                ->with('error', '自分自身を編集することはできません。');
+        }
+
         return view('trainers.edit', compact('trainer'));
     }
 
@@ -104,6 +110,12 @@ class TrainerController extends Controller
      */
     public function update(Request $request, Trainer $trainer): RedirectResponse
     {
+        // 自分自身は編集不可
+        if ($trainer->id === auth()->id()) {
+            return redirect()->route('trainers.index')
+                ->with('error', '自分自身を編集することはできません。');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:100',
             'role' => 'required|in:admin,staff',
