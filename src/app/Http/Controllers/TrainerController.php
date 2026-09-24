@@ -10,6 +10,7 @@ use App\Rules\StrongPassword;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 /**
@@ -117,9 +118,20 @@ class TrainerController extends Controller
         }
 
         $validated = $request->validate([
+            'login_id' => [
+                'required',
+                'string',
+                'max:50',
+                'regex:/^[a-zA-Z0-9_]+$/',
+                Rule::unique('trainers', 'login_id')->ignore($trainer->id),
+            ],
             'name' => 'required|string|max:100',
             'role' => 'required|in:admin,staff',
         ], [
+            'login_id.required' => 'ログインIDは必須です。',
+            'login_id.unique' => 'このログインIDは既に使用されています。',
+            'login_id.regex' => 'ログインIDに使用できない文字が含まれています。',
+            'login_id.max' => 'ログインIDは50文字以内で入力してください。',
             'name.required' => '名前を入力してください。',
             'name.max' => '名前は100文字以内で入力してください。',
             'role.required' => '権限は必須です。',
@@ -136,6 +148,7 @@ class TrainerController extends Controller
         }
 
         $trainer->update([
+            'login_id' => $validated['login_id'],
             'name' => $validated['name'],
             'role' => $validated['role'],
         ]);

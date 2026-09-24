@@ -19,9 +19,17 @@
                 @method('PUT')
 
                 <div class="mb-3">
-                    <label class="form-label">ログインID</label>
-                    <input type="text" class="form-control" value="{{ $trainer->login_id }}" disabled
+                    <label for="login_id" class="form-label">
+                        ログインID <span class="text-danger">*</span>
+                        <span class="form-text">※半角英数字とアンダースコア(_)のみ</span>
+                    </label>
+                    <input type="text" name="login_id" id="login_id"
+                           class="form-control @error('login_id') is-invalid @enderror"
+                           value="{{ old('login_id', $trainer->login_id) }}" maxlength="50" required
                            style="max-width: 700px;">
+                    @error('login_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="mb-3">
