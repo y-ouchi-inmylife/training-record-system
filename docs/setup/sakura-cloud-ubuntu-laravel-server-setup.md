@@ -218,6 +218,20 @@ php -m
 - sakura-cloud-prod-01 の `php -m` には bcmath / curl / gd / intl / mbstring / mysqli / pdo_mysql / xml 系 / zip / Zend OPcache などが含まれる。新サーバーでも同じ構成になっていることを確認する。
 - PHP の `imagick` 拡張は使っていない（画像変換は ImageMagick のコマンドを直接呼ぶ方式）。
 
+#### アップロード上限（サーバー全体）
+
+PHP の初期値（2MB）では、スマホで撮った写真や音声が入らない。どのアプリにも画像・音声のアップロードがあるため、サーバー全体の上限として 25MB に引き上げる。
+
+```bash
+printf 'upload_max_filesize = 25M\npost_max_size = 25M\n' | sudo tee /etc/php/8.4/fpm/conf.d/99-upload.ini
+sudo systemctl restart php8.4-fpm
+```
+
+- この設定は PHP-FPM 全体に効くため、同じサーバーに載るすべてのアプリの上限になる。
+- アプリごとの上限は、nginx のサイト設定の `client_max_body_size` で決める（アプリ単位手順書）。nginx は PHP より手前で大きすぎるリクエストを断るため、アプリごとに 25MB 以下の値を設定できる。
+
+実績（sakura-cloud-prod-01）：`/etc/php/8.4/fpm/conf.d/99-upload.ini` で 25MB に設定済み。
+
 ### 2-3. MySQL 8
 
 ```bash
@@ -317,7 +331,7 @@ nginx / php8.4-fpm / mysql / supervisor が `running` であること。
 - [ ] 本番用 `.env` を作成する（コミットしない）
 - [ ] artisan は `sudo -u www-data php artisan …` で実行する（key:generate、migrate、キャッシュ生成）
 - [ ] `storage/`、`bootstrap/cache/` の権限を設定する
-- [ ] nginx のサイト設定を作成し、`sites-enabled` にリンクする
+- [ ] nginx のサイト設定を作成し、`sites-enabled` にリンクする（アプリごとのアップロード上限は `client_max_body_size` で決める）
 - [ ] DNS の A レコードをサーバーの IP に向ける
 - [ ] certbot でドメインの SSL 証明書を取得する
 - [ ] （キューを使うアプリのみ）supervisor にワーカー設定を追加する
