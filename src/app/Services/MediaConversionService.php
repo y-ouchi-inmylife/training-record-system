@@ -57,7 +57,7 @@ class MediaConversionService
             // 2. magick で heic→jpeg 変換
             //    -auto-orient: heic に多い EXIF orientation を表示用に焼き込む
             //    -quality: 画面表示用の標準品質
-            //    magick のパスは config 経由（Windows 開発ではフルパス必須、Linux 本番は 'magick' で PATH 解決）
+            //    magick のパスは config 経由（Windows 開発ではフルパス必須、Linux 本番は .env で /usr/bin/convert を指定）
             $magickPath = (string) config('media.magick_path', 'magick');
             $result = Process::timeout(300)->run([
                 $magickPath,
